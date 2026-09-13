@@ -3,42 +3,65 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, ThumbsUp, MessageSquarePlus, Heart, Check } from 'lucide-react';
 import FeedbackModal from './FeedbackModal';
+import { getFeedbacksByLetterId, incrementLetterLikes } from '@/lib/supabase/client-queries';
+import { Feedback } from '@/types';
 
 interface FeedbackWidgetProps {
   letterId: string;
   letterTitle: string;
+  initialLikes?: number;
 }
 
-interface StoredFeedback {
-  id: string;
-  readerName: string;
-  naturalness: 'natural' | 'awkward';
-  suggestion?: string;
-  comment: string;
-  createdAt: string;
-}
-
-export default function FeedbackWidget({ letterId, letterTitle }: FeedbackWidgetProps) {
+export default function FeedbackWidget({
+  letterId,
+  letterTitle,
+  initialLikes = 0
+}: FeedbackWidgetProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [likes, setLikes] = useState(12);
+  const [likes, setLikes] = useState(initialLikes);
   const [hasLiked, setHasLiked] = useState(false);
-  const [feedbacks, setFeedbacks] = useState<StoredFeedback[]>([]);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 로컬 스토리지에서 피드백 불러오기
-    const loadFeedbacks = () => {
-      const saved = localStorage.getItem(`feedbacks_${letterId}`);
-      if (saved) {
-        setFeedbacks(JSON.parse(saved));
+    let ignore = false;
+
+    async function fetchFeedbacks() {
+      try {
+        const data = await getFeedbacksByLetterId(letterId);
+        if (!ignore) {
+          setFeedbacks(data);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Failed to load feedbacks:', err);
+        if (!ignore) {
+          setIsLoading(false);
+        }
       }
+    }
+
+    fetchFeedbacks();
+
+    return () => {
+      ignore = true;
     };
-    loadFeedbacks();
   }, [letterId]);
 
-  const handleLike = () => {
+  const reloadFeedbacks = async () => {
+    try {
+      const data = await getFeedbacksByLetterId(letterId);
+      setFeedbacks(data);
+    } catch (err) {
+      console.error('Failed to reload feedbacks:', err);
+    }
+  };
+
+  const handleLike = async () => {
     if (!hasLiked) {
       setLikes((prev) => prev + 1);
       setHasLiked(true);
+      await incrementLetterLikes(letterId, likes);
     }
   };
 
@@ -78,8 +101,8 @@ export default function FeedbackWidget({ letterId, letterTitle }: FeedbackWidget
           </button>
         </div>
 
-        {/* 도착한 피드백 목록 (있을 경우) */}
-        {feedbacks.length > 0 && (
+        {/* 도착한 피드백 목록 */}
+        {!isLoading && feedbacks.length > 0 && (
           <div className="mt-5 pt-4 border-t border-[#EDE8E1]/80 space-y-2.5">
             <h4 className="text-[11px] font-bold text-[#718096] flex items-center gap-1">
               <Heart className="w-3 h-3 text-[#E07A5F] fill-current" />
@@ -117,10 +140,7 @@ export default function FeedbackWidget({ letterId, letterTitle }: FeedbackWidget
         letterTitle={letterTitle}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmitSuccess={() => {
-          const saved = localStorage.getItem(`feedbacks_${letterId}`);
-          if (saved) setFeedbacks(JSON.parse(saved));
-        }}
+        onSubmitSuccess={reloadFeedbacks}
       />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Send, Sparkles, CheckCircle2, ThumbsUp, Edit3 } from 'lucide-react';
+import { insertFeedback } from '@/lib/supabase/client-queries';
 
 interface FeedbackModalProps {
   letterId: string;
@@ -22,35 +23,40 @@ export default function FeedbackModal({
   const [readerName, setReaderName] = useState('');
   const [suggestion, setSuggestion] = useState('');
   const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // 로컬 스토리지에 피드백 저장
-    const newFeedback = {
-      id: Date.now().toString(),
-      letterId,
-      readerName: readerName.trim() || '匿名の読者さん',
-      naturalness,
-      suggestion: suggestion.trim(),
-      comment: comment.trim(),
-      createdAt: new Date().toLocaleDateString('ja-JP')
-    };
+    setIsSubmitting(true);
 
-    const saved = localStorage.getItem(`feedbacks_${letterId}`);
-    const feedbacks = saved ? JSON.parse(saved) : [];
-    feedbacks.unshift(newFeedback);
-    localStorage.setItem(`feedbacks_${letterId}`, JSON.stringify(feedbacks));
+    try {
+      const result = await insertFeedback({
+        letterId,
+        readerName: readerName.trim() || '匿名の読者さん',
+        naturalness,
+        suggestion: suggestion.trim() || undefined,
+        comment: comment.trim() || undefined
+      });
 
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
-      onSubmitSuccess();
-      onClose();
-    }, 1500);
+      if (result) {
+        setIsSubmitted(true);
+        setTimeout(() => {
+          setIsSubmitted(false);
+          onSubmitSuccess();
+          onClose();
+        }, 1500);
+      } else {
+        alert('피드백 저장 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      }
+    } catch (err) {
+      console.error('Submit feedback error:', err);
+      alert('피드백 저장 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -164,10 +170,11 @@ export default function FeedbackModal({
 
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 bg-[#E07A5F] hover:bg-[#D0694E] text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md shadow-[#E07A5F]/20 transition-all active:scale-98"
+                disabled={isSubmitting}
+                className="w-full py-2.5 px-4 bg-[#E07A5F] hover:bg-[#D0694E] disabled:opacity-50 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md shadow-[#E07A5F]/20 transition-all active:scale-98"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>アドバイスを送る</span>
+                <span>{isSubmitting ? '送信中...' : 'アドバイスを送る'}</span>
               </button>
             </form>
           </div>

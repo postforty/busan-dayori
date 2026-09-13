@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { lessonGraph } from '@/lib/ai/workflow';
-import { mockLessons } from '@/data/mockLessons';
+import { getDailyLessons } from '@/lib/supabase/queries';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,16 +16,18 @@ export async function POST(req: NextRequest) {
 
     // API 키 존재 여부 확인
     if (!process.env.GEMINI_API_KEY) {
-      // API 키가 없을 때는 mockLessons 중 관련 항목 또는 기본 레슨을 반환
-      const fallback = {
-        ...mockLessons[0],
-        id: `mock-${Date.now()}`,
-        themeTitle: `${topic} (데모 모드)`,
-      };
+      const dbLessons = await getDailyLessons();
+      const defaultLesson = dbLessons[0];
+      const fallback = defaultLesson ? {
+        ...defaultLesson,
+        id: `demo-${Date.now()}`,
+        themeTitle: `${topic} (데모 모드)`
+      } : null;
+
       return NextResponse.json({
         lesson: fallback,
         isFallback: true,
-        message: 'GEMINI_API_KEY가 설정되지 않아 데모 레슨을 제공합니다.',
+        message: 'GEMINI_API_KEY가 설정되지 않아 기본 레슨을 제공합니다.'
       });
     }
 
@@ -46,8 +48,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     console.error('Lesson Generation Error:', error);
-    // 예외 발생 시에도 사용자 경험을 위해 mockFallback 제공
-    const fallback = mockLessons[0];
+    const dbLessons = await getDailyLessons();
+    const fallback = dbLessons[0] || null;
+
     return NextResponse.json(
       {
         lesson: fallback,
