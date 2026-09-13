@@ -87,15 +87,14 @@ export async function insertQuestion(params: {
   return mapQuestion(data)
 }
 
-export async function incrementLetterLikes(letterId: string, currentLikes: number): Promise<boolean> {
+export async function incrementLetterLikes(letterId: string): Promise<boolean> {
   const supabase = createBrowserClient()
-  const { error } = await supabase
-    .from('letters')
-    .update({ likes: currentLikes + 1 })
-    .eq('id', letterId)
+  const { error } = await supabase.rpc('increment_letter_likes', {
+    target_letter_id: letterId,
+  })
 
   if (error) {
-    console.error('Failed to update likes:', error)
+    console.error('Failed to update likes via RPC:', error)
     return false
   }
 

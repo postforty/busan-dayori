@@ -61,7 +61,7 @@ export default function FeedbackWidget({
     if (!hasLiked) {
       setLikes((prev) => prev + 1);
       setHasLiked(true);
-      await incrementLetterLikes(letterId, likes);
+      await incrementLetterLikes(letterId);
     }
   };
 

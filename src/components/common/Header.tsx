@@ -4,33 +4,66 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Mail, Sparkles, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { signInWithGoogle, signOut, isAdmin as checkIsAdmin } from '@/lib/supabase/auth';
-import type { User } from '@supabase/supabase-js';
+import { signInWithGoogle, signOut } from '@/lib/supabase/auth';
+
+interface AuthUser {
+  id: string;
+  email?: string;
+  name?: string | null;
+}
 
 export default function Header() {
   const [showAboutModal, setShowAboutModal] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
-  useEffect(() => {
-    const supabase = createClient();
-
-    // 초기 유저 상태 로드
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      setIsAdmin(checkIsAdmin(user?.email));
+  const fetchAuthStatus = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+        setIsAdmin(data.isAdmin);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+      }
+    } catch {
+      setUser(null);
+      setIsAdmin(false);
+    } finally {
       setIsLoadingAuth(false);
-    });
+    }
+  };
 
-    // 인증 상태 변경 리스너
+  useEffect(() => {
+    // 1. URL 오류 파라미터 검사
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const authError = params.get('auth_error');
+      if (authError === 'unauthorized') {
+        alert('등록된 관리자 계정만 로그인할 수 있습니다.');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_error');
+        window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+      } else if (authError === 'admin_required') {
+        alert('관리자 권한이 필요한 페이지입니다.');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_error');
+        window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+      }
+    }
+
+    // 2. 초기 서버 인증 상태 로드
+    fetchAuthStatus();
+
+    // 3. Supabase 인증 변경 리스너
+    const supabase = createClient();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setIsAdmin(checkIsAdmin(currentUser?.email));
-      setIsLoadingAuth(false);
+    } = supabase.auth.onAuthStateChange(() => {
+      fetchAuthStatus();
     });
 
     return () => {
@@ -105,7 +138,7 @@ export default function Header() {
               <button
                 onClick={handleLogout}
                 className="relative p-2 rounded-full text-[#718096] hover:text-red-600 hover:bg-red-50 transition-all active:scale-95"
-                title={`로그아웃 (${user.user_metadata?.full_name || user.email})`}
+                title={`로그아웃 (${user.name || user.email})`}
                 aria-label="로그아웃"
               >
                 <LogOut className="w-4 h-4" />

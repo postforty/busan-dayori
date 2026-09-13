@@ -35,7 +35,35 @@ export async function updateSession(request: NextRequest) {
   })
 
   // IMPORTANT: getClaims validates and refreshes the user token if needed
-  await supabase.auth.getClaims()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const userEmail = claimsData?.claims?.email as string | undefined
+
+  // 관리자 전용 경로 가드
+  const pathname = request.nextUrl.pathname
+  const isAdminRoute =
+    pathname === '/letters/new' ||
+    (pathname.startsWith('/letters/') && pathname.endsWith('/edit'))
+
+  if (isAdminRoute) {
+    const adminEmailsStr = process.env.ADMIN_EMAILS || ''
+    const adminEmails = adminEmailsStr
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean)
+
+    const isUserAdmin = userEmail ? adminEmails.includes(userEmail.toLowerCase()) : false
+
+    if (!isUserAdmin) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      url.searchParams.set('auth_error', 'admin_required')
+      const redirectResponse = NextResponse.redirect(url)
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie)
+      })
+      return redirectResponse
+    }
+  }
 
   return supabaseResponse
 }

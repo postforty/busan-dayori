@@ -21,7 +21,6 @@ import {
   X,
   AlertTriangle
 } from 'lucide-react';
-import { getClientUser } from '@/lib/supabase/auth';
 
 interface LetterDetailViewProps {
   letter: Letter;
@@ -35,9 +34,14 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
-    getClientUser().then((res) => {
-      setIsAdmin(res.isAdmin);
-    });
+    fetch('/api/auth/me')
+      .then((res) => (res.ok ? res.json() : { isAdmin: false }))
+      .then((data) => {
+        setIsAdmin(!!data.isAdmin);
+      })
+      .catch(() => {
+        setIsAdmin(false);
+      });
   }, []);
 
   const handleConfirmDelete = async () => {

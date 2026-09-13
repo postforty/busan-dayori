@@ -254,7 +254,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_letter_likes: {
+        Args: {
+          target_letter_id: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
