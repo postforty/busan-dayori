@@ -1,16 +1,64 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Mail, Sparkles, Heart, HelpCircle, X } from 'lucide-react';
+import { Mail, Sparkles, Heart, X, PlusCircle, LogIn, LogOut, User as UserIcon, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { signInWithGoogle, signOut, isAdmin as checkIsAdmin } from '@/lib/supabase/auth';
+import type { User } from '@supabase/supabase-js';
 
 export default function Header() {
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // 초기 유저 상태 로드
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setIsAdmin(checkIsAdmin(user?.email));
+      setIsLoadingAuth(false);
+    });
+
+    // 인증 상태 변경 리스너
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      setIsAdmin(checkIsAdmin(currentUser?.email));
+      setIsLoadingAuth(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch {
+      alert('Google 로그인 요청에 실패했습니다.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      window.location.reload();
+    } catch {
+      alert('로그아웃에 실패했습니다.');
+    }
+  };
 
   return (
     <>
       <header className="sticky top-0 z-40 bg-[#FBF9F5]/90 backdrop-blur-md border-b border-[#EDE8E1] px-4 py-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-full bg-[#E07A5F]/10 flex items-center justify-center text-[#E07A5F] group-hover:bg-[#E07A5F] group-hover:text-white transition-colors">
               <Mail className="w-4 h-4" />
@@ -25,13 +73,67 @@ export default function Header() {
             </div>
           </Link>
 
-          <button
-            onClick={() => setShowAboutModal(true)}
-            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full bg-[#E2E8F0]/70 hover:bg-[#E2E8F0] text-[#4A5568] transition-all font-medium active:scale-95"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
-            <span>このサイトについて</span>
-          </button>
+          <div className="flex items-center gap-2">
+            {/* 관리자 전용 새 편지 쓰기 버튼 */}
+            {isAdmin && (
+              <Link
+                href="/letters/new"
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-marine-blue hover:bg-marine-navy text-white transition-all font-semibold shadow-xs active:scale-95"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">새 편지 쓰기</span>
+                <span className="sm:hidden">글쓰기</span>
+              </Link>
+            )}
+
+            {/* 인증 상태 영역 */}
+            {isLoadingAuth ? (
+              <div className="p-1.5 text-gray-400">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : user ? (
+              <div className="flex items-center gap-1.5">
+                <div
+                  className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-full bg-marine-mist/60 text-marine-ink font-medium max-w-[130px] truncate"
+                  title={user.email}
+                >
+                  <UserIcon className="w-3 h-3 text-marine-blue shrink-0" />
+                  <span className="truncate">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
+                  {isAdmin && (
+                    <span className="text-[9px] bg-marine-blue text-white px-1 rounded font-bold">
+                      Admin
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-1.5 rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
+                  title="로그아웃"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleLogin}
+                className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full bg-white border border-paper-sandstone/70 hover:bg-gray-50 text-marine-ink transition-all font-medium active:scale-95 shadow-2xs"
+                title="Google 로그인"
+              >
+                <LogIn className="w-3.5 h-3.5 text-marine-blue" />
+                <span>로그인</span>
+              </button>
+            )}
+
+            {/* 소개 버튼 */}
+            <button
+              onClick={() => setShowAboutModal(true)}
+              className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full bg-[#E2E8F0]/70 hover:bg-[#E2E8F0] text-[#4A5568] transition-all font-medium active:scale-95"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
+              <span className="hidden sm:inline">このサイトについて</span>
+              <span className="sm:hidden">案内</span>
+            </button>
+          </div>
         </div>
 
         {/* 오늘의 한마디 미니 배너 */}

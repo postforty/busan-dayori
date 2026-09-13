@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Letter } from '@/types';
 import Badge from '@/components/common/Badge';
@@ -14,8 +14,13 @@ import {
   ExternalLink,
   Copy,
   Check,
-  BookMarked
+  BookMarked,
+  Edit,
+  Trash2,
+  Loader2
 } from 'lucide-react';
+import { getClientUser } from '@/lib/supabase/auth';
+import { deleteLetter } from '@/lib/actions/letter-actions';
 
 interface LetterDetailViewProps {
   letter: Letter;
@@ -23,6 +28,26 @@ interface LetterDetailViewProps {
 
 export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [copied, setCopied] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    getClientUser().then((res) => {
+      setIsAdmin(res.isAdmin);
+    });
+  }, []);
+
+  const handleDelete = async () => {
+    if (confirm('이 편지를 정말 삭제하시겠습니까? 삭제된 글과 피드백은 복구할 수 없습니다.')) {
+      setIsDeleting(true);
+      try {
+        await deleteLetter(letter.id);
+      } catch (err: unknown) {
+        alert(err instanceof Error ? err.message : '편지 삭제에 실패했습니다.');
+        setIsDeleting(false);
+      }
+    }
+  };
 
   const handleCopyAddress = () => {
     if (letter.placeInfo?.address) {
@@ -59,13 +84,43 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
           <span>お便り一覧へ</span>
         </Link>
 
-        <button
-          onClick={handleShare}
-          className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-          title="共有する"
-        >
-          <Share2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* 관리자 전용 수정/삭제 버튼 */}
+          {isAdmin && (
+            <div className="flex items-center gap-1.5 mr-1 pr-2 border-r border-paper-sandstone/60">
+              <Link
+                href={`/letters/${letter.id}/edit`}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-marine-blue hover:text-white hover:bg-marine-blue rounded-lg border border-marine-blue/40 transition-colors"
+                title="편지 내용 수정"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                <span>수정</span>
+              </Link>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 hover:text-white hover:bg-red-600 rounded-lg border border-red-200 transition-colors disabled:opacity-50"
+                title="편지 삭제"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+                <span>삭제</span>
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={handleShare}
+            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+            title="共有する"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* 대표 이미지 */}
