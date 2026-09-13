@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Mail, Sparkles, Heart, X, PlusCircle, LogIn, LogOut, User as UserIcon, Loader2 } from 'lucide-react';
+import { Mail, Sparkles, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { signInWithGoogle, signOut, isAdmin as checkIsAdmin } from '@/lib/supabase/auth';
 import type { User } from '@supabase/supabase-js';
@@ -74,57 +74,7 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-2">
-            {/* 관리자 전용 새 편지 쓰기 버튼 */}
-            {isAdmin && (
-              <Link
-                href="/letters/new"
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-marine-blue hover:bg-marine-navy text-white transition-all font-semibold shadow-xs active:scale-95"
-              >
-                <PlusCircle className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">새 편지 쓰기</span>
-                <span className="sm:hidden">글쓰기</span>
-              </Link>
-            )}
-
-            {/* 인증 상태 영역 */}
-            {isLoadingAuth ? (
-              <div className="p-1.5 text-gray-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
-              </div>
-            ) : user ? (
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="flex items-center gap-1 text-[11px] px-2 py-1 rounded-full bg-marine-mist/60 text-marine-ink font-medium max-w-[130px] truncate"
-                  title={user.email}
-                >
-                  <UserIcon className="w-3 h-3 text-marine-blue shrink-0" />
-                  <span className="truncate">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
-                  {isAdmin && (
-                    <span className="text-[9px] bg-marine-blue text-white px-1 rounded font-bold">
-                      Admin
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-1.5 rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
-                  title="로그아웃"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={handleLogin}
-                className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full bg-white border border-paper-sandstone/70 hover:bg-gray-50 text-marine-ink transition-all font-medium active:scale-95 shadow-2xs"
-                title="Google 로그인"
-              >
-                <LogIn className="w-3.5 h-3.5 text-marine-blue" />
-                <span>로그인</span>
-              </button>
-            )}
-
-            {/* 소개 버튼 */}
+            {/* 1. 소개 버튼 */}
             <button
               onClick={() => setShowAboutModal(true)}
               className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full bg-[#E2E8F0]/70 hover:bg-[#E2E8F0] text-[#4A5568] transition-all font-medium active:scale-95"
@@ -133,6 +83,49 @@ export default function Header() {
               <span className="hidden sm:inline">このサイトについて</span>
               <span className="sm:hidden">案内</span>
             </button>
+
+            {/* 2. 관리자 전용 새 편지 쓰기 버튼 */}
+            {isAdmin && (
+              <Link
+                href="/letters/new"
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#E07A5F] hover:bg-[#C8654B] text-white transition-all font-bold shadow-sm hover:shadow active:scale-95 shrink-0"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">새 편지 쓰기</span>
+                <span className="sm:hidden">글쓰기</span>
+              </Link>
+            )}
+
+            {/* 3. 인증 상태 영역 (아이콘만 작게 표시) */}
+            {isLoadingAuth ? (
+              <div className="p-1.5 text-gray-400">
+                <Loader2 className="w-4 h-4 animate-spin" />
+              </div>
+            ) : user ? (
+              <button
+                onClick={handleLogout}
+                className="relative p-2 rounded-full text-[#718096] hover:text-red-600 hover:bg-red-50 transition-all active:scale-95"
+                title={`로그아웃 (${user.user_metadata?.full_name || user.email})`}
+                aria-label="로그아웃"
+              >
+                <LogOut className="w-4 h-4" />
+                {isAdmin && (
+                  <span
+                    className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#E07A5F] ring-2 ring-[#FBF9F5]"
+                    title="관리자 계정 로그인 됨"
+                  />
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleLogin}
+                className="p-2 rounded-full text-[#718096]/60 hover:text-[#E07A5F] hover:bg-[#FAF0E6] transition-all active:scale-95"
+                title="관리자 로그인"
+                aria-label="관리자 로그인"
+              >
+                <LogIn className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 

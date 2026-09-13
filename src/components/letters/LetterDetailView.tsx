@@ -87,26 +87,26 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
         <div className="flex items-center gap-2">
           {/* 관리자 전용 수정/삭제 버튼 */}
           {isAdmin && (
-            <div className="flex items-center gap-1.5 mr-1 pr-2 border-r border-paper-sandstone/60">
+            <div className="flex items-center gap-1.5 mr-1 pr-2 border-r border-[#EDE8E1]">
               <Link
                 href={`/letters/${letter.id}/edit`}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-marine-blue hover:text-white hover:bg-marine-blue rounded-lg border border-marine-blue/40 transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#E07A5F] bg-[#FAF0E6] hover:bg-[#F4DDD4] rounded-full border border-[#F4DDD4] transition-colors"
                 title="편지 내용 수정"
               >
-                <Edit className="w-3.5 h-3.5" />
+                <Edit className="w-3 h-3" />
                 <span>수정</span>
               </Link>
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 hover:text-white hover:bg-red-600 rounded-lg border border-red-200 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50/70 hover:bg-red-100/70 rounded-full border border-red-200 transition-colors disabled:opacity-50"
                 title="편지 삭제"
               >
                 {isDeleting ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <Loader2 className="w-3 h-3 animate-spin" />
                 ) : (
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-3 h-3" />
                 )}
                 <span>삭제</span>
               </button>
