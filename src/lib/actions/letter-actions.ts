@@ -1,7 +1,6 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getServerUser } from '@/lib/supabase/server-auth'
 import type { Category, SoloFriendly, SpicyLevel } from '@/types'
@@ -159,5 +158,5 @@ export async function deleteLetter(id: string) {
   revalidatePath('/')
   revalidatePath('/letters')
 
-  redirect('/')
+  return { success: true }
 }

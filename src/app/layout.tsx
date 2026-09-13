@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Suspense } from 'react';
 import Header from '@/components/common/Header';
 import BottomNav from '@/components/common/BottomNav';
+import GlobalToast from '@/components/common/GlobalToast';
 
 export const metadata: Metadata = {
   title: '釜山だより (Busan Dayori) | 日本語を勉強中の釜山っ子のリアル旅便り',
@@ -36,6 +38,9 @@ export default function RootLayout({
     <html lang="ja" className="h-full">
       <body className="min-h-full flex flex-col bg-[#FBF9F5] text-[#2D3748] antialiased selection:bg-[#E07A5F]/20 selection:text-[#E07A5F]">
         <div className="w-full max-w-xl mx-auto min-h-screen flex flex-col bg-white shadow-sm border-x border-[#EDE8E1]">
+          <Suspense fallback={null}>
+            <GlobalToast />
+          </Suspense>
           <Header />
           <main className="flex-1 pb-24">{children}</main>
           <BottomNav />

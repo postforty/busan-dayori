@@ -17,10 +17,11 @@ import {
   BookMarked,
   Edit,
   Trash2,
-  Loader2
+  Loader2,
+  X,
+  AlertTriangle
 } from 'lucide-react';
 import { getClientUser } from '@/lib/supabase/auth';
-import { deleteLetter } from '@/lib/actions/letter-actions';
 
 interface LetterDetailViewProps {
   letter: Letter;
@@ -29,7 +30,9 @@ interface LetterDetailViewProps {
 export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [copied, setCopied] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     getClientUser().then((res) => {
@@ -37,15 +40,27 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
     });
   }, []);
 
-  const handleDelete = async () => {
-    if (confirm('이 편지를 정말 삭제하시겠습니까? 삭제된 글과 피드백은 복구할 수 없습니다.')) {
-      setIsDeleting(true);
-      try {
-        await deleteLetter(letter.id);
-      } catch (err: unknown) {
-        alert(err instanceof Error ? err.message : '편지 삭제에 실패했습니다.');
-        setIsDeleting(false);
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const response = await fetch(`/api/letters/${encodeURIComponent(letter.id)}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || '편지 삭제에 실패했습니다.');
       }
+
+      // API 라우트는 현재 페이지의 RSC를 재검증하지 않으므로 404 없이 즉시 홈으로 이동합니다
+      window.location.replace('/?deleted=true');
+    } catch (err: unknown) {
+      console.error('편지 삭제 오류:', err);
+      setDeleteError(err instanceof Error ? err.message : '편지 삭제에 실패했습니다.');
+      setIsDeleting(false);
     }
   };
 
@@ -98,16 +113,11 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
               </Link>
               <button
                 type="button"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50/70 hover:bg-red-100/70 rounded-full border border-red-200 transition-colors disabled:opacity-50"
+                onClick={() => setShowDeleteModal(true)}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50/70 hover:bg-red-100/70 rounded-full border border-red-200 transition-colors"
                 title="편지 삭제"
               >
-                {isDeleting ? (
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                ) : (
-                  <Trash2 className="w-3 h-3" />
-                )}
+                <Trash2 className="w-3 h-3" />
                 <span>삭제</span>
               </button>
             </div>
@@ -268,6 +278,70 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
           initialLikes={letter.likes}
         />
       </div>
+
+      {/* 감성적인 삭제 확인 모달 */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-[#EDE8E1] relative animate-in zoom-in-95 duration-200">
+            {!isDeleting && (
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                title="닫기"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mx-auto">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+
+              <div className="text-center space-y-1">
+                <h3 className="text-base font-bold text-[#2D3748]">
+                  이 편지를 삭제하시겠습니까?
+                </h3>
+                <p className="text-xs text-[#718096] leading-relaxed">
+                  「<span className="font-semibold text-[#2D3748]">{letter.title}</span>」 편지와 독자 첨삭 피드백이 영구적으로 삭제되며 복구할 수 없습니다.
+                </p>
+              </div>
+
+                {deleteError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium text-center">
+                    {deleteError}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={() => setShowDeleteModal(false)}
+                    className="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={handleConfirmDelete}
+                    className="py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-red-500/20 active:scale-95 disabled:opacity-50"
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>삭제 중...</span>
+                      </>
+                    ) : (
+                      <span>삭제하기</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
