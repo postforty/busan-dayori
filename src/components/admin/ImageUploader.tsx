@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react'
 import Image from 'next/image'
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { resizeImageToWebP } from '@/utils/image'
 
 interface ImageUploaderProps {
   value: string
@@ -17,6 +18,7 @@ export default function ImageUploader({
   bucketName = 'letter-images',
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
+  const [uploadStatusText, setUploadStatusText] = useState<string>('')
   const [dragOver, setDragOver] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -29,17 +31,33 @@ export default function ImageUploader({
       return
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setErrorMsg('파일 크기는 최대 10MB까지 가능합니다.')
+    if (file.size > 15 * 1024 * 1024) {
+      setErrorMsg('원본 파일 크기는 최대 15MB까지 가능합니다.')
       return
     }
 
     setIsUploading(true)
     setErrorMsg(null)
+    setUploadStatusText('사진을 모바일 화면에 맞게 최적화(WebP)하는 중...')
 
     try {
+      // 1. 브라우저에서 이미지 리사이징 (최대 1200px) 및 WebP 포맷 변환
+      let uploadFile: File = file
+      try {
+        uploadFile = await resizeImageToWebP(file, {
+          maxWidth: 1200,
+          maxHeight: 1200,
+          quality: 0.82,
+        })
+      } catch (resizeErr) {
+        console.warn('이미지 WebP 리사이징 실패, 원본으로 업로드 시도:', resizeErr)
+      }
+
+      setUploadStatusText('최적화된 사진을 편지함에 안전하게 저장하고 있습니다...')
+
+      // 2. 파일명 생성 및 Supabase Storage 업로드
       const supabase = createClient()
-      const ext = file.name.split('.').pop() || 'jpg'
+      const ext = uploadFile.name.split('.').pop() || 'webp'
       const sanitizedBaseName = file.name
         .replace(/\.[^/.]+$/, '')
         .replace(/[^a-zA-Z0-9_-]/g, '_')
@@ -48,8 +66,9 @@ export default function ImageUploader({
 
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
-        .upload(filePath, file, {
-          cacheControl: '3600',
+        .upload(filePath, uploadFile, {
+          cacheControl: '31536000',
+          contentType: uploadFile.type || 'image/webp',
           upsert: false,
         })
 
@@ -68,6 +87,7 @@ export default function ImageUploader({
       setErrorMsg(message)
     } finally {
       setIsUploading(false)
+      setUploadStatusText('')
     }
   }
 
@@ -149,10 +169,13 @@ export default function ImageUploader({
           }`}
         >
           {isUploading ? (
-            <div className="flex flex-col items-center gap-2 text-[#E07A5F]">
+            <div className="flex flex-col items-center gap-2 text-[#E07A5F] py-2">
               <Loader2 className="w-7 h-7 animate-spin" />
-              <span className="text-xs font-medium text-[#2D3748]">
-                사진을 편지함에 안전하게 저장하고 있습니다...
+              <span className="text-xs font-medium text-[#2D3748] animate-pulse">
+                {uploadStatusText || '사진을 편지함에 안전하게 저장하고 있습니다...'}
+              </span>
+              <span className="text-[11px] text-[#718096]">
+                용량을 줄여 모바일에서도 빠르게 열리도록 준비 중입니다.
               </span>
             </div>
           ) : (
@@ -163,8 +186,10 @@ export default function ImageUploader({
               <p className="text-xs font-bold text-[#2D3748]">
                 클릭하여 사진을 선택하거나 이 곳으로 드래그해 놓으세요
               </p>
-              <p className="text-[11px] text-[#718096]">
-                JPG, PNG, WEBP 지원 (최대 10MB) &bull; Supabase Storage 자동 업로드
+              <p className="text-[11px] text-[#718096] flex items-center justify-center gap-1.5 flex-wrap">
+                <span>JPG, PNG, WEBP 지원 (최대 15MB)</span>
+                <span className="text-[#EDE8E1]">&bull;</span>
+                <span className="text-[#E07A5F] font-medium">모바일 최적화 WebP로 자동 압축 변환</span>
               </p>
             </div>
           )}
