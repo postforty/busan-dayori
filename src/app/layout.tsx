@@ -26,7 +26,17 @@ export const metadata: Metadata = {
     siteName: '釜山だより',
     locale: 'ja_JP',
     type: 'website'
-  }
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' }
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }
+    ]
+  },
+  manifest: '/manifest.webmanifest'
 };
 
 export default function RootLayout({
