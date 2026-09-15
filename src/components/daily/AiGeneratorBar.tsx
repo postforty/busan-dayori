@@ -75,10 +75,6 @@ export default function AiGeneratorBar({ onLessonGenerated }: AiGeneratorBarProp
             </p>
           </div>
         </div>
-
-        <span className="text-[9px] font-mono text-gray-400 border border-gray-200 px-1.5 py-0.5 rounded">
-          gemini-3.5-flash-lite
-        </span>
       </div>
 
       {/* 검색 및 입력 폼 */}

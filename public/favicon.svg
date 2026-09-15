@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <!-- 1. 원형 배경 (부드러운 살구색 및 은은한 테두리) -->
-  <circle cx="256" cy="256" r="236" fill="#FDF0EA" stroke="#F3DDD3" stroke-width="8" />
+  <!-- 1. 사각형 배경 (부드러운 살구색, 은은한 모서리 radius 적용, 외곽 테두리 없음) -->
+  <rect width="512" height="512" rx="64" fill="#FDF0EA" />
 
   <!-- 2. 중앙 Lucide Mail 편지 봉투 아이콘 -->
   <g transform="translate(130, 130) scale(10.5)">

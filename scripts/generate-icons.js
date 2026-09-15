@@ -43,30 +43,29 @@ const CONFIG = {
   // 메인 포인트 색상 (편지 봉투 외곽선 및 접힘선) - 따뜻한 테라코타 코랄
   brandCoral: '#E07A5F',
 
-  // 원형 배경 색상 (헤더 로고의 bg-[#E07A5F]/10 톤과 일치하는 부드러운 살구 크림색)
-  circleBg: '#FDF0EA',
+  // 사각형 배경 색상 (부드러운 살구 크림색)
+  bg: '#FDF0EA',
 
-  // 원형 테두리 색상 (경계면을 은은하게 구분해주는 소프트 피치 톤)
-  circleBorder: '#F3DDD3',
+  // 사각형 모서리 곡률 (512px 캔버스 기준 살짝 둥근 사각형: 12.5% 수준)
+  borderRadius: 64,
 
   // 앱 기본 테마 배경색 (iOS 홈 화면 추가 및 Maskable 아이콘의 여백 배경으로 사용)
-  // * 참고: iOS는 투명 배경을 지원하지 않아 검은색으로 처리하므로, 솔리드 배경을 채워야 합니다.
-  appThemeBg: '#FBF9F5',
+  appThemeBg: '#FDF0EA',
 
   // 기본 캔버스 해상도 (SVG 렌더링 기준)
   canvasSize: 512,
 };
 
 /**
- * 1. 투명 배경 원형 아이콘 SVG 생성 함수
+ * 1. 투명/라운드 배경 사각형 아이콘 SVG 생성 함수
  * 
- * @purpose 브라우저 파비콘(Favicon) 및 웹 앱 Any 아이콘에 사용
+ * @purpose 브라우저 파비콘(Favicon) 및 웹 앱 아이콘에 사용
  * @features
- * - 바깥 배경이 투명하여 브라우저 탭(다크/라이트 모드 무관)에 동그란 웜톤 엠블럼 형태로 깔끔하게 표시됨
- * - 헤더의 1:2 비율(32px 원 안에 16px 편지 아이콘)을 정밀하게 재현
+ * - 원형에서 모서리가 살짝 둥근 사각형(rx=64)으로 변경, 테두리(border) 외곽선 제거
+ * - 헤더의 1:2 비율(32px 박스 안에 16px 편지 아이콘)을 정밀하게 재현
  * - Lucide-react의 'Mail' 아이콘 벡터 패스(24x24 그리드)를 기반으로 작성
  */
-function getTransparentCircleSvg() {
+function getRoundedRectSvg() {
   const size = CONFIG.canvasSize; // 512px
 
   // 512px 캔버스에서 아이콘 크기 스케일 (헤더의 50% 비율에 최적화: 24 * 10.5 = 252px)
@@ -75,8 +74,8 @@ function getTransparentCircleSvg() {
   const offset = (size - iconPixelSize) / 2; // 중앙 정렬 오프셋
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <!-- 1. 원형 배경 (부드러운 살구색 및 은은한 테두리) -->
-  <circle cx="256" cy="256" r="236" fill="${CONFIG.circleBg}" stroke="${CONFIG.circleBorder}" stroke-width="8" />
+  <!-- 1. 사각형 배경 (부드러운 살구색, 은은한 모서리 radius 적용, 외곽 테두리 없음) -->
+  <rect width="${size}" height="${size}" rx="${CONFIG.borderRadius}" fill="${CONFIG.bg}" />
 
   <!-- 2. 중앙 Lucide Mail 편지 봉투 아이콘 -->
   <g transform="translate(${offset}, ${offset}) scale(${scale})">
@@ -93,10 +92,8 @@ function getTransparentCircleSvg() {
  * 
  * @purpose iOS Safari Apple Touch Icon 및 Android Adaptive Icon(Maskable)에 사용
  * @features
- * - [중요] iOS Safari 홈 화면에 바로가기 추가 시, PNG에 투명 채널이 있으면 검은색(Black)으로 채워지는 문제가 발생합니다.
- *   이를 방지하기 위해 전체 캔버스를 앱 테마 배경색(CONFIG.appThemeBg)으로 채웁니다.
- * - 모바일 OS에서 아이콘을 원형/모서리 둥근 사각형(Squircle)으로 자를 때 내용물이 잘리지 않도록
- *   안전 영역(Safe Zone, 중심부 80% 이내)에 맞춰 스케일을 소폭 축소(scale 9)하여 배치합니다.
+ * - iOS Safari 및 Android Maskable 규격에 맞춰 캔버스 전체를 배경색(CONFIG.bg)으로 채움
+ * - 안전 영역(Safe Zone, 중심부 80% 이내)에 맞춰 스케일 소폭 축소(scale 9)하여 배치
  */
 function getSolidBackgroundSvg() {
   const size = CONFIG.canvasSize; // 512px
@@ -107,13 +104,10 @@ function getSolidBackgroundSvg() {
   const offset = (size - iconPixelSize) / 2;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <!-- 1. 캔버스 전체를 채우는 앱 테마 배경 (iOS 투명 영역 검게 변하는 현상 방지) -->
-  <rect width="${size}" height="${size}" rx="0" fill="${CONFIG.appThemeBg}" />
+  <!-- 1. 캔버스 전체를 채우는 솔리드 배경 (외곽선 없음) -->
+  <rect width="${size}" height="${size}" fill="${CONFIG.bg}" />
 
-  <!-- 2. 중앙 살구색 원형 엠블럼 -->
-  <circle cx="256" cy="256" r="210" fill="${CONFIG.circleBg}" stroke="${CONFIG.circleBorder}" stroke-width="7" />
-
-  <!-- 3. 중앙 편지 봉투 심볼 -->
+  <!-- 2. 중앙 편지 봉투 심볼 -->
   <g transform="translate(${offset}, ${offset}) scale(${scale})">
     <rect width="20" height="16" x="2" y="4" rx="2" fill="none" stroke="${CONFIG.brandCoral}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" fill="none" stroke="${CONFIG.brandCoral}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -193,13 +187,13 @@ async function main() {
   }
 
   // 1단계: 마스터 SVG 템플릿 준비
-  const svgCircle = getTransparentCircleSvg();
+  const svgRoundedRect = getRoundedRectSvg();
   const svgSolid = getSolidBackgroundSvg();
-  const circleBuf = Buffer.from(svgCircle);
+  const rectBuf = Buffer.from(svgRoundedRect);
   const solidBuf = Buffer.from(svgSolid);
 
   // 2단계: 최신 모던 브라우저용 벡터 파비콘(SVG) 저장
-  fs.writeFileSync(path.join(publicDir, 'favicon.svg'), svgCircle);
+  fs.writeFileSync(path.join(publicDir, 'favicon.svg'), svgRoundedRect);
   console.log('  ✓ public/favicon.svg (벡터 파비콘 저장 완료)');
 
   // 3단계: Sharp를 통해 필요한 모든 해상도의 PNG 버퍼 비동기 래스터라이징
@@ -212,12 +206,12 @@ async function main() {
     png512,
     png512Maskable,
   ] = await Promise.all([
-    sharp(circleBuf).resize(16, 16).png().toBuffer(),           // 파비콘 소형
-    sharp(circleBuf).resize(32, 32).png().toBuffer(),           // 파비콘 표준
-    sharp(circleBuf).resize(48, 48).png().toBuffer(),           // 파비콘 고해상도
+    sharp(rectBuf).resize(16, 16).png().toBuffer(),             // 파비콘 소형
+    sharp(rectBuf).resize(32, 32).png().toBuffer(),             // 파비콘 표준
+    sharp(rectBuf).resize(48, 48).png().toBuffer(),             // 파비콘 고해상도
     sharp(solidBuf).resize(180, 180).png().toBuffer(),          // iOS Apple Touch Icon
-    sharp(circleBuf).resize(192, 192).png().toBuffer(),         // 안드로이드 홈 화면 바로가기
-    sharp(circleBuf).resize(512, 512).png().toBuffer(),         // PWA 스플래시 / 고해상도 앱 아이콘
+    sharp(rectBuf).resize(192, 192).png().toBuffer(),           // 안드로이드 홈 화면 바로가기
+    sharp(rectBuf).resize(512, 512).png().toBuffer(),           // PWA 스플래시 / 고해상도 앱 아이콘
     sharp(solidBuf).resize(512, 512).png().toBuffer(),          // 안드로이드 적응형 마스크 아이콘
   ]);
 
