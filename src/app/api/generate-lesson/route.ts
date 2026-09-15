@@ -18,10 +18,15 @@ export async function POST(req: NextRequest) {
     if (!process.env.GEMINI_API_KEY) {
       const dbLessons = await getDailyLessons();
       const defaultLesson = dbLessons[0];
+      const fallbackId = `demo-${Date.now()}`;
       const fallback = defaultLesson ? {
         ...defaultLesson,
-        id: `demo-${Date.now()}`,
-        themeTitle: `${topic} (데모 모드)`
+        id: fallbackId,
+        themeTitle: `${topic} (데모 모드)`,
+        vocabulary: defaultLesson.vocabulary.map((v, idx) => ({
+          ...v,
+          id: `${fallbackId}_v${idx + 1}`
+        }))
       } : null;
 
       return NextResponse.json({

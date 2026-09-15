@@ -8,11 +8,11 @@ import {
   Bookmark,
   BookmarkCheck,
   BookOpen,
+  BookMarked,
   Sparkles,
   MessageSquare,
   Info,
-  CheckCircle2,
-  Layers
+  CheckCircle2
 } from 'lucide-react';
 
 interface DailyLessonCardProps {
@@ -36,7 +36,14 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
       setTimeout(() => {
         if (saved) {
           const words: SavedWord[] = JSON.parse(saved);
-          setSavedWordIds(new Set(words.map((w) => w.id)));
+          const ids = new Set<string>();
+          words.forEach((w) => {
+            ids.add(w.id);
+            if (w.lessonId && w.kanji) {
+              ids.add(`${w.lessonId}_${w.kanji}`);
+            }
+          });
+          setSavedWordIds(ids);
         }
         setIsLessonCompleted(completed === 'true');
 
@@ -63,26 +70,40 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
     );
   };
 
+  // 어휘 항목의 고유 ID를 생성하는 헬퍼 (레슨별로 완벽히 격리)
+  const getVocabKey = (vocab: VocabItem, idx: number) => {
+    if (vocab.id && vocab.id.startsWith(`${lesson.id}_`)) {
+      return vocab.id;
+    }
+    return `${lesson.id}_${vocab.kanji || vocab.id || idx}`;
+  };
+
   // 단어 북마크 토글
-  const handleToggleWord = (vocab: VocabItem) => {
+  const handleToggleWord = (vocab: VocabItem, idx: number) => {
+    const vocabKey = getVocabKey(vocab, idx);
     try {
       const saved = localStorage.getItem('saved_words');
       let words: SavedWord[] = saved ? JSON.parse(saved) : [];
 
-      if (savedWordIds.has(vocab.id)) {
-        words = words.filter((w) => w.id !== vocab.id);
+      if (savedWordIds.has(vocabKey)) {
+        words = words.filter((w) => w.id !== vocabKey && !(w.lessonId === lesson.id && w.kanji === vocab.kanji));
         const nextSet = new Set(savedWordIds);
-        nextSet.delete(vocab.id);
+        nextSet.delete(vocabKey);
+        nextSet.delete(`${lesson.id}_${vocab.kanji}`);
         setSavedWordIds(nextSet);
       } else {
         const newWord: SavedWord = {
           ...vocab,
+          id: vocabKey,
           lessonId: lesson.id,
           savedAt: new Date().toISOString(),
           isMemorized: false,
         };
         words.push(newWord);
-        setSavedWordIds(new Set(savedWordIds).add(vocab.id));
+        const nextSet = new Set(savedWordIds);
+        nextSet.add(vocabKey);
+        nextSet.add(`${lesson.id}_${vocab.kanji}`);
+        setSavedWordIds(nextSet);
       }
 
       localStorage.setItem('saved_words', JSON.stringify(words));
@@ -326,23 +347,26 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
         <section className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#2D3748]">
-              <Layers className="w-4 h-4 text-blue-600" />
+              <BookMarked className="w-4 h-4 text-[#E07A5F]" />
               <span>함께 외울 필수 어휘 ({lesson.vocabulary.length})</span>
             </div>
             <span className="text-[10px] text-gray-400">북마크를 눌러 단어장에 추가</span>
           </div>
 
           <div className="grid grid-cols-1 gap-1.5">
-            {lesson.vocabulary.map((vocab) => {
-              const isSaved = savedWordIds.has(vocab.id);
+            {lesson.vocabulary.map((vocab, idx) => {
+              const vocabKey = getVocabKey(vocab, idx);
+              const isSaved =
+                savedWordIds.has(vocabKey) ||
+                savedWordIds.has(`${lesson.id}_${vocab.kanji}`);
               return (
                 <div
-                  key={vocab.id}
+                  key={vocabKey}
                   className="bg-white rounded-xl p-3 border border-[#EDE8E1] flex items-center justify-between gap-3 text-xs"
                 >
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => handlePlay(vocab.kanji, `vocab-${vocab.id}`)}
+                      onClick={() => handlePlay(vocab.kanji, `vocab-${vocabKey}`)}
                       className="p-1 text-gray-400 hover:text-gray-600"
                       title="단어 발음 듣기"
                     >
@@ -361,7 +385,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                   </div>
 
                   <button
-                    onClick={() => handleToggleWord(vocab)}
+                    onClick={() => handleToggleWord(vocab, idx)}
                     className={`p-1.5 rounded-lg border transition-all ${
                       isSaved
                         ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'

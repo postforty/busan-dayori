@@ -117,7 +117,14 @@ ${state.draftJson}`;
   try {
     const parsed = JSON.parse(cleaned);
     const validated = dailyLessonSchema.parse(parsed) as DailyLesson;
-    return { finalLesson: validated };
+    const finalWithUniqueIds: DailyLesson = {
+      ...validated,
+      vocabulary: validated.vocabulary.map((v, idx) => ({
+        ...v,
+        id: `${validated.id}_v${idx + 1}`
+      }))
+    };
+    return { finalLesson: finalWithUniqueIds };
   } catch {
     // JSON 파싱 실패 시 초안에서 재시도
     const rawCleaned = state.draftJson
@@ -127,7 +134,14 @@ ${state.draftJson}`;
       .trim();
     const fallbackParsed = JSON.parse(rawCleaned);
     const fallbackValidated = dailyLessonSchema.parse(fallbackParsed) as DailyLesson;
-    return { finalLesson: fallbackValidated };
+    const fallbackWithUniqueIds: DailyLesson = {
+      ...fallbackValidated,
+      vocabulary: fallbackValidated.vocabulary.map((v, idx) => ({
+        ...v,
+        id: `${fallbackValidated.id}_v${idx + 1}`
+      }))
+    };
+    return { finalLesson: fallbackWithUniqueIds };
   }
 }
 
