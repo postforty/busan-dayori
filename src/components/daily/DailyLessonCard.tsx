@@ -179,27 +179,30 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
   return (
     <div className="bg-white rounded-3xl border border-[#EDE8E1] card-shadow overflow-hidden transition-all">
       {/* 상단 헤더 뱃지 및 레슨 전체 보관 버튼 */}
-      <div className="bg-gradient-to-r from-[#FAF0E6] to-[#FFF9F2] px-5 py-3.5 border-b border-[#F4DDD4] flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
-            <Sparkles className="w-3 h-3 text-[#D97706]" />
-            <span>{lesson.seriesTitle}</span>
-          </span>
-          <span className="text-xs font-semibold text-gray-500">
-            Day {lesson.dayNumber}
-          </span>
+      <div className="bg-gradient-to-r from-[#FAF0E6] to-[#FFF9F2] px-4 py-3 border-b border-[#F4DDD4] flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {isAiGenerated ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0 shadow-xs">
+              <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
+              <span>AI 맞춤 일본어</span>
+            </span>
+          ) : (
+            <>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shrink-0">
+                <Sparkles className="w-3 h-3 text-[#D97706] shrink-0" />
+                <span>{lesson.seriesTitle}</span>
+              </span>
+              <span className="text-xs font-semibold text-gray-500 whitespace-nowrap shrink-0">
+                Day {lesson.dayNumber}
+              </span>
+            </>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {isAiGenerated && (
-            <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-              AI 맞춤 생성
-            </span>
-          )}
-
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleToggleLessonSave}
-            className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border active:scale-95 ${
+            className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
               isLessonSaved
                 ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
                 : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
@@ -207,9 +210,9 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
             title={isLessonSaved ? '보관함에서 제거' : '이 레슨 전체 보관하기'}
           >
             {isLessonSaved ? (
-              <BookmarkCheck className="w-3.5 h-3.5" />
+              <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
             ) : (
-              <Bookmark className="w-3.5 h-3.5" />
+              <Bookmark className="w-3.5 h-3.5 shrink-0" />
             )}
             <span>{isLessonSaved ? '보관됨' : '레슨 보관'}</span>
           </button>
