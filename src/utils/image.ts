@@ -130,3 +130,32 @@ function loadHtmlImage(file: File): Promise<HTMLImageElement> {
     img.src = objectUrl
   })
 }
+
+
+/**
+ * Supabase Storage public URL에서 버킷 내 상대 경로를 추출합니다.
+ * 지정된 버킷의 URL이 아니거나 외부 이미지인 경우 null을 반환합니다.
+ *
+ * @param url 이미지 전체 URL (예: https://.../storage/v1/object/public/letter-images/posts/123.webp)
+ * @param bucketName 버킷 이름 (기본값: 'letter-images')
+ * @returns 버킷 내 파일 상대 경로 (예: 'posts/123.webp') 또는 null
+ */
+export function extractStoragePath(
+  url: string | null | undefined,
+  bucketName: string = 'letter-images'
+): string | null {
+  if (!url || typeof url !== 'string') return null
+
+  const marker = `/storage/v1/object/public/${bucketName}/`
+  const markerIndex = url.indexOf(marker)
+
+  if (markerIndex === -1) {
+    return null
+  }
+
+  // 쿼리 스트링이나 해시가 있을 경우 제거
+  const pathWithQuery = url.slice(markerIndex + marker.length)
+  const cleanPath = pathWithQuery.split('?')[0].split('#')[0].trim()
+
+  return cleanPath || null
+}

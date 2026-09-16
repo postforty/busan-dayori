@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react'
 import Image from 'next/image'
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { resizeImageToWebP } from '@/utils/image'
+import { resizeImageToWebP, extractStoragePath } from '@/utils/image'
 
 interface ImageUploaderProps {
   value: string
@@ -23,6 +23,26 @@ export default function ImageUploader({
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // 이번 편집 세션에서 새로 업로드한 파일의 URL 추적 (저장 전 다시 교체 시 세션 임시 파일 정리용)
+  const sessionUploadedUrl = useRef<string | null>(null)
+
+  // 세션 내 임시 업로드 파일만 정리하는 헬퍼 (DB에 저장된 기존 이미지의 삭제는 서버 액션이 담당)
+  const cleanupSessionFile = async (urlToClean: string | null) => {
+    if (!urlToClean || !sessionUploadedUrl.current) return
+    // 세션에서 업로드한 파일이 아니면 건드리지 않음
+    if (urlToClean !== sessionUploadedUrl.current) return
+
+    const path = extractStoragePath(urlToClean, bucketName)
+    if (!path) return
+
+    try {
+      const supabase = createClient()
+      await supabase.storage.from(bucketName).remove([path])
+    } catch (err) {
+      console.warn('[ImageUploader] 세션 임시 파일 정리 실패:', err)
+    }
+  }
+
   const handleUpload = async (file: File) => {
     if (!file) return
 
@@ -35,6 +55,9 @@ export default function ImageUploader({
       setErrorMsg('원본 파일 크기는 최대 15MB까지 가능합니다.')
       return
     }
+
+    // 이번 세션에서 이전에 업로드한 임시 파일이 있으면 교체 전에 정리
+    const prevSessionUrl = sessionUploadedUrl.current
 
     setIsUploading(true)
     setErrorMsg(null)
@@ -80,7 +103,15 @@ export default function ImageUploader({
         .from(bucketName)
         .getPublicUrl(filePath)
 
-      onChange(publicUrlData.publicUrl)
+      const newUrl = publicUrlData.publicUrl
+
+      // 3. 이번 세션에서 이전에 업로드한 임시 파일만 정리 (DB 기존 이미지 삭제는 폼 저장 시 서버 액션에서 처리)
+      if (prevSessionUrl && prevSessionUrl !== newUrl) {
+        await cleanupSessionFile(prevSessionUrl)
+      }
+
+      sessionUploadedUrl.current = newUrl
+      onChange(newUrl)
     } catch (err: unknown) {
       console.error('Storage 업로드 오류:', err)
       const message = err instanceof Error ? err.message : '이미지 업로드에 실패했습니다.'
@@ -88,6 +119,9 @@ export default function ImageUploader({
     } finally {
       setIsUploading(false)
       setUploadStatusText('')
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
@@ -108,7 +142,13 @@ export default function ImageUploader({
     setDragOver(false)
   }
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
+    // 세션 내 임시 업로드 파일이면 즉시 Storage에서 삭제
+    if (sessionUploadedUrl.current) {
+      await cleanupSessionFile(sessionUploadedUrl.current)
+      sessionUploadedUrl.current = null
+    }
+    // DB 기존 이미지의 삭제는 폼 저장 시 서버 액션이 처리하므로 여기서는 상태만 비움
     onChange('')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
@@ -130,29 +170,56 @@ export default function ImageUploader({
       />
 
       {value ? (
-        <div className="relative group rounded-2xl overflow-hidden border border-[#EDE8E1] bg-[#FAF0E6]/30 aspect-video max-h-72 w-full shadow-xs">
-          <Image
-            src={value}
-            alt="업로드된 대표 이미지"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 600px"
-          />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-2xs">
+        <div className="space-y-2">
+          <div className="relative group rounded-2xl overflow-hidden border border-[#EDE8E1] bg-[#FAF0E6]/30 aspect-video max-h-72 w-full shadow-xs">
+            <Image
+              src={value}
+              alt="업로드된 대표 이미지"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 600px"
+            />
+            {/* 데스크톱 호버 액션 오버레이 (PC 마우스 지원) */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 sm:group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-3 backdrop-blur-2xs">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="px-3.5 py-1.5 bg-white text-[#2D3748] rounded-xl text-xs font-bold shadow-md hover:bg-gray-50 transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                사진 변경
+              </button>
+              <button
+                type="button"
+                onClick={handleRemove}
+                disabled={isUploading}
+                className="p-2 bg-red-600/90 hover:bg-red-600 text-white rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
+                title="사진 삭제"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* 모바일 전용 액션 버튼 바 (터치 기기에서 상시 노출되어 직관적 교체/삭제 가능) */}
+          <div className="flex sm:hidden items-center justify-between gap-2 px-1">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="px-3.5 py-1.5 bg-white text-[#2D3748] rounded-xl text-xs font-bold shadow-md hover:bg-gray-50 transition-transform hover:scale-105 active:scale-95"
+              disabled={isUploading}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-white border border-[#EDE8E1] rounded-xl text-xs font-bold text-[#2D3748] active:bg-gray-50 shadow-2xs disabled:opacity-50"
             >
-              사진 변경
+              <Upload className="w-3.5 h-3.5 text-[#E07A5F]" />
+              <span>사진 변경</span>
             </button>
             <button
               type="button"
               onClick={handleRemove}
-              className="p-2 bg-red-600/90 hover:bg-red-600 text-white rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95"
-              title="사진 삭제"
+              disabled={isUploading}
+              className="inline-flex items-center justify-center gap-1 py-2 px-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs font-bold active:bg-red-100 shadow-2xs disabled:opacity-50"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
+              <span>삭제</span>
             </button>
           </div>
         </div>
@@ -205,7 +272,20 @@ export default function ImageUploader({
         <input
           type="url"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            if (sessionUploadedUrl.current) {
+              const tempPath = extractStoragePath(sessionUploadedUrl.current, bucketName)
+              if (tempPath) {
+                const supabase = createClient()
+                supabase.storage
+                  .from(bucketName)
+                  .remove([tempPath])
+                  .catch((err) => console.warn('세션 임시 이미지 삭제 실패:', err))
+              }
+              sessionUploadedUrl.current = null
+            }
+            onChange(e.target.value)
+          }}
           placeholder="https://images.unsplash.com/..."
           className="w-full text-xs px-3.5 py-2.5 bg-white border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F] transition-all"
         />

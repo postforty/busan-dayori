@@ -168,7 +168,7 @@ export default function LetterEditorForm({
       }
 
       if (isEdit && initialData) {
-        await updateLetter(initialData.id, payload)
+        await updateLetter(initialData.id, payload, initialData.imageUrl)
         router.push(`/letters/${initialData.id}`)
       } else {
         const res = await createLetter(payload)

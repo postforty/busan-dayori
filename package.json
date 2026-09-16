@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "generate-icons": "node scripts/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js",
+    "clean-orphans": "node --env-file=.env.local scripts/clean-orphan-images.mjs",
+    "clean-orphans:execute": "node --env-file=.env.local scripts/clean-orphan-images.mjs --execute"
   },
   "dependencies": {
     "@langchain/core": "^1.2.9",

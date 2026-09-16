@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getServerUser } from '@/lib/supabase/server-auth'
+import { extractStoragePath } from '@/utils/image'
 import type { Category, SoloFriendly, SpicyLevel } from '@/types'
 import type { Database, Json } from '@/types/database.types'
 
@@ -81,14 +82,30 @@ export async function createLetter(data: LetterFormData) {
 
 /**
  * 편지 수정
+ * @param previousImageUrl 수정 전 원본 이미지 URL (폼에서 명시적으로 전달, 모바일 호환성 보장)
  */
-export async function updateLetter(id: string, data: Partial<LetterFormData>) {
+export async function updateLetter(
+  id: string,
+  data: Partial<LetterFormData>,
+  previousImageUrl?: string
+) {
   const { user, isAdmin } = await getServerUser()
   if (!user || !isAdmin) {
     throw new Error('글을 수정할 수 있는 관리자 권한이 없습니다.')
   }
 
   const supabase = await createClient()
+
+  // 1. 이미지가 변경되는 경우, 기존 image_url 조회 (성공적인 DB 업데이트 후 Storage 정리용)
+  let oldImageUrl: string | null = null
+  if (data.imageUrl !== undefined) {
+    const { data: existingLetter } = await supabase
+      .from('letters')
+      .select('image_url')
+      .eq('id', id)
+      .single()
+    oldImageUrl = existingLetter?.image_url || null
+  }
 
   const updatePayload: LetterUpdate = {
     updated_at: new Date().toISOString(),
@@ -120,6 +137,37 @@ export async function updateLetter(id: string, data: Partial<LetterFormData>) {
     throw new Error(`편지 수정 실패: ${error.message}`)
   }
 
+  // 2. DB 업데이트 성공 후, 기존 이미지가 교체되었다면 Storage에서 삭제
+  //    삭제 대상: (a) 폼에서 명시적으로 전달된 previousImageUrl, (b) DB에서 조회한 oldImageUrl
+  const newImageUrl = data.imageUrl?.trim() || ''
+  const urlsToDelete = new Set<string>()
+
+  // (a) 폼에서 전달된 원본 이미지 URL (모바일 호환 — 가장 신뢰할 수 있는 소스)
+  if (previousImageUrl && previousImageUrl !== newImageUrl) {
+    const path = extractStoragePath(previousImageUrl)
+    if (path) urlsToDelete.add(path)
+  }
+  // (b) DB에서 직접 조회한 기존 이미지 URL (추가 안전망)
+  if (oldImageUrl && oldImageUrl !== newImageUrl) {
+    const path = extractStoragePath(oldImageUrl)
+    if (path) urlsToDelete.add(path)
+  }
+
+  for (const storagePath of urlsToDelete) {
+    try {
+      const { error: removeError } = await supabase.storage
+        .from('letter-images')
+        .remove([storagePath])
+      if (removeError) {
+        console.warn(`[updateLetter] Storage 삭제 실패 (${storagePath}):`, removeError)
+      } else {
+        console.log(`[updateLetter] Storage 삭제 완료: ${storagePath}`)
+      }
+    } catch (storageErr) {
+      console.warn(`[updateLetter] Storage 삭제 예외 (${storagePath}):`, storageErr)
+    }
+  }
+
   revalidatePath('/')
   revalidatePath('/letters')
   revalidatePath(`/letters/${id}`)
@@ -138,16 +186,24 @@ export async function deleteLetter(id: string) {
 
   const supabase = await createClient()
 
-  // 1. feedbacks 삭제 (외래키 제약조건)
+  // 1. 삭제 전 기존 대표 이미지 URL 조회
+  const { data: targetLetter } = await supabase
+    .from('letters')
+    .select('image_url')
+    .eq('id', id)
+    .single()
+  const targetImageUrl = targetLetter?.image_url
+
+  // 2. feedbacks 삭제 (외래키 제약조건)
   await supabase.from('feedbacks').delete().eq('letter_id', id)
 
-  // 2. daily_lessons에서 related_letter_id 참조 해제
+  // 3. daily_lessons에서 related_letter_id 참조 해제
   await supabase
     .from('daily_lessons')
     .update({ related_letter_id: null })
     .eq('related_letter_id', id)
 
-  // 3. letters 삭제
+  // 4. letters 삭제
   const { error } = await supabase.from('letters').delete().eq('id', id)
 
   if (error) {
@@ -155,8 +211,26 @@ export async function deleteLetter(id: string) {
     throw new Error(`편지 삭제 실패: ${error.message}`)
   }
 
+  // 5. DB 삭제 성공 후, 연결되어 있던 Storage 이미지 삭제 (fire-and-forget)
+  if (targetImageUrl) {
+    const storagePath = extractStoragePath(targetImageUrl)
+    if (storagePath) {
+      try {
+        const { error: removeError } = await supabase.storage
+          .from('letter-images')
+          .remove([storagePath])
+        if (removeError) {
+          console.warn('삭제된 편지의 이미지 Storage 삭제 실패 (경고만 기록):', removeError)
+        }
+      } catch (storageErr) {
+        console.warn('삭제된 편지의 이미지 Storage 삭제 중 예외 발생:', storageErr)
+      }
+    }
+  }
+
   revalidatePath('/')
   revalidatePath('/letters')
 
   return { success: true }
 }
+
