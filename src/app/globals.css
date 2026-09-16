@@ -30,3 +30,12 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px -4px rgba(45, 55, 72, 0.08);
 }
+
+/* 스크롤바 숨김 (기능은 유지하고 스크롤바 막대만 숨김) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
