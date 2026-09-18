@@ -209,24 +209,18 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
               return (
                 <div key={idx} className="space-y-1.5 p-3 rounded-xl hover:bg-[#FBF9F5] transition-colors border border-transparent hover:border-[#EDE8E1]">
                   <div className="flex items-start justify-between gap-2">
-                    <p className={`text-sm leading-relaxed font-medium transition-all ${isPlaying ? 'text-[#1A202C]' : 'text-[#2D3748]'}`}>
+                    <p className={`text-sm leading-relaxed font-medium transition-colors ${isPlaying ? 'text-[#1A202C]' : 'text-[#2D3748]'}`}>
                       {isPlaying && activeBoundary && activeBoundary.idx === idx ? (
-                        (() => {
-                          const activeStart = activeBoundary.charIndex;
-                          const activeEnd = activeBoundary.charIndex + Math.max(1, activeBoundary.charLength);
-                          const before = paragraph.slice(0, activeStart);
-                          const active = paragraph.slice(activeStart, activeEnd);
-                          const after = paragraph.slice(activeEnd);
-                          return (
-                            <>
-                              {before}
-                              <span className="font-black text-[#E07A5F] bg-amber-100/90 px-0.5 rounded shadow-xs">
-                                {active}
-                              </span>
-                              {after}
-                            </>
-                          );
-                        })()
+                        paragraph.split('').map((ch, cIdx) => (
+                          <span
+                            key={cIdx}
+                            className={`transition-colors duration-100 ${
+                              cIdx === activeBoundary.charIndex ? 'text-[#E07A5F]' : ''
+                            }`}
+                          >
+                            {ch}
+                          </span>
+                        ))
                       ) : (
                         paragraph
                       )}
@@ -251,16 +245,8 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
                             setPlayingIdx(null);
                             setActiveBoundary(null);
                           },
-                          (charIndex, charLength) => {
-                            let length = charLength || 1;
-                            if (!charLength || charLength <= 1) {
-                              const slice = paragraph.slice(charIndex);
-                              const match = slice.match(/^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\w]+/u);
-                              if (match && match[0]) {
-                                length = Math.max(1, match[0].length);
-                              }
-                            }
-                            setActiveBoundary({ idx, charIndex, charLength: length });
+                          (charIndex) => {
+                            setActiveBoundary({ idx, charIndex, charLength: 1 });
                           }
                         );
                       }}

@@ -33,12 +33,7 @@ function renderRuby(
       (activeBoundary.id === playId || (playId === 'key' && activeBoundary.id.startsWith('key-')))
   );
 
-  const activeStart = isPlayingThis && activeBoundary ? activeBoundary.charIndex : -1;
-  const activeEnd =
-    isPlayingThis && activeBoundary
-      ? activeBoundary.charIndex + Math.max(1, activeBoundary.charLength)
-      : -1;
-
+  const activeCharIndex = isPlayingThis && activeBoundary ? activeBoundary.charIndex : -1;
   const segments = parseRubySegments(text);
   let currentOffset = 0;
 
@@ -47,27 +42,34 @@ function renderRuby(
       {segments.map((seg, i) => {
         const segText = seg.text;
         const segStart = currentOffset;
-        const segEnd = currentOffset + segText.length;
-        currentOffset = segEnd;
-
-        // 현재 세그먼트와 재생 중인 글자 범위가 겹치는지 확인
-        const isSegActive = isPlayingThis && segStart < activeEnd && segEnd > activeStart;
+        currentOffset += segText.length;
 
         if (seg.ruby) {
+          const isSegSpoken =
+            isPlayingThis &&
+            activeCharIndex >= segStart &&
+            activeCharIndex < segStart + segText.length;
+
           return (
-            <ruby
-              key={i}
-              className={`transition-colors duration-100 ${
-                isSegActive
-                  ? 'font-black text-[#E07A5F] bg-amber-100/90 rounded-xs'
-                  : 'text-[#2D3748]'
-              }`}
-            >
-              {seg.text}
+            <ruby key={i} className="transition-colors duration-100">
+              {seg.text.split('').map((ch, chIdx) => {
+                const charGlobalIdx = segStart + chIdx;
+                const isThisCharActive = isPlayingThis && charGlobalIdx === activeCharIndex;
+                return (
+                  <span
+                    key={chIdx}
+                    className={`transition-colors duration-100 ${
+                      isThisCharActive ? 'text-[#E07A5F]' : 'text-[#2D3748]'
+                    }`}
+                  >
+                    {ch}
+                  </span>
+                );
+              })}
               <rp>(</rp>
               <rt
-                className={`text-[10px] leading-none transition-colors ${
-                  isSegActive ? 'font-bold text-[#E07A5F]' : 'text-[#E07A5F] font-normal'
+                className={`text-[10px] leading-none transition-colors duration-100 ${
+                  isSegSpoken ? 'text-[#E07A5F]' : 'text-[#E07A5F]/70'
                 }`}
               >
                 {seg.ruby}
@@ -77,26 +79,24 @@ function renderRuby(
           );
         }
 
-        if (isSegActive) {
-          // 세그먼트 내에서 활성 구간을 slice로 분할 (글자 간격 벌어짐 방지)
-          const relStart = Math.max(0, activeStart - segStart);
-          const relEnd = Math.min(segText.length, activeEnd - segStart);
-          const before = segText.slice(0, relStart);
-          const active = segText.slice(relStart, relEnd);
-          const after = segText.slice(relEnd);
-
-          return (
-            <span key={i}>
-              {before}
-              <span className="font-black text-[#E07A5F] bg-amber-100/90 rounded-xs px-0.5 shadow-xs">
-                {active}
-              </span>
-              {after}
-            </span>
-          );
-        }
-
-        return <span key={i}>{segText}</span>;
+        return (
+          <span key={i}>
+            {segText.split('').map((ch, chIdx) => {
+              const charGlobalIdx = segStart + chIdx;
+              const isThisCharActive = isPlayingThis && charGlobalIdx === activeCharIndex;
+              return (
+                <span
+                  key={chIdx}
+                  className={`transition-colors duration-100 ${
+                    isThisCharActive ? 'text-[#E07A5F]' : 'text-[#2D3748]'
+                  }`}
+                >
+                  {ch}
+                </span>
+              );
+            })}
+          </span>
+        );
       })}
     </>
   );
@@ -179,16 +179,8 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
         setPlayingId(null);
         setActiveBoundary(null);
       },
-      (charIndex, charLength) => {
-        let length = charLength || 1;
-        if (!charLength || charLength <= 1) {
-          const slice = text.slice(charIndex);
-          const match = slice.match(/^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\w]+/u);
-          if (match && match[0]) {
-            length = Math.max(1, match[0].length);
-          }
-        }
-        setActiveBoundary({ id, charIndex, charLength: length });
+      (charIndex) => {
+        setActiveBoundary({ id, charIndex, charLength: 1 });
       }
     );
   };

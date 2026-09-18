@@ -19,18 +19,23 @@ function computeCharTimings(text: string, rate: number): CharTiming[] {
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    let baseMs = 130;
+    let baseMs = 120;
 
-    if ('ゃゅょぁぃぅぇぉャュョァィゥェォ'.includes(char)) {
-      baseMs = 35;
-    } else if ('っッー'.includes(char)) {
-      baseMs = 90;
+    // 한자는 보통 2~3음절(모라)을 차지함
+    if (/[\u4e00-\u9faf]/.test(char)) {
+      baseMs = 210;
+    } else if ('ゃゅょぁぃぅぇぉャュョァィゥェォ'.includes(char)) {
+      baseMs = 40; // 요음
+    } else if ('っッ'.includes(char)) {
+      baseMs = 90; // 촉음
+    } else if ('ー'.includes(char)) {
+      baseMs = 110; // 장음
     } else if ('、,'.includes(char)) {
-      baseMs = 260;
+      baseMs = 250; // 쉼표
     } else if ('。.!?！？'.includes(char)) {
-      baseMs = 360;
+      baseMs = 350; // 마침표
     } else if (char === ' ') {
-      baseMs = 80;
+      baseMs = 70; // 공백
     }
 
     const duration = Math.round(baseMs / speed);
@@ -77,7 +82,6 @@ export function speakJapanese(
   utterance.lang = 'ja-JP';
   utterance.rate = rate; // 0.65: 초저속, 0.8: 천천히, 0.95: 보통
 
-  let nativeBoundaryCount = 0;
   const timings = computeCharTimings(text, rate);
 
   const cleanup = () => {
@@ -87,37 +91,37 @@ export function speakJapanese(
     }
   };
 
+  let startTime = 0;
+
   utterance.onstart = () => {
     if (onStart) onStart();
 
     if (onBoundary) {
       onBoundary(0, 1);
+      startTime = performance.now();
 
-      const startTime = performance.now();
       activeTimer = setInterval(() => {
-        // 브라우저 네이티브 boundary 이벤트가 정상 수신 중이면 타이머 간섭 중지
-        if (nativeBoundaryCount >= 2) {
-          cleanup();
-          return;
-        }
-
         const elapsed = performance.now() - startTime;
         const current = timings.find((t) => elapsed >= t.startMs && elapsed < t.endMs);
         if (current) {
-          onBoundary(current.index, current.length);
+          onBoundary(current.index, 1);
         } else if (elapsed >= (timings[timings.length - 1]?.endMs || 0)) {
           onBoundary(text.length - 1, 1);
         }
-      }, 35);
+      }, 25);
     }
   };
 
+  // 브라우저 native boundary 발생 시 실제 음성 시간에 맞게 startTime 미세 보정
   if (onBoundary) {
     utterance.onboundary = (event) => {
-      if (event.charIndex > 0) {
-        nativeBoundaryCount++;
+      const charIndex = event.charIndex;
+      const matched = timings.find((t) => t.index === charIndex);
+      if (matched && startTime > 0) {
+        // 실제 경과 시간을 음성 엔진 위치로 동기화
+        startTime = performance.now() - matched.startMs;
+        onBoundary(charIndex, 1);
       }
-      onBoundary(event.charIndex, event.charLength || 1);
     };
   }
 
