@@ -38,6 +38,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showPronounce, setShowPronounce] = useState(true);
   const [playingIdx, setPlayingIdx] = useState<number | null>(null);
+  const [activeBoundary, setActiveBoundary] = useState<{ idx: number; charIndex: number; charLength: number } | null>(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -208,17 +209,59 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
               return (
                 <div key={idx} className="space-y-1.5 p-3 rounded-xl hover:bg-[#FBF9F5] transition-colors border border-transparent hover:border-[#EDE8E1]">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm text-[#2D3748] leading-relaxed font-medium">
-                      {paragraph}
+                    <p className={`text-sm leading-relaxed font-medium transition-all ${isPlaying ? 'text-[#1A202C]' : 'text-[#2D3748]'}`}>
+                      {isPlaying && activeBoundary && activeBoundary.idx === idx ? (
+                        (() => {
+                          const activeStart = activeBoundary.charIndex;
+                          const activeEnd = activeBoundary.charIndex + Math.max(1, activeBoundary.charLength);
+                          const before = paragraph.slice(0, activeStart);
+                          const active = paragraph.slice(activeStart, activeEnd);
+                          const after = paragraph.slice(activeEnd);
+                          return (
+                            <>
+                              {before}
+                              <span className="font-black text-[#E07A5F] bg-amber-100/90 px-0.5 rounded shadow-xs">
+                                {active}
+                              </span>
+                              {after}
+                            </>
+                          );
+                        })()
+                      ) : (
+                        paragraph
+                      )}
                     </p>
                     <button
                       onClick={() => {
+                        if (isPlaying) {
+                          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                            window.speechSynthesis.cancel();
+                          }
+                          setPlayingIdx(null);
+                          setActiveBoundary(null);
+                          return;
+                        }
                         setPlayingIdx(idx);
+                        setActiveBoundary({ idx, charIndex: 0, charLength: 1 });
                         speakJapanese(
                           paragraph,
                           0.9,
                           () => setPlayingIdx(idx),
-                          () => setPlayingIdx(null)
+                          () => {
+                            setPlayingIdx(null);
+                            setActiveBoundary(null);
+                          },
+                          (charIndex, charLength) => {
+                            let length = charLength || 1;
+                            if (!charLength || charLength <= 1) {
+                              const slice = paragraph.slice(charIndex);
+                              const match = slice.match(/^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\w]+/u);
+                              if (match && match[0]) {
+                                length = Math.max(1, match[0].length);
+                              }
+                            }
+                            setActiveBoundary({ idx, charIndex, charLength: length });
+                          }
                         );
                       }}
                       className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
