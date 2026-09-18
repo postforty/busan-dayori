@@ -229,7 +229,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           {isAiGenerated ? (
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-xs shrink-0">
               <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
-              <span>AI 맞춤</span>
+              <span>AIカスタム</span>
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shadow-xs shrink-0">
@@ -250,14 +250,14 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
               ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
               : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
           }`}
-          title={isLessonSaved ? '보관함에서 제거' : '이 레슨 전체 보관하기'}
+          title={isLessonSaved ? '保存解除' : 'レッスン保存'}
         >
           {isLessonSaved ? (
             <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
           ) : (
             <Bookmark className="w-3.5 h-3.5 shrink-0" />
           )}
-          <span>{isLessonSaved ? '보관됨' : '레슨 보관'}</span>
+          <span>{isLessonSaved ? '保存済み' : 'レッスン保存'}</span>
         </button>
       </div>
 
@@ -266,7 +266,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
         <div className="flex items-center gap-1.5 text-gray-600 text-xs">
           <Languages className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
           <span className="text-[11px] font-medium text-gray-600">
-            왕초보 한글 독음 & 루비
+            読み仮名 &amp; 発音ガイド
           </span>
         </div>
 
@@ -279,7 +279,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           }`}
         >
           <span className={`w-1.5 h-1.5 rounded-full ${showPronounce ? 'bg-white' : 'bg-gray-300'}`} />
-          <span>{showPronounce ? '발음 켜짐' : '발음 끔'}</span>
+          <span>{showPronounce ? '表示 ON' : '表示 OFF'}</span>
         </button>
       </div>
 
@@ -288,7 +288,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
         <section className="bg-[#FBF9F5] rounded-2xl p-5 border border-[#EDE8E1] relative">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-bold tracking-wider text-gray-400 uppercase">
-              오늘의 핵심 표현
+              今日のキーフレーズ
             </span>
             <div className="flex items-center gap-1.5">
               <button
@@ -371,7 +371,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
         <section className="space-y-2.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#2D3748]">
             <MessageSquare className="w-4 h-4 text-[#E07A5F]" />
-            <span>실전 대화 상황</span>
+            <span>実践カンバセーション</span>
           </div>
 
           <div className="space-y-2">
@@ -406,7 +406,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                         ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                         : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
                     }`}
-                    title="대화 음성 듣기"
+                    title="音声を聞く"
                   >
                     <Volume2 className="w-3.5 h-3.5" />
                   </button>
@@ -420,7 +420,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
         <section className="bg-white rounded-2xl p-4 border border-[#EDE8E1] space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#2D3748]">
             <BookOpen className="w-4 h-4 text-[#2E7D32]" />
-            <span>문법 포인트: {lesson.grammar.title}</span>
+            <span>文法ポイント: {lesson.grammar.title}</span>
           </div>
 
           <div className="bg-[#FBF9F5] p-2.5 rounded-xl border border-[#EDE8E1] text-xs font-mono text-gray-700">
@@ -433,7 +433,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
 
           {lesson.grammar.comparison && (
             <div className="text-[11px] text-gray-600 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-              <span className="font-bold text-gray-700 block mb-0.5">뉘앙스 비교:</span>
+              <span className="font-bold text-gray-700 block mb-0.5">ニュアンス比較:</span>
               {lesson.grammar.comparison}
             </div>
           )}
@@ -444,9 +444,9 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-[#2D3748]">
               <BookMarked className="w-4 h-4 text-[#E07A5F]" />
-              <span>함께 외울 필수 어휘 ({lesson.vocabulary.length})</span>
+              <span>関連単語・表現 ({lesson.vocabulary.length})</span>
             </div>
-            <span className="text-[10px] text-gray-400">북마크를 눌러 단어장에 추가</span>
+            <span className="text-[10px] text-gray-400">ブックマークで単語帳に追加</span>
           </div>
 
           <div className="grid grid-cols-1 gap-1.5">
@@ -464,7 +464,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                     <button
                       onClick={() => handlePlay(vocab.kanji, `vocab-${vocabKey}`)}
                       className="p-1 text-gray-400 hover:text-gray-600"
-                      title="단어 발음 듣기"
+                      title="発音を聞く"
                     >
                       <Volume2 className="w-3.5 h-3.5" />
                     </button>
@@ -492,7 +492,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                         ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                         : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
                     }`}
-                    title={isSaved ? '단어장에서 제거' : '단어장에 저장'}
+                    title={isSaved ? '単語帳から解除' : '単語帳に追加'}
                   >
                     {isSaved ? (
                       <BookmarkCheck className="w-3.5 h-3.5" />
@@ -510,7 +510,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
         <section className="bg-[#FAF0E6]/50 rounded-2xl p-4 border border-[#F4DDD4] flex items-start gap-2.5">
           <Info className="w-4 h-4 text-[#E07A5F] shrink-0 mt-0.5" />
           <div className="space-y-1 text-xs">
-            <h4 className="font-bold text-[#2D3748]">원어민 뉘앙스 팁</h4>
+            <h4 className="font-bold text-[#2D3748]">ニュアンス＆会話のヒント</h4>
             <p className="text-[#718096] leading-relaxed">
               {lesson.nuanceTip}
             </p>
@@ -528,7 +528,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>{isLessonCompleted ? '오늘의 학습 완료!' : '오늘의 학습 완료하기'}</span>
+            <span>{isLessonCompleted ? '今日の学習完了！' : '今日の学習を完了する'}</span>
           </button>
         </div>
       </div>

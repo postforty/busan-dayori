@@ -22,10 +22,10 @@ export default function AiGeneratorBar({ onLessonGenerated }: AiGeneratorBarProp
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const quickPresets = [
-    { label: '식당 세부 주문', icon: Utensils, query: '식당에서 양념이나 재료를 빼달라고 요청할 때' },
-    { label: '호텔 룸 요청', icon: Building, query: '호텔 체크인할 때 높은 층 전망 좋은 방으로 요청하기' },
-    { label: '길 묻기 및 방향', icon: Compass, query: '지하철역이나 특정 장소로 가는 길을 정중히 물어볼 때' },
-    { label: '자연스러운 리액션', icon: MessageSquare, query: '친구와의 대화에서 공감하거나 놀랄 때 쓰는 자연스러운 감탄사' },
+    { label: '釜山グルメのおすすめ', icon: Utensils, query: '日本の友達に釜山のローカルグルメやおすすめメニューを紹介するとき' },
+    { label: '辛さの気遣い・注文', icon: MessageSquare, query: '日本の友達に韓国料理が辛くないか聞いて配慮するとき' },
+    { label: '釜山の道案内', icon: Compass, query: '釜山に遊びに来た日本の友達に地下鉄や名所への行き方を案内するとき' },
+    { label: '友達へのリアクション', icon: Sparkles, query: '日本の友達と親しく話すときに使う自然な相槌や感嘆表現' },
   ];
 
   const handleGenerate = async (queryText?: string) => {
@@ -50,10 +50,10 @@ export default function AiGeneratorBar({ onLessonGenerated }: AiGeneratorBarProp
           setErrorMessage(data.message);
         }
       } else {
-        setErrorMessage(data.error || '레슨 생성에 실패했습니다.');
+        setErrorMessage(data.error || 'レ슨 생성에 실패했습니다.');
       }
     } catch {
-      setErrorMessage('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      setErrorMessage('ネットワークエラーが発生しました。もう一度お試しください。');
     } finally {
       setIsLoading(false);
     }
@@ -68,10 +68,10 @@ export default function AiGeneratorBar({ onLessonGenerated }: AiGeneratorBarProp
           </div>
           <div>
             <h3 className="text-xs font-bold text-[#2D3748]">
-              AI 맞춤 일본어 생성
+              AI 実践フレーズ生成
             </h3>
             <p className="text-[10px] text-gray-400">
-              배우고 싶은 상황을 입력하면 즉석에서 학습 카드를 만듭니다
+              日本の友達に釜山を紹介するときに必要な状況を入力してみてください
             </p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function AiGeneratorBar({ onLessonGenerated }: AiGeneratorBarProp
           type="text"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="예: 이자카야에서 점원에게 추천 술 물어보기..."
+          placeholder="例：テジクッパの食べ方を説明したい、釜山方言を教えたい..."
           disabled={isLoading}
           className="w-full pl-3.5 pr-24 py-2.5 bg-[#FBF9F5] border border-[#EDE8E1] rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F] disabled:opacity-50"
         />
@@ -102,12 +102,12 @@ export default function AiGeneratorBar({ onLessonGenerated }: AiGeneratorBarProp
           {isLoading ? (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>생성 중</span>
+              <span>生成中</span>
             </>
           ) : (
             <>
               <Search className="w-3.5 h-3.5" />
-              <span>생성</span>
+              <span>生成</span>
             </>
           )}
         </button>
@@ -123,7 +123,7 @@ export default function AiGeneratorBar({ onLessonGenerated }: AiGeneratorBarProp
       {/* 퀵 추천 칩 */}
       <div className="space-y-1.5">
         <span className="text-[10px] font-semibold text-gray-400 block">
-          자주 찾는 추천 상황:
+          よく使われるシチュエーション:
         </span>
         <div className="flex flex-wrap gap-1.5">
           {quickPresets.map((preset, idx) => {

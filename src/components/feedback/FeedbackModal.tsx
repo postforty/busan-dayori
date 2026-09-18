@@ -86,12 +86,12 @@ export default function FeedbackModal({
             <div className="flex items-center gap-2 text-[#E07A5F] mb-1">
               <Sparkles className="w-4 h-4" />
               <span className="text-xs font-bold uppercase tracking-wider">
-                日本語フィードバック
+                読者からのメッセージ・添削
               </span>
             </div>
 
             <h3 className="text-base font-bold text-[#2D3748] mb-1">
-              このお便りの日本語はどうでしたか？
+              お便りの感想や日本語のアドバイス
             </h3>
             <p className="text-[11px] text-[#718096] mb-4">
               対象記事：「{letterTitle}」
@@ -174,7 +174,7 @@ export default function FeedbackModal({
                 className="w-full py-2.5 px-4 bg-[#E07A5F] hover:bg-[#D0694E] disabled:opacity-50 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md shadow-[#E07A5F]/20 transition-all active:scale-98"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>{isSubmitting ? '送信中...' : 'アドバイスを送る'}</span>
+                <span>{isSubmitting ? '送信中...' : 'メッセージ・感想を送る'}</span>
               </button>
             </form>
           </div>

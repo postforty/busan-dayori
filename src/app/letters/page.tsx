@@ -4,8 +4,8 @@ import LettersFeed from '@/components/letters/LettersFeed';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: '로컬 편지 아카이브 | 釜山だより',
-  description: '부산 토박이가 전하는 생생한 맛집과 숨은 명소, 그리고 실전 일본어 표현 아카이브'
+  title: '釜山ローカル便り | 釜山だより',
+  description: '日本語を勉強中の釜山っ子が直接日本語で書いた、リアルな釜山ローカル旅のお便り。'
 };
 
 export default async function LettersPage() {

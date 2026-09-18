@@ -49,14 +49,14 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
       <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4]">
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[10px] font-bold text-[#E07A5F] mb-2.5 border border-[#F4DDD4] w-fit">
           <Sparkles className="w-3 h-3 text-[#D97706]" />
-          <span>현지인의 생생한 이야기 & 일본어 학습</span>
+          <span>釜山っ子のリアル旅便り</span>
         </div>
 
         <h1 className="text-lg font-black text-[#2D3748] tracking-tight leading-snug mb-1.5">
-          로컬 편지 아카이브
+          釜山ローカル便り
         </h1>
         <p className="text-xs text-[#718096] leading-relaxed">
-          부산 토박이가 직접 쓴 맛집, 카페, 골목길 이야기입니다. 본문의 한국어 번역 토글과 발음 듣기를 통해 자연스러운 문맥 속 일본어를 익혀보세요.
+          日本語を勉強中の釜山っ子が直接日本語で綴る、釜山のローカル物語です。美味しいお店や路地裏の日常を紹介しながら、日本の読者さんと仲良くなりたいです！
         </p>
       </section>
 
@@ -66,7 +66,7 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
           <div className="flex items-center gap-1.5">
             <Mail className="w-4 h-4 text-[#E07A5F]" />
             <h2 className="text-sm font-bold text-[#2D3748]">
-              전체 편지 ({filteredLetters.length}편)
+              すべてのお便り ({filteredLetters.length}通)
             </h2>
           </div>
 
@@ -80,7 +80,7 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
               }}
               className="text-[11px] text-[#E07A5F] hover:underline"
             >
-              초기화
+              リセット
             </button>
           )}
         </div>
@@ -92,7 +92,7 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="음식명, 지역(광안리, 해운대 등)으로 편지 검색..."
+            placeholder="料理名、エリア（広安里、海雲台など）で検索..."
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#EDE8E1] rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F] card-shadow"
           />
         </div>

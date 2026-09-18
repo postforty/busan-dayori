@@ -75,7 +75,7 @@ export default function FeedbackWidget({
           </h3>
         </div>
         <p className="text-xs text-[#718096] leading-relaxed mb-4">
-          最後まで読んでくださりありがとうございます！管理人は日本語を独学中の釜山っ子です。記事の日本語はどうでしたか？
+          最後まで読んでくださりありがとうございます！管理人は日本語を独学中の釜山っ子です。記事の日本語はどうでしたか？「ここをもっと自然に言うと？」「釜山について聞いてみたい！」など、気軽にメッセージを送って仲良くしてください！
         </p>
 
         {/* 액션 버튼 */}
@@ -97,7 +97,7 @@ export default function FeedbackWidget({
             className="flex-1 py-2.5 px-3 rounded-xl bg-[#E07A5F] hover:bg-[#D0694E] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95"
           >
             <MessageSquarePlus className="w-4 h-4" />
-            <span>添削・感想を送る</span>
+            <span>添削・メッセージを送る</span>
           </button>
         </div>
 

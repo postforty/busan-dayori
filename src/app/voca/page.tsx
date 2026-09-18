@@ -122,7 +122,7 @@ export default function VocaPage() {
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#E07A5F]">
             <Bookmark className="w-4 h-4" />
-            <span>나만의 일본어 보관함</span>
+            <span>釜山っ子の日本語ノート</span>
           </div>
 
           {mainView === 'words' && filteredWords.length > 0 && (
@@ -135,16 +135,16 @@ export default function VocaPage() {
               className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#E07A5F] hover:bg-[#D0694E] text-white rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm"
             >
               <RotateCw className="w-3.5 h-3.5" />
-              <span>{isFlashcardMode ? '목록으로 보기' : '플래시카드 암기'}</span>
+              <span>{isFlashcardMode ? '一覧で見る' : 'カードで復習'}</span>
             </button>
           )}
         </div>
 
         <h1 className="text-lg font-black text-[#2D3748] tracking-tight mb-1.5">
-          학습 보관소
+          手紙の単語帳 & 学習メモ
         </h1>
         <p className="text-xs text-[#718096] leading-relaxed">
-          스크랩한 필수 단어와 핵심 표현을 암기하고, 마음에 드는 AI 맞춤 레슨을 다시 꺼내보세요.
+          釜山の街を紹介するお便りを書きながら、一生懸命調べたり勉強した単語や表現たちです。
         </p>
       </section>
 
@@ -159,7 +159,7 @@ export default function VocaPage() {
           }`}
         >
           <BookOpen className="w-3.5 h-3.5 text-[#E07A5F]" />
-          <span>단어 & 표현 암기 ({words.length})</span>
+          <span>単語・表現ノート ({words.length})</span>
         </button>
 
         <button
@@ -171,7 +171,7 @@ export default function VocaPage() {
           }`}
         >
           <FolderArchive className="w-3.5 h-3.5 text-blue-600" />
-          <span>보관한 레슨 ({savedLessons.length})</span>
+          <span>保存したレッスン ({savedLessons.length})</span>
         </button>
       </div>
 
@@ -188,7 +188,7 @@ export default function VocaPage() {
                   : 'bg-white text-gray-500 border border-[#EDE8E1] hover:bg-gray-50'
               }`}
             >
-              전체 ({words.length})
+              すべて ({words.length})
             </button>
             <button
               onClick={() => setActiveWordFilter('learning')}
@@ -198,7 +198,7 @@ export default function VocaPage() {
                   : 'bg-white text-gray-500 border border-[#EDE8E1] hover:bg-gray-50'
               }`}
             >
-              학습 중 ({words.filter((w) => !w.isMemorized).length})
+              勉強中 ({words.filter((w) => !w.isMemorized).length})
             </button>
             <button
               onClick={() => setActiveWordFilter('memorized')}
@@ -208,7 +208,7 @@ export default function VocaPage() {
                   : 'bg-white text-gray-500 border border-[#EDE8E1] hover:bg-gray-50'
               }`}
             >
-              암기 완료 ({words.filter((w) => w.isMemorized).length})
+              覚えた！ ({words.filter((w) => w.isMemorized).length})
             </button>
           </div>
 
@@ -219,9 +219,9 @@ export default function VocaPage() {
                 <BookOpen className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-[#2D3748]">저장된 단어와 표현이 없습니다</h3>
+                <h3 className="text-sm font-bold text-[#2D3748]">まだ保存された単語がありません</h3>
                 <p className="text-xs text-gray-400">
-                  데일리 학습 카드에서 북마크 아이콘을 눌러 표현과 어휘를 스크랩해보세요.
+                  お便りやデイリーノートからブックマークした単語がここに並びます。
                 </p>
               </div>
             </div>
@@ -229,8 +229,8 @@ export default function VocaPage() {
             /* 플래시카드 암기 모드 */
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs text-gray-400 px-1">
-                <span>진행률: {flashcardIndex + 1} / {filteredWords.length}</span>
-                <span>카드를 터치하면 뒤집힙니다</span>
+                <span>進捗: {flashcardIndex + 1} / {filteredWords.length}</span>
+                <span>カードをタップすると裏返ります</span>
               </div>
 
               {currentFlashcard && (
@@ -245,7 +245,7 @@ export default function VocaPage() {
                     <button
                       onClick={(e) => handlePlay(e, currentFlashcard.kanji)}
                       className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
-                      title="발음 듣기"
+                      title="発音を聞く"
                     >
                       <Volume2 className="w-5 h-5" />
                     </button>
@@ -264,7 +264,7 @@ export default function VocaPage() {
                         [{getPronunciation(currentFlashcard.kanji, currentFlashcard.reading)}]
                       </p>
                       <p className="text-[11px] text-gray-400 pt-2">
-                        터치하여 뜻 확인하기
+                        タップして意味を確認
                       </p>
                     </div>
                   ) : (
@@ -288,38 +288,42 @@ export default function VocaPage() {
                         e.stopPropagation();
                         handleToggleMemorized(currentFlashcard.id);
                       }}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+                      className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
                         currentFlashcard.isMemorized
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
                       }`}
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{currentFlashcard.isMemorized ? '외웠어요' : '아직 외우는 중'}</span>
+                      <span>{currentFlashcard.isMemorized ? '覚えた！' : '勉強中'}</span>
                     </button>
 
-                    <div className="flex gap-1.5">
+                    <div className="flex items-center gap-2">
                       <button
-                        disabled={flashcardIndex === 0}
                         onClick={(e) => {
                           e.stopPropagation();
-                          setIsFlipped(false);
-                          setFlashcardIndex((prev) => Math.max(0, prev - 1));
+                          if (flashcardIndex > 0) {
+                            setFlashcardIndex(flashcardIndex - 1);
+                            setIsFlipped(false);
+                          }
                         }}
-                        className="px-3 py-1.5 bg-gray-50 disabled:opacity-30 rounded-xl text-xs border border-gray-200 font-medium"
+                        disabled={flashcardIndex === 0}
+                        className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-30 rounded-xl text-xs font-bold text-gray-600 transition-all"
                       >
-                        이전
+                        前へ
                       </button>
                       <button
-                        disabled={flashcardIndex === filteredWords.length - 1}
                         onClick={(e) => {
                           e.stopPropagation();
-                          setIsFlipped(false);
-                          setFlashcardIndex((prev) => Math.min(filteredWords.length - 1, prev + 1));
+                          if (flashcardIndex < filteredWords.length - 1) {
+                            setFlashcardIndex(flashcardIndex + 1);
+                            setIsFlipped(false);
+                          }
                         }}
-                        className="px-3 py-1.5 bg-[#2D3748] disabled:opacity-30 text-white rounded-xl text-xs font-bold"
+                        disabled={flashcardIndex === filteredWords.length - 1}
+                        className="px-3 py-1.5 bg-[#2D3748] hover:bg-black disabled:opacity-30 rounded-xl text-xs font-bold text-white transition-all"
                       >
-                        다음
+                        次へ
                       </button>
                     </div>
                   </div>
@@ -327,26 +331,30 @@ export default function VocaPage() {
               )}
             </div>
           ) : (
-            /* 일반 리스트 뷰 */
+            /* 리스트 모드 */
             <div className="space-y-2">
               {filteredWords.map((word) => (
                 <div
                   key={word.id}
-                  className="bg-white rounded-2xl p-4 border border-[#EDE8E1] card-shadow flex items-center justify-between gap-3 text-xs"
+                  className="p-3.5 bg-white rounded-2xl border border-[#EDE8E1] card-shadow flex items-center justify-between gap-3 transition-all hover:border-[#E07A5F]/30"
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-3">
                     <button
-                      onClick={(e) => handlePlay(e, word.kanji)}
-                      className="p-2 rounded-xl bg-[#FBF9F5] border border-[#EDE8E1] text-gray-500 hover:text-[#E07A5F]"
-                      title="발음 듣기"
+                      onClick={(e) => handlePlay(e, word.kanji, word.id)}
+                      className={`p-2 rounded-xl border transition-colors ${
+                        playingId === word.id
+                          ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                          : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                      }`}
+                      title="発音を聞く"
                     >
                       <Volume2 className="w-4 h-4" />
                     </button>
 
                     <div>
-                      <div className="flex items-baseline gap-1.5 flex-wrap">
-                        <span className="text-sm font-bold text-[#2D3748]">{word.kanji}</span>
-                        <span className="text-[11px] text-gray-400 font-mono">({word.reading})</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-[#2D3748]">{word.kanji}</span>
+                        <span className="text-xs text-gray-400 font-mono">({word.reading})</span>
                         <span className="text-[11px] font-semibold text-[#E07A5F]">
                           [{getPronunciation(word.kanji, word.reading)}]
                         </span>
@@ -366,7 +374,7 @@ export default function VocaPage() {
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100'
                       }`}
-                      title={word.isMemorized ? '암기 완료' : '학습 중'}
+                      title={word.isMemorized ? '覚えた' : '勉強中'}
                     >
                       <CheckCircle2 className="w-4 h-4" />
                     </button>
@@ -374,7 +382,7 @@ export default function VocaPage() {
                     <button
                       onClick={() => handleDeleteWord(word.id)}
                       className="p-1.5 rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 transition-colors"
-                      title="삭제"
+                      title="削除"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -395,9 +403,9 @@ export default function VocaPage() {
                 <FolderArchive className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-[#2D3748]">보관된 레슨이 없습니다</h3>
+                <h3 className="text-sm font-bold text-[#2D3748]">保存されたレッスンがありません</h3>
                 <p className="text-xs text-gray-400">
-                  학습 카드 상단의 &apos;레슨 보관&apos; 버튼을 누르면 전체 학습 자료가 여기에 저장됩니다.
+                  デイリーノートの「レッスン保存」を押すと、ここに保存されます。
                 </p>
               </div>
             </div>
@@ -436,7 +444,7 @@ export default function VocaPage() {
                             ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                             : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                         }`}
-                        title="핵심 표현 발음 듣기"
+                        title="発音を聞く"
                       >
                         <Volume2 className="w-4 h-4" />
                       </button>
@@ -447,7 +455,7 @@ export default function VocaPage() {
                           handleDeleteLesson(lesson.id);
                         }}
                         className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-gray-100"
-                        title="보관함에서 삭제"
+                        title="保存を解除"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -465,10 +473,10 @@ export default function VocaPage() {
                       <div className="space-y-1.5 pt-3">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-gray-500 text-[10px] block">
-                            실전 대화 상황:
+                            会話シチュエーション:
                           </span>
                           <span className="text-[9px] text-gray-400">
-                            스피커를 눌러 원어민 발음 듣기
+                            スピーカーを押して発音を聞く
                           </span>
                         </div>
 

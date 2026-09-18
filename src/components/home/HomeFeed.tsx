@@ -58,7 +58,7 @@ export default function HomeFeed({ initialLessons }: HomeFeedProps) {
         <div className="relative z-10">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[10px] font-bold text-[#E07A5F] mb-2.5 border border-[#F4DDD4]">
             <Sparkles className="w-3 h-3 text-[#D97706]" />
-            <span>부산 토박이의 데일리 일본어 학습 & 로컬 편지</span>
+            <span>釜山っ子の日本語学習 & ローカル旅便り</span>
           </div>
 
           <h1 className="text-lg font-black text-[#2D3748] tracking-tight leading-snug mb-1.5">
@@ -66,7 +66,7 @@ export default function HomeFeed({ initialLessons }: HomeFeedProps) {
             まいにちの日本語ノート
           </h1>
           <p className="text-xs text-[#718096] leading-relaxed">
-            매일 실전 일본어 표현을 익히고, 부산의 숨은 로컬 이야기 속에서 자연스러운 일본어 문장을 확인해보세요.
+            日本の皆さんに釜山の魅力を伝え、友達になるために毎日日本語を勉強しています。私が勉強した表現と釜山のあたたかい物語をシェアします。
           </p>
         </div>
       </section>
@@ -80,7 +80,7 @@ export default function HomeFeed({ initialLessons }: HomeFeedProps) {
           <div className="flex items-center gap-1.5">
             <BookOpen className="w-4 h-4 text-[#E07A5F]" />
             <h2 className="text-sm font-bold text-[#2D3748]">
-              오늘의 일본어 레슨
+              今日の学習ノート (デイリーレッスン)
             </h2>
           </div>
 
@@ -118,7 +118,7 @@ export default function HomeFeed({ initialLessons }: HomeFeedProps) {
                 title={lesson.themeTitle}
               >
                 <FolderArchive className="w-2.5 h-2.5" />
-                <span>보관 {idx + 1}</span>
+                <span>保存 {idx + 1}</span>
               </button>
             ))}
           </div>

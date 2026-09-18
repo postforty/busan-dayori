@@ -170,13 +170,13 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
         <section className="bg-[#FAF0E6]/70 rounded-2xl p-4 border border-[#F4DDD4]">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#E07A5F] mb-1.5">
             <BookMarked className="w-4 h-4" />
-            <span>이 글에서 배운 일본어 노트 (学習ノート)</span>
+            <span>この記事の学習ノート (日本語メモ)</span>
           </div>
           <div className="text-xs space-y-1">
             <div className="font-bold text-[#2D3748]">
               『{letter.studyPoint.expression}』
               <span className="text-[11px] font-normal text-[#718096] ml-2">
-                (한국어 뜻：{letter.studyPoint.meaning})
+                (韓国語：{letter.studyPoint.meaning})
               </span>
             </div>
             <p className="text-[11px] text-[#4A5568] leading-relaxed">
@@ -188,7 +188,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
         {/* 본문 단락 */}
         <article className="space-y-4 bg-white p-5 rounded-2xl border border-[#EDE8E1] card-shadow">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-            <span className="text-xs font-bold text-[#2D3748]">편지 본문</span>
+            <span className="text-xs font-bold text-[#2D3748]">お便りの本文</span>
             <button
               onClick={() => setShowPronounce(!showPronounce)}
               className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border ${
@@ -198,7 +198,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
               }`}
             >
               <Languages className="w-3.5 h-3.5" />
-              <span>{showPronounce ? '발음 켜짐' : '발음 끔'}</span>
+              <span>{showPronounce ? '読み仮名 ON' : '読み仮名 OFF'}</span>
             </button>
           </div>
 
@@ -226,7 +226,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
                           ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                           : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
                       }`}
-                      title="문단 일본어 발음 듣기"
+                      title="段落の発音を聞く"
                     >
                       <Volume2 className="w-3.5 h-3.5" />
                     </button>
