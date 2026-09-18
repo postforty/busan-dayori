@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { SavedWord, DailyLesson } from '@/types';
 import { speakJapanese } from '@/utils/tts';
+import { getPronunciation } from '@/utils/japanesePronounce';
 import {
   Bookmark,
   Volume2,
@@ -259,7 +260,10 @@ export default function VocaPage() {
                       <h2 className="text-2xl font-black text-[#2D3748] tracking-tight leading-snug">
                         {currentFlashcard.kanji}
                       </h2>
-                      <p className="text-[11px] text-[#E07A5F] pt-2">
+                      <p className="text-xs font-bold text-[#E07A5F]">
+                        [{getPronunciation(currentFlashcard.kanji, currentFlashcard.reading)}]
+                      </p>
+                      <p className="text-[11px] text-gray-400 pt-2">
                         터치하여 뜻 확인하기
                       </p>
                     </div>
@@ -271,6 +275,9 @@ export default function VocaPage() {
                       </h2>
                       <p className="text-xs text-gray-400 font-mono">
                         {currentFlashcard.kanji} ({currentFlashcard.reading})
+                      </p>
+                      <p className="text-xs font-semibold text-gray-500">
+                        [{getPronunciation(currentFlashcard.kanji, currentFlashcard.reading)}]
                       </p>
                     </div>
                   )}
@@ -337,9 +344,12 @@ export default function VocaPage() {
                     </button>
 
                     <div>
-                      <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-1.5 flex-wrap">
                         <span className="text-sm font-bold text-[#2D3748]">{word.kanji}</span>
                         <span className="text-[11px] text-gray-400 font-mono">({word.reading})</span>
+                        <span className="text-[11px] font-semibold text-[#E07A5F]">
+                          [{getPronunciation(word.kanji, word.reading)}]
+                        </span>
                         <span className="text-[9px] text-gray-400 border border-gray-200 px-1 rounded">
                           {word.partOfSpeech}
                         </span>
@@ -476,6 +486,9 @@ export default function VocaPage() {
                                 </span>
                                 <p className="font-semibold text-gray-800 text-xs leading-relaxed">
                                   {line.japanese}
+                                </p>
+                                <p className="text-[11px] font-semibold text-[#E07A5F]">
+                                  [{getPronunciation(line.japanese)}]
                                 </p>
                                 <p className="text-[11px] text-gray-500">
                                   {line.korean}

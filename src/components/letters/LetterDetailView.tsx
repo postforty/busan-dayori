@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Letter } from '@/types';
 import Badge from '@/components/common/Badge';
 import FeedbackWidget from '@/components/feedback/FeedbackWidget';
+import { speakJapanese } from '@/utils/tts';
+import { getPronunciation } from '@/utils/japanesePronounce';
 import {
   ArrowLeft,
   Share2,
@@ -19,7 +21,9 @@ import {
   Trash2,
   Loader2,
   X,
-  AlertTriangle
+  AlertTriangle,
+  Languages,
+  Volume2
 } from 'lucide-react';
 
 interface LetterDetailViewProps {
@@ -32,6 +36,8 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showPronounce, setShowPronounce] = useState(true);
+  const [playingIdx, setPlayingIdx] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -96,11 +102,11 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
       {/* 상단 액션 바 */}
       <div className="sticky top-14 z-30 bg-[#FBF9F5]/90 backdrop-blur-md px-4 py-2.5 flex items-center justify-between border-b border-[#EDE8E1]">
         <Link
-          href="/"
+          href="/letters"
           className="inline-flex items-center gap-1 text-xs font-semibold text-[#4A5568] hover:text-[#E07A5F] py-1"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>お便り一覧へ</span>
+          <span>편지 목록으로 (お便り一覧)</span>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -130,7 +136,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
           <button
             onClick={handleShare}
             className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-            title="共有する"
+            title="공유하기"
           >
             <Share2 className="w-4 h-4" />
           </button>
@@ -164,13 +170,13 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
         <section className="bg-[#FAF0E6]/70 rounded-2xl p-4 border border-[#F4DDD4]">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#E07A5F] mb-1.5">
             <BookMarked className="w-4 h-4" />
-            <span>この記事で勉強した日本語ノート</span>
+            <span>이 글에서 배운 일본어 노트 (学習ノート)</span>
           </div>
           <div className="text-xs space-y-1">
             <div className="font-bold text-[#2D3748]">
               『{letter.studyPoint.expression}』
               <span className="text-[11px] font-normal text-[#718096] ml-2">
-                (韓国語：{letter.studyPoint.meaning})
+                (한국어 뜻：{letter.studyPoint.meaning})
               </span>
             </div>
             <p className="text-[11px] text-[#4A5568] leading-relaxed">
@@ -180,12 +186,61 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
         </section>
 
         {/* 본문 단락 */}
-        <article className="space-y-4 text-sm text-[#2D3748] leading-relaxed font-normal bg-white p-5 rounded-2xl border border-[#EDE8E1] card-shadow">
-          {letter.content.map((paragraph, idx) => (
-            <p key={idx} className="leading-loose">
-              {paragraph}
-            </p>
-          ))}
+        <article className="space-y-4 bg-white p-5 rounded-2xl border border-[#EDE8E1] card-shadow">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <span className="text-xs font-bold text-[#2D3748]">편지 본문</span>
+            <button
+              onClick={() => setShowPronounce(!showPronounce)}
+              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border ${
+                showPronounce
+                  ? 'bg-amber-50 text-[#D97706] border-amber-200'
+                  : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <Languages className="w-3.5 h-3.5" />
+              <span>{showPronounce ? '발음 켜짐' : '발음 끔'}</span>
+            </button>
+          </div>
+
+          <div className="space-y-4 pt-1">
+            {letter.content.map((paragraph, idx) => {
+              const isPlaying = playingIdx === idx;
+              return (
+                <div key={idx} className="space-y-1.5 p-3 rounded-xl hover:bg-[#FBF9F5] transition-colors border border-transparent hover:border-[#EDE8E1]">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm text-[#2D3748] leading-relaxed font-medium">
+                      {paragraph}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setPlayingIdx(idx);
+                        speakJapanese(
+                          paragraph,
+                          0.9,
+                          () => setPlayingIdx(idx),
+                          () => setPlayingIdx(null)
+                        );
+                      }}
+                      className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
+                        isPlaying
+                          ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                          : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
+                      }`}
+                      title="문단 일본어 발음 듣기"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {showPronounce && (
+                    <p className="text-xs font-semibold text-[#E07A5F] leading-normal">
+                      [{getPronunciation(paragraph)}]
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </article>
 
         {/* 장소 실전 인포박스 (맛집/장소인 경우) */}

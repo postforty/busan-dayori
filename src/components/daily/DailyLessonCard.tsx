@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { DailyLesson, VocabItem, SavedWord } from '@/types';
 import { speakJapanese } from '@/utils/tts';
+import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
 import {
   Volume2,
   Bookmark,
@@ -12,7 +13,8 @@ import {
   Sparkles,
   MessageSquare,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  Languages
 } from 'lucide-react';
 
 interface DailyLessonCardProps {
@@ -20,11 +22,54 @@ interface DailyLessonCardProps {
   isAiGenerated?: boolean;
 }
 
+function renderRuby(text: string) {
+  const segments = parseRubySegments(text);
+  return (
+    <>
+      {segments.map((seg, i) =>
+        seg.ruby ? (
+          <ruby key={i} className="text-[#2D3748]">
+            {seg.text}
+            <rp>(</rp>
+            <rt className="text-[10px] text-[#E07A5F] font-normal leading-none">{seg.ruby}</rt>
+            <rp>)</rp>
+          </ruby>
+        ) : (
+          <span key={i}>{seg.text}</span>
+        )
+      )}
+    </>
+  );
+}
+
 export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCardProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [savedWordIds, setSavedWordIds] = useState<Set<string>>(new Set());
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
+  const [showPronounce, setShowPronounce] = useState(true);
+
+  // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부, 발음 모드 로드
+  useEffect(() => {
+    try {
+      const savedPronounce = localStorage.getItem('beginner_pronounce_mode');
+      if (savedPronounce !== null) {
+        setShowPronounce(savedPronounce === 'true');
+      }
+    } catch {
+      // 무시
+    }
+  }, []);
+
+  const handleTogglePronounce = () => {
+    const nextState = !showPronounce;
+    setShowPronounce(nextState);
+    try {
+      localStorage.setItem('beginner_pronounce_mode', String(nextState));
+    } catch {
+      // 무시
+    }
+  };
 
   // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부 로드
   useEffect(() => {
@@ -178,45 +223,64 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
 
   return (
     <div className="bg-white rounded-3xl border border-[#EDE8E1] card-shadow overflow-hidden transition-all">
-      {/* 상단 헤더 뱃지 및 레슨 전체 보관 버튼 */}
+      {/* 1. 상단 헤더 뱃지 및 레슨 보관 버튼 */}
       <div className="bg-gradient-to-r from-[#FAF0E6] to-[#FFF9F2] px-4 py-3 border-b border-[#F4DDD4] flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-1.5 min-w-0">
           {isAiGenerated ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0 shadow-xs">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-xs shrink-0">
               <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
-              <span>AI 맞춤 일본어</span>
+              <span>AI 맞춤</span>
             </span>
           ) : (
-            <>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shrink-0">
-                <Sparkles className="w-3 h-3 text-[#D97706] shrink-0" />
-                <span>{lesson.seriesTitle}</span>
-              </span>
-              <span className="text-xs font-semibold text-gray-500 whitespace-nowrap shrink-0">
-                Day {lesson.dayNumber}
-              </span>
-            </>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shadow-xs shrink-0">
+              <Sparkles className="w-3 h-3 text-[#D97706] shrink-0" />
+              <span>Day {lesson.dayNumber}</span>
+            </span>
           )}
+
+          <span className="text-xs font-bold text-[#2D3748] truncate">
+            {lesson.seriesTitle}
+          </span>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={handleToggleLessonSave}
-            className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
-              isLessonSaved
-                ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-            }`}
-            title={isLessonSaved ? '보관함에서 제거' : '이 레슨 전체 보관하기'}
-          >
-            {isLessonSaved ? (
-              <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
-            ) : (
-              <Bookmark className="w-3.5 h-3.5 shrink-0" />
-            )}
-            <span>{isLessonSaved ? '보관됨' : '레슨 보관'}</span>
-          </button>
+        <button
+          onClick={handleToggleLessonSave}
+          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
+            isLessonSaved
+              ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
+              : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+          }`}
+          title={isLessonSaved ? '보관함에서 제거' : '이 레슨 전체 보관하기'}
+        >
+          {isLessonSaved ? (
+            <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
+          ) : (
+            <Bookmark className="w-3.5 h-3.5 shrink-0" />
+          )}
+          <span>{isLessonSaved ? '보관됨' : '레슨 보관'}</span>
+        </button>
+      </div>
+
+      {/* 2. 초보자 발음 가이드 모드 전용 툴바 (여유로운 독립 행으로 겹침 완벽 방지) */}
+      <div className="bg-[#FAF0E6]/40 px-4 py-2 border-b border-[#F4DDD4]/70 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-gray-600 text-xs">
+          <Languages className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+          <span className="text-[11px] font-medium text-gray-600">
+            왕초보 한글 독음 & 루비
+          </span>
         </div>
+
+        <button
+          onClick={handleTogglePronounce}
+          className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border active:scale-95 shrink-0 ${
+            showPronounce
+              ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-xs'
+              : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+          }`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${showPronounce ? 'bg-white' : 'bg-gray-300'}`} />
+          <span>{showPronounce ? '발음 켜짐' : '발음 끔'}</span>
+        </button>
       </div>
 
       <div className="p-5 space-y-6">
@@ -244,13 +308,24 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
               </button>
 
               <button
-                onClick={() => handlePlay(lesson.keyExpression.japanese, 'key-slow', 0.75)}
-                className={`px-2 py-1 rounded-lg border text-[10px] font-medium transition-all ${
+                onClick={() => handlePlay(lesson.keyExpression.japanese, 'key-slowest', 0.65)}
+                className={`px-1.5 py-1 rounded-lg border text-[10px] font-medium transition-all ${
+                  playingId === 'key-slowest'
+                    ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                    : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                }`}
+                title="초저속 따라하기 (0.65x)"
+              >
+                0.65x
+              </button>
+              <button
+                onClick={() => handlePlay(lesson.keyExpression.japanese, 'key-slow', 0.8)}
+                className={`px-1.5 py-1 rounded-lg border text-[10px] font-medium transition-all ${
                   playingId === 'key-slow'
                     ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                     : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                 }`}
-                title="천천히 듣기"
+                title="천천히 듣기 (0.8x)"
               >
                 0.8x
               </button>
@@ -268,13 +343,26 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
             </div>
           </div>
 
+          {/* 히라가나 읽기 */}
           <p className="text-[11px] text-gray-500 font-medium mb-1">
             {lesson.keyExpression.reading}
           </p>
-          <h2 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug mb-2">
-            {lesson.keyExpression.japanese}
+
+          {/* 일본어 표기 (루비 지원) */}
+          <h2 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug mb-1.5">
+            {renderRuby(lesson.keyExpression.japanese)}
           </h2>
-          <p className="text-sm font-bold text-[#E07A5F]">
+
+          {/* 한글 독음 (왕초보 지원) */}
+          {showPronounce && (
+            <div className="mb-2">
+              <span className="text-xs font-bold text-[#E07A5F] bg-[#FAF0E6] px-2 py-0.5 rounded-md border border-[#F4DDD4] inline-block">
+                [{getPronunciation(lesson.keyExpression.japanese, lesson.keyExpression.reading)}]
+              </span>
+            </div>
+          )}
+
+          <p className="text-sm font-bold text-[#2D3748]">
             {lesson.keyExpression.korean}
           </p>
         </section>
@@ -299,8 +387,13 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                       {line.speaker}
                     </span>
                     <p className="text-xs font-semibold text-[#2D3748] leading-relaxed">
-                      {line.japanese}
+                      {renderRuby(line.japanese)}
                     </p>
+                    {showPronounce && (
+                      <p className="text-[11px] font-semibold text-[#E07A5F] leading-normal">
+                        [{getPronunciation(line.japanese)}]
+                      </p>
+                    )}
                     <p className="text-[11px] text-gray-500 leading-normal">
                       {line.korean}
                     </p>
@@ -376,14 +469,19 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                       <Volume2 className="w-3.5 h-3.5" />
                     </button>
                     <div>
-                      <div className="flex items-baseline gap-1.5">
+                      <div className="flex items-baseline gap-1.5 flex-wrap">
                         <span className="font-bold text-[#2D3748]">{vocab.kanji}</span>
                         <span className="text-[10px] text-gray-400 font-mono">({vocab.reading})</span>
+                        {showPronounce && (
+                          <span className="text-[10px] font-semibold text-[#E07A5F]">
+                            [{getPronunciation(vocab.kanji, vocab.reading)}]
+                          </span>
+                        )}
                         <span className="text-[9px] text-gray-400 border border-gray-200 px-1 rounded">
                           {vocab.partOfSpeech}
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-600">{vocab.meaning}</p>
+                      <p className="text-[11px] text-gray-600 mt-0.5">{vocab.meaning}</p>
                     </div>
                   </div>
 
