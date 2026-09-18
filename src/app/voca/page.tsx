@@ -170,7 +170,7 @@ export default function VocaPage() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          <FolderArchive className="w-3.5 h-3.5 text-blue-600" />
+          <FolderArchive className="w-3.5 h-3.5 text-[#E07A5F]" />
           <span>保存したレッスン ({savedLessons.length})</span>
         </button>
       </div>
@@ -399,7 +399,7 @@ export default function VocaPage() {
         <div className="space-y-3">
           {savedLessons.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-[#EDE8E1] space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto text-blue-600">
+              <div className="w-12 h-12 rounded-2xl bg-[#FAF0E6] flex items-center justify-center mx-auto text-[#E07A5F]">
                 <FolderArchive className="w-6 h-6" />
               </div>
               <div className="space-y-1">
