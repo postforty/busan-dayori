@@ -12,7 +12,8 @@ import {
   Sparkles,
   FolderArchive,
   Compass,
-  ArrowRight
+  ArrowRight,
+  Baby
 } from 'lucide-react';
 
 interface HomeFeedProps {
@@ -129,13 +130,15 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
               href="/?lessonId=lesson-starter-1"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D97706] border border-amber-300 shadow-2xs hover:bg-amber-50 transition-all shrink-0"
             >
-              <span>🐥 Lv.0 고마워요! 배우기</span>
+              <Baby className="w-3.5 h-3.5 text-amber-600" />
+              <span>Lv.0 고마워요! 배우기</span>
             </Link>
             <Link
               href="/?lessonId=lesson-starter-2"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D97706] border border-amber-300 shadow-2xs hover:bg-amber-50 transition-all shrink-0"
             >
-              <span>🐥 Lv.0 이거 주세요! 배우기</span>
+              <Baby className="w-3.5 h-3.5 text-amber-600" />
+              <span>Lv.0 이거 주세요! 배우기</span>
             </Link>
           </div>
         </div>

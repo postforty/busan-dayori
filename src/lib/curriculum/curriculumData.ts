@@ -51,7 +51,7 @@ export const curriculumLevels: CurriculumLevel[] = [
             }
           ],
           grammar: {
-            title: '🐥 유치원 꿀팁: 이렇게 외쳐요!',
+            title: '유치원 꿀팁: 이렇게 외쳐요!',
             structure: 'ありがとう (친구에게) / ありがとうございます (어른에게)',
             explanation: '선물을 받거나 음식을 받을 때 환하게 웃으며 "아리가토-!"라고 외쳐보세요. 뒤에 "고자이마스"를 붙이면 어른에게도 백 점짜리 인사가 됩니다!'
           },
@@ -121,7 +121,7 @@ export const curriculumLevels: CurriculumLevel[] = [
             }
           ],
           grammar: {
-            title: '🐥 유치원 꿀팁: 손가락 마법 주문!',
+            title: '유치원 꿀팁: 손가락 마법 주문!',
             structure: '이름(또는 これ) + ください (쿠다사이)',
             explanation: '메뉴판을 손가락으로 콕 가리키면서 "코레 쿠다사이!"라고만 말하면 주문 끝! 다 먹고 나선 볼을 감싸며 "오이시이~"를 외쳐보세요.'
           },
@@ -191,7 +191,7 @@ export const curriculumLevels: CurriculumLevel[] = [
             }
           ],
           grammar: {
-            title: '🐥 유치원 꿀팁: 장소 물어보기',
+            title: '유치원 꿀팁: 장소 물어보기',
             structure: '장소 이름 + は どこですか？ (도코데스카?)',
             explanation: '가장 중요한 "토이레(화장실)!" 단어 뒤에 "와 도코데스카?"만 붙이면 됩니다. 너무 급할 땐 "토이레...?"하고 말끝만 올려도 다 알아듣습니다!'
           },
@@ -261,7 +261,7 @@ export const curriculumLevels: CurriculumLevel[] = [
             }
           ],
           grammar: {
-            title: '🐥 유치원 꿀팁: 만능 단어 다이죠-부',
+            title: '유치원 꿀팁: 만능 단어 다이죠-부',
             structure: 'だいじょうぶです (다이죠-부데스)',
             explanation: '다쳤을 때 "나 안 아파, 괜찮아!" 할 때도 쓰고, 편의점에서 "봉투 필요 없어요"라고 부드럽게 거절할 때 손을 가볍게 내저으며 쓰면 만사형통!'
           },
@@ -331,7 +331,7 @@ export const curriculumLevels: CurriculumLevel[] = [
             }
           ],
           grammar: {
-            title: '🐥 유치원 꿀팁: 가격 묻기',
+            title: '유치원 꿀팁: 가격 묻기',
             structure: '물건 + いくらですか？ (이쿠라데스카?)',
             explanation: '물건을 가리키며 "코레, 이쿠라데스카?"라고 묻기만 하면 점원이 계산기에 숫자를 찍어서 보여줄 거예요!'
           },

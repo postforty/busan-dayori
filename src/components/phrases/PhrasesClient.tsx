@@ -67,7 +67,7 @@ export default function PhrasesClient({ initialPhrases }: PhrasesClientProps) {
           指差し韓国語会話カード
         </h1>
         <p className="text-xs text-[#718096] leading-relaxed">
-          食堂やカフェで店員さんにスマホ画面を見せるだけで通じる便利なフレーズ集です。拡大ボタン（⛶）を押すと全画面表示になります。
+          食堂やカフェで店員さんにスマホ画面を見せるだけで通じる便利なフレーズ集です。拡大ボタンを押すと全画面表示になります。
         </p>
       </section>
 

@@ -9,12 +9,12 @@ import {
   BookOpen,
   ArrowRight,
   Baby,
-  GraduationCap,
-  Sparkle,
+  Sprout,
   Flame,
   Mail,
   Volume2,
-  CheckCircle
+  CheckCircle,
+  Target
 } from 'lucide-react';
 import { speakJapanese } from '@/utils/tts';
 
@@ -25,18 +25,19 @@ interface RoadmapViewProps {
 export default function RoadmapView({ levels }: RoadmapViewProps) {
   const [selectedLevelFilter, setSelectedLevelFilter] = useState<LessonLevel | 'all'>('all');
 
-  const getLevelIcon = (level: LessonLevel) => {
+  const getLevelIcon = (level: LessonLevel, inBadge: boolean = false) => {
+    const iconClass = inBadge ? 'w-3.5 h-3.5 text-white' : 'w-4 h-4';
     switch (level) {
       case 'starter':
-        return <span className="text-xl">🐥</span>;
+        return <Baby className={inBadge ? iconClass : 'w-4 h-4 text-amber-600'} />;
       case 'beginner':
-        return <span className="text-xl">🌱</span>;
+        return <Sprout className={inBadge ? iconClass : 'w-4 h-4 text-emerald-600'} />;
       case 'intermediate':
-        return <span className="text-xl">🌿</span>;
+        return <Sparkles className={inBadge ? iconClass : 'w-4 h-4 text-blue-600'} />;
       case 'advanced':
-        return <span className="text-xl">🌳</span>;
+        return <Flame className={inBadge ? iconClass : 'w-4 h-4 text-purple-600'} />;
       case 'master':
-        return <span className="text-xl">💌</span>;
+        return <Mail className={inBadge ? iconClass : 'w-4 h-4 text-[#E07A5F]'} />;
     }
   };
 
@@ -124,7 +125,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                     className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black text-white shadow-2xs"
                     style={{ backgroundColor: lvl.color }}
                   >
-                    {getLevelIcon(lvl.level)}
+                    {getLevelIcon(lvl.level, true)}
                     {lvl.badge}
                   </span>
                   <span className="text-[11px] font-medium text-[#718096]">
@@ -140,7 +141,8 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                 </p>
 
                 <div className="mt-2.5 inline-flex items-center gap-1.5 text-[10px] font-semibold text-[#718096] bg-white/70 px-2.5 py-1 rounded-lg border border-white/60">
-                  <span>🎯 대상:</span>
+                  <Target className="w-3 h-3 text-[#718096] shrink-0" />
+                  <span>대상:</span>
                   <span>{lvl.targetAudience}</span>
                 </div>
               </div>

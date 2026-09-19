@@ -14,7 +14,10 @@ import {
   MessageSquare,
   Info,
   CheckCircle2,
-  Languages
+  Languages,
+  Baby,
+  Sprout,
+  Flame
 } from 'lucide-react';
 
 interface DailyLessonCardProps {
@@ -302,23 +305,23 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
               <span>AIカスタム</span>
             </span>
           ) : lesson.level === 'starter' ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-[11px] font-black text-amber-800 border border-amber-300 whitespace-nowrap shadow-xs shrink-0">
-              <span>🐥</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-[11px] font-black text-amber-800 border border-amber-300 whitespace-nowrap shadow-xs shrink-0">
+              <Baby className="w-3.5 h-3.5 text-amber-700 shrink-0" />
               <span>Lv.0 유치원생</span>
             </span>
           ) : lesson.level === 'beginner' ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-[11px] font-black text-emerald-800 border border-emerald-300 whitespace-nowrap shadow-xs shrink-0">
-              <span>🌱</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-[11px] font-black text-emerald-800 border border-emerald-300 whitespace-nowrap shadow-xs shrink-0">
+              <Sprout className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
               <span>Lv.1 초급</span>
             </span>
           ) : lesson.level === 'intermediate' ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-[11px] font-black text-blue-800 border border-blue-300 whitespace-nowrap shadow-xs shrink-0">
-              <span>🌿</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-[11px] font-black text-blue-800 border border-blue-300 whitespace-nowrap shadow-xs shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-blue-700 shrink-0" />
               <span>Lv.2 중급</span>
             </span>
           ) : lesson.level === 'advanced' ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-100 text-[11px] font-black text-purple-800 border border-purple-300 whitespace-nowrap shadow-xs shrink-0">
-              <span>🌳</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-100 text-[11px] font-black text-purple-800 border border-purple-300 whitespace-nowrap shadow-xs shrink-0">
+              <Flame className="w-3.5 h-3.5 text-purple-700 shrink-0" />
               <span>Lv.3 실전</span>
             </span>
           ) : (
