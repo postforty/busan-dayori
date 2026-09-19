@@ -9,8 +9,9 @@ import {
   BookOpen,
   ArrowRight,
   Baby,
-  Sprout,
-  Flame,
+  Smile,
+  Glasses,
+  UserCheck,
   Mail,
   Volume2,
   CheckCircle,
@@ -31,11 +32,11 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
       case 'starter':
         return <Baby className={inBadge ? iconClass : 'w-4 h-4 text-amber-600'} />;
       case 'beginner':
-        return <Sprout className={inBadge ? iconClass : 'w-4 h-4 text-emerald-600'} />;
+        return <Smile className={inBadge ? iconClass : 'w-4 h-4 text-emerald-600'} />;
       case 'intermediate':
-        return <Sparkles className={inBadge ? iconClass : 'w-4 h-4 text-blue-600'} />;
+        return <Glasses className={inBadge ? iconClass : 'w-4 h-4 text-blue-600'} />;
       case 'advanced':
-        return <Flame className={inBadge ? iconClass : 'w-4 h-4 text-purple-600'} />;
+        return <UserCheck className={inBadge ? iconClass : 'w-4 h-4 text-purple-600'} />;
       case 'master':
         return <Mail className={inBadge ? iconClass : 'w-4 h-4 text-[#E07A5F]'} />;
     }
