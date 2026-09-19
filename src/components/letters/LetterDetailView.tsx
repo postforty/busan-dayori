@@ -30,6 +30,30 @@ interface LetterDetailViewProps {
   letter: Letter;
 }
 
+function NaverGlyph({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" />
+    </svg>
+  );
+}
+
+function KakaoGlyph({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3C6.477 3 2 6.477 2 10.765c0 2.82 1.94 5.285 4.887 6.64-.216.793-.78 2.875-.895 3.32-.143.555.203.548.428.399.176-.118 2.8-1.9 3.93-2.67.53.076 1.077.116 1.65.116 5.523 0 10-3.477 10-7.805C22 6.477 17.523 3 12 3z" />
+    </svg>
+  );
+}
+
+function GoogleGlyph({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21.35 11.1h-9.17v2.98h5.61c-.55 2.69-2.83 4.22-5.61 4.22-3.41 0-6.19-2.78-6.19-6.19s2.78-6.19 6.19-6.19c1.61 0 3.03.59 4.14 1.57l2.25-2.25C16.92 3.65 14.64 2.7 12.18 2.7 6.99 2.7 2.78 6.91 2.78 12.1s4.21 9.4 9.4 9.4c5.44 0 9.07-3.82 9.07-9.23 0-.61-.06-1.07-.1-1.17z" />
+    </svg>
+  );
+}
+
 export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [copied, setCopied] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -334,28 +358,83 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
               </div>
             </div>
 
-            {/* 지도 링크 버튼 */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
-              <a
-                href={letter.placeInfo.naverMapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="py-2.5 px-3 bg-[#03C75A]/10 hover:bg-[#03C75A]/20 text-[#03C75A] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <span>Naver Map</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+            {/* 지도 링크 버튼 (Naver, Kakao, Google) */}
+            {(() => {
+              const kakaoUrl =
+                letter.placeInfo.kakaoMapUrl ||
+                (letter.placeInfo.address
+                  ? `https://map.kakao.com/link/search/${encodeURIComponent(
+                      letter.placeInfo.koreanName
+                        ? `${letter.placeInfo.koreanName} ${letter.placeInfo.address}`
+                        : letter.placeInfo.address
+                    )}`
+                  : undefined);
 
-              <a
-                href={letter.placeInfo.googleMapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="py-2.5 px-3 bg-[#4285F4]/10 hover:bg-[#4285F4]/20 text-[#4285F4] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <span>Google Map</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
+              const googleUrl = (() => {
+                if (letter.placeInfo.googleMapUrl) {
+                  try {
+                    const url = new URL(letter.placeInfo.googleMapUrl);
+                    const query = url.searchParams.get('query') || url.searchParams.get('q');
+                    // '상호명, 주소' 형태로 묶여 핀이 튀는 쿼리인 경우 주소 단독 쿼리로 자동 보정
+                    if (
+                      query &&
+                      query.includes(',') &&
+                      !/^-?[0-9.]+,\s*-?[0-9.]+$/.test(query.trim()) &&
+                      letter.placeInfo.address
+                    ) {
+                      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(letter.placeInfo.address)}`;
+                    }
+                  } catch {
+                    // URL 파싱 실패 시 원본 유지
+                  }
+                  return letter.placeInfo.googleMapUrl;
+                }
+                return letter.placeInfo.address
+                  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(letter.placeInfo.address)}`
+                  : undefined;
+              })();
+
+              return (
+                <div className={`grid ${kakaoUrl ? 'grid-cols-3' : 'grid-cols-2'} gap-2 pt-2 border-t border-gray-100`}>
+                  <a
+                    href={letter.placeInfo.naverMapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-2.5 px-3 bg-[#03C75A]/10 hover:bg-[#03C75A]/20 text-[#03C75A] rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-2xs group"
+                    title="네이버 지도 (Naver Map)"
+                    aria-label="네이버 지도"
+                  >
+                    <NaverGlyph className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  </a>
+
+                  {kakaoUrl && (
+                    <a
+                      href={kakaoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2.5 px-3 bg-[#FEE500]/30 hover:bg-[#FEE500]/50 text-[#3C1E1E] rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-2xs group"
+                      title="카카오맵 (Kakao Map)"
+                      aria-label="카카오맵"
+                    >
+                      <KakaoGlyph className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    </a>
+                  )}
+
+                  {googleUrl && (
+                    <a
+                      href={googleUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2.5 px-3 bg-[#4285F4]/10 hover:bg-[#4285F4]/20 text-[#4285F4] rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-2xs group"
+                      title="구글 지도 (Google Map)"
+                      aria-label="구글 지도"
+                    >
+                      <GoogleGlyph className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    </a>
+                  )}
+                </div>
+              );
+            })()}
           </section>
         )}
 

@@ -79,25 +79,31 @@ export default function FeedbackWidget({
         </p>
 
         {/* 액션 버튼 */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <button
             onClick={handleLike}
-            className={`flex-1 py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${
+            className={`flex-1 py-2.5 px-2.5 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 whitespace-nowrap ${
               hasLiked
                 ? 'bg-[#E8F5E9] text-[#2E7D32] border-[#C8E6C9]'
                 : 'bg-white text-[#2D3748] border-[#EDE8E1] hover:bg-gray-50'
             }`}
           >
-            {hasLiked ? <Check className="w-4 h-4" /> : <ThumbsUp className="w-4 h-4 text-[#E07A5F]" />}
+            {hasLiked ? (
+              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            ) : (
+              <ThumbsUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-[#E07A5F]" />
+            )}
             <span>自然でした！ ({likes})</span>
           </button>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex-1 py-2.5 px-3 rounded-xl bg-[#E07A5F] hover:bg-[#D0694E] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95"
+            className="flex-1 py-2.5 px-2.5 sm:px-3 rounded-xl bg-[#E07A5F] hover:bg-[#D0694E] text-white text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95 whitespace-nowrap cursor-pointer"
           >
-            <MessageSquarePlus className="w-4 h-4" />
-            <span>添削・メッセージを送る</span>
+            <MessageSquarePlus className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+            <span>
+              添削・メッセージ<span className="hidden sm:inline">を送る</span>
+            </span>
           </button>
         </div>
 

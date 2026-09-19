@@ -2,10 +2,18 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2, ArrowLeft, Send, Sparkles, MapPin, BookOpen, FileText } from 'lucide-react'
+import { Plus, Trash2, ArrowLeft, Send, Sparkles, MapPin, BookOpen, FileText, Navigation, CheckCircle2 } from 'lucide-react'
 import ImageUploader from './ImageUploader'
 import { createLetter, updateLetter, LetterFormData } from '@/lib/actions/letter-actions'
 import type { Letter, Category, SoloFriendly, SpicyLevel } from '@/types'
+import { PostcodeModal, SelectedAddressResult } from './PostcodeModal'
+import {
+  generateNaverMapUrl,
+  generateKakaoMapUrl,
+  generateGoogleMapUrl,
+  getBusanRegionFromCoords,
+  extractBusanRegion,
+} from '@/lib/location/busan-regions'
 
 interface LetterEditorFormProps {
   initialData?: Letter
@@ -29,7 +37,7 @@ export default function LetterEditorForm({
   const [category, setCategory] = useState<Category>(
     initialData?.category || 'gourmet'
   )
-  const [region, setRegion] = useState(initialData?.region || '광안리')
+  const [region, setRegion] = useState(initialData?.region || '')
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '')
   const [summary, setSummary] = useState(initialData?.summary || '')
   const [contentParagraphs, setContentParagraphs] = useState<string[]>(
@@ -50,9 +58,6 @@ export default function LetterEditorForm({
   )
 
   // 장소 정보
-  const [hasPlaceInfo, setHasPlaceInfo] = useState(
-    !!initialData?.placeInfo
-  )
   const [koreanName, setKoreanName] = useState(
     initialData?.placeInfo?.koreanName || ''
   )
@@ -83,9 +88,17 @@ export default function LetterEditorForm({
   const [naverMapUrl, setNaverMapUrl] = useState(
     initialData?.placeInfo?.naverMapUrl || ''
   )
+  const [kakaoMapUrl, setKakaoMapUrl] = useState(
+    initialData?.placeInfo?.kakaoMapUrl || ''
+  )
   const [googleMapUrl, setGoogleMapUrl] = useState(
     initialData?.placeInfo?.googleMapUrl || ''
   )
+
+  // 위치 및 우편번호 모달 상태
+  const [isPostcodeOpen, setIsPostcodeOpen] = useState(false)
+  const [isLocating, setIsLocating] = useState(false)
+  const [locationStatus, setLocationStatus] = useState<string | null>(null)
 
   // 단락 추가/제거
   const handleAddParagraph = () => {
@@ -104,6 +117,122 @@ export default function LetterEditorForm({
       return
     }
     setContentParagraphs(contentParagraphs.filter((_, i) => i !== index))
+  }
+
+  // 주소 검색 결과 반영
+  const handleAddressSelect = (result: SelectedAddressResult) => {
+    const targetRegion =
+      result.recommendedRegion ||
+      (result.bname ? result.bname.replace(/[0-9]+가$/, '') : '') ||
+      result.sigungu ||
+      '부산'
+
+    setRegion(targetRegion)
+    setAddress(result.roadAddress)
+
+    const targetName = koreanName.trim() || result.buildingName
+    if (!koreanName.trim() && result.buildingName) {
+      setKoreanName(result.buildingName)
+    }
+
+    const naver = generateNaverMapUrl(result.roadAddress, targetName)
+    const kakao = generateKakaoMapUrl(result.roadAddress, targetName)
+    const google = generateGoogleMapUrl(result.roadAddress, targetName)
+
+    setNaverMapUrl(naver)
+    setKakaoMapUrl(kakao)
+    setGoogleMapUrl(google)
+
+    setLocationStatus(`지역(${targetRegion}) 및 지도 링크가 자동 연동되었습니다.`)
+    setTimeout(() => setLocationStatus(null), 3500)
+  }
+
+  // 단말기 현재 위치(GPS) 처리
+  const handleGetCurrentLocation = () => {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      alert('현재 브라우저 환경에서 단말기 위치 정보(GPS)를 지원하지 않습니다.')
+      return
+    }
+
+    setIsLocating(true)
+    setLocationStatus('단말기 현재 위치를 확인하는 중...')
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false)
+        const lat = pos.coords.latitude
+        const lng = pos.coords.longitude
+
+        // 1. 단말기 위경도로부터 부산 지역 자동 판별하여 빨간 박스(region)에 즉시 채움
+        const autoRegion = getBusanRegionFromCoords(lat, lng)
+        if (autoRegion) {
+          setRegion(autoRegion)
+        }
+
+        // 2. 좌표 기반 3대 지도 링크 즉시 반영
+        const targetName = koreanName.trim()
+        const naver = generateNaverMapUrl(address, targetName, lat, lng)
+        const kakao = generateKakaoMapUrl(address, targetName, lat, lng)
+        const google = generateGoogleMapUrl(address, targetName, lat, lng)
+
+        setNaverMapUrl(naver)
+        setKakaoMapUrl(kakao)
+        setGoogleMapUrl(google)
+
+        setLocationStatus(`현재 위치(${autoRegion}) 및 지도 링크가 자동 반영되었습니다.`)
+        setTimeout(() => {
+          setLocationStatus(null)
+        }, 3500)
+
+        // 4. 비동기 역지오코딩 시도 (주소 필드가 비어있다면 대략적인 행정구역/도로명 보정)
+        try {
+          fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+          )
+            .then((res) => res.json())
+            .then((geoData) => {
+              if (geoData?.address) {
+                const a = geoData.address
+                const sigungu = a.city_district || a.borough || a.county || ''
+                const bname = a.suburb || a.neighbourhood || a.quarter || a.village || ''
+                const road = a.road || ''
+                const refined = extractBusanRegion(sigungu, bname, `${road} ${bname} ${sigungu}`)
+                if (refined && refined !== '부산') {
+                  setRegion(refined)
+                }
+                setAddress((prev) => {
+                  if (!prev.trim()) {
+                    const fullAddr = [a.province || a.city, sigungu, road, bname]
+                      .filter(Boolean)
+                      .join(' ')
+                    return fullAddr || prev
+                  }
+                  return prev
+                })
+              }
+            })
+            .catch(() => {
+              // 네트워크 실패나 제한 시에도 이미 getBusanRegionFromCoords로 즉시 채워져 있으므로 무시
+            })
+        } catch {
+          // ignore
+        }
+      },
+      (err) => {
+        setIsLocating(false)
+        setLocationStatus(null)
+        let msg = '위치 정보를 가져올 수 없습니다.'
+        if (err.code === 1) {
+          msg = '위치 정보 권한이 거부되었습니다. 브라우저 설정에서 위치 접근을 허용해주세요.'
+        } else if (err.code === 2) {
+          msg = '현재 위치를 확인할 수 없습니다. 네트워크 상태를 확인해주세요.'
+        } else if (err.code === 3) {
+          msg = '위치 확인 시간이 초과되었습니다.'
+        }
+        alert(msg)
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    )
   }
 
   // 제출 처리
@@ -150,21 +279,23 @@ export default function LetterEditorForm({
           meaning: studyMeaning.trim(),
           memo: studyMemo.trim(),
         },
-        placeInfo: hasPlaceInfo
-          ? {
-              koreanName: koreanName.trim(),
-              katakanaName: katakanaName.trim(),
-              address: address.trim(),
-              subway: subway.trim(),
-              hours: hours.trim(),
-              closedDay: closedDay.trim(),
-              soloFriendly,
-              spicyLevel,
-              cardOk,
-              naverMapUrl: naverMapUrl.trim(),
-              googleMapUrl: googleMapUrl.trim(),
-            }
-          : undefined,
+        placeInfo:
+          koreanName.trim() || address.trim() || naverMapUrl.trim() || kakaoMapUrl.trim() || googleMapUrl.trim()
+            ? {
+                koreanName: koreanName.trim(),
+                katakanaName: katakanaName.trim(),
+                address: address.trim(),
+                subway: subway.trim(),
+                hours: hours.trim(),
+                closedDay: closedDay.trim(),
+                soloFriendly,
+                spicyLevel,
+                cardOk,
+                naverMapUrl: naverMapUrl.trim(),
+                kakaoMapUrl: kakaoMapUrl.trim(),
+                googleMapUrl: googleMapUrl.trim(),
+              }
+            : undefined,
       }
 
       if (isEdit && initialData) {
@@ -227,7 +358,7 @@ export default function LetterEditorForm({
           </div>
           <div>
             <h2 className="text-sm font-bold text-[#2D3748]">1. 편지 기본 정보</h2>
-            <p className="text-[11px] text-[#718096]">제목과 카테고리, 지역을 지정합니다.</p>
+            <p className="text-[11px] text-[#718096]">제목과 발행일, 카테고리를 지정합니다.</p>
           </div>
         </div>
 
@@ -248,13 +379,14 @@ export default function LetterEditorForm({
 
           <div>
             <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
-              발행일 (YYYY.MM.DD)
+              발행일 (YYYY.MM.DD) <span className="text-[#E07A5F]">*</span>
             </label>
             <input
               type="text"
+              required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              placeholder="2026.09.13"
+              placeholder="2026.04.15"
               className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
             />
           </div>
@@ -275,21 +407,8 @@ export default function LetterEditorForm({
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
-              지역 (부산 상세 구역)
-            </label>
-            <input
-              type="text"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              placeholder="예: 광안리, 해운대, 전포동, 남포동"
-              className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
-            />
-          </div>
-
           {!isEdit && (
-            <div>
+            <div className="sm:col-span-2">
               <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
                 식별자 ID (미입력 시 자동 생성)
               </label>
@@ -453,102 +572,98 @@ export default function LetterEditorForm({
         </div>
       </div>
 
-      {/* 카드 4: 소개하고 싶은 장소 & 팁 (선택) */}
+      {/* 카드 4: 소개하고 싶은 장소 & 팁 */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#EDE8E1] card-shadow space-y-4">
-        {/* 섹션 헤더 & 모던 토글 스위치 */}
-        <div className="flex items-center justify-between gap-3 pb-2.5 border-b border-[#EDE8E1]/60">
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-xl bg-[#FAF0E6] flex items-center justify-center text-[#E07A5F] shrink-0">
-              <MapPin className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <h2 className="text-sm font-bold text-[#2D3748] whitespace-nowrap">4. 장소 &amp; 방문 팁</h2>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#FAF0E6] text-[#E07A5F] border border-[#F4DDD4]">
-                  선택
-                </span>
-              </div>
-              <p className="text-[11px] text-[#718096] mt-0.5 truncate">가게나 명소의 현지 방문 팁</p>
-            </div>
+        {/* 섹션 헤더 */}
+        <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#EDE8E1]/60">
+          <div className="w-8 h-8 rounded-xl bg-[#FAF0E6] flex items-center justify-center text-[#E07A5F] shrink-0">
+            <MapPin className="w-4 h-4" />
           </div>
-
-          {/* 깔끔한 슬라이드 토글 스위치 (줄바꿈 방지) */}
-          <label className="shrink-0 flex items-center gap-2 cursor-pointer select-none py-1">
-            <span className="text-xs font-bold text-[#2D3748] whitespace-nowrap">
-              {hasPlaceInfo ? '입력 중' : '추가'}
-            </span>
-            <div className="relative inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={hasPlaceInfo}
-                onChange={(e) => setHasPlaceInfo(e.target.checked)}
-                className="sr-only"
-              />
-              <div
-                className={`w-10 h-5 rounded-full transition-colors duration-200 ease-in-out ${
-                  hasPlaceInfo ? 'bg-[#E07A5F]' : 'bg-[#EDE8E1]'
-                }`}
-              />
-              <div
-                className={`absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white shadow-xs transform transition-transform duration-200 ease-in-out ${
-                  hasPlaceInfo ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </div>
-          </label>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-sm font-bold text-[#2D3748]">4. 장소 &amp; 방문 팁</h2>
+            <p className="text-[11px] text-[#718096] mt-0.5">가게나 명소의 현지 방문 팁과 지역 정보를 지정합니다.</p>
+          </div>
         </div>
 
-        {!hasPlaceInfo && (
-          <div
-            onClick={() => setHasPlaceInfo(true)}
-            className="py-3 px-4 rounded-2xl bg-[#FAF0E6]/20 border border-dashed border-[#EDE8E1] hover:border-[#E07A5F]/60 text-center cursor-pointer transition-colors"
-          >
-            <p className="text-xs text-[#718096]">
-              추천하고 싶은 부산 맛집이나 카페가 있다면 <span className="font-bold text-[#E07A5F] underline underline-offset-2">정보 추가</span>를 켜보세요.
-            </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div>
+            <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
+              한국어 상호명
+            </label>
+            <input
+              type="text"
+              value={koreanName}
+              onChange={(e) => setKoreanName(e.target.value)}
+              placeholder="예: 밀락더마켓"
+              className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
+            />
           </div>
-        )}
 
-        {hasPlaceInfo && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-            <div>
-              <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
-                한국어 상호명
-              </label>
-              <input
-                type="text"
-                value={koreanName}
-                onChange={(e) => setKoreanName(e.target.value)}
-                placeholder="예: 밀락더마켓"
-                className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
+              카타카나 표기
+            </label>
+            <input
+              type="text"
+              value={katakanaName}
+              onChange={(e) => setKatakanaName(e.target.value)}
+              placeholder="예: ミルラク・ザ・マーケット"
+              className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
+            />
+          </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
-                카타카나 표기
-              </label>
-              <input
-                type="text"
-                value={katakanaName}
-                onChange={(e) => setKatakanaName(e.target.value)}
-                placeholder="예: ミルラク・ザ・マーケット"
-                className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
-              />
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-bold text-[#2D3748] mb-1.5 whitespace-nowrap">
+              도로명 주소 <span className="text-[11px] font-normal text-[#718096]">(택시 보여주기용)</span>
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="예: 부산 수영구 민락수변로 17번길 56"
+              className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
+            />
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => setIsPostcodeOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[#FAF0E6] text-[#E07A5F] hover:bg-[#E07A5F]/15 rounded-xl border border-[#F4DDD4] transition-all active:scale-95 whitespace-nowrap shrink-0 shadow-2xs cursor-pointer"
+                title="주소나 건물명으로 도로명 주소 찾기"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[#E07A5F]" />
+                <span>주소 찾기</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleGetCurrentLocation}
+                disabled={isLocating}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-gray-50 text-gray-700 hover:bg-gray-100 rounded-xl border border-gray-200 transition-all active:scale-95 whitespace-nowrap shrink-0 disabled:opacity-50 shadow-2xs cursor-pointer"
+                title="현재 기기 위치(GPS) 이용"
+              >
+                <Navigation className={`w-3.5 h-3.5 text-blue-500 ${isLocating ? 'animate-spin' : ''}`} />
+                <span>{isLocating ? '위치 확인 중...' : '현재 위치(GPS)'}</span>
+              </button>
+              {locationStatus && (
+                <div className="flex items-center gap-1 text-[11px] text-[#E07A5F] font-medium animate-fade-in pl-0.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>{locationStatus}</span>
+                </div>
+              )}
             </div>
+          </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
-                도로명 주소 (택시 보여주기용)
-              </label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="예: 부산 수영구 민락수변로 17번길 56"
-                className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
-              />
-            </div>
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-bold text-[#2D3748] mb-1.5 whitespace-nowrap">
+              지역 <span className="text-[11px] font-normal text-[#718096]">(부산 상세 구역 · 주소/GPS 선택 시 자동 입력)</span>
+            </label>
+            <input
+              type="text"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              placeholder="예: 광안리, 해운대, 전포동, 남포동"
+              className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
+            />
+          </div>
 
             <div>
               <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
@@ -628,34 +743,53 @@ export default function LetterEditorForm({
               </label>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
-                네이버 지도 URL
+            <div className="sm:col-span-2 pt-2 border-t border-[#EDE8E1]/60">
+              <label className="block text-xs font-bold text-[#2D3748] mb-2">
+                지도 서비스 바로가기 링크 <span className="text-[11px] font-normal text-[#718096]">(주소 검색 시 자동 생성)</span>
               </label>
-              <input
-                type="url"
-                value={naverMapUrl}
-                onChange={(e) => setNaverMapUrl(e.target.value)}
-                placeholder="https://naver.me/..."
-                className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
-              />
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <span className="block text-xs font-bold text-[#2D3748] mb-1.5">
+                    네이버 지도 URL
+                  </span>
+                  <input
+                    type="url"
+                    value={naverMapUrl}
+                    onChange={(e) => setNaverMapUrl(e.target.value)}
+                    placeholder="https://map.naver.com/..."
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
+                  />
+                </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#2D3748] mb-1.5">
-                구글 지도 URL
-              </label>
-              <input
-                type="url"
-                value={googleMapUrl}
-                onChange={(e) => setGoogleMapUrl(e.target.value)}
-                placeholder="https://maps.google.com/..."
-                className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
-              />
+                <div>
+                  <span className="block text-xs font-bold text-[#2D3748] mb-1.5">
+                    카카오맵 URL
+                  </span>
+                  <input
+                    type="url"
+                    value={kakaoMapUrl}
+                    onChange={(e) => setKakaoMapUrl(e.target.value)}
+                    placeholder="https://map.kakao.com/..."
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
+                  />
+                </div>
+
+                <div>
+                  <span className="block text-xs font-bold text-[#2D3748] mb-1.5">
+                    구글 지도 URL
+                  </span>
+                  <input
+                    type="url"
+                    value={googleMapUrl}
+                    onChange={(e) => setGoogleMapUrl(e.target.value)}
+                    placeholder="https://maps.google.com/..."
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#FAF0E6]/20 border border-[#EDE8E1] rounded-xl text-[#2D3748] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E07A5F]/20 focus:border-[#E07A5F]"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
 
       {/* 하단 최종 액션 버튼 바 */}
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#EDE8E1]">
@@ -681,6 +815,12 @@ export default function LetterEditorForm({
           </span>
         </button>
       </div>
+
+      <PostcodeModal
+        isOpen={isPostcodeOpen}
+        onClose={() => setIsPostcodeOpen(false)}
+        onSelect={handleAddressSelect}
+      />
     </form>
   )
 }

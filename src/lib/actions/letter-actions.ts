@@ -34,6 +34,7 @@ export interface LetterFormData {
     spicyLevel: SpicyLevel
     cardOk: boolean
     naverMapUrl: string
+    kakaoMapUrl?: string
     googleMapUrl: string
   }
 }

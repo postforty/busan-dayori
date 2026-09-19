@@ -14,6 +14,7 @@ export interface PlaceInfo {
   spicyLevel: SpicyLevel;
   cardOk: boolean;
   naverMapUrl: string;
+  kakaoMapUrl?: string;
   googleMapUrl: string;
 }
 
