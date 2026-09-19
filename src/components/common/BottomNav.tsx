@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Mail, MessageSquareText, BookOpen, HelpCircle, Bookmark } from 'lucide-react';
+import { Mail, MessageSquareText, BookOpen, HelpCircle, Bookmark, Compass } from 'lucide-react';
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -14,6 +14,12 @@ export default function BottomNav() {
       href: '/',
       icon: BookOpen,
       active: pathname === '/'
+    },
+    {
+      label: 'ロードマップ',
+      href: '/roadmap',
+      icon: Compass,
+      active: pathname.startsWith('/roadmap')
     },
     {
       label: '単語帳',

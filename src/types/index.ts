@@ -94,11 +94,17 @@ export interface DialogueLine {
   korean: string;
 }
 
+export type LessonLevel = 'starter' | 'beginner' | 'intermediate' | 'advanced' | 'master';
+// starter: Lv.0 유치원생 (완전초보) | beginner: Lv.1 초급 (N5-N4) | intermediate: Lv.2 중급 (N3) | advanced: Lv.3 실전 (N2) | master: Lv.4 심화 (레터 독해)
+
 export interface DailyLesson {
   id: string;
   dayNumber: number;
   seriesTitle: string;
   themeTitle: string;
+  level?: LessonLevel;
+  unitTitle?: string;
+  pronunciationKorean?: string; // Lv.0용 한글 소리 표기
   keyExpression: {
     japanese: string;
     reading: string;
@@ -111,6 +117,30 @@ export interface DailyLesson {
   relatedLetterId?: string;
 }
 
+export interface CurriculumUnit {
+  id: string;
+  unitNumber: number;
+  title: string;
+  description: string;
+  keyPhrase: string;
+  keyPhraseKorean: string;
+  pronunciationKorean?: string;
+  lessonId: string;
+  lessonData?: DailyLesson;
+}
+
+export interface CurriculumLevel {
+  level: LessonLevel;
+  badge: string;
+  title: string;
+  subTitle: string;
+  targetAudience: string;
+  color: string;
+  bgLight: string;
+  borderColor: string;
+  units: CurriculumUnit[];
+}
+
 export interface SavedWord extends VocabItem {
   lessonId: string;
   savedAt: string;
@@ -121,4 +151,5 @@ export interface SavedLesson {
   lesson: DailyLesson;
   savedAt: string;
 }
+
 

@@ -301,6 +301,26 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
               <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
               <span>AIカスタム</span>
             </span>
+          ) : lesson.level === 'starter' ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-[11px] font-black text-amber-800 border border-amber-300 whitespace-nowrap shadow-xs shrink-0">
+              <span>🐥</span>
+              <span>Lv.0 유치원생</span>
+            </span>
+          ) : lesson.level === 'beginner' ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-[11px] font-black text-emerald-800 border border-emerald-300 whitespace-nowrap shadow-xs shrink-0">
+              <span>🌱</span>
+              <span>Lv.1 초급</span>
+            </span>
+          ) : lesson.level === 'intermediate' ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-100 text-[11px] font-black text-blue-800 border border-blue-300 whitespace-nowrap shadow-xs shrink-0">
+              <span>🌿</span>
+              <span>Lv.2 중급</span>
+            </span>
+          ) : lesson.level === 'advanced' ? (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-100 text-[11px] font-black text-purple-800 border border-purple-300 whitespace-nowrap shadow-xs shrink-0">
+              <span>🌳</span>
+              <span>Lv.3 실전</span>
+            </span>
           ) : (
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shadow-xs shrink-0">
               <Sparkles className="w-3 h-3 text-[#D97706] shrink-0" />
@@ -309,7 +329,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           )}
 
           <span className="text-xs font-bold text-[#2D3748] truncate">
-            {lesson.seriesTitle}
+            {lesson.unitTitle || lesson.seriesTitle}
           </span>
         </div>
 
@@ -426,8 +446,14 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           {/* 한글 독음 (왕초보 지원) */}
           {showPronounce && (
             <div className="mb-2">
-              <span className="text-xs font-bold text-[#E07A5F] bg-[#FAF0E6] px-2 py-0.5 rounded-md border border-[#F4DDD4] inline-block">
-                [{getPronunciation(lesson.keyExpression.japanese, lesson.keyExpression.reading)}]
+              <span
+                className={`inline-block rounded-md border font-bold ${
+                  lesson.level === 'starter'
+                    ? 'text-sm font-black text-[#D97706] bg-amber-50 px-2.5 py-1 border-amber-200 shadow-2xs'
+                    : 'text-xs text-[#E07A5F] bg-[#FAF0E6] px-2 py-0.5 border-[#F4DDD4]'
+                }`}
+              >
+                [{lesson.pronunciationKorean || getPronunciation(lesson.keyExpression.japanese, lesson.keyExpression.reading)}]
               </span>
             </div>
           )}
