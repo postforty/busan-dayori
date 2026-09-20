@@ -6,12 +6,12 @@ import { CurriculumLevel, LessonLevel } from '@/types';
 import {
   Compass,
   Sparkles,
+  Zap,
+  Flame,
   BookOpen,
   ArrowRight,
+  Pencil,
   Baby,
-  Smile,
-  Glasses,
-  UserCheck,
   Mail,
   Volume2,
   CheckCircle,
@@ -30,15 +30,13 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
     const iconClass = inBadge ? 'w-3.5 h-3.5 text-white' : 'w-4 h-4';
     switch (level) {
       case 'starter':
-        return <Baby className={inBadge ? iconClass : 'w-4 h-4 text-amber-600'} />;
+        return <Baby className={inBadge ? iconClass : 'w-4 h-4 text-[#E78B70]'} />;
       case 'beginner':
-        return <Smile className={inBadge ? iconClass : 'w-4 h-4 text-emerald-600'} />;
+        return <Sparkles className={inBadge ? iconClass : 'w-4 h-4 text-[#E07A5F]'} />;
       case 'intermediate':
-        return <Glasses className={inBadge ? iconClass : 'w-4 h-4 text-blue-600'} />;
+        return <Zap className={inBadge ? iconClass : 'w-4 h-4 text-[#C45B40]'} />;
       case 'advanced':
-        return <UserCheck className={inBadge ? iconClass : 'w-4 h-4 text-purple-600'} />;
-      case 'master':
-        return <Mail className={inBadge ? iconClass : 'w-4 h-4 text-[#E07A5F]'} />;
+        return <Flame className={inBadge ? iconClass : 'w-4 h-4 text-[#943A25]'} />;
     }
   };
 
@@ -62,7 +60,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
             <span className="text-[#E07A5F] text-lg">나에게 꼭 맞는 레벨부터 시작해요</span>
           </h1>
           <p className="text-xs text-[#718096] leading-relaxed">
-            일본어를 전혀 몰라도 괜찮아요! <strong>Lv.0 유치원생 입문</strong>부터 원어민 뉘앙스의 <strong>Lv.3 실전</strong>, 그리고 <strong>부산 로컬 편지(Lv.4)</strong>까지 준비되어 있습니다.
+            일본어를 전혀 몰라도 괜찮아요! <strong>Lv.0 히라가나 입문</strong>부터 원어민 뉘앙스의 <strong>Lv.3 실전</strong>까지 차근차근 단계별로 준비되어 있습니다.
           </p>
         </div>
       </section>
@@ -106,13 +104,12 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
       <div className="space-y-6">
         {filteredLevels.map((lvl) => {
           const isStarter = lvl.level === 'starter';
-          const isMaster = lvl.level === 'master';
 
           return (
             <section
               key={lvl.level}
               className={`rounded-3xl border transition-all overflow-hidden bg-white shadow-xs ${
-                isStarter ? 'ring-2 ring-amber-400/40' : ''
+                isStarter ? 'ring-2 ring-[#E78B70]/30' : ''
               }`}
               style={{ borderColor: lvl.borderColor }}
             >
@@ -146,14 +143,34 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                   <span>대상:</span>
                   <span>{lvl.targetAudience}</span>
                 </div>
+
+                {/* Lv.0 전용: 히라가나 인터랙티브 스튜디오 바로가기 배너 */}
+                {isStarter && (
+                  <div className="mt-3 p-3 rounded-2xl bg-[#FFF6F1] border border-[#FCE4D8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                    <div className="space-y-0.5">
+                      <span className="text-[11px] font-black text-[#C45B40] flex items-center gap-1">
+                        <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
+                        히라가나 마스터 스튜디오 오픈!
+                      </span>
+                      <p className="text-[11px] text-[#A84A33]">
+                        50음도 소리 탐색부터 캔버스 손글씨 쓰기, 미니 단어 읽기까지
+                      </p>
+                    </div>
+                    <Link
+                      href="/hiragana"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-bold transition-all shrink-0 shadow-2xs"
+                    >
+                      <span>스튜디오 입장</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                )}
               </div>
 
               {/* 유닛 리스트 */}
               <div className="p-3 space-y-2.5 bg-[#FAF9F7]/40">
                 {lvl.units.map((unit) => {
-                  const targetHref = isMaster
-                    ? '/letters'
-                    : `/?lessonId=${unit.lessonId}`;
+                  const targetHref = `/?lessonId=${unit.lessonId}`;
 
                   return (
                     <div
@@ -192,7 +209,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                       <div
                         className={`p-2.5 rounded-xl border flex flex-col gap-1 ${
                           isStarter
-                            ? 'bg-amber-50/60 border-amber-200/70'
+                            ? 'bg-[#FFF6F1]/80 border-[#FCE4D8]'
                             : 'bg-[#FAF0E6]/50 border-[#F4DDD4]'
                         }`}
                       >
@@ -201,7 +218,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                             {unit.keyPhrase}
                           </span>
                           {unit.pronunciationKorean && (
-                            <span className="text-xs font-black text-[#D97706]">
+                            <span className="text-xs font-black text-[#C45B40]">
                               [{unit.pronunciationKorean}]
                             </span>
                           )}
@@ -217,7 +234,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                         className="inline-flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl text-xs font-bold text-white transition-all shadow-2xs hover:opacity-90 active:scale-[0.99]"
                         style={{ backgroundColor: lvl.color }}
                       >
-                        <span>{isMaster ? '부산 로컬 편지 읽으러 가기' : '이 유닛 학습하기'}</span>
+                        <span>이 유닛 학습하기</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -228,6 +245,29 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
           );
         })}
       </div>
+
+      {/* 4. 일본인을 위한 부산 로컬 편지 (독립 문화 콘텐츠 안내) */}
+      <section className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FAF0E6] text-[11px] font-bold text-[#E07A5F]">
+            <Mail className="w-3 h-3" />
+            <span>부산 토박이의 로컬 편지</span>
+          </div>
+          <h3 className="text-sm font-bold text-[#2D3748]">
+            일본인 친구에게 들려주는 부산의 숨은 이야기
+          </h3>
+          <p className="text-xs text-[#718096] leading-relaxed">
+            공부와 별개로, 부산 토박이가 일본인 독자를 위해 직접 쓴 로컬 맛집과 감성 에세이를 편하게 만나보세요.
+          </p>
+        </div>
+        <Link
+          href="/letters"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#FAF0E6] text-[#E07A5F] hover:bg-[#E07A5F] hover:text-white text-xs font-bold transition-all shrink-0 border border-[#F4DDD4]"
+        >
+          <span>로컬 편지 둘러보기</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </section>
     </div>
   );
 }

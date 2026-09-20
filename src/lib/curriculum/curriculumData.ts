@@ -3,13 +3,13 @@ import { CurriculumLevel, DailyLesson } from '@/types';
 export const curriculumLevels: CurriculumLevel[] = [
   {
     level: 'starter',
-    badge: 'Lv.0 유치원생',
-    title: '글자 몰라도 OK! 유치원생 입문',
-    subTitle: '한자·문법 제로! 큰 한글 발음으로 바로 말하는 생존 한마디',
-    targetAudience: '일본어를 아예 모르는 왕초보 (히라가나 몰라도 가능)',
-    color: '#D97706',
-    bgLight: '#FEF3C7',
-    borderColor: '#FDE68A',
+    badge: 'Lv.0 입문',
+    title: '히라가나 & 첫걸음 입문',
+    subTitle: '소리 청취·획순 쓰기 연습부터 배운 글자로 직접 읽는 첫인사까지',
+    targetAudience: '일본어를 처음 시작하는 입문자 (글자와 소리부터 제대로 배우고 싶은 학습자)',
+    color: '#E78B70',
+    bgLight: '#FFF6F1',
+    borderColor: '#FCE4D8',
     units: [
       {
         id: 'starter-1',
@@ -369,9 +369,9 @@ export const curriculumLevels: CurriculumLevel[] = [
     title: '초등학생/초급 회화 (JLPT N5~N4)',
     subTitle: '히라가나를 읽고, 여행지에서 정중하게 소통하는 기본 패턴',
     targetAudience: '히라가나를 읽을 수 있고 기초 문형을 연습 중인 분',
-    color: '#059669',
-    bgLight: '#D1FAE5',
-    borderColor: '#A7F3D0',
+    color: '#E07A5F',
+    bgLight: '#FAF0E6',
+    borderColor: '#F4DDD4',
     units: [
       {
         id: 'beginner-1',
@@ -470,9 +470,9 @@ export const curriculumLevels: CurriculumLevel[] = [
     title: '자연스러운 일상 소통 (JLPT N3)',
     subTitle: '배려형 완곡 요청과 뉘앙스 차이를 살린 회화',
     targetAudience: '기초 회화가 가능하며 더 일본인다운 표현을 구사하고 싶은 분',
-    color: '#2563EB',
-    bgLight: '#DBEAFE',
-    borderColor: '#BFDBFE',
+    color: '#C45B40',
+    bgLight: '#F7EBE5',
+    borderColor: '#ECCDC2',
     units: [
       {
         id: 'intermediate-1',
@@ -502,9 +502,9 @@ export const curriculumLevels: CurriculumLevel[] = [
     title: '원어민 뉘앙스 & 미각 묘사 (JLPT N2)',
     subTitle: '깊은 풍미와 식감, 사회적 에티켓까지 아우르는 실전 일본어',
     targetAudience: '교과서적 표현을 넘어 일본 현지인의 감각을 체득하고 싶은 분',
-    color: '#7C3AED',
-    bgLight: '#EDE9FE',
-    borderColor: '#DDD6FE',
+    color: '#943A25',
+    bgLight: '#F4E7E1',
+    borderColor: '#E4BFB4',
     units: [
       {
         id: 'advanced-1',
@@ -525,27 +525,6 @@ export const curriculumLevels: CurriculumLevel[] = [
         keyPhraseKorean: '혼잡 시에는 일괄 결제를 부탁드리고 있습니다',
         pronunciationKorean: '콘자츠지와 마토메테노 오시하라이오 오네가이시테오리마스',
         lessonId: 'lesson-advanced-2'
-      }
-    ]
-  },
-  {
-    level: 'master',
-    badge: 'Lv.4 심화',
-    title: '부산 로컬 편지 읽기 (실전 독해 & 교류)',
-    subTitle: '부산 토박이가 쓴 일본어 수필을 읽고 원어민과 첨삭 나누기',
-    targetAudience: '원문 에세이 독해 및 실제 일본인과의 언어 교류를 원하는 상급자',
-    color: '#E07A5F',
-    bgLight: '#FAF0E6',
-    borderColor: '#F4DDD4',
-    units: [
-      {
-        id: 'master-1',
-        unitNumber: 1,
-        title: '부산 맛집 & 카페 감성 에세이 독해',
-        description: '광안리, 해운대, 전포동 골목길 이야기를 일본어 원문으로 만끽',
-        keyPhrase: '釜山っ子の日本語学習 & ローカル旅便り',
-        keyPhraseKorean: '부산 토박이의 일본어 학습 & 로컬 여행 편지',
-        lessonId: 'letters-master'
       }
     ]
   }

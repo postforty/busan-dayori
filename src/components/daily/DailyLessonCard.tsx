@@ -16,9 +16,9 @@ import {
   CheckCircle2,
   Languages,
   Baby,
-  Smile,
-  Glasses,
-  UserCheck
+  Pencil,
+  Zap,
+  Flame
 } from 'lucide-react';
 
 interface DailyLessonCardProps {
@@ -306,23 +306,23 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
               <span>AIカスタム</span>
             </span>
           ) : lesson.level === 'starter' ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-[11px] font-black text-amber-800 border border-amber-300 whitespace-nowrap shadow-xs shrink-0">
-              <Baby className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-              <span>Lv.0 유치원생</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFF2EA] text-[11px] font-black text-[#D96B4F] border border-[#FCDCCE] whitespace-nowrap shadow-xs shrink-0">
+              <Baby className="w-3.5 h-3.5 text-[#E78B70] shrink-0" />
+              <span>Lv.0 입문</span>
             </span>
           ) : lesson.level === 'beginner' ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-[11px] font-black text-emerald-800 border border-emerald-300 whitespace-nowrap shadow-xs shrink-0">
-              <Smile className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF0E6] text-[11px] font-black text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shadow-xs shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
               <span>Lv.1 초급</span>
             </span>
           ) : lesson.level === 'intermediate' ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-[11px] font-black text-blue-800 border border-blue-300 whitespace-nowrap shadow-xs shrink-0">
-              <Glasses className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F7EBE5] text-[11px] font-black text-[#C45B40] border border-[#ECCDC2] whitespace-nowrap shadow-xs shrink-0">
+              <Zap className="w-3.5 h-3.5 text-[#C45B40] shrink-0" />
               <span>Lv.2 중급</span>
             </span>
           ) : lesson.level === 'advanced' ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-100 text-[11px] font-black text-purple-800 border border-purple-300 whitespace-nowrap shadow-xs shrink-0">
-              <UserCheck className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F4E7E1] text-[11px] font-black text-[#943A25] border border-[#E4BFB4] whitespace-nowrap shadow-xs shrink-0">
+              <Flame className="w-3.5 h-3.5 text-[#943A25] shrink-0" />
               <span>Lv.3 실전</span>
             </span>
           ) : (

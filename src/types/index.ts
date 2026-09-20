@@ -94,8 +94,8 @@ export interface DialogueLine {
   korean: string;
 }
 
-export type LessonLevel = 'starter' | 'beginner' | 'intermediate' | 'advanced' | 'master';
-// starter: Lv.0 유치원생 (완전초보) | beginner: Lv.1 초급 (N5-N4) | intermediate: Lv.2 중급 (N3) | advanced: Lv.3 실전 (N2) | master: Lv.4 심화 (레터 독해)
+export type LessonLevel = 'starter' | 'beginner' | 'intermediate' | 'advanced';
+// starter: Lv.0 입문 (히라가나 소리·쓰기) | beginner: Lv.1 초급 (N5-N4) | intermediate: Lv.2 중급 (N3) | advanced: Lv.3 실전 (N2)
 
 export interface DailyLesson {
   id: string;

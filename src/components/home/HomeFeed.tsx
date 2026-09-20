@@ -13,7 +13,8 @@ import {
   FolderArchive,
   Compass,
   ArrowRight,
-  Baby
+  Baby,
+  Pencil
 } from 'lucide-react';
 
 interface HomeFeedProps {
@@ -120,24 +121,31 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
               매일 하나씩 배우는 일본어
             </h1>
             <p className="text-xs text-[#718096] leading-relaxed">
-              히라가나를 몰라도 괜찮아요! <strong>Lv.0 유치원생 입문</strong>부터 차근차근 시작해보세요.
+              히라가나를 몰라도 괜찮아요! <strong>Lv.0 히라가나 입문</strong>부터 차근차근 시작해보세요.
             </p>
           </div>
 
           {/* Lv.0 바로 시작 추천 칩 */}
           <div className="pt-1 flex items-center gap-2 overflow-x-auto no-scrollbar">
             <Link
-              href="/?lessonId=lesson-starter-1"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D97706] border border-amber-300 shadow-2xs hover:bg-amber-50 transition-all shrink-0"
+              href="/hiragana"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E07A5F] text-xs font-black text-white shadow-2xs hover:bg-[#C45B40] transition-all shrink-0"
             >
-              <Baby className="w-3.5 h-3.5 text-amber-600" />
+              <Pencil className="w-3.5 h-3.5" />
+              <span>히라가나 스튜디오 (소리·쓰기)</span>
+            </Link>
+            <Link
+              href="/?lessonId=lesson-starter-1"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D96B4F] border border-[#FCDCCE] shadow-2xs hover:bg-[#FFF2EA] transition-all shrink-0"
+            >
+              <Baby className="w-3.5 h-3.5 text-[#E78B70]" />
               <span>Lv.0 고마워요! 배우기</span>
             </Link>
             <Link
               href="/?lessonId=lesson-starter-2"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D97706] border border-amber-300 shadow-2xs hover:bg-amber-50 transition-all shrink-0"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D96B4F] border border-[#FCDCCE] shadow-2xs hover:bg-[#FFF2EA] transition-all shrink-0"
             >
-              <Baby className="w-3.5 h-3.5 text-amber-600" />
+              <Baby className="w-3.5 h-3.5 text-[#E78B70]" />
               <span>Lv.0 이거 주세요! 배우기</span>
             </Link>
           </div>
