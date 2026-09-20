@@ -24,7 +24,7 @@ interface RoadmapViewProps {
 }
 
 export default function RoadmapView({ levels }: RoadmapViewProps) {
-  const [selectedLevelFilter, setSelectedLevelFilter] = useState<LessonLevel | 'all'>('all');
+  const [selectedLevel, setSelectedLevel] = useState<LessonLevel>('starter');
 
   const getLevelIcon = (level: LessonLevel, inBadge: boolean = false) => {
     const iconClass = inBadge ? 'w-3.5 h-3.5 text-white' : 'w-4 h-4';
@@ -40,9 +40,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
     }
   };
 
-  const filteredLevels = selectedLevelFilter === 'all'
-    ? levels
-    : levels.filter((lvl) => lvl.level === selectedLevelFilter);
+  const filteredLevels = levels.filter((lvl) => lvl.level === selectedLevel);
 
   return (
     <div className="px-4 pt-4 pb-24 space-y-6 max-w-xl mx-auto">
@@ -65,36 +63,28 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
         </div>
       </section>
 
-      {/* 2. 레벨 빠른 필터 탭 */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-        <button
-          onClick={() => setSelectedLevelFilter('all')}
-          className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 ${
-            selectedLevelFilter === 'all'
-              ? 'bg-[#2D3748] text-white shadow-xs'
-              : 'bg-white text-[#718096] border border-[#EDE8E1] hover:bg-stone-50'
-          }`}
-        >
-          전체 보기
-        </button>
+      {/* 2. 레벨 전환 탭 (4개 탭 모바일 균등 배치) */}
+      <div className="grid grid-cols-4 gap-1.5 py-1">
         {levels.map((lvl) => {
-          const isSelected = selectedLevelFilter === lvl.level;
+          const isSelected = selectedLevel === lvl.level;
           return (
             <button
               key={lvl.level}
-              onClick={() => setSelectedLevelFilter(lvl.level)}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 border ${
+              type="button"
+              onClick={() => setSelectedLevel(lvl.level)}
+              className={`flex items-center justify-center gap-1 py-2 px-1 rounded-2xl text-xs font-bold transition-all border ${
                 isSelected
-                  ? 'bg-white shadow-xs font-black'
-                  : 'bg-white/60 text-[#718096] border-[#EDE8E1] hover:bg-white'
+                  ? 'shadow-xs font-black scale-[1.02]'
+                  : 'bg-white/80 text-[#718096] border-[#EDE8E1] hover:bg-white hover:text-[#2D3748]'
               }`}
               style={{
+                backgroundColor: isSelected ? lvl.bgLight : undefined,
                 color: isSelected ? lvl.color : undefined,
-                borderColor: isSelected ? lvl.color : '#EDE8E1'
+                borderColor: isSelected ? lvl.borderColor : '#EDE8E1'
               }}
             >
               <span>{getLevelIcon(lvl.level)}</span>
-              <span>{lvl.badge}</span>
+              <span className="truncate">{lvl.badge}</span>
             </button>
           );
         })}
@@ -108,9 +98,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
           return (
             <section
               key={lvl.level}
-              className={`rounded-3xl border transition-all overflow-hidden bg-white shadow-xs ${
-                isStarter ? 'ring-2 ring-[#E78B70]/30' : ''
-              }`}
+              className="rounded-3xl border transition-all overflow-hidden bg-white shadow-xs"
               style={{ borderColor: lvl.borderColor }}
             >
               {/* 레벨 헤더 */}
