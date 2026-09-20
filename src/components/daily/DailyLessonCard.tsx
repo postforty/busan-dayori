@@ -20,6 +20,7 @@ import {
   Zap,
   Flame
 } from 'lucide-react';
+import { enrichLessonWithCurriculum } from '@/lib/curriculum/curriculumData';
 
 interface DailyLessonCardProps {
   lesson: DailyLesson;
@@ -295,6 +296,8 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
     }
   };
 
+  const effectiveLesson = enrichLessonWithCurriculum(lesson);
+
   return (
     <div className="bg-white rounded-3xl border border-[#EDE8E1] card-shadow overflow-hidden transition-all">
       {/* 1. 상단 헤더 뱃지 및 레슨 보관 버튼 */}
@@ -305,35 +308,35 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
               <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
               <span>AIカスタム</span>
             </span>
-          ) : lesson.level === 'starter' ? (
+          ) : effectiveLesson.level === 'starter' ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFF2EA] text-[11px] font-black text-[#D96B4F] border border-[#FCDCCE] whitespace-nowrap shadow-xs shrink-0">
               <Baby className="w-3.5 h-3.5 text-[#E78B70] shrink-0" />
               <span>Lv.0 입문</span>
             </span>
-          ) : lesson.level === 'beginner' ? (
+          ) : effectiveLesson.level === 'beginner' ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF0E6] text-[11px] font-black text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shadow-xs shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
               <span>Lv.1 초급</span>
             </span>
-          ) : lesson.level === 'intermediate' ? (
+          ) : effectiveLesson.level === 'intermediate' ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F7EBE5] text-[11px] font-black text-[#C45B40] border border-[#ECCDC2] whitespace-nowrap shadow-xs shrink-0">
               <Zap className="w-3.5 h-3.5 text-[#C45B40] shrink-0" />
               <span>Lv.2 중급</span>
             </span>
-          ) : lesson.level === 'advanced' ? (
+          ) : effectiveLesson.level === 'advanced' ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F4E7E1] text-[11px] font-black text-[#943A25] border border-[#E4BFB4] whitespace-nowrap shadow-xs shrink-0">
               <Flame className="w-3.5 h-3.5 text-[#943A25] shrink-0" />
               <span>Lv.3 실전</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shadow-xs shrink-0">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FAF0E6] text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] whitespace-nowrap shadow-xs shrink-0">
               <Sparkles className="w-3 h-3 text-[#D97706] shrink-0" />
-              <span>Day {lesson.dayNumber}</span>
+              <span>추천 레슨</span>
             </span>
           )}
 
           <span className="text-xs font-bold text-[#2D3748] truncate">
-            {lesson.unitTitle || lesson.seriesTitle}
+            {effectiveLesson.unitTitle || effectiveLesson.themeTitle || effectiveLesson.seriesTitle}
           </span>
         </div>
 

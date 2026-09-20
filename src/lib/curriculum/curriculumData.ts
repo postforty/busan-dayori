@@ -545,13 +545,108 @@ export function findCurriculumUnit(lessonId: string): { unit: CurriculumLevel['u
   return null;
 }
 
+export function enrichLessonWithCurriculum(lesson: DailyLesson): DailyLesson {
+  const found = findCurriculumUnit(lesson.id);
+  if (!found) {
+    return lesson;
+  }
+  const { unit, level } = found;
+  return {
+    ...lesson,
+    level: lesson.level || level.level,
+    unitTitle: lesson.unitTitle || `Unit ${unit.unitNumber}: ${unit.title}`,
+    seriesTitle: lesson.seriesTitle || `${level.badge} ${level.title}`,
+    themeTitle: lesson.themeTitle || unit.title,
+    pronunciationKorean: lesson.pronunciationKorean || unit.pronunciationKorean,
+  };
+}
+
+export interface FlatCurriculumUnit {
+  unit: CurriculumLevel['units'][0];
+  level: CurriculumLevel;
+}
+
+export function getAllCurriculumUnits(): FlatCurriculumUnit[] {
+  const list: FlatCurriculumUnit[] = [];
+  for (const lvl of curriculumLevels) {
+    for (const u of lvl.units) {
+      list.push({ unit: u, level: lvl });
+    }
+  }
+  return list;
+}
+
+export function getAdjacentCurriculumUnits(currentLessonId: string): {
+  prev: FlatCurriculumUnit | null;
+  current: FlatCurriculumUnit | null;
+  next: FlatCurriculumUnit | null;
+  currentIndex: number;
+  totalUnits: number;
+} {
+  const allUnits = getAllCurriculumUnits();
+  const currentIndex = allUnits.findIndex((item) => item.unit.lessonId === currentLessonId);
+
+  return {
+    prev: currentIndex > 0 ? allUnits[currentIndex - 1] : null,
+    current: currentIndex >= 0 ? allUnits[currentIndex] : null,
+    next: currentIndex >= 0 && currentIndex < allUnits.length - 1 ? allUnits[currentIndex + 1] : null,
+    currentIndex: currentIndex >= 0 ? currentIndex + 1 : 1,
+    totalUnits: allUnits.length,
+  };
+}
+
 export function getLessonByIdFromCurriculum(lessonId: string): DailyLesson | null {
   for (const lvl of curriculumLevels) {
     for (const u of lvl.units) {
-      if (u.lessonId === lessonId && u.lessonData) {
-        return u.lessonData;
+      if (u.lessonId === lessonId) {
+        if (u.lessonData) {
+          return enrichLessonWithCurriculum(u.lessonData);
+        }
+        // lessonData가 없는 유닛을 위한 완성형 대체 레슨
+        return {
+          id: u.lessonId,
+          dayNumber: u.unitNumber,
+          level: lvl.level,
+          seriesTitle: `${lvl.badge} ${lvl.title}`,
+          themeTitle: u.title,
+          unitTitle: `Unit ${u.unitNumber}: ${u.title}`,
+          pronunciationKorean: u.pronunciationKorean,
+          keyExpression: {
+            japanese: u.keyPhrase,
+            reading: u.keyPhrase,
+            korean: u.keyPhraseKorean
+          },
+          dialogue: [
+            {
+              speaker: '나',
+              japanese: u.keyPhrase,
+              korean: u.keyPhraseKorean
+            },
+            {
+              speaker: '상대방',
+              japanese: 'かしこまりました。どうぞ！',
+              korean: '알겠습니다. 여기 있습니다!'
+            }
+          ],
+          grammar: {
+            title: `핵심 표현: ${u.keyPhrase}`,
+            structure: u.keyPhrase,
+            explanation: u.description
+          },
+          vocabulary: [
+            {
+              id: `${u.id}-v1`,
+              kanji: u.keyPhrase.split(' ')[0] || u.keyPhrase,
+              reading: u.keyPhrase.split(' ')[0] || u.keyPhrase,
+              meaning: u.keyPhraseKorean,
+              partOfSpeech: '표현'
+            }
+          ],
+          nuanceTip: u.description
+        };
       }
     }
   }
   return null;
 }
+

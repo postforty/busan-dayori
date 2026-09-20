@@ -49,16 +49,16 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
         <div className="relative z-10">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[11px] font-bold text-[#E07A5F] mb-2.5 border border-[#F4DDD4]">
             <Compass className="w-3.5 h-3.5 text-[#E07A5F]" />
-            <span>단계별 일본어 성장 사다리</span>
+            <span>차곡차곡 채워가는 성장 사다리</span>
           </div>
 
           <h1 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug mb-2">
-            日本語 学習ロードマップ
+            나의 일본어 챌린지 로드맵
             <br />
-            <span className="text-[#E07A5F] text-lg">나에게 꼭 맞는 레벨부터 시작해요</span>
+            <span className="text-[#E07A5F] text-lg">첫 히라가나부터 부산을 소개하는 편지 한 통까지</span>
           </h1>
           <p className="text-xs text-[#718096] leading-relaxed">
-            일본어를 전혀 몰라도 괜찮아요! <strong>Lv.0 히라가나 입문</strong>부터 원어민 뉘앙스의 <strong>Lv.3 실전</strong>까지 차근차근 단계별로 준비되어 있습니다.
+            처음 글자를 그리는 <strong>Lv.0 입문</strong>부터, 부산의 골목과 맛을 생생하게 들려주는 <strong>Lv.3 실전</strong>까지! 매일의 작은 챌린지로 나만의 배움 일기를 완성합니다.
           </p>
         </div>
       </section>
@@ -234,18 +234,18 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
         })}
       </div>
 
-      {/* 4. 일본인을 위한 부산 로컬 편지 (독립 문화 콘텐츠 안내) */}
+      {/* 4. 일본인을 위한 부산 로컬 편지 (배움의 결실) */}
       <section className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FAF0E6] text-[11px] font-bold text-[#E07A5F]">
             <Mail className="w-3 h-3" />
-            <span>부산 토박이의 로컬 편지</span>
+            <span>배움이 닿는 곳・부산 로컬 편지</span>
           </div>
           <h3 className="text-sm font-bold text-[#2D3748]">
-            일본인 친구에게 들려주는 부산의 숨은 이야기
+            내가 배운 일본어로 건네는 다정한 부산 이야기
           </h3>
           <p className="text-xs text-[#718096] leading-relaxed">
-            공부와 별개로, 부산 토박이가 일본인 독자를 위해 직접 쓴 로컬 맛집과 감성 에세이를 편하게 만나보세요.
+            매일 챌린지로 익힌 표현들로, 부산을 사랑하는 일본인 여행자들에게 나의 단골 맛집과 숨은 골목 이야기를 편지(お便り)로 선물합니다.
           </p>
         </div>
         <Link

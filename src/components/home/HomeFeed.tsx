@@ -6,7 +6,11 @@ import { useSearchParams } from 'next/navigation';
 import { DailyLesson } from '@/types';
 import DailyLessonCard from '@/components/daily/DailyLessonCard';
 import AiGeneratorBar from '@/components/daily/AiGeneratorBar';
-import { getLessonByIdFromCurriculum } from '@/lib/curriculum/curriculumData';
+import {
+  getLessonByIdFromCurriculum,
+  enrichLessonWithCurriculum,
+  getAdjacentCurriculumUnits
+} from '@/lib/curriculum/curriculumData';
 import {
   BookOpen,
   Sparkles,
@@ -14,7 +18,9 @@ import {
   Compass,
   ArrowRight,
   Baby,
-  Pencil
+  Pencil,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface HomeFeedProps {
@@ -31,26 +37,70 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
       const fromCurriculum = getLessonByIdFromCurriculum(queryLessonId);
       if (fromCurriculum) return fromCurriculum;
       const fromInitial = initialLessons.find((l) => l.id === queryLessonId);
-      if (fromInitial) return fromInitial;
+      if (fromInitial) return enrichLessonWithCurriculum(fromInitial);
     }
 
-    return (
-      initialLessons[0] || {
-        id: 'default',
-        dayNumber: 1,
-        seriesTitle: '기본 레슨',
-        themeTitle: '일본어 기본 표현',
-        keyExpression: { japanese: '', reading: '', korean: '' },
-        dialogue: [],
-        grammar: { title: '', structure: '', explanation: '' },
-        vocabulary: [],
-        nuanceTip: ''
-      }
-    );
+    const firstLesson = initialLessons[0]
+      ? enrichLessonWithCurriculum(initialLessons[0])
+      : getLessonByIdFromCurriculum('lesson-starter-1') || {
+          id: 'default',
+          dayNumber: 1,
+          seriesTitle: '기본 레슨',
+          themeTitle: '일본어 기본 표현',
+          keyExpression: { japanese: '', reading: '', korean: '' },
+          dialogue: [],
+          grammar: { title: '', structure: '', explanation: '' },
+          vocabulary: [],
+          nuanceTip: ''
+        };
+
+    return firstLesson;
   });
 
   const [isAiGenerated, setIsAiGenerated] = useState(false);
   const [savedLessons, setSavedLessons] = useState<DailyLesson[]>([]);
+
+  // 레슨 선택 및 진도 기억
+  const selectLesson = (lesson: DailyLesson, isAi: boolean = false) => {
+    const enriched = enrichLessonWithCurriculum(lesson);
+    setCurrentLesson(enriched);
+    setIsAiGenerated(isAi);
+    if (!isAi) {
+      try {
+        localStorage.setItem('last_studied_lesson_id', enriched.id);
+      } catch {
+        // 무시
+      }
+    }
+  };
+
+  // 마지막 학습 진도 복원 (쿼리 파라미터가 없을 때)
+  useEffect(() => {
+    if (!queryLessonId) {
+      try {
+        const lastLessonId = localStorage.getItem('last_studied_lesson_id');
+        if (lastLessonId) {
+          const fromCurriculum = getLessonByIdFromCurriculum(lastLessonId);
+          if (fromCurriculum) {
+            setTimeout(() => {
+              setCurrentLesson(fromCurriculum);
+              setIsAiGenerated(false);
+            }, 0);
+            return;
+          }
+          const fromInitial = initialLessons.find((l) => l.id === lastLessonId);
+          if (fromInitial) {
+            setTimeout(() => {
+              setCurrentLesson(enrichLessonWithCurriculum(fromInitial));
+              setIsAiGenerated(false);
+            }, 0);
+          }
+        }
+      } catch {
+        // 무시
+      }
+    }
+  }, [queryLessonId, initialLessons]);
 
   // 쿼리 파라미터 변경 시 레슨 업데이트
   useEffect(() => {
@@ -58,16 +108,14 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
       const fromCurriculum = getLessonByIdFromCurriculum(queryLessonId);
       if (fromCurriculum) {
         setTimeout(() => {
-          setCurrentLesson(fromCurriculum);
-          setIsAiGenerated(false);
+          selectLesson(fromCurriculum, false);
         }, 0);
         return;
       }
       const fromInitial = initialLessons.find((l) => l.id === queryLessonId);
       if (fromInitial) {
         setTimeout(() => {
-          setCurrentLesson(fromInitial);
-          setIsAiGenerated(false);
+          selectLesson(fromInitial, false);
         }, 0);
       }
     }
@@ -92,6 +140,21 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
     setIsAiGenerated(isAi);
   };
 
+  // 인접 로드맵 유닛 계산
+  const adjacentInfo = getAdjacentCurriculumUnits(currentLesson.id);
+
+  const handleGoToAdjacent = (targetLessonId: string) => {
+    const fromCurriculum = getLessonByIdFromCurriculum(targetLessonId);
+    if (fromCurriculum) {
+      selectLesson(fromCurriculum, false);
+      return;
+    }
+    const fromInitial = initialLessons.find((l) => l.id === targetLessonId);
+    if (fromInitial) {
+      selectLesson(fromInitial, false);
+    }
+  };
+
   return (
     <div className="px-4 pt-4 pb-20 space-y-6 max-w-xl mx-auto">
       {/* 1. 웰컴 인트로 배너 */}
@@ -99,54 +162,58 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
         <div className="relative z-10 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[10px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
-              <Sparkles className="w-3 h-3 text-[#D97706]" />
-              <span>まいにちの日本語ノート</span>
+              <Sparkles className="w-3 h-3 text-[#E07A5F]" />
+              <span>釜山だより・매일의 일본어 일기</span>
             </div>
 
             {/* 로드맵 바로가기 버튼 */}
             <Link
               href="/roadmap"
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D97706] hover:text-[#B45309] bg-amber-50 hover:bg-amber-100/70 px-2.5 py-1 rounded-full border border-amber-200 transition-colors"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E07A5F] hover:text-[#C45B40] bg-white/80 hover:bg-white px-2.5 py-1 rounded-full border border-[#F4DDD4] transition-colors shadow-2xs"
             >
               <Compass className="w-3 h-3" />
-              <span>로드맵·커리큘럼</span>
+              <span>챌린지 로드맵</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           <div>
             <h1 className="text-lg font-black text-[#2D3748] tracking-tight leading-snug mb-1">
-              왕초보부터 실전 회화까지,
+              매일 한 걸음 일본어 챌린지,
               <br />
-              매일 하나씩 배우는 일본어
+              부산의 따뜻한 이야기를 편지에 담기까지
             </h1>
             <p className="text-xs text-[#718096] leading-relaxed">
-              히라가나를 몰라도 괜찮아요! <strong>Lv.0 히라가나 입문</strong>부터 차근차근 시작해보세요.
+              히라가나 한 글자부터 차곡차곡 일기 쓰듯 도전해요. 정성껏 배운 일본어로 부산을 찾는 일본인 친구에게 다정한 편지를 띄웁니다.
             </p>
           </div>
 
-          {/* Lv.0 바로 시작 추천 칩 */}
-          <div className="pt-1 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          {/* 히라가나 스튜디오 단일 메인 CTA (제안 A) */}
+          <div className="pt-1">
             <Link
               href="/hiragana"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E07A5F] text-xs font-black text-white shadow-2xs hover:bg-[#C45B40] transition-all shrink-0"
+              className="flex items-center justify-between gap-2 w-full p-3 rounded-2xl bg-white border border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs transition-all group"
             >
-              <Pencil className="w-3.5 h-3.5" />
-              <span>히라가나 스튜디오 (소리·쓰기)</span>
-            </Link>
-            <Link
-              href="/?lessonId=lesson-starter-1"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D96B4F] border border-[#FCDCCE] shadow-2xs hover:bg-[#FFF2EA] transition-all shrink-0"
-            >
-              <Baby className="w-3.5 h-3.5 text-[#E78B70]" />
-              <span>Lv.0 고마워요! 배우기</span>
-            </Link>
-            <Link
-              href="/?lessonId=lesson-starter-2"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-xs font-black text-[#D96B4F] border border-[#FCDCCE] shadow-2xs hover:bg-[#FFF2EA] transition-all shrink-0"
-            >
-              <Baby className="w-3.5 h-3.5 text-[#E78B70]" />
-              <span>Lv.0 이거 주세요! 배우기</span>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
+                  <Pencil className="w-4 h-4 text-[#E07A5F]" />
+                </div>
+                <div className="text-left min-w-0">
+                  <div className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors flex items-center gap-1.5 flex-wrap">
+                    <span>히라가나 캔버스 스튜디오</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
+                      Lv.0 입문
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#718096] truncate">
+                    50음도 소리 탐색 · 획순 직접 쓰기 연습
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-0.5 text-xs font-bold text-[#E07A5F] shrink-0">
+                <span>시작하기</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </div>
             </Link>
           </div>
         </div>
@@ -157,52 +224,105 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
 
       {/* 3. 데일리 일본어 학습 카드 섹션 */}
       <section className="space-y-3">
+        {/* 섹션 헤더: 로드맵 연동 및 타이틀 */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
             <BookOpen className="w-4 h-4 text-[#E07A5F] shrink-0" />
             <h2 className="text-sm font-bold text-[#2D3748] truncate">
-              今日の学習ノート (데일리 레슨)
+              今日の学習ノート (오늘의 챌린지 일기)
             </h2>
           </div>
 
-          {/* 기본 프리셋 레슨 및 보관함 레슨 선택 칩 */}
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-            {initialLessons.map((lesson) => (
-              <button
-                key={lesson.id}
-                onClick={() => {
-                  setCurrentLesson(lesson);
-                  setIsAiGenerated(false);
-                }}
-                className={`px-2 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all ${
-                  currentLesson.id === lesson.id && !isAiGenerated
-                    ? 'bg-[#2D3748] text-white'
-                    : 'bg-white text-gray-400 border border-[#EDE8E1] hover:bg-gray-50'
-                }`}
-              >
-                Day {lesson.dayNumber}
-              </button>
-            ))}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* AI 보관함 레슨이 있는 경우에만 선택 칩 제공 */}
+            {savedLessons.length > 0 && (
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 max-w-[120px]">
+                {savedLessons.map((lesson, idx) => (
+                  <button
+                    key={lesson.id}
+                    onClick={() => {
+                      setCurrentLesson(lesson);
+                      setIsAiGenerated(true);
+                    }}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
+                      currentLesson.id === lesson.id && isAiGenerated
+                        ? 'bg-[#E07A5F] text-white'
+                        : 'bg-[#FAF0E6] text-[#E07A5F] border border-[#F4DDD4]'
+                    }`}
+                    title={lesson.themeTitle}
+                  >
+                    <FolderArchive className="w-2.5 h-2.5" />
+                    <span>저장 {idx + 1}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
-            {savedLessons.map((lesson, idx) => (
-              <button
-                key={lesson.id}
-                onClick={() => {
-                  setCurrentLesson(lesson);
-                  setIsAiGenerated(true);
-                }}
-                className={`px-2 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
-                  currentLesson.id === lesson.id
-                    ? 'bg-[#E07A5F] text-white'
-                    : 'bg-[#FAF0E6] text-[#E07A5F] border border-[#F4DDD4] hover:bg-[#F4DDD4]'
-                }`}
-                title={lesson.themeTitle}
-              >
-                <FolderArchive className="w-2.5 h-2.5" />
-                <span>保存 {idx + 1}</span>
-              </button>
-            ))}
+            {/* 전체 로드맵 바로가기 버튼 */}
+            <Link
+              href="/roadmap"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white text-[#E07A5F] border border-[#F4DDD4] text-[11px] font-bold hover:bg-[#FAF0E6] transition-colors shadow-2xs"
+            >
+              <Compass className="w-3 h-3 text-[#E07A5F]" />
+              <span>전체 로드맵</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
+        </div>
+
+        {/* 로드맵 진도 네비게이션 컨트롤 */}
+        <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-[#FAF0E6]/80 to-[#FFF9F2]/80 rounded-2xl border border-[#F4DDD4]">
+          <button
+            type="button"
+            disabled={!adjacentInfo.prev}
+            onClick={() => adjacentInfo.prev && handleGoToAdjacent(adjacentInfo.prev.unit.lessonId)}
+            className={`flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-xl transition-all ${
+              adjacentInfo.prev
+                ? 'bg-white text-[#E07A5F] border border-[#F4DDD4] shadow-2xs hover:bg-[#FFF6F1] active:scale-95'
+                : 'text-gray-300 border border-transparent cursor-not-allowed'
+            }`}
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">이전 유닛</span>
+          </button>
+
+          {/* 현재 유닛 단계 및 위치 표시 */}
+          <div className="flex items-center gap-1.5 text-center">
+            {adjacentInfo.current ? (
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="px-2 py-0.5 rounded-full text-[10px] font-black text-white shadow-2xs"
+                  style={{ backgroundColor: adjacentInfo.current.level.color }}
+                >
+                  {adjacentInfo.current.level.badge}
+                </span>
+                <span className="text-xs font-black text-[#2D3748]">
+                  Unit {adjacentInfo.current.unit.unitNumber}
+                </span>
+                <span className="text-[10px] text-[#718096] font-medium hidden xs:inline">
+                  ({adjacentInfo.currentIndex}/{adjacentInfo.totalUnits})
+                </span>
+              </div>
+            ) : (
+              <span className="text-xs font-bold text-[#2D3748]">
+                {currentLesson.unitTitle || currentLesson.themeTitle}
+              </span>
+            )}
+          </div>
+
+          <button
+            type="button"
+            disabled={!adjacentInfo.next}
+            onClick={() => adjacentInfo.next && handleGoToAdjacent(adjacentInfo.next.unit.lessonId)}
+            className={`flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-xl transition-all ${
+              adjacentInfo.next
+                ? 'bg-white text-[#E07A5F] border border-[#F4DDD4] shadow-2xs hover:bg-[#FFF6F1] active:scale-95'
+                : 'text-gray-300 border border-transparent cursor-not-allowed'
+            }`}
+          >
+            <span className="hidden sm:inline">다음 유닛</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         <DailyLessonCard lesson={currentLesson} isAiGenerated={isAiGenerated} />
