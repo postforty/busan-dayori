@@ -27,7 +27,8 @@ import {
   EyeOff,
   Flame,
   ChevronRight,
-  Compass
+  Compass,
+  Lightbulb
 } from 'lucide-react';
 
 type StudioStep = 'sound' | 'write' | 'words' | 'dialogue';
@@ -678,7 +679,7 @@ export default function HiraganaStudio({
                   </>
                 ) : (
                   <>
-                    <span>✍️</span>
+                    <Pencil className="w-3 h-3 text-[#E07A5F]" />
                     <span>{drawnStrokes} / {selectedChar.strokeCount}획</span>
                   </>
                 )}
@@ -707,8 +708,11 @@ export default function HiraganaStudio({
 
             {/* 획순 가이드 텍스트 */}
             {selectedChar.strokeGuide && (
-              <p className="text-xs text-center font-medium text-[#718096] bg-[#FAF9F7] py-2 px-3 rounded-xl border border-[#EDE8E1]">
-                ✍️ <strong>획순 가이드:</strong> {selectedChar.strokeGuide}
+              <p className="text-xs text-center font-medium text-[#718096] bg-[#FAF9F7] py-2 px-3 rounded-xl border border-[#EDE8E1] flex items-center justify-center gap-1.5">
+                <Pencil className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+                <span>
+                  <strong>획순 가이드:</strong> {selectedChar.strokeGuide}
+                </span>
               </p>
             )}
 
@@ -805,8 +809,11 @@ export default function HiraganaStudio({
                       ))}
                   </div>
 
-                  <p className="text-xs text-amber-900 bg-amber-50/80 p-2.5 rounded-xl border border-amber-200/70 leading-relaxed font-medium">
-                    💡 <strong>암기 팁:</strong> {currentPair.tip}
+                  <p className="text-xs text-amber-900 bg-amber-50/80 p-2.5 rounded-xl border border-amber-200/70 leading-relaxed font-medium flex items-start gap-1.5">
+                    <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>암기 팁:</strong> {currentPair.tip}
+                    </span>
                   </p>
                 </div>
               );
