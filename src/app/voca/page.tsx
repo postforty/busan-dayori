@@ -119,9 +119,9 @@ export default function VocaPage() {
     <div className="px-4 pt-4 space-y-5">
       {/* 1. 헤더 인트로 */}
       <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4]">
-        <div className="flex items-center justify-between mb-1.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#E07A5F]">
-            <Bookmark className="w-4 h-4" />
+        <div className="flex items-center justify-between gap-2 mb-2.5">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
+            <Bookmark className="w-3.5 h-3.5 text-[#E07A5F]" />
             <span>釜山っ子の日本語ノート</span>
           </div>
 
@@ -132,7 +132,7 @@ export default function VocaPage() {
                 setIsFlipped(false);
                 setFlashcardIndex(0);
               }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#E07A5F] hover:bg-[#D0694E] text-white rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#E07A5F] hover:bg-[#D0694E] text-white rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm shrink-0 whitespace-nowrap"
             >
               <RotateCw className="w-3.5 h-3.5" />
               <span>{isFlashcardMode ? '一覧で見る' : 'カードで復習'}</span>

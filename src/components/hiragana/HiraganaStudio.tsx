@@ -405,11 +405,10 @@ export default function HiraganaStudio({
                   stopJapaneseSpeech();
                   setCurrentStep(tab.key as StudioStep);
                 }}
-                className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-[11px] font-bold transition-all ${
-                  isActive
-                    ? 'bg-[#E07A5F] text-white shadow-xs scale-[1.02]'
-                    : 'bg-white/80 text-[#718096] hover:bg-white hover:text-[#2D3748] border border-[#EDE8E1]'
-                }`}
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-[11px] font-bold transition-all ${isActive
+                  ? 'bg-[#E07A5F] text-white shadow-xs scale-[1.02]'
+                  : 'bg-white/80 text-[#718096] hover:bg-white hover:text-[#2D3748] border border-[#EDE8E1]'
+                  }`}
               >
                 <Icon className={`w-3.5 h-3.5 mb-0.5 ${isActive ? 'text-white' : 'text-[#718096]'}`} />
                 <span className="truncate">{tab.label}</span>
@@ -425,21 +424,22 @@ export default function HiraganaStudio({
       {currentStep === 'sound' && (
         <section className="space-y-4">
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <h2 className="text-sm font-bold text-[#2D3748]">
-                  50음도 사운드보드 (五十音図)
+            <div className="flex items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-xl bg-[#FAF0E6] flex items-center justify-center text-[#E07A5F] shrink-0">
+                  <Volume2 className="w-4 h-4" />
+                </div>
+                <h2 className="text-sm font-black text-[#2D3748] flex items-center gap-1.5 truncate">
+                  <span>五十音図</span>
+                  <span className="text-xs font-semibold text-[#A0AEC0]">(50음도)</span>
                 </h2>
-                <p className="text-xs text-[#718096]">
-                  글자를 탭하면 원어민의 정확한 소리를 들을 수 있어요.
-                </p>
               </div>
 
               {/* 현재 선택된 글자 바로 쓰기 링크 */}
               <button
                 type="button"
                 onClick={() => setCurrentStep('write')}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition-colors shrink-0 whitespace-nowrap"
               >
                 <span>'{selectedChar.char}' 써보기</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -476,16 +476,14 @@ export default function HiraganaStudio({
                             setSelectedChar(charItem);
                             handlePlayCharSound(charItem);
                           }}
-                          className={`aspect-square rounded-2xl flex flex-col items-center justify-center p-1 transition-all relative group ${
-                            isSelected
-                              ? 'bg-[#FAF0E6] border-2 border-[#E07A5F] shadow-xs scale-105 z-10'
-                              : 'bg-white hover:bg-stone-50 border border-[#EDE8E1] hover:border-[#E07A5F]/50'
-                          }`}
+                          className={`aspect-square rounded-2xl flex flex-col items-center justify-center p-1 transition-all relative group ${isSelected
+                            ? 'bg-[#FAF0E6] border-2 border-[#E07A5F] shadow-xs scale-105 z-10'
+                            : 'bg-white hover:bg-stone-50 border border-[#EDE8E1] hover:border-[#E07A5F]/50'
+                            }`}
                         >
                           <span
-                            className={`text-lg font-black leading-none ${
-                              isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
-                            }`}
+                            className={`text-lg font-black leading-none ${isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
+                              }`}
                           >
                             {charItem.char}
                           </span>
@@ -570,21 +568,21 @@ export default function HiraganaStudio({
       {currentStep === 'write' && (
         <section className="space-y-4">
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <div>
+            <div className="flex items-center justify-between gap-2.5">
+              <div className="min-w-0">
                 <h2 className="text-sm font-bold text-[#2D3748]">
                   손글씨 캔버스 쓰기 연습
                 </h2>
-                <p className="text-xs text-[#718096]">
+                <p className="text-xs text-[#718096] truncate">
                   가이드 글자 위로 손가락이나 마우스로 직접 획을 그어보세요.
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => handlePlayCharSound(selectedChar)}
-                  className="p-2 rounded-xl bg-stone-100 hover:bg-[#FAF0E6] text-[#718096] hover:text-[#E07A5F] transition-colors"
+                  className="p-2 rounded-xl bg-stone-100 hover:bg-[#FAF0E6] text-[#718096] hover:text-[#E07A5F] transition-colors shrink-0"
                   title="발음 듣기"
                 >
                   <Volume2 className="w-4 h-4" />
@@ -592,7 +590,7 @@ export default function HiraganaStudio({
                 <button
                   type="button"
                   onClick={clearCanvas}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#4A5568] text-xs font-bold transition-colors"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#4A5568] text-xs font-bold transition-colors shrink-0 whitespace-nowrap"
                   title="지우기"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -619,20 +617,18 @@ export default function HiraganaStudio({
                     key={c.char}
                     type="button"
                     onClick={() => setSelectedChar(c)}
-                    className={`relative w-9 h-9 rounded-xl text-sm font-black shrink-0 transition-all ${
-                      isSelected
-                        ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
-                        : isDone
+                    className={`relative w-9 h-9 rounded-xl text-sm font-black shrink-0 transition-all ${isSelected
+                      ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
+                      : isDone
                         ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
                         : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
-                    }`}
+                      }`}
                   >
                     {c.char}
                     {isDone && (
                       <span
-                        className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
-                          isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
-                        }`}
+                        className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
+                          }`}
                       >
                         ✓
                       </span>
@@ -644,11 +640,10 @@ export default function HiraganaStudio({
 
             {/* 캔버스 영역 */}
             <div
-              className={`relative w-full aspect-square max-w-[340px] mx-auto bg-[#FFFDF9] rounded-3xl overflow-hidden shadow-inner flex items-center justify-center transition-all duration-500 ${
-                isCharCompleted
-                  ? 'border-2 border-amber-400 ring-4 ring-amber-300/60 shadow-[0_0_30px_rgba(251,191,36,0.35)] scale-[1.01]'
-                  : 'border-2 border-dashed border-[#F4DDD4]'
-              }`}
+              className={`relative w-full aspect-square max-w-[340px] mx-auto bg-[#FFFDF9] rounded-3xl overflow-hidden shadow-inner flex items-center justify-center transition-all duration-500 ${isCharCompleted
+                ? 'border-2 border-amber-400 ring-4 ring-amber-300/60 shadow-[0_0_30px_rgba(251,191,36,0.35)] scale-[1.01]'
+                : 'border-2 border-dashed border-[#F4DDD4]'
+                }`}
             >
               {/* 십자 가이드 보조선 */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -665,11 +660,10 @@ export default function HiraganaStudio({
 
               {/* 획순 팁 및 완료 배지 */}
               <div
-                className={`absolute top-3 left-3 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold transition-all duration-300 pointer-events-none flex items-center gap-1 shadow-2xs ${
-                  isCharCompleted
-                    ? 'bg-amber-100 text-amber-900 border border-amber-300 animate-pulse ring-2 ring-amber-400/40'
-                    : 'bg-white/90 text-[#E07A5F] border border-[#F4DDD4]'
-                }`}
+                className={`absolute top-3 left-3 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold transition-all duration-300 pointer-events-none flex items-center gap-1 shadow-2xs ${isCharCompleted
+                  ? 'bg-amber-100 text-amber-900 border border-amber-300 animate-pulse ring-2 ring-amber-400/40'
+                  : 'bg-white/90 text-[#E07A5F] border border-[#F4DDD4]'
+                  }`}
               >
                 {isCharCompleted ? (
                   <>
@@ -706,15 +700,40 @@ export default function HiraganaStudio({
 
 
 
-            {/* 획순 가이드 텍스트 */}
-            {selectedChar.strokeGuide && (
-              <p className="text-xs text-center font-medium text-[#718096] bg-[#FAF9F7] py-2 px-3 rounded-xl border border-[#EDE8E1] flex items-center justify-center gap-1.5">
-                <Pencil className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
-                <span>
-                  <strong>획순 가이드:</strong> {selectedChar.strokeGuide}
-                </span>
-              </p>
-            )}
+            {/* 획순 가이드 단계별 스텝 칩 */}
+            {selectedChar.strokeGuide && (() => {
+              const steps = selectedChar.strokeGuide
+                .split(/➔|->/)
+                .map((s) => s.trim())
+                .filter(Boolean);
+
+              return (
+                <div className="bg-[#FAF9F7] p-3 rounded-2xl border border-[#EDE8E1] space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 font-bold text-[#4A5568]">
+                      <Pencil className="w-3.5 h-3.5 text-[#E07A5F]" />
+                      <span>획순 가이드</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-[#A0AEC0]">
+                      총 {selectedChar.strokeCount}획
+                    </span>
+                  </div>
+
+                  <div className="flex items-center flex-wrap gap-1.5 text-xs">
+                    {steps.map((step, idx) => (
+                      <React.Fragment key={idx}>
+                        <span className="inline-flex items-center px-2.5 py-1 bg-white rounded-xl border border-[#EDE8E1] font-bold text-[#4A5568] shadow-2xs whitespace-nowrap text-[11px]">
+                          {step}
+                        </span>
+                        {idx < steps.length - 1 && (
+                          <span className="text-[#CBD5E0] text-[10px] font-black shrink-0">➔</span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* 완성 축하 배너 및 다음 글자 즉시 쓰기 */}
             {isCharCompleted && (
@@ -753,26 +772,25 @@ export default function HiraganaStudio({
 
           {/* 도플갱어 (헷갈리기 쉬운 글자) 대조 카드 */}
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Sparkles className="w-4 h-4 text-[#E07A5F]" />
-                <h3 className="text-sm font-bold text-[#2D3748]">
+                <h3 className="text-sm font-bold text-[#2D3748] whitespace-nowrap">
                   도플갱어 글자 대조 클리닉
                 </h3>
               </div>
 
               {/* 페어 전환 탭 */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
                 {CONFUSING_PAIRS.map((pair, idx) => (
                   <button
                     key={pair.id}
                     type="button"
                     onClick={() => setSelectedConfusingIndex(idx)}
-                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors ${
-                      selectedConfusingIndex === idx
-                        ? 'bg-[#E07A5F] text-white'
-                        : 'bg-stone-100 text-[#718096] hover:bg-stone-200'
-                    }`}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors shrink-0 whitespace-nowrap ${selectedConfusingIndex === idx
+                      ? 'bg-[#E07A5F] text-white shadow-2xs'
+                      : 'bg-stone-100 text-[#718096] hover:bg-stone-200'
+                      }`}
                   >
                     {pair.char1.char} vs {pair.char2.char}
                   </button>
@@ -851,11 +869,10 @@ export default function HiraganaStudio({
                       setSelectedWord(word);
                       handlePlayWordSound(word);
                     }}
-                    className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col gap-2 group relative overflow-hidden ${
-                      isSelected
-                        ? 'bg-gradient-to-br from-[#FAF0E6] to-white border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
-                        : 'bg-white hover:bg-stone-50 border-[#EDE8E1]'
-                    }`}
+                    className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col gap-2 group relative overflow-hidden ${isSelected
+                      ? 'bg-gradient-to-br from-[#FAF0E6] to-white border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
+                      : 'bg-white hover:bg-stone-50 border-[#EDE8E1]'
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-1">
                       <span className="text-2xl">{word.emoji}</span>
@@ -880,11 +897,10 @@ export default function HiraganaStudio({
 
                     <div className="flex items-center justify-end">
                       <div
-                        className={`p-1.5 rounded-full transition-colors ${
-                          isPlaying
-                            ? 'bg-[#E07A5F] text-white'
-                            : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
-                        }`}
+                        className={`p-1.5 rounded-full transition-colors ${isPlaying
+                          ? 'bg-[#E07A5F] text-white'
+                          : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
+                          }`}
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                       </div>
@@ -941,11 +957,10 @@ export default function HiraganaStudio({
               <button
                 type="button"
                 onClick={() => setShowKoreanPronunciation((prev) => !prev)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                  showKoreanPronunciation
-                    ? 'bg-stone-100 text-[#4A5568] border-[#EDE8E1]'
-                    : 'bg-amber-50 text-amber-800 border-amber-300'
-                }`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 whitespace-nowrap ${showKoreanPronunciation
+                  ? 'bg-stone-100 text-[#4A5568] border-[#EDE8E1]'
+                  : 'bg-amber-50 text-amber-800 border-amber-300'
+                  }`}
               >
                 {showKoreanPronunciation ? (
                   <>
@@ -995,11 +1010,10 @@ export default function HiraganaStudio({
                         <button
                           type="button"
                           onClick={() => handlePlayDialogueSound(item)}
-                          className={`p-2 rounded-xl transition-all ${
-                            isPlaying
-                              ? 'bg-[#E07A5F] text-white animate-pulse'
-                              : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
-                          }`}
+                          className={`p-2 rounded-xl transition-all ${isPlaying
+                            ? 'bg-[#E07A5F] text-white animate-pulse'
+                            : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
+                            }`}
                           title="발음 듣기"
                         >
                           <Volume2 className="w-4 h-4" />

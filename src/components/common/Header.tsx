@@ -161,17 +161,6 @@ export default function Header() {
             )}
           </div>
         </div>
-
-        {/* 오늘의 한마디 미니 배너 */}
-        <div className="mt-2.5 px-3 py-1.5 bg-[#FAF0E6]/80 rounded-lg flex items-center justify-between text-[11px] text-[#8C5243] border border-[#F4DDD4]">
-          <div className="flex items-center gap-1.5 truncate">
-            <span className="font-semibold px-1.5 py-0.5 bg-[#E07A5F] text-white rounded text-[9px] uppercase tracking-wide shrink-0">
-              오늘의 표현
-            </span>
-            <span className="truncate">「行きつけ (단골・이키츠케)」를 공부했습니다!</span>
-          </div>
-          <span className="text-[10px] opacity-75 shrink-0 ml-2">2026.09</span>
-        </div>
       </header>
 
       {/* 사이트 소개 모달 (취지 안내) */}

@@ -160,28 +160,19 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
       {/* 1. 웰컴 인트로 배너 */}
       <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4] relative overflow-hidden shadow-xs">
         <div className="relative z-10 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[10px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
-              <Sparkles className="w-3 h-3 text-[#E07A5F]" />
-              <span>釜山だより・매일의 일본어 일기</span>
-            </div>
 
-            {/* 로드맵 바로가기 버튼 */}
-            <Link
-              href="/roadmap"
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E07A5F] hover:text-[#C45B40] bg-white/80 hover:bg-white px-2.5 py-1 rounded-full border border-[#F4DDD4] transition-colors shadow-2xs"
-            >
-              <Compass className="w-3 h-3" />
-              <span>챌린지 로드맵</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
+
+          {/* 상단 챌린지 배지 ([그림1]과 동일한 스타일 패턴) */}
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
+            <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
+            <span>매일 한 걸음 일본어 챌린지</span>
           </div>
 
           <div>
-            <h1 className="text-lg font-black text-[#2D3748] tracking-tight leading-snug mb-1">
-              매일 한 걸음 일본어 챌린지,
+            <h1 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug mb-2">
+              부산의 따뜻한 이야기를
               <br />
-              부산의 따뜻한 이야기를 편지에 담기까지
+              <span className="text-[#E07A5F] text-lg">편지에 담기까지</span>
             </h1>
             <p className="text-xs text-[#718096] leading-relaxed">
               히라가나 한 글자부터 차곡차곡 일기 쓰듯 도전해요. 정성껏 배운 일본어로 부산을 찾는 일본인 친구에게 다정한 편지를 띄웁니다.
@@ -201,13 +192,10 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
                 <div className="text-left min-w-0">
                   <div className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors flex items-center gap-1.5 flex-wrap">
                     <span>히라가나 캔버스 스튜디오</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
                       Lv.0 입문
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#718096] truncate">
-                    50음도 소리 탐색 · 획순 직접 쓰기 연습
-                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-0.5 text-xs font-bold text-[#E07A5F] shrink-0">
