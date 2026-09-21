@@ -61,8 +61,8 @@ export default function HiraganaStudio({
   // --- Step 2: 인터랙티브 캔버스 쓰기 상태 ---
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [penColor, setPenColor] = useState<string>('#2D3748');
-  const [strokeWidth, setStrokeWidth] = useState<number>(10);
+  const penColor = '#E07A5F'; // 기본 코랄 색상
+  const strokeWidth = 10; // 기본 '보통' 두께
   const [hasDrawn, setHasDrawn] = useState(false);
   const [drawnStrokes, setDrawnStrokes] = useState<number>(0);
   const [isCharCompleted, setIsCharCompleted] = useState<boolean>(false);
@@ -703,49 +703,7 @@ export default function HiraganaStudio({
               />
             </div>
 
-            {/* 펜 설정 컨트롤 바 */}
-            <div className="flex items-center justify-between gap-3 pt-2">
-              {/* 펜 색상 선택 */}
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold text-[#718096]">색상:</span>
-                {[
-                  { color: '#2D3748', label: '먹색' },
-                  { color: '#E07A5F', label: '코랄' },
-                  { color: '#8D5B4C', label: '브라운' },
-                  { color: '#3B82F6', label: '블루' }
-                ].map((c) => (
-                  <button
-                    key={c.color}
-                    type="button"
-                    onClick={() => setPenColor(c.color)}
-                    style={{ backgroundColor: c.color }}
-                    className={`w-6 h-6 rounded-full transition-transform ${
-                      penColor === c.color ? 'scale-125 ring-2 ring-offset-2 ring-stone-400' : 'opacity-80'
-                    }`}
-                    title={c.label}
-                  />
-                ))}
-              </div>
 
-              {/* 펜 두께 조절 */}
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold text-[#718096]">두께:</span>
-                {[6, 10, 16].map((w) => (
-                  <button
-                    key={w}
-                    type="button"
-                    onClick={() => setStrokeWidth(w)}
-                    className={`px-2 py-0.5 rounded-md text-[11px] font-bold border transition-colors ${
-                      strokeWidth === w
-                        ? 'bg-[#2D3748] text-white border-[#2D3748]'
-                        : 'bg-stone-50 text-[#718096] border-[#EDE8E1]'
-                    }`}
-                  >
-                    {w === 6 ? '얇게' : w === 10 ? '보통' : '두껍게'}
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* 획순 가이드 텍스트 */}
             {selectedChar.strokeGuide && (
