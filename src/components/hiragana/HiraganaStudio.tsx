@@ -32,6 +32,10 @@ import {
 
 type StudioStep = 'sound' | 'write' | 'words' | 'dialogue';
 
+const ALL_HIRAGANA_CHARS: HiraganaChar[] = HIRAGANA_GRID.flatMap((r) =>
+  r.chars.filter(Boolean) as HiraganaChar[]
+);
+
 interface HiraganaStudioProps {
   initialStep?: StudioStep;
   initialChar?: string;
@@ -60,7 +64,17 @@ export default function HiraganaStudio({
   const [penColor, setPenColor] = useState<string>('#2D3748');
   const [strokeWidth, setStrokeWidth] = useState<number>(10);
   const [hasDrawn, setHasDrawn] = useState(false);
+  const [drawnStrokes, setDrawnStrokes] = useState<number>(0);
+  const [isCharCompleted, setIsCharCompleted] = useState<boolean>(false);
+  const [completedChars, setCompletedChars] = useState<string[]>([]);
+  const autoNextTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [selectedConfusingIndex, setSelectedConfusingIndex] = useState(0);
+
+  // 획 정확도 검증(Pixel Mask Matching) 상태
+  const charMaskRef = useRef<ImageData | null>(null);
+  const strokePointsRef = useRef<{ x: number; y: number }[]>([]);
+  const [accuracyFeedback, setAccuracyFeedback] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // --- Step 3: 미니 단어 상태 ---
   const [selectedWord, setSelectedWord] = useState<MiniWord>(MINI_WORDS[0]);
@@ -70,6 +84,18 @@ export default function HiraganaStudio({
   const [showKoreanPronunciation, setShowKoreanPronunciation] = useState(false);
   const [playingDialogueId, setPlayingDialogueId] = useState<string | null>(null);
   const [completedDialogueIds, setCompletedDialogueIds] = useState<string[]>([]);
+
+  // 정확도 피드백 토스트 표시 헬퍼
+  const showAccuracyFeedback = useCallback((message: string) => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+    setAccuracyFeedback(message);
+    feedbackTimerRef.current = setTimeout(() => {
+      setAccuracyFeedback(null);
+      feedbackTimerRef.current = null;
+    }, 1800);
+  }, []);
 
   // 소리 재생 핸들러
   const handlePlayCharSound = useCallback((charItem: HiraganaChar) => {
@@ -109,18 +135,67 @@ export default function HiraganaStudio({
 
   // 캔버스 초기화 및 리사이징
   const clearCanvas = useCallback(() => {
+    if (autoNextTimerRef.current) {
+      clearTimeout(autoNextTimerRef.current);
+      autoNextTimerRef.current = null;
+    }
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+      feedbackTimerRef.current = null;
+    }
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setHasDrawn(false);
+    setDrawnStrokes(0);
+    setIsCharCompleted(false);
+    setAccuracyFeedback(null);
+    strokePointsRef.current = [];
   }, []);
 
-  // 글자 변경 시 캔버스 초기화
+  // 가이드 글자 오프스크린 픽셀 마스크 생성
+  const updateCharMask = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.round(rect.width);
+    const height = Math.round(rect.height);
+    if (width === 0 || height === 0) return;
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width = width;
+    offscreen.height = height;
+    const ctx = offscreen.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    ctx.font = '900 160px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#000000';
+    ctx.fillText(selectedChar.char, width / 2, height / 2);
+
+    charMaskRef.current = ctx.getImageData(0, 0, width, height);
+  }, [selectedChar]);
+
+  // 글자 변경 시 캔버스 초기화 및 마스크 갱신
   useEffect(() => {
     clearCanvas();
-  }, [selectedChar, clearCanvas]);
+    updateCharMask();
+  }, [selectedChar, clearCanvas, updateCharMask]);
+
+  // 언마운트 시 자동 전환 타이머 및 피드백 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (autoNextTimerRef.current) {
+        clearTimeout(autoNextTimerRef.current);
+      }
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
 
   // 캔버스 초기 설정
   useEffect(() => {
@@ -134,7 +209,8 @@ export default function HiraganaStudio({
     if (ctx) {
       ctx.scale(dpr, dpr);
     }
-  }, [currentStep]);
+    updateCharMask();
+  }, [currentStep, updateCharMask]);
 
   // 드로잉 좌표 계산
   const getCoordinates = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -148,6 +224,7 @@ export default function HiraganaStudio({
   };
 
   const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (isCharCompleted) return;
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -164,6 +241,7 @@ export default function HiraganaStudio({
     ctx.strokeStyle = penColor;
     ctx.lineWidth = strokeWidth;
 
+    strokePointsRef.current = [{ x, y }];
     setIsDrawing(true);
     setHasDrawn(true);
   };
@@ -179,6 +257,8 @@ export default function HiraganaStudio({
     const { x, y } = getCoordinates(e);
     ctx.lineTo(x, y);
     ctx.stroke();
+
+    strokePointsRef.current.push({ x, y });
   };
 
   const stopDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -192,6 +272,90 @@ export default function HiraganaStudio({
       }
     }
     setIsDrawing(false);
+
+    const points = strokePointsRef.current;
+    strokePointsRef.current = [];
+
+    // 1. 최소 길이 검증 (단순 클릭/오터치 무시)
+    let totalLength = 0;
+    for (let i = 1; i < points.length; i++) {
+      totalLength += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+    }
+    if (totalLength < 25) {
+      showAccuracyFeedback('선을 조금 더 길게 그어보세요 ✍️');
+      return;
+    }
+
+    // 2. 가이드 글자 오프스크린 픽셀 마스크와의 일치도(적중률) 검사
+    const mask = charMaskRef.current;
+    if (mask) {
+      const { width, height, data } = mask;
+      const tolerance = 26; // 글자 획 허용 오차 반경 (px)
+      const step = Math.max(1, Math.floor(points.length / 40));
+      let hitCount = 0;
+      let sampledCount = 0;
+
+      for (let i = 0; i < points.length; i += step) {
+        const pt = points[i];
+        sampledCount++;
+        const px = Math.round(pt.x);
+        const py = Math.round(pt.y);
+
+        let hit = false;
+        for (let dy = -tolerance; dy <= tolerance; dy += 4) {
+          for (let dx = -tolerance; dx <= tolerance; dx += 4) {
+            if (dx * dx + dy * dy <= tolerance * tolerance) {
+              const nx = px + dx;
+              const ny = py + dy;
+              if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                if (data[(ny * width + nx) * 4 + 3] > 40) {
+                  hit = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (hit) break;
+        }
+        if (hit) hitCount++;
+      }
+
+      const hitRate = sampledCount > 0 ? hitCount / sampledCount : 0;
+      // 글자 획 위의 적중률이 55% 미만이면 유효한 획으로 인정하지 않음
+      if (hitRate < 0.55) {
+        showAccuracyFeedback('가이드 글자 위를 따라 그려보세요 ✍️');
+        return;
+      }
+    }
+
+    // 정확하게 그린 획인 경우 피드백 클리어 및 획수 1 증가
+    setAccuracyFeedback(null);
+    const nextStrokes = drawnStrokes + 1;
+    setDrawnStrokes(nextStrokes);
+
+    if (nextStrokes >= selectedChar.strokeCount && !isCharCompleted) {
+      setIsCharCompleted(true);
+      setCompletedChars((prev) =>
+        prev.includes(selectedChar.char) ? prev : [...prev, selectedChar.char]
+      );
+
+      // 완성 순간 해당 글자의 일본어 원어민 발음(TTS) 자동 재생
+      speakJapanese(selectedChar.char, 0.85);
+
+      // 이전 타이머 취소 후 1.5초 뒤 다음 글자로 자동 이동
+      if (autoNextTimerRef.current) {
+        clearTimeout(autoNextTimerRef.current);
+      }
+
+      const currIdx = ALL_HIRAGANA_CHARS.findIndex((c) => c.char === selectedChar.char);
+      if (currIdx >= 0 && currIdx < ALL_HIRAGANA_CHARS.length - 1) {
+        const nextChar = ALL_HIRAGANA_CHARS[currIdx + 1];
+        autoNextTimerRef.current = setTimeout(() => {
+          setSelectedChar(nextChar);
+          autoNextTimerRef.current = null;
+        }, 1500);
+      }
+    }
   };
 
   return (
@@ -436,26 +600,55 @@ export default function HiraganaStudio({
               </div>
             </div>
 
+            {/* 빠른 글자 선택 칩 헤더 & 수집 진행 현황 */}
+            <div className="flex items-center justify-between text-xs font-bold text-[#718096] pt-1">
+              <span>50음도 글자 목록</span>
+              <span className="text-[11px] font-bold text-[#E07A5F] bg-[#FAF0E6] px-2.5 py-0.5 rounded-full border border-[#F4DDD4]">
+                완료 {completedChars.length} / {ALL_HIRAGANA_CHARS.length}
+              </span>
+            </div>
+
             {/* 빠른 글자 선택 칩 */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-              {HIRAGANA_GRID.flatMap((r) => r.chars.filter(Boolean) as HiraganaChar[]).map((c) => (
-                <button
-                  key={c.char}
-                  type="button"
-                  onClick={() => setSelectedChar(c)}
-                  className={`w-9 h-9 rounded-xl text-sm font-black shrink-0 transition-all ${
-                    selectedChar.char === c.char
-                      ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
-                      : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
-                  }`}
-                >
-                  {c.char}
-                </button>
-              ))}
+              {ALL_HIRAGANA_CHARS.map((c) => {
+                const isSelected = selectedChar.char === c.char;
+                const isDone = completedChars.includes(c.char);
+                return (
+                  <button
+                    key={c.char}
+                    type="button"
+                    onClick={() => setSelectedChar(c)}
+                    className={`relative w-9 h-9 rounded-xl text-sm font-black shrink-0 transition-all ${
+                      isSelected
+                        ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
+                        : isDone
+                        ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
+                        : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                    }`}
+                  >
+                    {c.char}
+                    {isDone && (
+                      <span
+                        className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
+                          isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
+                        }`}
+                      >
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* 캔버스 영역 */}
-            <div className="relative w-full aspect-square max-w-[340px] mx-auto bg-[#FFFDF9] rounded-3xl border-2 border-dashed border-[#F4DDD4] overflow-hidden shadow-inner flex items-center justify-center">
+            <div
+              className={`relative w-full aspect-square max-w-[340px] mx-auto bg-[#FFFDF9] rounded-3xl overflow-hidden shadow-inner flex items-center justify-center transition-all duration-500 ${
+                isCharCompleted
+                  ? 'border-2 border-amber-400 ring-4 ring-amber-300/60 shadow-[0_0_30px_rgba(251,191,36,0.35)] scale-[1.01]'
+                  : 'border-2 border-dashed border-[#F4DDD4]'
+              }`}
+            >
               {/* 십자 가이드 보조선 */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                 <div className="w-full h-[1px] bg-stone-200/60" />
@@ -469,10 +662,35 @@ export default function HiraganaStudio({
                 </span>
               </div>
 
-              {/* 획순 팁 배지 */}
-              <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4] pointer-events-none">
-                총 {selectedChar.strokeCount}획
+              {/* 획순 팁 및 완료 배지 */}
+              <div
+                className={`absolute top-3 left-3 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold transition-all duration-300 pointer-events-none flex items-center gap-1 shadow-2xs ${
+                  isCharCompleted
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300 animate-pulse ring-2 ring-amber-400/40'
+                    : 'bg-white/90 text-[#E07A5F] border border-[#F4DDD4]'
+                }`}
+              >
+                {isCharCompleted ? (
+                  <>
+                    <span>✨</span>
+                    <span>{selectedChar.strokeCount}획 완성!</span>
+                    <span className="text-[10px] text-amber-700 font-normal">곧 다음으로 이동</span>
+                  </>
+                ) : (
+                  <>
+                    <span>✍️</span>
+                    <span>{drawnStrokes} / {selectedChar.strokeCount}획</span>
+                  </>
+                )}
               </div>
+
+              {/* 정확도 피드백 토스트 안내 */}
+              {accuracyFeedback && (
+                <div className="absolute top-3 right-3 z-20 px-2.5 py-1 bg-amber-500 text-white text-[11px] font-bold rounded-full shadow-md flex items-center gap-1 animate-bounce pointer-events-none">
+                  <span>⚠️</span>
+                  <span>{accuracyFeedback}</span>
+                </div>
+              )}
 
               {/* 실제 드로잉 캔버스 */}
               <canvas
@@ -534,6 +752,40 @@ export default function HiraganaStudio({
               <p className="text-xs text-center font-medium text-[#718096] bg-[#FAF9F7] py-2 px-3 rounded-xl border border-[#EDE8E1]">
                 ✍️ <strong>획순 가이드:</strong> {selectedChar.strokeGuide}
               </p>
+            )}
+
+            {/* 완성 축하 배너 및 다음 글자 즉시 쓰기 */}
+            {isCharCompleted && (
+              <div className="flex items-center justify-between bg-amber-50/90 border border-amber-300/80 px-3.5 py-2.5 rounded-2xl shadow-2xs">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-pulse" />
+                  <span>훌륭해요! '{selectedChar.char}' 쓰기를 마쳤습니다.</span>
+                </span>
+                {(() => {
+                  const currIdx = ALL_HIRAGANA_CHARS.findIndex((c) => c.char === selectedChar.char);
+                  const nextChar =
+                    currIdx >= 0 && currIdx < ALL_HIRAGANA_CHARS.length - 1
+                      ? ALL_HIRAGANA_CHARS[currIdx + 1]
+                      : null;
+                  if (!nextChar) return null;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (autoNextTimerRef.current) {
+                          clearTimeout(autoNextTimerRef.current);
+                          autoNextTimerRef.current = null;
+                        }
+                        setSelectedChar(nextChar);
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#E07A5F] hover:bg-[#C55D42] text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0"
+                    >
+                      <span>'{nextChar.char}' 바로 쓰기</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  );
+                })()}
+              </div>
             )}
           </div>
 
