@@ -61,6 +61,7 @@ export default function HiraganaStudio({
 
   // --- Step 2: 인터랙티브 캔버스 쓰기 상태 ---
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const charListScrollRef = useRef<HTMLDivElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const penColor = '#E07A5F'; // 기본 코랄 색상
   const strokeWidth = 10; // 기본 '보통' 두께
@@ -185,6 +186,27 @@ export default function HiraganaStudio({
     clearCanvas();
     updateCharMask();
   }, [selectedChar, clearCanvas, updateCharMask]);
+
+  // 글자 변경 시 또는 쓰기 스텝 진입 시 가로 스크롤 목록에서 현재 글자가 화면 중앙에 보이도록 자동 스크롤
+  useEffect(() => {
+    if (currentStep !== 'write' || !charListScrollRef.current) return;
+    const timer = requestAnimationFrame(() => {
+      const container = charListScrollRef.current;
+      if (!container) return;
+      const activeBtn = container.querySelector<HTMLButtonElement>('[data-active="true"]');
+      if (activeBtn) {
+        const containerWidth = container.clientWidth;
+        const btnLeft = activeBtn.offsetLeft;
+        const btnWidth = activeBtn.offsetWidth;
+        const targetScrollLeft = btnLeft - containerWidth / 2 + btnWidth / 2;
+        container.scrollTo({
+          left: Math.max(0, targetScrollLeft),
+          behavior: 'smooth'
+        });
+      }
+    });
+    return () => cancelAnimationFrame(timer);
+  }, [selectedChar.char, currentStep]);
 
   // 언마운트 시 자동 전환 타이머 및 피드백 타이머 정리
   useEffect(() => {
@@ -608,7 +630,10 @@ export default function HiraganaStudio({
             </div>
 
             {/* 빠른 글자 선택 칩 */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+            <div
+              ref={charListScrollRef}
+              className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth"
+            >
               {ALL_HIRAGANA_CHARS.map((c) => {
                 const isSelected = selectedChar.char === c.char;
                 const isDone = completedChars.includes(c.char);
@@ -616,6 +641,7 @@ export default function HiraganaStudio({
                   <button
                     key={c.char}
                     type="button"
+                    data-active={isSelected}
                     onClick={() => setSelectedChar(c)}
                     className={`relative w-9 h-9 rounded-xl text-sm font-black shrink-0 transition-all ${isSelected
                       ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
@@ -735,39 +761,6 @@ export default function HiraganaStudio({
               );
             })()}
 
-            {/* 완성 축하 배너 및 다음 글자 즉시 쓰기 */}
-            {isCharCompleted && (
-              <div className="flex items-center justify-between bg-amber-50/90 border border-amber-300/80 px-3.5 py-2.5 rounded-2xl shadow-2xs">
-                <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-pulse" />
-                  <span>훌륭해요! '{selectedChar.char}' 쓰기를 마쳤습니다.</span>
-                </span>
-                {(() => {
-                  const currIdx = ALL_HIRAGANA_CHARS.findIndex((c) => c.char === selectedChar.char);
-                  const nextChar =
-                    currIdx >= 0 && currIdx < ALL_HIRAGANA_CHARS.length - 1
-                      ? ALL_HIRAGANA_CHARS[currIdx + 1]
-                      : null;
-                  if (!nextChar) return null;
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (autoNextTimerRef.current) {
-                          clearTimeout(autoNextTimerRef.current);
-                          autoNextTimerRef.current = null;
-                        }
-                        setSelectedChar(nextChar);
-                      }}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#E07A5F] hover:bg-[#C55D42] text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0"
-                    >
-                      <span>'{nextChar.char}' 바로 쓰기</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  );
-                })()}
-              </div>
-            )}
           </div>
 
           {/* 도플갱어 (헷갈리기 쉬운 글자) 대조 카드 */}
