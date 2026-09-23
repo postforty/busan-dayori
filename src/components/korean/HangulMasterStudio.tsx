@@ -23,7 +23,8 @@ import {
   Pencil,
   BookOpen,
   Award,
-  Layers
+  Layers,
+  Lightbulb
 } from 'lucide-react';
 
 type HangulStep = 'combine' | 'write' | 'quiz';
@@ -49,7 +50,7 @@ export default function HangulMasterStudio() {
     );
   }, []);
 
-  // --- Step 2: 손글씨 캔버스 쓰기 상태 ---
+  // --- Step 2: 손글씨 캔버스 쓰기 상태 (히라가나 스튜디오 동등 엔진) ---
   const [writingTargetType, setWritingTargetType] = useState<'consonant' | 'vowel'>('consonant');
   const [writingConsonant, setWritingConsonant] = useState<HangulConsonant>(HANGUL_CONSONANTS[0]);
   const [writingVowel, setWritingVowel] = useState<HangulVowel>(HANGUL_VOWELS[0]);
@@ -59,75 +60,290 @@ export default function HangulMasterStudio() {
     writingTargetType === 'consonant' ? writingConsonant : writingVowel;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const charListScrollRef = useRef<HTMLDivElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const penColor = '#E07A5F';
+  const strokeWidth = 10;
   const [hasDrawn, setHasDrawn] = useState(false);
+  const [drawnStrokes, setDrawnStrokes] = useState<number>(0);
+  const [isCharCompleted, setIsCharCompleted] = useState<boolean>(false);
+  const [completedChars, setCompletedChars] = useState<string[]>([]);
+  const autoNextTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const clearCanvas = () => {
+  // 획 정확도 검증(Pixel Mask Matching) 상태
+  const charMaskRef = useRef<ImageData | null>(null);
+  const strokePointsRef = useRef<{ x: number; y: number }[]>([]);
+  const [accuracyFeedback, setAccuracyFeedback] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 정확도 피드백 토스트 표시 헬퍼
+  const showAccuracyFeedback = useCallback((message: string) => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+    setAccuracyFeedback(message);
+    feedbackTimerRef.current = setTimeout(() => {
+      setAccuracyFeedback(null);
+      feedbackTimerRef.current = null;
+    }, 1800);
+  }, []);
+
+  // 캔버스 초기화
+  const clearCanvas = useCallback(() => {
+    if (autoNextTimerRef.current) {
+      clearTimeout(autoNextTimerRef.current);
+      autoNextTimerRef.current = null;
+    }
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+      feedbackTimerRef.current = null;
+    }
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setHasDrawn(false);
-  };
+    setDrawnStrokes(0);
+    setIsCharCompleted(false);
+    setAccuracyFeedback(null);
+    strokePointsRef.current = [];
+  }, []);
 
-  const getCoordinates = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+  // 가이드 글자 오프스크린 픽셀 마스크 생성
+  const updateCharMask = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.round(rect.width);
+    const height = Math.round(rect.height);
+    if (width === 0 || height === 0) return;
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width = width;
+    offscreen.height = height;
+    const ctx = offscreen.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    ctx.font = '900 160px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#000000';
+    ctx.fillText(currentWritingChar, width / 2, height / 2);
+
+    charMaskRef.current = ctx.getImageData(0, 0, width, height);
+  }, [currentWritingChar]);
+
+  // 글자 변경 시 캔버스 초기화 및 마스크 갱신
+  useEffect(() => {
+    clearCanvas();
+    updateCharMask();
+  }, [currentWritingChar, clearCanvas, updateCharMask]);
+
+  // 글자 변경 시 또는 쓰기 스텝 진입 시 가로 스크롤 목록에서 현재 글자가 화면 중앙에 보이도록 자동 스크롤
+  useEffect(() => {
+    if (currentStep !== 'write' || !charListScrollRef.current) return;
+    const timer = requestAnimationFrame(() => {
+      const container = charListScrollRef.current;
+      if (!container) return;
+      const activeBtn = container.querySelector<HTMLButtonElement>('[data-active="true"]');
+      if (activeBtn) {
+        const containerWidth = container.clientWidth;
+        const btnLeft = activeBtn.offsetLeft;
+        const btnWidth = activeBtn.offsetWidth;
+        const targetScrollLeft = btnLeft - containerWidth / 2 + btnWidth / 2;
+        container.scrollTo({
+          left: Math.max(0, targetScrollLeft),
+          behavior: 'smooth'
+        });
+      }
+    });
+    return () => cancelAnimationFrame(timer);
+  }, [currentWritingChar, currentStep]);
+
+  // 언마운트 시 자동 전환 타이머 및 피드백 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (autoNextTimerRef.current) {
+        clearTimeout(autoNextTimerRef.current);
+      }
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
+
+  // 캔버스 초기 설정 (DPR 스케일링)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.scale(dpr, dpr);
+    }
+    updateCharMask();
+  }, [currentStep, updateCharMask]);
+
+  // 드로잉 좌표 계산
+  const getCoordinates = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    if ('touches' in e) {
-      return {
-        x: e.touches[0].clientX - rect.left,
-        y: e.touches[0].clientY - rect.top
-      };
-    }
     return {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     };
   };
 
-  const startDrawing = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+  const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (isCharCompleted) return;
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
+    canvas.setPointerCapture(e.pointerId);
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
     const { x, y } = getCoordinates(e);
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineWidth = 14;
-    ctx.strokeStyle = '#E07A5F';
+    ctx.strokeStyle = penColor;
+    ctx.lineWidth = strokeWidth;
+
+    strokePointsRef.current = [{ x, y }];
     setIsDrawing(true);
     setHasDrawn(true);
   };
 
-  const draw = (
-    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
-  ) => {
+  const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
     const { x, y } = getCoordinates(e);
     ctx.lineTo(x, y);
     ctx.stroke();
+
+    strokePointsRef.current.push({ x, y });
   };
 
-  const stopDrawing = () => {
+  const stopDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (canvas) {
+      try {
+        canvas.releasePointerCapture(e.pointerId);
+      } catch {
+        // 무시
+      }
+    }
     setIsDrawing(false);
-  };
 
-  // 글자 변경 시 캔버스 초기화
-  useEffect(() => {
-    clearCanvas();
-  }, [currentWritingChar]);
+    const points = strokePointsRef.current;
+    strokePointsRef.current = [];
+
+    // 1. 최소 길이 검증 (단순 클릭/오터치 무시)
+    let totalLength = 0;
+    for (let i = 1; i < points.length; i++) {
+      totalLength += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+    }
+    if (totalLength < 25) {
+      showAccuracyFeedback('線をもっと長く引いてみましょう ✍️');
+      return;
+    }
+
+    // 2. 가이드 글자 오프스크린 픽셀 마스크와의 일치도(적중률) 검사
+    const mask = charMaskRef.current;
+    if (mask) {
+      const { width, height, data } = mask;
+      const tolerance = 26; // 글자 획 허용 오차 반경 (px)
+      const step = Math.max(1, Math.floor(points.length / 40));
+      let hitCount = 0;
+      let sampledCount = 0;
+
+      for (let i = 0; i < points.length; i += step) {
+        const pt = points[i];
+        sampledCount++;
+        const px = Math.round(pt.x);
+        const py = Math.round(pt.y);
+
+        let hit = false;
+        for (let dy = -tolerance; dy <= tolerance; dy += 4) {
+          for (let dx = -tolerance; dx <= tolerance; dx += 4) {
+            if (dx * dx + dy * dy <= tolerance * tolerance) {
+              const nx = px + dx;
+              const ny = py + dy;
+              if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                if (data[(ny * width + nx) * 4 + 3] > 40) {
+                  hit = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (hit) break;
+        }
+        if (hit) hitCount++;
+      }
+
+      const hitRate = sampledCount > 0 ? hitCount / sampledCount : 0;
+      // 글자 획 위의 적중률이 50% 미만이면 유효한 획으로 인정하지 않음
+      if (hitRate < 0.50) {
+        showAccuracyFeedback('ガイド文字の上をなぞってみましょう ✍️');
+        return;
+      }
+    }
+
+    // 정확하게 그린 획인 경우 피드백 클리어 및 획수 1 증가
+    setAccuracyFeedback(null);
+    const nextStrokes = drawnStrokes + 1;
+    setDrawnStrokes(nextStrokes);
+
+    if (nextStrokes >= currentWritingGuide.strokeCount && !isCharCompleted) {
+      setIsCharCompleted(true);
+      setCompletedChars((prev) =>
+        prev.includes(currentWritingChar) ? prev : [...prev, currentWritingChar]
+      );
+
+      // 완성 순간 해당 글자의 한국어 원어민 발음(TTS) 자동 재생
+      speakKorean(currentWritingChar, 0.85);
+
+      // 이전 타이머 취소 후 1.5초 뒤 다음 글자로 자동 이동
+      if (autoNextTimerRef.current) {
+        clearTimeout(autoNextTimerRef.current);
+      }
+
+      autoNextTimerRef.current = setTimeout(() => {
+        if (writingTargetType === 'consonant') {
+          const currIdx = HANGUL_CONSONANTS.findIndex((c) => c.char === writingConsonant.char);
+          if (currIdx >= 0 && currIdx < HANGUL_CONSONANTS.length - 1) {
+            setWritingConsonant(HANGUL_CONSONANTS[currIdx + 1]);
+          } else {
+            // 자음 전체 완주 시 모음으로 전환하거나 첫 자음으로 순환
+            setWritingConsonant(HANGUL_CONSONANTS[0]);
+          }
+        } else {
+          const currIdx = HANGUL_VOWELS.findIndex((v) => v.char === writingVowel.char);
+          if (currIdx >= 0 && currIdx < HANGUL_VOWELS.length - 1) {
+            setWritingVowel(HANGUL_VOWELS[currIdx + 1]);
+          } else {
+            setWritingVowel(HANGUL_VOWELS[0]);
+          }
+        }
+        autoNextTimerRef.current = null;
+      }, 1500);
+    }
+  };
 
   // --- Step 3: 간판 & 메뉴 퀴즈 상태 ---
   const [quizCategory, setQuizCategory] = useState<'all' | 'gourmet' | 'cafe' | 'traffic' | 'shopping'>('all');
@@ -178,7 +394,7 @@ export default function HangulMasterStudio() {
             setCurrentStep('combine');
             stopKoreanSpeech();
           }}
-          className={`flex flex-col items-center py-2.5 px-1 rounded-xl text-xs font-bold transition-all ${
+          className={`flex flex-col items-center py-2 px-1 rounded-xl text-xs font-bold transition-all ${
             currentStep === 'combine'
               ? 'bg-white text-[#E07A5F] shadow-sm'
               : 'text-[#718096] hover:text-[#2D3748]'
@@ -186,10 +402,10 @@ export default function HangulMasterStudio() {
         >
           <div className="flex items-center gap-1">
             <Layers className="w-3.5 h-3.5" />
-            <span>1. 音と合体</span>
+            <span className="whitespace-nowrap">1. 音と合体</span>
           </div>
-          <span className="text-[10px] font-normal text-gray-500 mt-0.5">
-            組み合わせの仕組み
+          <span className="text-[10px] font-normal text-gray-500 mt-0.5 whitespace-nowrap">
+            組み合わせ
           </span>
         </button>
 
@@ -198,7 +414,7 @@ export default function HangulMasterStudio() {
             setCurrentStep('write');
             stopKoreanSpeech();
           }}
-          className={`flex flex-col items-center py-2.5 px-1 rounded-xl text-xs font-bold transition-all ${
+          className={`flex flex-col items-center py-2 px-1 rounded-xl text-xs font-bold transition-all ${
             currentStep === 'write'
               ? 'bg-white text-[#E07A5F] shadow-sm'
               : 'text-[#718096] hover:text-[#2D3748]'
@@ -206,9 +422,9 @@ export default function HangulMasterStudio() {
         >
           <div className="flex items-center gap-1">
             <Pencil className="w-3.5 h-3.5" />
-            <span>2. なぞり書き</span>
+            <span className="whitespace-nowrap">2. なぞり書き</span>
           </div>
-          <span className="text-[10px] font-normal text-gray-500 mt-0.5">
+          <span className="text-[10px] font-normal text-gray-500 mt-0.5 whitespace-nowrap">
             書き順と練習
           </span>
         </button>
@@ -218,7 +434,7 @@ export default function HangulMasterStudio() {
             setCurrentStep('quiz');
             stopKoreanSpeech();
           }}
-          className={`flex flex-col items-center py-2.5 px-1 rounded-xl text-xs font-bold transition-all ${
+          className={`flex flex-col items-center py-2 px-1 rounded-xl text-xs font-bold transition-all ${
             currentStep === 'quiz'
               ? 'bg-white text-[#E07A5F] shadow-sm'
               : 'text-[#718096] hover:text-[#2D3748]'
@@ -226,10 +442,10 @@ export default function HangulMasterStudio() {
         >
           <div className="flex items-center gap-1">
             <Award className="w-3.5 h-3.5" />
-            <span>3. 看板クイズ</span>
+            <span className="whitespace-nowrap">3. 看板クイズ</span>
           </div>
-          <span className="text-[10px] font-normal text-gray-500 mt-0.5">
-            実戦！街のハングル
+          <span className="text-[10px] font-normal text-gray-500 mt-0.5 whitespace-nowrap">
+            実戦メニュー
           </span>
         </button>
       </div>
@@ -361,9 +577,12 @@ export default function HangulMasterStudio() {
               })}
             </div>
 
-            <p className="text-[11px] text-gray-600 bg-[#FBF9F5] p-2.5 rounded-xl border border-[#EDE8E1] leading-relaxed">
-              💡 <strong className="text-[#2D3748]">{selectedConsonant.char} ({selectedConsonant.katakanaName})</strong>: {selectedConsonant.soundTip}
-            </p>
+            <div className="flex items-start gap-2 bg-[#FBF9F5] p-2.5 rounded-xl border border-[#EDE8E1] text-[11px] text-gray-600 leading-relaxed">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+              <p>
+                <strong className="text-[#2D3748]">{selectedConsonant.char} ({selectedConsonant.katakanaName})</strong>: {selectedConsonant.soundTip}
+              </p>
+            </div>
           </div>
 
           {/* 모음 10자 가로 1줄 스크롤 */}
@@ -404,9 +623,12 @@ export default function HangulMasterStudio() {
               })}
             </div>
 
-            <p className="text-[11px] text-gray-600 bg-[#FBF9F5] p-2.5 rounded-xl border border-[#EDE8E1] leading-relaxed">
-              💡 <strong className="text-[#2D3748]">{selectedVowel.char} ({selectedVowel.katakanaName})</strong>: {selectedVowel.soundTip}
-            </p>
+            <div className="flex items-start gap-2 bg-[#FBF9F5] p-2.5 rounded-xl border border-[#EDE8E1] text-[11px] text-gray-600 leading-relaxed">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+              <p>
+                <strong className="text-[#2D3748]">{selectedVowel.char} ({selectedVowel.katakanaName})</strong>: {selectedVowel.soundTip}
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -449,89 +671,177 @@ export default function HangulMasterStudio() {
               </button>
             </div>
 
-            {/* 가로 스크롤 자모 선택 바 */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {/* 빠른 글자 선택 칩 헤더 & 진행 현황 */}
+            <div className="flex items-center justify-between text-xs font-bold text-[#718096] pt-1">
+              <span>{writingTargetType === 'consonant' ? '子音 (14個) リスト' : '母音 (10個) リスト'}</span>
+              <span className="text-[11px] font-bold text-[#E07A5F] bg-[#FAF0E6] px-2.5 py-0.5 rounded-full border border-[#F4DDD4]">
+                完成 {writingTargetType === 'consonant'
+                  ? completedChars.filter((c) => HANGUL_CONSONANTS.some((hc) => hc.char === c)).length
+                  : completedChars.filter((c) => HANGUL_VOWELS.some((hv) => hv.char === c)).length
+                } / {writingTargetType === 'consonant' ? HANGUL_CONSONANTS.length : HANGUL_VOWELS.length}
+              </span>
+            </div>
+
+            {/* 빠른 글자 선택 칩 */}
+            <div
+              ref={charListScrollRef}
+              className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none scroll-smooth"
+            >
               {writingTargetType === 'consonant'
-                ? HANGUL_CONSONANTS.map((c) => (
-                    <button
-                      key={c.char}
-                      onClick={() => setWritingConsonant(c)}
-                      className={`w-11 h-11 shrink-0 rounded-xl flex flex-col items-center justify-center border font-bold text-sm transition-all ${
-                        writingConsonant.char === c.char
-                          ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-md scale-105'
-                          : 'bg-[#FBF9F5] text-gray-700 border-[#EDE8E1]'
-                      }`}
-                    >
-                      <span>{c.char}</span>
-                      <span className="text-[8px] opacity-75">{c.katakanaName.slice(0, 2)}</span>
-                    </button>
-                  ))
-                : HANGUL_VOWELS.map((v) => (
-                    <button
-                      key={v.char}
-                      onClick={() => setWritingVowel(v)}
-                      className={`w-11 h-11 shrink-0 rounded-xl flex flex-col items-center justify-center border font-bold text-sm transition-all ${
-                        writingVowel.char === v.char
-                          ? 'bg-[#38B2AC] text-white border-[#38B2AC] shadow-md scale-105'
-                          : 'bg-[#FBF9F5] text-gray-700 border-[#EDE8E1]'
-                      }`}
-                    >
-                      <span>{v.char}</span>
-                      <span className="text-[8px] opacity-75">{v.katakanaName}</span>
-                    </button>
-                  ))}
+                ? HANGUL_CONSONANTS.map((c) => {
+                    const isSelected = writingConsonant.char === c.char;
+                    const isDone = completedChars.includes(c.char);
+                    return (
+                      <button
+                        key={c.char}
+                        type="button"
+                        data-active={isSelected}
+                        onClick={() => setWritingConsonant(c)}
+                        className={`relative w-10 h-10 shrink-0 rounded-xl text-sm font-black transition-all ${
+                          isSelected
+                            ? 'bg-[#E07A5F] text-white shadow-sm scale-105 ring-2 ring-[#E07A5F]/20'
+                            : isDone
+                              ? 'bg-amber-50 text-amber-900 border border-amber-300'
+                              : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                        }`}
+                      >
+                        {c.char}
+                        {isDone && (
+                          <span
+                            className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
+                              isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
+                            }`}
+                          >
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })
+                : HANGUL_VOWELS.map((v) => {
+                    const isSelected = writingVowel.char === v.char;
+                    const isDone = completedChars.includes(v.char);
+                    return (
+                      <button
+                        key={v.char}
+                        type="button"
+                        data-active={isSelected}
+                        onClick={() => setWritingVowel(v)}
+                        className={`relative w-10 h-10 shrink-0 rounded-xl text-sm font-black transition-all ${
+                          isSelected
+                            ? 'bg-[#38B2AC] text-white shadow-sm scale-105 ring-2 ring-[#38B2AC]/20'
+                            : isDone
+                              ? 'bg-amber-50 text-amber-900 border border-amber-300'
+                              : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                        }`}
+                      >
+                        {v.char}
+                        {isDone && (
+                          <span
+                            className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
+                              isSelected ? 'bg-white text-[#38B2AC]' : 'bg-amber-500 text-white'
+                            }`}
+                          >
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
             </div>
 
             {/* 획순 가이드 팁 */}
-            <div className="p-3 bg-[#FAF0E6] rounded-2xl border border-[#E07A5F]/20 text-xs flex items-center justify-between">
-              <div>
-                <span className="font-bold text-[#E07A5F] block">
-                  {currentWritingGuide.char}（{currentWritingGuide.katakanaName}）
-                </span>
-                <span className="text-gray-600 text-[11px]">
-                  総画数: <strong>{currentWritingGuide.strokeCount}画</strong> | 書き順: {currentWritingGuide.strokeGuide}
-                </span>
+            <div className="p-3.5 bg-[#FAF0E6] rounded-2xl border border-[#E07A5F]/20 text-xs space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-baseline gap-2">
+                  <span className="font-black text-base text-[#E07A5F]">
+                    {currentWritingGuide.char}
+                  </span>
+                  <span className="text-gray-700 font-bold text-xs">
+                    （{currentWritingGuide.katakanaName}）
+                  </span>
+                  <span className="text-[11px] text-gray-500 font-medium">
+                    総画数: <strong className="text-[#2D3748]">{currentWritingGuide.strokeCount}画</strong>
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearCanvas}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl bg-white border border-[#EDE8E1] text-gray-700 hover:text-black font-bold transition-all shadow-2xs shrink-0 whitespace-nowrap active:scale-95"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>消去</span>
+                </button>
               </div>
-              <button
-                onClick={clearCanvas}
-                className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-xl bg-white border border-[#EDE8E1] text-gray-600 hover:text-black font-medium transition-colors shadow-2xs"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>消去</span>
-              </button>
+
+              <div className="text-[11px] text-[#4A5568] bg-white/70 p-2.5 rounded-xl border border-[#E07A5F]/10 leading-relaxed">
+                <span className="font-bold text-[#E07A5F] mr-1.5">書き順:</span>
+                {currentWritingGuide.strokeGuide}
+              </div>
             </div>
 
             {/* 손글씨 캔버스 영역 */}
-            <div className="relative w-full aspect-square max-w-[320px] mx-auto bg-[#FDFCF7] border-2 border-dashed border-[#EDE8E1] rounded-3xl overflow-hidden shadow-inner flex items-center justify-center select-none touch-none">
+            <div
+              className={`relative w-full aspect-square max-w-[340px] mx-auto bg-[#FFFDF9] rounded-3xl overflow-hidden shadow-inner flex items-center justify-center transition-all duration-500 ${
+                isCharCompleted
+                  ? 'border-2 border-amber-400 ring-4 ring-amber-300/60 shadow-[0_0_30px_rgba(251,191,36,0.35)] scale-[1.01]'
+                  : 'border-2 border-dashed border-[#F4DDD4]'
+              }`}
+            >
               {/* 배경 십자 보조선 */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <div className="w-full h-px bg-gray-200" />
-                <div className="absolute h-full w-px bg-gray-200" />
+                <div className="w-full h-px bg-stone-200/60" />
+                <div className="absolute h-full w-px bg-stone-200/60" />
               </div>
 
               {/* 반투명 가이드 글자 */}
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <span className="text-[160px] font-black text-gray-200/80 leading-none select-none">
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center select-none">
+                <span className="text-[160px] font-black text-stone-200 leading-none">
                   {currentWritingChar}
                 </span>
               </div>
 
+              {/* 획순 팁 및 완료 배지 */}
+              <div
+                className={`absolute top-3 left-3 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold transition-all duration-300 pointer-events-none flex items-center gap-1 shadow-2xs ${
+                  isCharCompleted
+                    ? 'bg-amber-100 text-amber-900 border border-amber-300 animate-pulse ring-2 ring-amber-400/40'
+                    : 'bg-white/90 text-[#E07A5F] border border-[#F4DDD4]'
+                }`}
+              >
+                {isCharCompleted ? (
+                  <>
+                    <span>✨</span>
+                    <span>{currentWritingGuide.strokeCount}画完成！</span>
+                    <span className="text-[10px] text-amber-700 font-normal">次の文字へ</span>
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="w-3 h-3 text-[#E07A5F]" />
+                    <span>{drawnStrokes} / {currentWritingGuide.strokeCount}画</span>
+                  </>
+                )}
+              </div>
+
+              {/* 정확도 피드백 토스트 안내 */}
+              {accuracyFeedback && (
+                <div className="absolute top-3 right-3 z-20 px-2.5 py-1 bg-amber-500 text-white text-[11px] font-bold rounded-full shadow-md flex items-center gap-1 animate-bounce pointer-events-none">
+                  <span>⚠️</span>
+                  <span>{accuracyFeedback}</span>
+                </div>
+              )}
+
               {/* 실제 드로잉 캔버스 */}
               <canvas
                 ref={canvasRef}
-                width={320}
-                height={320}
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-                onTouchStart={startDrawing}
-                onTouchMove={draw}
-                onTouchEnd={stopDrawing}
-                className="w-full h-full cursor-crosshair z-10"
+                onPointerDown={startDrawing}
+                onPointerMove={draw}
+                onPointerUp={stopDrawing}
+                onPointerCancel={stopDrawing}
+                className="relative z-10 w-full h-full cursor-crosshair touch-none"
               />
 
-              {!hasDrawn && (
+              {!hasDrawn && !isCharCompleted && (
                 <div className="absolute bottom-4 pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 text-white text-[11px] backdrop-blur-xs">
                   <Pencil className="w-3 h-3 text-[#E07A5F]" />
                   <span>指やマウスでなぞってみよう</span>
@@ -541,10 +851,15 @@ export default function HangulMasterStudio() {
 
             {/* 하단 완료 및 다음 글자 이동 */}
             <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-gray-400">
-                {hasDrawn ? '✨ 上手に書けました！' : 'なぞり書きで形を覚えましょう'}
+              <span className="text-xs text-gray-500 font-medium">
+                {isCharCompleted
+                  ? '🎉 完成！1.5秒後に自動で次へ移動します'
+                  : hasDrawn
+                    ? `✍️ あと ${Math.max(0, currentWritingGuide.strokeCount - drawnStrokes)}画`
+                    : 'なぞり書きで正しい形と書き順をマスター'}
               </span>
               <button
+                type="button"
                 onClick={() => {
                   if (writingTargetType === 'consonant') {
                     const idx = HANGUL_CONSONANTS.findIndex((c) => c.char === writingConsonant.char);
@@ -556,7 +871,7 @@ export default function HangulMasterStudio() {
                     setWritingVowel(next);
                   }
                 }}
-                className="flex items-center gap-1 text-xs px-3 py-2 rounded-xl bg-[#2D3748] hover:bg-black text-white font-bold transition-all"
+                className="flex items-center gap-1 text-xs px-3.5 py-2 rounded-xl bg-[#2D3748] hover:bg-black text-white font-bold transition-all shrink-0 active:scale-95"
               >
                 <span>次の文字へ</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -713,11 +1028,19 @@ export default function HangulMasterStudio() {
               </div>
 
               <div className="pt-2 border-t border-[#E07A5F]/15 flex items-center justify-between">
-                <span className="text-[11px] text-gray-500">
-                  {selectedOptionIndex !== null && currentQuiz.options[selectedOptionIndex]?.isCorrect
-                    ? '🎉 正解です！素晴らしい！'
-                    : '💡 間違えても大丈夫！何度も見て覚えましょう'}
-                </span>
+                <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
+                  {selectedOptionIndex !== null && currentQuiz.options[selectedOptionIndex]?.isCorrect ? (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
+                      <span>正解です！素晴らしい！</span>
+                    </>
+                  ) : (
+                    <>
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                      <span>間違えても大丈夫！何度も見て覚えましょう</span>
+                    </>
+                  )}
+                </div>
                 <button
                   onClick={handleNextQuiz}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E07A5F] hover:bg-[#C8654B] text-white text-xs font-bold shadow-sm transition-transform active:scale-95"
