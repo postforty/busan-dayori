@@ -43,8 +43,8 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EDE8E1] py-1.5 px-2">
-      <div className="max-w-xl mx-auto flex items-center justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EDE8E1] py-1 px-1 pb-[calc(0.25rem+env(safe-area-inset-bottom,0px))]">
+      <div className="max-w-xl mx-auto flex items-center justify-between">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.active;
@@ -52,7 +52,7 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-1 px-4 rounded-xl transition-all ${
+              className={`flex-1 min-w-0 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all ${
                 isActive
                   ? 'text-[#E07A5F] font-bold'
                   : 'text-[#718096] hover:text-[#2D3748]'
@@ -65,7 +65,7 @@ export default function BottomNav() {
               >
                 <Icon className="w-5 h-5" />
               </div>
-              <span className="text-xs font-bold mt-1 tracking-tight">
+              <span className="text-[11px] leading-tight font-medium mt-0.5 tracking-tight whitespace-nowrap">
                 {item.label}
               </span>
             </Link>
