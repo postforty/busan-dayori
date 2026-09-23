@@ -17,16 +17,14 @@ export default async function KoreanPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-[#FDFCF7]">
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="w-8 h-8 border-4 border-[#E07A5F] border-t-transparent rounded-full animate-spin" />
-          </div>
-        }
-      >
-        <KoreanHubView initialPhrases={phrases} initialDialects={dialects} />
-      </Suspense>
-    </main>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-8 h-8 border-4 border-[#E07A5F] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <KoreanHubView initialPhrases={phrases} initialDialects={dialects} />
+    </Suspense>
   );
 }

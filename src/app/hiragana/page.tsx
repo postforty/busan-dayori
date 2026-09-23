@@ -19,16 +19,14 @@ export default async function HiraganaPage({ searchParams }: HiraganaPageProps) 
   const initialChar = resolvedParams.char || 'あ';
 
   return (
-    <main className="min-h-screen bg-[#FDFCF7]">
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="w-8 h-8 border-4 border-[#E07A5F] border-t-transparent rounded-full animate-spin" />
-          </div>
-        }
-      >
-        <HiraganaStudio initialStep={initialStep} initialChar={initialChar} />
-      </Suspense>
-    </main>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-8 h-8 border-4 border-[#E07A5F] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <HiraganaStudio initialStep={initialStep} initialChar={initialChar} />
+    </Suspense>
   );
 }

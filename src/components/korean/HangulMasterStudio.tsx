@@ -24,7 +24,12 @@ import {
   BookOpen,
   Award,
   Layers,
-  Lightbulb
+  Lightbulb,
+  LayoutGrid,
+  Utensils,
+  Coffee,
+  TrainFront,
+  ShoppingBag
 } from 'lucide-react';
 
 type HangulStep = 'combine' | 'write' | 'quiz';
@@ -468,16 +473,16 @@ export default function HangulMasterStudio() {
             </div>
           </div>
 
-          {/* 중앙: 실시간 합체 프리뷰 카드 */}
-          <div className="bg-gradient-to-br from-[#2D3748] to-[#1A202C] text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E07A5F]/10 rounded-full blur-2xl pointer-events-none" />
+          {/* 중앙: 실시간 합체 프리뷰 카드 (아날로그 수첩 웜톤 카드) */}
+          <div className="bg-gradient-to-br from-[#FFF9F2] via-[#FAF0E6] to-[#F5EBE1] text-[#2D3748] rounded-3xl p-6 border border-[#F4DDD4] shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E07A5F]/5 rounded-full blur-2xl pointer-events-none" />
             
-            <div className="flex items-center justify-between text-xs text-gray-300 mb-2">
-              <span className="flex items-center gap-1 font-medium">
+            <div className="flex items-center justify-between text-xs text-[#718096] mb-2">
+              <span className="flex items-center gap-1.5 font-bold">
                 <span className="w-2 h-2 rounded-full bg-[#E07A5F] animate-pulse" />
                 リアルタイム合体プレビュー
               </span>
-              <span className="text-gray-400">
+              <span className="font-mono text-[11px] bg-white/80 px-2 py-0.5 rounded-full border border-[#EDE8E1] text-[#718096]">
                 {selectedConsonant.romaji} + {selectedVowel.romaji}
               </span>
             </div>
@@ -486,29 +491,29 @@ export default function HangulMasterStudio() {
               {/* 결합 수식 표시 */}
               <div className="flex items-center gap-3">
                 <div className="flex flex-col items-center">
-                  <span className="text-3xl font-extrabold text-[#E07A5F]">
+                  <span className="text-3xl font-black text-[#E07A5F]">
                     {selectedConsonant.char}
                   </span>
-                  <span className="text-[11px] text-gray-400 mt-1">
+                  <span className="text-[11px] text-[#718096] font-medium mt-1">
                     {selectedConsonant.katakanaName}
                   </span>
                 </div>
-                <span className="text-2xl text-gray-500 font-light">+</span>
+                <span className="text-2xl text-[#A0AEC0] font-light">+</span>
                 <div className="flex flex-col items-center">
-                  <span className="text-3xl font-extrabold text-[#38B2AC]">
+                  <span className="text-3xl font-black text-[#2D3748]">
                     {selectedVowel.char}
                   </span>
-                  <span className="text-[11px] text-gray-400 mt-1">
+                  <span className="text-[11px] text-[#718096] font-medium mt-1">
                     {selectedVowel.katakanaName}
                   </span>
                 </div>
-                <span className="text-2xl text-gray-500 font-light">=</span>
+                <span className="text-2xl text-[#A0AEC0] font-light">=</span>
               </div>
 
               {/* 완성된 글자 및 발음 버튼 */}
               <div className="flex items-center gap-4">
-                <div className="w-24 h-24 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex flex-col items-center justify-center shadow-inner">
-                  <span className="text-5xl font-black text-white tracking-tight">
+                <div className="w-24 h-24 rounded-2xl bg-white border-2 border-[#F4DDD4] flex flex-col items-center justify-center shadow-sm">
+                  <span className="text-5xl font-black text-[#2D3748] tracking-tight">
                     {combinedChar}
                   </span>
                 </div>
@@ -516,21 +521,21 @@ export default function HangulMasterStudio() {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => handlePlayCombined(combinedChar)}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E07A5F] hover:bg-[#C8654B] text-white font-bold text-xs shadow-md transition-all active:scale-95"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E07A5F] hover:bg-[#C45B40] text-white font-bold text-xs shadow-sm transition-all active:scale-95"
                   >
                     <Volume2 className={`w-4 h-4 ${isPlayingAudio ? 'animate-bounce' : ''}`} />
                     <span>発音を聞く</span>
                   </button>
-                  <span className="text-[11px] text-gray-300">
-                    読み: <strong className="text-white">{combinedChar}</strong>
+                  <span className="text-[11px] text-[#718096]">
+                    読み: <strong className="text-[#2D3748] font-black">{combinedChar}</strong>
                   </span>
                 </div>
               </div>
             </div>
 
             {/* 발음 팁 메모 */}
-            <div className="mt-3 pt-3 border-t border-white/10 text-xs text-gray-300 flex items-start gap-2">
-              <span className="px-1.5 py-0.5 rounded bg-[#E07A5F]/20 text-[#E07A5F] text-[10px] font-bold shrink-0">
+            <div className="mt-3 pt-3 border-t border-[#F4DDD4]/80 text-xs text-[#4A5568] flex items-start gap-2">
+              <span className="px-1.5 py-0.5 rounded bg-[#E07A5F]/15 text-[#E07A5F] text-[10px] font-bold shrink-0 border border-[#E07A5F]/20">
                 発音のコツ
               </span>
               <p className="leading-relaxed">
@@ -552,7 +557,7 @@ export default function HangulMasterStudio() {
             </div>
 
             {/* 가로 스크롤 1줄 컨테이너 */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 px-0.5 scrollbar-none snap-x touch-pan-x">
+            <div className="flex items-center gap-2 overflow-x-auto pt-1.5 pb-2 px-1 scrollbar-none snap-x touch-pan-x">
               {HANGUL_CONSONANTS.map((c) => {
                 const isSelected = selectedConsonant.char === c.char;
                 return (
@@ -589,16 +594,16 @@ export default function HangulMasterStudio() {
           <div className="bg-white rounded-3xl p-4 border border-[#EDE8E1] shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold text-[#2D3748] flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#38B2AC]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2D3748]" />
                 ② 母音 (10個) を選ぶ
               </h4>
               <span className="text-[11px] text-gray-500 font-medium">
-                選択中: <strong className="text-[#38B2AC] font-bold text-xs">{selectedVowel.char}</strong> ({selectedVowel.katakanaName})
+                選択中: <strong className="text-[#2D3748] font-bold text-xs">{selectedVowel.char}</strong> ({selectedVowel.katakanaName})
               </span>
             </div>
 
             {/* 가로 스크롤 1줄 컨테이너 */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 px-0.5 scrollbar-none snap-x touch-pan-x">
+            <div className="flex items-center gap-2 overflow-x-auto pt-1.5 pb-2 px-1 scrollbar-none snap-x touch-pan-x">
               {HANGUL_VOWELS.map((v) => {
                 const isSelected = selectedVowel.char === v.char;
                 return (
@@ -610,7 +615,7 @@ export default function HangulMasterStudio() {
                     }}
                     className={`w-[52px] h-[64px] shrink-0 snap-center rounded-2xl flex flex-col items-center justify-center border transition-all active:scale-95 ${
                       isSelected
-                        ? 'bg-[#38B2AC] text-white border-[#38B2AC] shadow-md font-black scale-105 ring-2 ring-[#38B2AC]/20'
+                        ? 'bg-[#2D3748] text-white border-[#2D3748] shadow-md font-black scale-105 ring-2 ring-[#2D3748]/20'
                         : 'bg-[#FBF9F5] hover:bg-gray-100 text-[#2D3748] border-[#EDE8E1] font-bold'
                     }`}
                   >
@@ -654,7 +659,7 @@ export default function HangulMasterStudio() {
                   onClick={() => setWritingTargetType('vowel')}
                   className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${
                     writingTargetType === 'vowel'
-                      ? 'bg-white text-[#38B2AC] shadow-sm'
+                      ? 'bg-white text-[#2D3748] shadow-sm'
                       : 'text-gray-500'
                   }`}
                 >
@@ -674,7 +679,11 @@ export default function HangulMasterStudio() {
             {/* 빠른 글자 선택 칩 헤더 & 진행 현황 */}
             <div className="flex items-center justify-between text-xs font-bold text-[#718096] pt-1">
               <span>{writingTargetType === 'consonant' ? '子音 (14個) リスト' : '母音 (10個) リスト'}</span>
-              <span className="text-[11px] font-bold text-[#E07A5F] bg-[#FAF0E6] px-2.5 py-0.5 rounded-full border border-[#F4DDD4]">
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                writingTargetType === 'consonant'
+                  ? 'text-[#E07A5F] bg-[#FAF0E6] border-[#F4DDD4]'
+                  : 'text-[#2D3748] bg-stone-100 border-stone-200'
+              }`}>
                 完成 {writingTargetType === 'consonant'
                   ? completedChars.filter((c) => HANGUL_CONSONANTS.some((hc) => hc.char === c)).length
                   : completedChars.filter((c) => HANGUL_VOWELS.some((hv) => hv.char === c)).length
@@ -685,7 +694,7 @@ export default function HangulMasterStudio() {
             {/* 빠른 글자 선택 칩 */}
             <div
               ref={charListScrollRef}
-              className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none scroll-smooth"
+              className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-2 px-1 scrollbar-none scroll-smooth"
             >
               {writingTargetType === 'consonant'
                 ? HANGUL_CONSONANTS.map((c) => {
@@ -729,7 +738,7 @@ export default function HangulMasterStudio() {
                         onClick={() => setWritingVowel(v)}
                         className={`relative w-10 h-10 shrink-0 rounded-xl text-sm font-black transition-all ${
                           isSelected
-                            ? 'bg-[#38B2AC] text-white shadow-sm scale-105 ring-2 ring-[#38B2AC]/20'
+                            ? 'bg-[#2D3748] text-white shadow-sm scale-105 ring-2 ring-[#2D3748]/20'
                             : isDone
                               ? 'bg-amber-50 text-amber-900 border border-amber-300'
                               : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
@@ -739,7 +748,7 @@ export default function HangulMasterStudio() {
                         {isDone && (
                           <span
                             className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
-                              isSelected ? 'bg-white text-[#38B2AC]' : 'bg-amber-500 text-white'
+                              isSelected ? 'bg-white text-[#2D3748]' : 'bg-amber-500 text-white'
                             }`}
                           >
                             ✓
@@ -911,66 +920,73 @@ export default function HangulMasterStudio() {
           </div>
 
           {/* 카테고리 필터 */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none text-xs">
             {[
-              { id: 'all', label: 'すべて' },
-              { id: 'gourmet', label: '🍲 グルメ' },
-              { id: 'cafe', label: '☕ カフェ' },
-              { id: 'traffic', label: '🚇 街・交通' },
-              { id: 'shopping', label: '💳 買い物' }
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  setQuizCategory(cat.id as any);
-                  setCurrentQuizIndex(0);
-                  setIsAnswered(false);
-                  setSelectedOptionIndex(null);
-                }}
-                className={`px-3 py-1.5 rounded-full shrink-0 font-bold transition-all ${
-                  quizCategory === cat.id
-                    ? 'bg-[#E07A5F] text-white shadow-sm'
-                    : 'bg-white text-gray-600 border border-[#EDE8E1] hover:bg-gray-50'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+              { id: 'all', label: 'すべて', icon: LayoutGrid },
+              { id: 'gourmet', label: 'グルメ', icon: Utensils },
+              { id: 'cafe', label: 'カフェ', icon: Coffee },
+              { id: 'traffic', label: '街・交通', icon: TrainFront },
+              { id: 'shopping', label: '買い物', icon: ShoppingBag }
+            ].map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = quizCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setQuizCategory(cat.id as any);
+                    setCurrentQuizIndex(0);
+                    setIsAnswered(false);
+                    setSelectedOptionIndex(null);
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full shrink-0 font-bold transition-all ${
+                    isSelected
+                      ? 'bg-[#E07A5F] text-white shadow-sm'
+                      : 'bg-white text-gray-600 border border-[#EDE8E1] hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* 간판 스타일 대형 퀴즈 카드 */}
-          <div className="bg-gradient-to-br from-[#1A202C] via-[#2D3748] to-[#1A202C] text-white rounded-3xl p-6 shadow-xl border-2 border-white/10 relative overflow-hidden text-center">
-            {/* 상단 태그 */}
-            <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-              <span className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-amber-300 font-semibold border border-white/10">
+          {/* 간판 스타일 대형 퀴즈 카드 (부산 다이어리 웜톤 카드) */}
+          <div className="bg-gradient-to-br from-[#FFF9F2] via-[#FAF0E6] to-[#F5EBE1] text-[#2D3748] rounded-3xl p-6 shadow-sm border border-[#F4DDD4] relative overflow-hidden text-center">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E07A5F]/5 rounded-full blur-2xl pointer-events-none" />
+
+            {/* 상단 태그 및 발음 버튼 */}
+            <div className="flex items-center justify-between text-xs text-[#718096] mb-3">
+              <span className="px-3 py-1 rounded-full bg-white text-[#E07A5F] font-bold border border-[#F4DDD4] shadow-2xs">
                 {currentQuiz.signType}
               </span>
               <button
                 onClick={() => speakKorean(currentQuiz.korean, 0.85)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-gray-200 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white hover:bg-[#FAF0E6] text-[#2D3748] border border-[#EDE8E1] font-bold transition-colors shadow-2xs"
               >
-                <Volume2 className="w-3.5 h-3.5" />
+                <Volume2 className="w-3.5 h-3.5 text-[#E07A5F]" />
                 <span>発音</span>
               </button>
             </div>
 
-            {/* 실제 간판 느낌의 거대한 한글 글씨 */}
-            <div className="py-6 my-2">
-              <span className="text-4xl sm:text-5xl font-black text-amber-100 tracking-wider drop-shadow-md block font-mono">
+            {/* 실제 간판 느낌의 거대한 한글 글씨 - 웜톤 종이 보드 */}
+            <div className="py-6 my-2 bg-white/80 backdrop-blur-xs rounded-2xl border border-[#EDE8E1] max-w-sm mx-auto shadow-inner">
+              <span className="text-4xl sm:text-5xl font-black text-[#2D3748] tracking-wider block">
                 {currentQuiz.korean}
               </span>
-              <span className="text-xs text-gray-400 mt-2 block">
+              <span className="text-xs text-[#718096] mt-2 block font-medium">
                 この看板やメニューは何と読むでしょう？
               </span>
             </div>
 
             {/* 정답 발표 시 나타나는 발음 뱃지 */}
             {isAnswered && (
-              <div className="mt-2 py-2 px-3 rounded-2xl bg-white/10 backdrop-blur-md inline-flex items-center gap-2 animate-in zoom-in-95 duration-200">
-                <span className="text-sm font-bold text-amber-300">
+              <div className="mt-3 py-2 px-4 rounded-2xl bg-white border border-[#E07A5F]/30 inline-flex items-center gap-2 animate-in zoom-in-95 duration-200 shadow-2xs">
+                <span className="text-sm font-bold text-[#E07A5F]">
                   読み: {currentQuiz.katakana}
                 </span>
-                <span className="text-gray-400 text-xs">（{currentQuiz.meaning}）</span>
+                <span className="text-[#718096] text-xs font-medium">（{currentQuiz.meaning}）</span>
               </div>
             )}
           </div>
@@ -1016,7 +1032,9 @@ export default function HangulMasterStudio() {
           {isAnswered && (
             <div className="bg-[#FAF0E6] rounded-2xl p-4 border border-[#E07A5F]/20 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-start gap-2.5">
-                <span className="text-lg">{currentQuiz.emoji}</span>
+                <div className="p-2 bg-white rounded-xl text-[#E07A5F] shadow-2xs border border-[#F4DDD4] shrink-0 mt-0.5">
+                  <Lightbulb className="w-4 h-4 text-amber-500" />
+                </div>
                 <div className="space-y-1">
                   <h5 className="text-xs font-bold text-[#E07A5F]">
                     釜山ローカル旅のプチ知識（現場のコツ）
