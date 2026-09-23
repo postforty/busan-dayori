@@ -470,6 +470,21 @@ export default function HiraganaStudio({
 
             {/* 50음도 그리드 표 */}
             <div className="space-y-2">
+              {/* 열 헤더 (단) */}
+              <div className="flex items-center gap-2">
+                <span className="w-14 shrink-0" aria-hidden="true" />
+                <div className="grid grid-cols-5 gap-1.5 flex-1">
+                  {['あ단', 'い단', 'う단', 'え단', 'お단'].map((dan) => (
+                    <span
+                      key={dan}
+                      className="text-center text-[11px] font-extrabold text-[#A0AEC0]"
+                    >
+                      {dan}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
               {HIRAGANA_GRID.map((row) => (
                 <div key={row.name} className="flex items-center gap-2">
                   <span className="w-14 text-[11px] font-extrabold text-[#A0AEC0] shrink-0 text-right pr-1">
@@ -482,7 +497,7 @@ export default function HiraganaStudio({
                         return (
                           <div
                             key={idx}
-                            className="aspect-square rounded-xl bg-stone-50/60 border border-dashed border-[#EDE8E1]"
+                            className="w-full h-full rounded-2xl bg-stone-50/60 border border-dashed border-[#EDE8E1]"
                           />
                         );
                       }
