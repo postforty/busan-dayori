@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Mail, MessageSquareText, BookOpen, HelpCircle, Bookmark, Compass } from 'lucide-react';
+import { Mail, MessageSquareText, BookOpen, HelpCircle, Bookmark, Compass, Languages } from 'lucide-react';
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -32,11 +32,17 @@ export default function BottomNav() {
       href: '/letters',
       icon: Mail,
       active: pathname.startsWith('/letters')
+    },
+    {
+      label: '韓国語',
+      href: '/korean',
+      icon: Languages,
+      active: pathname.startsWith('/korean')
     }
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EDE8E1] py-2 px-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#EDE8E1] py-1.5 px-2">
       <div className="max-w-xl mx-auto flex items-center justify-around">
         {navItems.map((item) => {
           const Icon = item.icon;

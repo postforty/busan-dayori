@@ -137,3 +137,47 @@ export function speakJapanese(
 
   window.speechSynthesis.speak(utterance);
 }
+
+export function stopKoreanSpeech() {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+export function speakKorean(
+  text: string,
+  rate: number = 0.9,
+  onStart?: () => void,
+  onEnd?: () => void
+) {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    return;
+  }
+
+  stopKoreanSpeech();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'ko-KR';
+  utterance.rate = rate; // 0.8: 천천히, 0.9~1.0: 보통
+
+  // 브라우저의 ko-KR 음성 우선 탐색
+  const voices = window.speechSynthesis.getVoices();
+  const koreanVoice = voices.find((v) => v.lang.startsWith('ko') || v.lang.includes('KR'));
+  if (koreanVoice) {
+    utterance.voice = koreanVoice;
+  }
+
+  utterance.onstart = () => {
+    if (onStart) onStart();
+  };
+
+  utterance.onend = () => {
+    if (onEnd) onEnd();
+  };
+
+  utterance.onerror = () => {
+    if (onEnd) onEnd();
+  };
+
+  window.speechSynthesis.speak(utterance);
+}

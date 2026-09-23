@@ -1,10 +1,5 @@
-import { getPhrases } from '@/lib/supabase/queries';
-import PhrasesClient from '@/components/phrases/PhrasesClient';
+import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default async function PhrasesPage() {
-  const phrases = await getPhrases();
-
-  return <PhrasesClient initialPhrases={phrases} />;
+export default function PhrasesPage() {
+  redirect('/korean?tab=phrases');
 }
