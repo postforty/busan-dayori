@@ -642,8 +642,8 @@ export default function HangulMasterStudio() {
       {currentStep === 'write' && (
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-sm space-y-4">
-            {/* 자음/모음 토글 */}
-            <div className="flex items-center justify-between">
+            {/* 자음/모음 토글 & 헤더 액션 */}
+            <div className="flex items-center justify-between gap-2.5">
               <div className="flex items-center gap-1 bg-[#F4F1EA] p-1 rounded-xl">
                 <button
                   onClick={() => setWritingTargetType('consonant')}
@@ -667,13 +667,25 @@ export default function HangulMasterStudio() {
                 </button>
               </div>
 
-              <button
-                onClick={() => speakKorean(currentWritingChar, 0.85)}
-                className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full bg-[#FAF0E6] text-[#E07A5F] font-bold hover:bg-[#F4E1D2] transition-colors"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>音を聞く</span>
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => speakKorean(currentWritingChar, 0.85)}
+                  className="p-2 rounded-xl bg-stone-100 hover:bg-[#FAF0E6] text-[#718096] hover:text-[#E07A5F] transition-colors shrink-0"
+                  title="発音を聞く"
+                >
+                  <Volume2 className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={clearCanvas}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#4A5568] text-xs font-bold transition-colors shrink-0 whitespace-nowrap active:scale-95"
+                  title="消去"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>消去</span>
+                </button>
+              </div>
             </div>
 
             {/* 빠른 글자 선택 칩 헤더 & 진행 현황 */}
@@ -759,36 +771,6 @@ export default function HangulMasterStudio() {
                   })}
             </div>
 
-            {/* 획순 가이드 팁 */}
-            <div className="p-3.5 bg-[#FAF0E6] rounded-2xl border border-[#E07A5F]/20 text-xs space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="font-black text-base text-[#E07A5F]">
-                    {currentWritingGuide.char}
-                  </span>
-                  <span className="text-gray-700 font-bold text-xs">
-                    （{currentWritingGuide.katakanaName}）
-                  </span>
-                  <span className="text-[11px] text-gray-500 font-medium">
-                    総画数: <strong className="text-[#2D3748]">{currentWritingGuide.strokeCount}画</strong>
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={clearCanvas}
-                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl bg-white border border-[#EDE8E1] text-gray-700 hover:text-black font-bold transition-all shadow-2xs shrink-0 whitespace-nowrap active:scale-95"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>消去</span>
-                </button>
-              </div>
-
-              <div className="text-[11px] text-[#4A5568] bg-white/70 p-2.5 rounded-xl border border-[#E07A5F]/10 leading-relaxed">
-                <span className="font-bold text-[#E07A5F] mr-1.5">書き順:</span>
-                {currentWritingGuide.strokeGuide}
-              </div>
-            </div>
-
             {/* 손글씨 캔버스 영역 */}
             <div
               className={`relative w-full aspect-square max-w-[340px] mx-auto bg-[#FFFDF9] rounded-3xl overflow-hidden shadow-inner flex items-center justify-center transition-all duration-500 ${
@@ -849,43 +831,48 @@ export default function HangulMasterStudio() {
                 onPointerCancel={stopDrawing}
                 className="relative z-10 w-full h-full cursor-crosshair touch-none"
               />
+            </div>
 
-              {!hasDrawn && !isCharCompleted && (
-                <div className="absolute bottom-4 pointer-events-none flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 text-white text-[11px] backdrop-blur-xs">
-                  <Pencil className="w-3 h-3 text-[#E07A5F]" />
-                  <span>指やマウスでなぞってみよう</span>
+            {/* 획순 가이드 단계별 스텝 칩 카드 */}
+            {(() => {
+              const steps = currentWritingGuide.strokeGuide
+                .split(/➔|->/)
+                .map((s) => s.trim())
+                .filter(Boolean);
+
+              return (
+                <div className="bg-[#FAF9F7] p-3.5 rounded-2xl border border-[#EDE8E1] space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 font-bold text-[#4A5568]">
+                      <Pencil className="w-3.5 h-3.5 text-[#E07A5F]" />
+                      <span>書き順ガイド</span>
+                      <span className="text-[#E07A5F] font-black text-sm">
+                        {currentWritingGuide.char}
+                      </span>
+                      <span className="text-gray-500 font-medium text-xs">
+                        （{currentWritingGuide.katakanaName}）
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-bold text-[#A0AEC0]">
+                      総 {currentWritingGuide.strokeCount}画
+                    </span>
+                  </div>
+
+                  <div className="flex items-center flex-wrap gap-1.5 text-xs">
+                    {steps.map((step, idx) => (
+                      <React.Fragment key={idx}>
+                        <span className="inline-flex items-center px-2.5 py-1 bg-white rounded-xl border border-[#EDE8E1] font-bold text-[#4A5568] shadow-2xs whitespace-nowrap text-[11px]">
+                          {step}
+                        </span>
+                        {idx < steps.length - 1 && (
+                          <span className="text-[#CBD5E0] text-[10px] font-black shrink-0">➔</span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
                 </div>
-              )}
-            </div>
-
-            {/* 하단 완료 및 다음 글자 이동 */}
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-xs text-gray-500 font-medium">
-                {isCharCompleted
-                  ? '🎉 完成！1.5秒後に自動で次へ移動します'
-                  : hasDrawn
-                    ? `✍️ あと ${Math.max(0, currentWritingGuide.strokeCount - drawnStrokes)}画`
-                    : 'なぞり書きで正しい形と書き順をマスター'}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  if (writingTargetType === 'consonant') {
-                    const idx = HANGUL_CONSONANTS.findIndex((c) => c.char === writingConsonant.char);
-                    const next = HANGUL_CONSONANTS[(idx + 1) % HANGUL_CONSONANTS.length];
-                    setWritingConsonant(next);
-                  } else {
-                    const idx = HANGUL_VOWELS.findIndex((v) => v.char === writingVowel.char);
-                    const next = HANGUL_VOWELS[(idx + 1) % HANGUL_VOWELS.length];
-                    setWritingVowel(next);
-                  }
-                }}
-                className="flex items-center gap-1 text-xs px-3.5 py-2 rounded-xl bg-[#2D3748] hover:bg-black text-white font-bold transition-all shrink-0 active:scale-95"
-              >
-                <span>次の文字へ</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+              );
+            })()}
           </div>
         </div>
       )}
