@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Mail, MessageSquareText, BookOpen, HelpCircle, Bookmark, Compass, Languages } from 'lucide-react';
+import { Mail, MessageSquareText, BookOpen, HelpCircle, Bookmark, Compass } from 'lucide-react';
+import HangulIcon from '@/components/common/HangulIcon';
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -36,7 +37,7 @@ export default function BottomNav() {
     {
       label: '韓国語',
       href: '/korean',
-      icon: Languages,
+      icon: HangulIcon,
       active: pathname.startsWith('/korean')
     }
   ];

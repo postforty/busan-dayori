@@ -29,8 +29,8 @@ export interface SignQuizItem {
   katakana: string;
   meaning: string;
   emoji: string;
-  signType: string; // '식당 간판', '지하철 표지판', '카페 메뉴판' 등
-  tip: string; // 부산 현지 실전 팁
+  signType: string;
+  tip: string;
   options: {
     text: string;
     katakana: string;
@@ -47,7 +47,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'k / g',
     katakanaSound: 'k / g (カ行/ガ行)',
     strokeCount: 1,
-    strokeGuide: '가로로 긋다가 부드럽게 아래로 꺾기 ①',
+    strokeGuide: '横に引いてから滑らかに下へ曲げる ①',
     soundTip: '単語の先頭では息を抜いた優しい「k」、母音の間では濁音の「g」になります。',
     choIndex: 0
   },
@@ -58,7 +58,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'n',
     katakanaSound: 'n (ナ行)',
     strokeCount: 1,
-    strokeGuide: '위에서 내려와 오른쪽으로 꺾기 ①',
+    strokeGuide: '上から下ろして右へ曲げる ①',
     soundTip: '日本語の「ナ行」とほぼ同じです。舌先を上の歯茎にしっかり当てて発音します。',
     choIndex: 2
   },
@@ -69,7 +69,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 't / d',
     katakanaSound: 't / d (タ行/ダ行)',
     strokeCount: 2,
-    strokeGuide: '위 가로선 ① ➔ ㄴ자처럼 내려와 오른쪽으로 ②',
+    strokeGuide: '上の横線 ① ➔ 下ろして右へ曲げる ②',
     soundTip: '単語の先頭では軽い「t」、母音の間では濁音「d」になります。',
     choIndex: 3
   },
@@ -80,7 +80,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'r / l',
     katakanaSound: 'r / l (ラ行)',
     strokeCount: 3,
-    strokeGuide: 'ㄱ 모양 ① ➔ 가로선 ② ➔ ㄴ 모양으로 마무리 ③',
+    strokeGuide: 'ㄱの形 ① ➔ 真ん中の横線 ② ➔ ㄴの形 ③',
     soundTip: '日本語の「ラ行」より舌先を軽く弾く音です。英語の「R」のように巻き舌にしません。',
     choIndex: 5
   },
@@ -91,7 +91,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'm',
     katakanaSound: 'm (マ行)',
     strokeCount: 3,
-    strokeGuide: '왼쪽 세로선 ① ➔ ㄱ자 꺾기 ② ➔ 밑변 가로 닫기 ③',
+    strokeGuide: '左の縦線 ① ➔ ㄱの形 ② ➔ 底の横線を閉じる ③',
     soundTip: '四角い口の形を模した文字。日本語の「マ行」と同じく唇を閉じて音を出します。',
     choIndex: 6
   },
@@ -102,7 +102,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'p / b',
     katakanaSound: 'p / b (パ行/バ行)',
     strokeCount: 4,
-    strokeGuide: '세로선 둘 ①② ➔ 가로 잇기 ③ ➔ 밑변 가로 닫기 ④',
+    strokeGuide: '縦線2本 ①② ➔ 真ん中の横線 ③ ➔ 底の横線 ④',
     soundTip: '単語の先頭では優しい「p」、母音の間では濁音「b」になります。',
     choIndex: 7
   },
@@ -113,7 +113,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 's',
     katakanaSound: 's (サ行)',
     strokeCount: 2,
-    strokeGuide: '왼쪽 비스듬히 삐침 ① ➔ 오른쪽 빗금 ②',
+    strokeGuide: '左斜めの払い ① ➔ 右斜め払い ②',
     soundTip: '日本語の「サ行」に近いです。「ㅣ(i)」と結合した時は「シ」になります。',
     choIndex: 9
   },
@@ -124,7 +124,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'silent / ng',
     katakanaSound: '無音 (母音そのものの音)',
     strokeCount: 1,
-    strokeGuide: '위쪽 중앙에서 반시계 방향으로 동그라미 ①',
+    strokeGuide: '上の中心から反時計回りに丸を描く ①',
     soundTip: '初声（頭）に来るときは音を持たず、母音の音をそのまま発音する記号です！',
     choIndex: 11
   },
@@ -135,7 +135,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'ch / j',
     katakanaSound: 'ch / j (チャ行/ジャ行)',
     strokeCount: 2,
-    strokeGuide: '가로선 그은 후 꺾어 왼쪽 삐침 ① ➔ 오른쪽 빗금 ②',
+    strokeGuide: '横線から左払い ① ➔ 右斜め払い ②',
     soundTip: '単語の先頭では軽い「ch(チャ)」、母音の間では濁音「j(ジャ)」になります。',
     choIndex: 12
   },
@@ -146,7 +146,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'ch’',
     katakanaSound: '強いチャ行 (激音)',
     strokeCount: 3,
-    strokeGuide: '맨 위 작은 점/가로 ① ➔ ㅈ 모양 이어쓰기 ②③',
+    strokeGuide: '一番上の短い点 ① ➔ ㅈの形を続ける ②③',
     soundTip: 'ティッシュが揺れるくらい、息を強く吹き出しながら「チャ！」と発音します。',
     choIndex: 14
   },
@@ -157,7 +157,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'k’',
     katakanaSound: '強いカ行 (激音)',
     strokeCount: 2,
-    strokeGuide: 'ㄱ 모양 ① ➔ 가운데 가로선 추가 ②',
+    strokeGuide: 'ㄱの形 ① ➔ 真ん中に横線 ②',
     soundTip: '息を「カッ！」と強く勢いよく吐き出すカ行の音です。',
     choIndex: 15
   },
@@ -168,7 +168,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 't’',
     katakanaSound: '強いタ行 (激音)',
     strokeCount: 3,
-    strokeGuide: '맨 위 가로선 ① ➔ 가운데 가로선 ② ➔ ㄴ 모양으로 닫기 ③',
+    strokeGuide: '上の横線 ① ➔ 真ん中の横線 ② ➔ ㄴの形 ③',
     soundTip: '息を強く吐き出すタ行の激音です。「タッ！」と鋭く出します。',
     choIndex: 16
   },
@@ -179,7 +179,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'p’',
     katakanaSound: '強いパ行 (激音)',
     strokeCount: 4,
-    strokeGuide: '위 가로선 ① ➔ 세로선 둘 ②③ ➔ 밑 가로선 ④',
+    strokeGuide: '上の横線 ① ➔ 縦線2本 ②③ ➔ 下の横線 ④',
     soundTip: '唇を破裂させるように強く「パッ！」と息を吹き出します。',
     choIndex: 17
   },
@@ -190,7 +190,7 @@ export const HANGUL_CONSONANTS: HangulConsonant[] = [
     romaji: 'h',
     katakanaSound: 'h (ハ行)',
     strokeCount: 3,
-    strokeGuide: '맨 위 짧은 점 ① ➔ 중간 가로선 ② ➔ 동그라미 ㅇ ③',
+    strokeGuide: '一番上の短い点 ① ➔ 真ん中の横線 ② ➔ 丸（ㅇ） ③',
     soundTip: '日本語の「ハ行」と同じく、息を吐きながら出す音です。',
     choIndex: 18
   }
@@ -205,7 +205,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'a',
     katakanaSound: 'ア (a)',
     strokeCount: 2,
-    strokeGuide: '긴 세로선 ① ➔ 오른쪽 짧은 가로 ②',
+    strokeGuide: '長い縦線 ① ➔ 右の短い横線 ②',
     soundTip: '日本語の「ア」より少し口を縦に大きく開いて発音します。',
     jungIndex: 0
   },
@@ -216,7 +216,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'ya',
     katakanaSound: 'ヤ (ya)',
     strokeCount: 3,
-    strokeGuide: '긴 세로선 ① ➔ 오른쪽 가로선 둘 ②③',
+    strokeGuide: '長い縦線 ① ➔ 右の短い横線2本 ②③',
     soundTip: '日本語の「ヤ」と同じように明るく声を出します。',
     jungIndex: 2
   },
@@ -227,7 +227,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'eo',
     katakanaSound: 'オ (口を縦に開ける)',
     strokeCount: 2,
-    strokeGuide: '왼쪽 짧은 가로 ① ➔ 긴 세로선 ②',
+    strokeGuide: '左の短い横線 ① ➔ 長い縦線 ②',
     soundTip: '★超重要★ 日本語の「ア」の口の形のまま「オ」と発音する、日本語にない音です！',
     jungIndex: 4
   },
@@ -238,7 +238,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'yeo',
     katakanaSound: 'ヨ (口を縦に開ける)',
     strokeCount: 3,
-    strokeGuide: '왼쪽 가로선 둘 ①② ➔ 긴 세로선 ③',
+    strokeGuide: '左の短い横線2本 ①② ➔ 長い縦線 ③',
     soundTip: '「ㅓ」と同じく、口を縦に大きく開けたまま「ヨ」と発音します。',
     jungIndex: 6
   },
@@ -249,7 +249,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'o',
     katakanaSound: 'オ (唇をすぼめる)',
     strokeCount: 2,
-    strokeGuide: '위 짧은 세로 ① ➔ 아래 긴 가로선 ②',
+    strokeGuide: '上の短い縦線 ① ➔ 下の長い横線 ②',
     soundTip: '唇をタコの口のように「チュッ」と丸くすぼめて「オ」と出します。',
     jungIndex: 8
   },
@@ -260,7 +260,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'yo',
     katakanaSound: 'ヨ (唇をすぼめる)',
     strokeCount: 3,
-    strokeGuide: '위 짧은 세로 둘 ①② ➔ 아래 긴 가로선 ③',
+    strokeGuide: '上の短い縦線2本 ①② ➔ 下の長い横線 ③',
     soundTip: '唇を丸く突き出しながら「ヨ」と発音します。',
     jungIndex: 12
   },
@@ -271,7 +271,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'u',
     katakanaSound: 'ウ (唇をすぼめる)',
     strokeCount: 2,
-    strokeGuide: '위 긴 가로선 ① ➔ 아래 짧은 세로 ②',
+    strokeGuide: '上の長い横線 ① ➔ 下の短い縦線 ②',
     soundTip: '唇を前に突き出して丸くすぼめながら発音する「ウ」です。',
     jungIndex: 13
   },
@@ -282,7 +282,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'yu',
     katakanaSound: 'ユ (唇をすぼめる)',
     strokeCount: 3,
-    strokeGuide: '위 긴 가로선 ① ➔ 아래 짧은 세로 둘 ②③',
+    strokeGuide: '上の長い横線 ① ➔ 下の短い縦線2本 ②③',
     soundTip: '唇を前にしっかり突き出しながら「ユ」と出します。',
     jungIndex: 17
   },
@@ -293,7 +293,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'eu',
     katakanaSound: 'ウ (唇を横に引く)',
     strokeCount: 1,
-    strokeGuide: '왼쪽에서 오른쪽으로 평평한 가로선 ①',
+    strokeGuide: '左から右へ平らな横線 ①',
     soundTip: '★超重要★ 口を「イ」の形に横に平たく引いたまま「ウ」と発音します。日本語の「ウ」に一番近い音です！',
     jungIndex: 18
   },
@@ -304,7 +304,7 @@ export const HANGUL_VOWELS: HangulVowel[] = [
     romaji: 'i',
     katakanaSound: 'イ (i)',
     strokeCount: 1,
-    strokeGuide: '위에서 아래로 쭉 내리는 세로선 ①',
+    strokeGuide: '上から下へ真っ直ぐな縦線 ①',
     soundTip: '日本語の「イ」と同じく、口を横に引いてハッキリ発音します。',
     jungIndex: 20
   }
@@ -326,7 +326,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'テジクッパ',
     meaning: '豚クッパ (釜山名物ソウルフード)',
     emoji: '🍲',
-    signType: '식당 간판 (食堂の看板)',
+    signType: '食堂の看板 (식당 간판)',
     tip: '釜山の街を歩くと一番よく見かける看板！「원조(元祖)」や「할매(おばあちゃん)」と書いてあれば名店の証です。',
     options: [
       { text: '豚クッパ (豚骨スープご飯)', katakana: 'テジクッパ', isCorrect: true },
@@ -342,7 +342,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ミルミョン',
     meaning: '小麦冷麺 (釜山の夏の名物)',
     emoji: '🍜',
-    signType: '메뉴판 (メニュー)',
+    signType: 'メニュー表 (메뉴판)',
     tip: '一般的な冷麺は蕎麦粉ですが、釜山のミルミョンは小麦粉麺！ハサミで1〜2回切ってから食べます。',
     options: [
       { text: 'ジャージャー麺', katakana: 'チャジャンミョン', isCorrect: false },
@@ -358,7 +358,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'キンパ',
     meaning: '韓国風海苔巻き',
     emoji: '🍙',
-    signType: '분식집 간판 (軽食店)',
+    signType: '軽食店の看板 (분식집)',
     tip: '街中の「김밥천국(キンパ天国)」や「고봉민김밥」は、一人旅でも入りやすい定番の味方です！',
     options: [
       { text: 'トッポッキ', katakana: 'トッポッキ', isCorrect: false },
@@ -374,7 +374,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'サムギョプサル',
     meaning: '豚バラ肉の焼肉',
     emoji: '🥩',
-    signType: '식당 간판 (焼肉店)',
+    signType: '焼肉店の看板 (삼겹살)',
     tip: '「삼(3)・겹(層)・살(肉)」という漢字語由来の言葉。2人前以上から注文可能な店が多いので要チェック！',
     options: [
       { text: '牛プルコギ', katakana: 'プルコギ', isCorrect: false },
@@ -390,7 +390,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'オムク',
     meaning: '練り物・釜山おでん',
     emoji: '🍢',
-    signType: '시장 간판 (南浦洞・国際市場)',
+    signType: '市場の看板 (南浦洞・国際市場)',
     tip: '釜山といえば「釜山オムク(부산어묵)」。屋台で立ち食いするとき、紙コップに熱い出汁(スープ)を汲んで一緒に飲むのが現地流！',
     options: [
       { text: '釜山名物 練り物・おでん', katakana: 'オムク', isCorrect: true },
@@ -406,7 +406,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ビビンバ',
     meaning: '混ぜご飯',
     emoji: '🥗',
-    signType: '식당 메뉴 (食堂メニュー)',
+    signType: '食堂メニュー (식당 메뉴)',
     tip: '「비비다(混ぜる)」+「밥(ご飯)」の組み合わせ。しっかりスプーンで均等に混ぜて食べるのが一番美味しい秘訣！',
     options: [
       { text: '石焼きチャーハン', katakana: 'ポックンパ', isCorrect: false },
@@ -424,7 +424,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'アメリカーノ',
     meaning: 'アメリカーノ (韓国カフェの国民的定番)',
     emoji: '☕',
-    signType: '카페 메뉴판 (カフェメニュー)',
+    signType: 'カフェメニュー (카페 메뉴)',
     tip: '韓国人は真冬でも「아아(ア・ア = アイスアメリカーノ)」を飲む人が多数！「アイス」は「아이스」です。',
     options: [
       { text: 'カフェラテ', katakana: 'カフェラテ', isCorrect: false },
@@ -440,7 +440,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ポジャン',
     meaning: '持ち帰り・テイクアウト',
     emoji: '🛍️',
-    signType: '키오스크 / 계산대 (キオスク注文)',
+    signType: 'キオスク・レジ案内 (주문)',
     tip: 'キオスク（タッチパネル注文機）で必ず聞かれます。「매장(店内)」か「포장(テイクアウト)」を選びましょう！',
     options: [
       { text: '店内で飲食 (店内)', katakana: 'メジャン', isCorrect: false },
@@ -456,7 +456,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ワイパイ',
     meaning: 'Wi-Fi (無料Wi-Fi)',
     emoji: '📶',
-    signType: '벽면 부착 안내판 (カフェの壁やレシート)',
+    signType: '案内標識 (Wi-Fi PW)',
     tip: 'カフェのレシートの下部や壁に「와이파이(Wi-Fi)」とパスワード(비밀번호 / PW)が必ず書かれています。',
     options: [
       { text: '無料Wi-Fi', katakana: 'ワイパイ', isCorrect: true },
@@ -474,7 +474,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ファジャンシル',
     meaning: 'お手洗い・トイレ',
     emoji: '🚻',
-    signType: '공공 표지판 (案内標識)',
+    signType: '案内標識 (화장실)',
     tip: '旅行中に一番探す看板！カフェやビルのトイレには暗証番号(PW)が必要な場合が多いのでレシートを確認！',
     options: [
       { text: 'お手洗い・トイレ', katakana: 'ファジャンシル', isCorrect: true },
@@ -490,7 +490,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'チュルグ',
     meaning: '出口',
     emoji: '🚪',
-    signType: '지하철 표지판 (地下鉄の標識)',
+    signType: '地下鉄の標識 (출구)',
     tip: '数字と組み合わせて「1번 출구 (1番出口)」のように使われます。反対の入口は「입구(イプク)」です。',
     options: [
       { text: '入口', katakana: 'イプク', isCorrect: false },
@@ -506,7 +506,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'チハチョル',
     meaning: '地下鉄・メトロ',
     emoji: '🚇',
-    signType: '교통 표지판 (メトロ入口)',
+    signType: 'メトロ入口標識 (지하철)',
     tip: '釜山旅行の頼れる足！1号線(オレンジ)から4号線まで分かりやすく色分けされています。',
     options: [
       { text: 'タクシー乗り場', katakana: 'テクシ', isCorrect: false },
@@ -522,7 +522,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'プサニョク',
     meaning: '釜山駅 (KTX・地下鉄)',
     emoji: '🚉',
-    signType: '역명판 (駅の看板)',
+    signType: '駅名標 (부산역)',
     tip: '「부산(釜山)」+「역(駅)」。連音化（リエゾン）して「プサン・ヨク」ではなく「プサニョク」と発音します。',
     options: [
       { text: '西面駅 (ソミョン駅)', katakana: 'ソミョニョク', isCorrect: false },
@@ -538,7 +538,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ヤックク',
     meaning: '薬局・ドラッグストア',
     emoji: '💊',
-    signType: '거리 간판 (街の看板)',
+    signType: '街の看板 (약국)',
     tip: '赤い十字マークに大きく「약(ヤク)」と一文字だけ書いてある看板が目印です！',
     options: [
       { text: '病院・クリニック', katakana: 'ピョンウォン', isCorrect: false },
@@ -556,7 +556,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ケサン',
     meaning: 'お会計・精算',
     emoji: '💳',
-    signType: '카운터 안내판 (レジカウンター)',
+    signType: 'レジ案内 (계산)',
     tip: 'レジで「계산해 주세요 (ケサネ ジュセヨ = お会計お願いします)」と言えれば完璧です！',
     options: [
       { text: 'お会計・精算', katakana: 'ケサン', isCorrect: true },
@@ -572,7 +572,7 @@ export const SIGN_QUIZ_LIST: SignQuizItem[] = [
     katakana: 'ピョニジョム',
     meaning: 'コンビニ (GS25, CU等)',
     emoji: '🏪',
-    signType: '거리 간판 (街の看板)',
+    signType: '街の看板 (편의점)',
     tip: '漢字「便宜店」の韓国語読み。T-moneyカードのチャージや深夜の買い物に必須です。',
     options: [
       { text: '大型スーパー', katakana: 'テヒョンマート', isCorrect: false },

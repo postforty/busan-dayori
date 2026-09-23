@@ -6,7 +6,8 @@ import { Phrase, Dialect } from '@/types';
 import HangulMasterStudio from './HangulMasterStudio';
 import PhrasesClient from '@/components/phrases/PhrasesClient';
 import DialectsClient from '@/components/dialects/DialectsClient';
-import { Sparkles, Languages, MessageSquareText, Compass, BookOpen } from 'lucide-react';
+import HangulIcon from '@/components/common/HangulIcon';
+import { Sparkles, MessageSquareText, Compass, BookOpen } from 'lucide-react';
 
 interface KoreanHubViewProps {
   initialPhrases: Phrase[];
@@ -74,7 +75,7 @@ export default function KoreanHubView({
               : 'text-[#718096] hover:text-[#2D3748]'
           }`}
         >
-          <Languages className="w-4 h-4" />
+          <HangulIcon className="w-4 h-4" />
           <span>ハングル読み</span>
         </button>
 
