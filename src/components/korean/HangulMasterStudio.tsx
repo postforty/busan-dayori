@@ -16,6 +16,7 @@ import {
   RotateCcw,
   Sparkles,
   CheckCircle,
+  XCircle,
   HelpCircle,
   ChevronRight,
   Flame,
@@ -982,15 +983,15 @@ export default function HangulMasterStudio() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {currentQuiz.options.map((opt, idx) => {
               const isSelected = selectedOptionIndex === idx;
-              let btnStyle = 'bg-white text-gray-800 border-[#EDE8E1] hover:border-[#E07A5F]';
+              let btnStyle = 'bg-white text-[#2D3748] border-[#EDE8E1] hover:border-[#E07A5F] hover:bg-[#FAF9F7]';
 
               if (isAnswered) {
                 if (opt.isCorrect) {
-                  btnStyle = 'bg-emerald-50 text-emerald-800 border-emerald-500 font-bold ring-2 ring-emerald-500/20';
+                  btnStyle = 'bg-[#F2F7F4] text-[#224233] border-[#3E7B5C] font-bold shadow-xs';
                 } else if (isSelected && !opt.isCorrect) {
-                  btnStyle = 'bg-rose-50 text-rose-700 border-rose-300 line-through opacity-75';
+                  btnStyle = 'bg-[#FDF3F0] text-[#943A25] border-[#C45B40] font-semibold shadow-xs';
                 } else {
-                  btnStyle = 'bg-gray-50 text-gray-400 border-gray-200 opacity-50';
+                  btnStyle = 'bg-[#FAF9F7] text-[#A0AEC0] border-[#EDE8E1] opacity-60';
                 }
               }
 
@@ -1004,10 +1005,23 @@ export default function HangulMasterStudio() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold block">{opt.text}</span>
                     {isAnswered && opt.isCorrect && (
-                      <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+                      <CheckCircle className="w-5 h-5 text-[#3E7B5C] shrink-0" />
+                    )}
+                    {isAnswered && isSelected && !opt.isCorrect && (
+                      <XCircle className="w-5 h-5 text-[#C45B40] shrink-0" />
                     )}
                   </div>
-                  <span className="text-[11px] text-gray-500 mt-0.5">
+                  <span
+                    className={`text-[11px] mt-0.5 ${
+                      isAnswered
+                        ? opt.isCorrect
+                          ? 'text-[#3E7B5C]/80'
+                          : isSelected
+                          ? 'text-[#943A25]/80'
+                          : 'text-gray-400'
+                        : 'text-gray-500'
+                    }`}
+                  >
                     発音: <strong>{opt.katakana}</strong>
                   </span>
                 </button>
@@ -1032,23 +1046,23 @@ export default function HangulMasterStudio() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#E07A5F]/15 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
+              <div className="pt-2.5 border-t border-[#E07A5F]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-1.5 text-xs min-w-0">
                   {selectedOptionIndex !== null && currentQuiz.options[selectedOptionIndex]?.isCorrect ? (
                     <>
-                      <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
-                      <span>正解です！素晴らしい！</span>
+                      <Sparkles className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+                      <span className="font-bold text-[#E07A5F] truncate sm:whitespace-normal">正解です！素晴らしい！</span>
                     </>
                   ) : (
                     <>
-                      <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                      <span>間違えても大丈夫！何度も見て覚えましょう</span>
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                      <span className="font-medium text-[#4A5568]">間違えても大丈夫！何度も見て覚えましょう</span>
                     </>
                   )}
                 </div>
                 <button
                   onClick={handleNextQuiz}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#E07A5F] hover:bg-[#C8654B] text-white text-xs font-bold shadow-sm transition-transform active:scale-95"
+                  className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#E07A5F] hover:bg-[#C8654B] text-white text-xs font-bold shadow-sm transition-transform active:scale-95 whitespace-nowrap"
                 >
                   <span>次の問題へ</span>
                   <ArrowRight className="w-3.5 h-3.5" />
