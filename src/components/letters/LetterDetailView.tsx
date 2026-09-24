@@ -128,40 +128,45 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
       <div className="sticky top-14 z-30 bg-[#FBF9F5]/90 backdrop-blur-md px-4 py-2.5 flex items-center justify-between border-b border-[#EDE8E1]">
         <Link
           href="/letters"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-[#4A5568] hover:text-[#E07A5F] py-1"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#4A5568] hover:text-[#E07A5F] py-1 min-w-0"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>편지 목록으로 (お便り一覧)</span>
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          <span className="truncate">
+            편지 목록으로 <span className="hidden sm:inline">(お便り一覧)</span>
+          </span>
         </Link>
 
-        <div className="flex items-center gap-2">
-          {/* 관리자 전용 수정/삭제 버튼 */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* 관리자 전용 수정/삭제 버튼 (모바일: 원형 아이콘 단독 모드, sm 이상: 아이콘 + 텍스트) */}
           {isAdmin && (
             <div className="flex items-center gap-1.5 mr-1 pr-2 border-r border-[#EDE8E1]">
               <Link
                 href={`/letters/${letter.id}/edit`}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-[#E07A5F] bg-[#FAF0E6] hover:bg-[#F4DDD4] rounded-full border border-[#F4DDD4] transition-colors"
+                className="w-7 h-7 sm:w-auto sm:h-auto p-1.5 sm:px-2.5 sm:py-1 text-xs font-semibold text-[#E07A5F] bg-[#FAF0E6] hover:bg-[#F4DDD4] rounded-full border border-[#F4DDD4] transition-colors flex items-center justify-center gap-1 shrink-0 whitespace-nowrap"
                 title="편지 내용 수정"
+                aria-label="편지 내용 수정"
               >
-                <Edit className="w-3 h-3" />
-                <span>수정</span>
+                <Edit className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">수정</span>
               </Link>
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(true)}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50/70 hover:bg-red-100/70 rounded-full border border-red-200 transition-colors"
+                className="w-7 h-7 sm:w-auto sm:h-auto p-1.5 sm:px-2.5 sm:py-1 text-xs font-semibold text-[#943A25] bg-[#FDF3F0] hover:bg-[#FCE4DC] rounded-full border border-[#F4DDD4] transition-colors flex items-center justify-center gap-1 shrink-0 whitespace-nowrap"
                 title="편지 삭제"
+                aria-label="편지 삭제"
               >
-                <Trash2 className="w-3 h-3" />
-                <span>삭제</span>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">삭제</span>
               </button>
             </div>
           )}
 
           <button
             onClick={handleShare}
-            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors shrink-0"
             title="공유하기"
+            aria-label="공유하기"
           >
             <Share2 className="w-4 h-4" />
           </button>

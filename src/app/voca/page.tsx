@@ -152,26 +152,26 @@ export default function VocaPage() {
       <div className="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-2xl text-xs font-bold">
         <button
           onClick={() => setMainView('words')}
-          className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+          className={`py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
             mainView === 'words'
               ? 'bg-white text-[#2D3748] shadow-sm'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          <BookOpen className="w-3.5 h-3.5 text-[#E07A5F]" />
-          <span>単語・表現ノート ({words.length})</span>
+          <BookOpen className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+          <span>単語・表現 ({words.length})</span>
         </button>
 
         <button
           onClick={() => setMainView('lessons')}
-          className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+          className={`py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
             mainView === 'lessons'
               ? 'bg-white text-[#2D3748] shadow-sm'
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          <FolderArchive className="w-3.5 h-3.5 text-[#E07A5F]" />
-          <span>保存したレッスン ({savedLessons.length})</span>
+          <FolderArchive className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+          <span>保存レッスン ({savedLessons.length})</span>
         </button>
       </div>
 

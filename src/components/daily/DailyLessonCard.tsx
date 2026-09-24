@@ -342,19 +342,20 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
 
         <button
           onClick={handleToggleLessonSave}
-          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
+          className={`w-7 h-7 sm:w-auto sm:h-auto p-1.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
             isLessonSaved
               ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
-              : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+              : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-gray-50 hover:text-[#2D3748]'
           }`}
           title={isLessonSaved ? '保存解除' : 'レッスン保存'}
+          aria-label={isLessonSaved ? '保存解除' : 'レッスン保存'}
         >
           {isLessonSaved ? (
             <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
           ) : (
             <Bookmark className="w-3.5 h-3.5 shrink-0" />
           )}
-          <span>{isLessonSaved ? '保存済み' : 'レッスン保存'}</span>
+          <span className="hidden sm:inline">{isLessonSaved ? '保存済み' : 'レッスン保存'}</span>
         </button>
       </div>
 

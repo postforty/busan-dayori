@@ -23,11 +23,13 @@ export default function LetterCard({ letter }: LetterCardProps) {
         
         {/* 상단 날짜 및 지역 */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between text-white text-xs">
-          <span className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full font-medium">
+          <span className="inline-flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1 rounded-full font-medium shadow-2xs">
             <MapPin className="w-3 h-3 text-[#E07A5F]" />
             {letter.region}
           </span>
-          <span className="text-[11px] opacity-90">{letter.date}</span>
+          <span className="inline-flex items-center bg-black/45 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-medium text-white/95 tracking-wide shadow-2xs">
+            {letter.date}
+          </span>
         </div>
 
         {/* 하단 한글/카타카나 명칭 */}

@@ -644,11 +644,11 @@ export default function HangulMasterStudio() {
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-sm space-y-4">
             {/* 자음/모음 토글 & 헤더 액션 */}
-            <div className="flex items-center justify-between gap-2.5">
-              <div className="flex items-center gap-1 bg-[#F4F1EA] p-1 rounded-xl">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1 bg-[#F4F1EA] p-1 rounded-xl shrink-0">
                 <button
                   onClick={() => setWritingTargetType('consonant')}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap ${
                     writingTargetType === 'consonant'
                       ? 'bg-white text-[#E07A5F] shadow-sm'
                       : 'text-gray-500'
@@ -658,7 +658,7 @@ export default function HangulMasterStudio() {
                 </button>
                 <button
                   onClick={() => setWritingTargetType('vowel')}
-                  className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap ${
                     writingTargetType === 'vowel'
                       ? 'bg-white text-[#2D3748] shadow-sm'
                       : 'text-gray-500'
@@ -674,17 +674,18 @@ export default function HangulMasterStudio() {
                   onClick={() => speakKorean(currentWritingChar, 0.85)}
                   className="p-2 rounded-xl bg-stone-100 hover:bg-[#FAF0E6] text-[#718096] hover:text-[#E07A5F] transition-colors shrink-0"
                   title="発音を聞く"
+                  aria-label="発音を聞く"
                 >
                   <Volume2 className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
                   onClick={clearCanvas}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#4A5568] text-xs font-bold transition-colors shrink-0 whitespace-nowrap active:scale-95"
-                  title="消去"
+                  className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#718096] hover:text-[#2D3748] transition-colors shrink-0 active:scale-95"
+                  title="消去 (書き直す)"
+                  aria-label="消去 (書き直す)"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>消去</span>
+                  <RotateCcw className="w-4 h-4" />
                 </button>
               </div>
             </div>
