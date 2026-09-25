@@ -310,7 +310,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
 
                   {showPronounce && paragraphText.trim() && (
                     <p className="text-xs font-semibold text-[#E07A5F] leading-normal">
-                      [{getPronunciation(paragraphText)}]
+                      [{paragraph.pronunciation || getPronunciation(paragraphText)}]
                     </p>
                   )}
                 </div>

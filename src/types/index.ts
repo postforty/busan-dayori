@@ -21,6 +21,7 @@ export interface PlaceInfo {
 export interface LetterParagraph {
   text: string;
   imageUrl?: string;
+  pronunciation?: string;
 }
 
 export interface Letter {

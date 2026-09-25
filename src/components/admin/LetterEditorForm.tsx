@@ -45,7 +45,7 @@ export default function LetterEditorForm({
       return initialData.content.map((p) =>
         typeof p === 'string'
           ? { text: p, imageUrl: undefined }
-          : { text: p.text || '', imageUrl: p.imageUrl }
+          : { text: p.text || '', imageUrl: p.imageUrl, pronunciation: p.pronunciation }
       )
     }
     return [{ text: '', imageUrl: undefined }]
@@ -112,7 +112,7 @@ export default function LetterEditorForm({
 
   const handleParagraphTextChange = (index: number, text: string) => {
     const updated = [...contentParagraphs]
-    updated[index] = { ...updated[index], text }
+    updated[index] = { ...updated[index], text, pronunciation: undefined }
     setContentParagraphs(updated)
   }
 

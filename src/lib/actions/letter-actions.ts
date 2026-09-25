@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getServerUser } from '@/lib/supabase/server-auth'
 import { extractStoragePath } from '@/utils/image'
+import { generateParagraphPronunciations } from '@/lib/ai/pronunciation'
 import type { Category, LetterParagraph, SoloFriendly, SpicyLevel } from '@/types'
 import type { Database, Json } from '@/types/database.types'
 
@@ -55,6 +56,29 @@ export async function createLetter(data: LetterFormData) {
     data.id?.trim() ||
     `letter-${Date.now()}`
 
+  // 단락 데이터 정제 및 발음 사전 생성
+  const sanitizedParagraphs = data.content
+    .map((p) => ({
+      text: p.text.trim(),
+      imageUrl: p.imageUrl?.trim() || undefined,
+      pronunciation: p.pronunciation?.trim() || undefined,
+    }))
+    .filter((p) => p.text.length > 0 || Boolean(p.imageUrl))
+
+  const textsToPronounce = sanitizedParagraphs.map((p) => (p.pronunciation ? '' : p.text))
+  if (textsToPronounce.some((t) => t.length > 0)) {
+    try {
+      const generated = await generateParagraphPronunciations(textsToPronounce)
+      sanitizedParagraphs.forEach((p, idx) => {
+        if (!p.pronunciation && generated[idx]) {
+          p.pronunciation = generated[idx]
+        }
+      })
+    } catch (err) {
+      console.warn('[createLetter] 발음 생성 예외 발생 (Fallback 유지):', err)
+    }
+  }
+
   const { error } = await supabase.from('letters').insert({
     id: slugId,
     title: data.title.trim(),
@@ -63,12 +87,7 @@ export async function createLetter(data: LetterFormData) {
     region: data.region.trim(),
     image_url: data.imageUrl.trim() || 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
     summary: data.summary.trim(),
-    content: data.content
-      .map((p) => ({
-        text: p.text.trim(),
-        imageUrl: p.imageUrl?.trim() || undefined,
-      }))
-      .filter((p) => p.text.length > 0 || Boolean(p.imageUrl)) as unknown as Json,
+    content: sanitizedParagraphs as unknown as Json,
     study_point: data.studyPoint as unknown as Json,
     place_info: data.placeInfo ? (data.placeInfo as unknown as Json) : null,
     likes: 0,
@@ -134,8 +153,24 @@ export async function updateLetter(
       .map((p) => ({
         text: p.text.trim(),
         imageUrl: p.imageUrl?.trim() || undefined,
+        pronunciation: p.pronunciation?.trim() || undefined,
       }))
       .filter((p) => p.text.length > 0 || Boolean(p.imageUrl))
+
+    const textsToPronounce = sanitizedParagraphs.map((p) => (p.pronunciation ? '' : p.text))
+    if (textsToPronounce.some((t) => t.length > 0)) {
+      try {
+        const generated = await generateParagraphPronunciations(textsToPronounce)
+        sanitizedParagraphs.forEach((p, idx) => {
+          if (!p.pronunciation && generated[idx]) {
+            p.pronunciation = generated[idx]
+          }
+        })
+      } catch (err) {
+        console.warn('[updateLetter] 발음 생성 예외 발생 (Fallback 유지):', err)
+      }
+    }
+
     updatePayload.content = sanitizedParagraphs as unknown as Json
   }
   if (data.studyPoint !== undefined) {

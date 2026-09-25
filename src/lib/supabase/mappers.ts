@@ -30,6 +30,10 @@ function normalizeLetterContent(rawContent: unknown): LetterParagraph[] {
           typeof obj.imageUrl === 'string' && obj.imageUrl.trim().length > 0
             ? obj.imageUrl.trim()
             : undefined,
+        pronunciation:
+          typeof obj.pronunciation === 'string' && obj.pronunciation.trim().length > 0
+            ? obj.pronunciation.trim()
+            : undefined,
       }
     }
     return { text: '' }
