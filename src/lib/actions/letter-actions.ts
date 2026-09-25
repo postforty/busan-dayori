@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getServerUser } from '@/lib/supabase/server-auth'
 import { extractStoragePath } from '@/utils/image'
-import type { Category, SoloFriendly, SpicyLevel } from '@/types'
+import type { Category, LetterParagraph, SoloFriendly, SpicyLevel } from '@/types'
 import type { Database, Json } from '@/types/database.types'
 
 type LetterUpdate = Database['public']['Tables']['letters']['Update']
@@ -17,7 +17,7 @@ export interface LetterFormData {
   region: string
   imageUrl: string
   summary: string
-  content: string[] // 단락 배열
+  content: LetterParagraph[] // 단락 배열
   studyPoint: {
     expression: string
     meaning: string
@@ -63,7 +63,12 @@ export async function createLetter(data: LetterFormData) {
     region: data.region.trim(),
     image_url: data.imageUrl.trim() || 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
     summary: data.summary.trim(),
-    content: data.content.filter((p) => p.trim().length > 0) as unknown as Json,
+    content: data.content
+      .map((p) => ({
+        text: p.text.trim(),
+        imageUrl: p.imageUrl?.trim() || undefined,
+      }))
+      .filter((p) => p.text.length > 0 || Boolean(p.imageUrl)) as unknown as Json,
     study_point: data.studyPoint as unknown as Json,
     place_info: data.placeInfo ? (data.placeInfo as unknown as Json) : null,
     likes: 0,
@@ -97,15 +102,21 @@ export async function updateLetter(
 
   const supabase = await createClient()
 
-  // 1. 이미지가 변경되는 경우, 기존 image_url 조회 (성공적인 DB 업데이트 후 Storage 정리용)
+  // 1. 이미지가 변경되거나 단락이 변경되는 경우, 기존 이미지 정보 조회 (Storage 정리용)
   let oldImageUrl: string | null = null
-  if (data.imageUrl !== undefined) {
+  let oldParagraphImages: string[] = []
+  if (data.imageUrl !== undefined || data.content !== undefined) {
     const { data: existingLetter } = await supabase
       .from('letters')
-      .select('image_url')
+      .select('image_url, content')
       .eq('id', id)
       .single()
     oldImageUrl = existingLetter?.image_url || null
+    if (Array.isArray(existingLetter?.content)) {
+      oldParagraphImages = (existingLetter.content as Array<Record<string, unknown>>)
+        .map((item) => (typeof item === 'object' && item !== null && typeof item.imageUrl === 'string' ? item.imageUrl : undefined))
+        .filter((url): url is string => Boolean(url && url.trim().length > 0))
+    }
   }
 
   const updatePayload: LetterUpdate = {
@@ -119,7 +130,13 @@ export async function updateLetter(
   if (data.imageUrl !== undefined) updatePayload.image_url = data.imageUrl.trim()
   if (data.summary !== undefined) updatePayload.summary = data.summary.trim()
   if (data.content !== undefined) {
-    updatePayload.content = data.content.filter((p) => p.trim().length > 0) as unknown as Json
+    const sanitizedParagraphs = data.content
+      .map((p) => ({
+        text: p.text.trim(),
+        imageUrl: p.imageUrl?.trim() || undefined,
+      }))
+      .filter((p) => p.text.length > 0 || Boolean(p.imageUrl))
+    updatePayload.content = sanitizedParagraphs as unknown as Json
   }
   if (data.studyPoint !== undefined) {
     updatePayload.study_point = data.studyPoint as unknown as Json
@@ -138,20 +155,33 @@ export async function updateLetter(
     throw new Error(`편지 수정 실패: ${error.message}`)
   }
 
-  // 2. DB 업데이트 성공 후, 기존 이미지가 교체되었다면 Storage에서 삭제
-  //    삭제 대상: (a) 폼에서 명시적으로 전달된 previousImageUrl, (b) DB에서 조회한 oldImageUrl
-  const newImageUrl = data.imageUrl?.trim() || ''
+  // 2. DB 업데이트 성공 후, 삭제되거나 교체된 이미지 Storage에서 정리
   const urlsToDelete = new Set<string>()
 
-  // (a) 폼에서 전달된 원본 이미지 URL (모바일 호환 — 가장 신뢰할 수 있는 소스)
+  // (a) 대표 이미지 정리
+  const newImageUrl = data.imageUrl?.trim() || ''
   if (previousImageUrl && previousImageUrl !== newImageUrl) {
     const path = extractStoragePath(previousImageUrl)
     if (path) urlsToDelete.add(path)
   }
-  // (b) DB에서 직접 조회한 기존 이미지 URL (추가 안전망)
   if (oldImageUrl && oldImageUrl !== newImageUrl) {
     const path = extractStoragePath(oldImageUrl)
     if (path) urlsToDelete.add(path)
+  }
+
+  // (b) 단락 이미지 중 삭제된 이미지 정리
+  if (data.content !== undefined) {
+    const newParagraphImages = new Set(
+      data.content
+        .map((p) => p.imageUrl?.trim())
+        .filter((url): url is string => Boolean(url))
+    )
+    for (const oldUrl of oldParagraphImages) {
+      if (!newParagraphImages.has(oldUrl)) {
+        const path = extractStoragePath(oldUrl)
+        if (path) urlsToDelete.add(path)
+      }
+    }
   }
 
   for (const storagePath of urlsToDelete) {
@@ -187,13 +217,21 @@ export async function deleteLetter(id: string) {
 
   const supabase = await createClient()
 
-  // 1. 삭제 전 기존 대표 이미지 URL 조회
+  // 1. 삭제 전 기존 대표 이미지 및 단락 이미지 URL 조회
   const { data: targetLetter } = await supabase
     .from('letters')
-    .select('image_url')
+    .select('image_url, content')
     .eq('id', id)
     .single()
   const targetImageUrl = targetLetter?.image_url
+  const paragraphImages: string[] = []
+  if (Array.isArray(targetLetter?.content)) {
+    for (const item of targetLetter.content as Array<Record<string, unknown>>) {
+      if (typeof item === 'object' && item !== null && typeof item.imageUrl === 'string') {
+        paragraphImages.push(item.imageUrl)
+      }
+    }
+  }
 
   // 2. feedbacks 삭제 (외래키 제약조건)
   await supabase.from('feedbacks').delete().eq('letter_id', id)
@@ -212,20 +250,27 @@ export async function deleteLetter(id: string) {
     throw new Error(`편지 삭제 실패: ${error.message}`)
   }
 
-  // 5. DB 삭제 성공 후, 연결되어 있던 Storage 이미지 삭제 (fire-and-forget)
+  // 5. DB 삭제 성공 후, 연결되어 있던 모든 Storage 이미지 일괄 삭제
+  const pathsToRemove: string[] = []
   if (targetImageUrl) {
-    const storagePath = extractStoragePath(targetImageUrl)
-    if (storagePath) {
-      try {
-        const { error: removeError } = await supabase.storage
-          .from('letter-images')
-          .remove([storagePath])
-        if (removeError) {
-          console.warn('삭제된 편지의 이미지 Storage 삭제 실패 (경고만 기록):', removeError)
-        }
-      } catch (storageErr) {
-        console.warn('삭제된 편지의 이미지 Storage 삭제 중 예외 발생:', storageErr)
+    const p = extractStoragePath(targetImageUrl)
+    if (p) pathsToRemove.push(p)
+  }
+  for (const pUrl of paragraphImages) {
+    const p = extractStoragePath(pUrl)
+    if (p) pathsToRemove.push(p)
+  }
+
+  if (pathsToRemove.length > 0) {
+    try {
+      const { error: removeError } = await supabase.storage
+        .from('letter-images')
+        .remove(pathsToRemove)
+      if (removeError) {
+        console.warn('삭제된 편지의 이미지 Storage 삭제 실패 (경고만 기록):', removeError)
       }
+    } catch (storageErr) {
+      console.warn('삭제된 편지의 이미지 Storage 삭제 중 예외 발생:', storageErr)
     }
   }
 

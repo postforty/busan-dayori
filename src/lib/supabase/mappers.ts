@@ -1,5 +1,6 @@
 import {
   Letter,
+  LetterParagraph,
   DailyLesson,
   Phrase,
   Dialect,
@@ -15,6 +16,26 @@ type DialectRow = Database['public']['Tables']['dialects']['Row']
 type QuestionRow = Database['public']['Tables']['questions']['Row']
 type FeedbackRow = Database['public']['Tables']['feedbacks']['Row']
 
+function normalizeLetterContent(rawContent: unknown): LetterParagraph[] {
+  if (!Array.isArray(rawContent)) return []
+  return rawContent.map((item) => {
+    if (typeof item === 'string') {
+      return { text: item }
+    }
+    if (item && typeof item === 'object') {
+      const obj = item as Record<string, unknown>
+      return {
+        text: typeof obj.text === 'string' ? obj.text : '',
+        imageUrl:
+          typeof obj.imageUrl === 'string' && obj.imageUrl.trim().length > 0
+            ? obj.imageUrl.trim()
+            : undefined,
+      }
+    }
+    return { text: '' }
+  })
+}
+
 export function mapLetter(row: LetterRow): Letter {
   return {
     id: row.id,
@@ -24,7 +45,7 @@ export function mapLetter(row: LetterRow): Letter {
     region: row.region,
     imageUrl: row.image_url,
     summary: row.summary,
-    content: (row.content as unknown as string[]) || [],
+    content: normalizeLetterContent(row.content),
     studyPoint: (row.study_point as unknown as Letter['studyPoint']) || {
       expression: '',
       meaning: '',

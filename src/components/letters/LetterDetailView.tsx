@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Letter } from '@/types';
 import Badge from '@/components/common/Badge';
 import FeedbackWidget from '@/components/feedback/FeedbackWidget';
@@ -233,14 +234,29 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
           </div>
 
           <div className="space-y-4 pt-1">
-            {letter.content.map((paragraph, idx) => {
+            {letter.content.map((item, idx) => {
+              const paragraph = typeof item === 'string' ? { text: item, imageUrl: undefined } : item;
+              const paragraphText = paragraph.text || '';
               const isPlaying = playingIdx === idx;
               return (
-                <div key={idx} className="space-y-1.5 p-3 rounded-xl hover:bg-[#FBF9F5] transition-colors border border-transparent hover:border-[#EDE8E1]">
-                  <div className="flex items-start justify-between gap-2">
+                <div key={idx} className="space-y-3 p-3.5 rounded-2xl hover:bg-[#FBF9F5] transition-colors border border-transparent hover:border-[#EDE8E1]">
+                  {/* 단락별 사진이 있는 경우 (텍스트 상단 배치) */}
+                  {paragraph.imageUrl && (
+                    <div className="relative rounded-2xl overflow-hidden border border-[#EDE8E1] bg-[#FAF0E6]/25 aspect-video w-full shadow-2xs">
+                      <Image
+                        src={paragraph.imageUrl}
+                        alt={`본문 ${idx + 1} 단락 사진`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 680px"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex items-start justify-between gap-2.5">
                     <p className={`text-sm leading-relaxed font-medium transition-colors ${isPlaying ? 'text-[#1A202C]' : 'text-[#2D3748]'}`}>
                       {isPlaying && activeBoundary && activeBoundary.idx === idx ? (
-                        paragraph.split('').map((ch, cIdx) => (
+                        paragraphText.split('').map((ch, cIdx) => (
                           <span
                             key={cIdx}
                             className={`transition-colors duration-100 ${
@@ -251,48 +267,50 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
                           </span>
                         ))
                       ) : (
-                        paragraph
+                        paragraphText
                       )}
                     </p>
-                    <button
-                      onClick={() => {
-                        if (isPlaying) {
-                          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                            window.speechSynthesis.cancel();
-                          }
-                          setPlayingIdx(null);
-                          setActiveBoundary(null);
-                          return;
-                        }
-                        setPlayingIdx(idx);
-                        setActiveBoundary({ idx, charIndex: 0, charLength: 1 });
-                        speakJapanese(
-                          paragraph,
-                          0.9,
-                          () => setPlayingIdx(idx),
-                          () => {
+                    {paragraphText.trim() && (
+                      <button
+                        onClick={() => {
+                          if (isPlaying) {
+                            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                              window.speechSynthesis.cancel();
+                            }
                             setPlayingIdx(null);
                             setActiveBoundary(null);
-                          },
-                          (charIndex) => {
-                            setActiveBoundary({ idx, charIndex, charLength: 1 });
+                            return;
                           }
-                        );
-                      }}
-                      className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
-                        isPlaying
-                          ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
-                          : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
-                      }`}
-                      title="段落の発音を聞く"
-                    >
-                      <Volume2 className="w-3.5 h-3.5" />
-                    </button>
+                          setPlayingIdx(idx);
+                          setActiveBoundary({ idx, charIndex: 0, charLength: 1 });
+                          speakJapanese(
+                            paragraphText,
+                            0.9,
+                            () => setPlayingIdx(idx),
+                            () => {
+                              setPlayingIdx(null);
+                              setActiveBoundary(null);
+                            },
+                            (charIndex) => {
+                              setActiveBoundary({ idx, charIndex, charLength: 1 });
+                            }
+                          );
+                        }}
+                        className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
+                          isPlaying
+                            ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                            : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
+                        }`}
+                        title="段落の発音を聞く"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
 
-                  {showPronounce && (
+                  {showPronounce && paragraphText.trim() && (
                     <p className="text-xs font-semibold text-[#E07A5F] leading-normal">
-                      [{getPronunciation(paragraph)}]
+                      [{getPronunciation(paragraphText)}]
                     </p>
                   )}
                 </div>

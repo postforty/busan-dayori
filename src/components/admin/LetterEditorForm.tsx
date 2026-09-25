@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, Trash2, ArrowLeft, Send, Sparkles, MapPin, BookOpen, FileText, Navigation, CheckCircle2 } from 'lucide-react'
 import ImageUploader from './ImageUploader'
 import { createLetter, updateLetter, LetterFormData } from '@/lib/actions/letter-actions'
-import type { Letter, Category, SoloFriendly, SpicyLevel } from '@/types'
+import type { Letter, LetterParagraph, Category, SoloFriendly, SpicyLevel } from '@/types'
 import { PostcodeModal, SelectedAddressResult } from './PostcodeModal'
 import {
   generateNaverMapUrl,
@@ -40,11 +40,16 @@ export default function LetterEditorForm({
   const [region, setRegion] = useState(initialData?.region || '')
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '')
   const [summary, setSummary] = useState(initialData?.summary || '')
-  const [contentParagraphs, setContentParagraphs] = useState<string[]>(
-    initialData?.content && initialData.content.length > 0
-      ? initialData.content
-      : ['']
-  )
+  const [contentParagraphs, setContentParagraphs] = useState<LetterParagraph[]>(() => {
+    if (initialData?.content && initialData.content.length > 0) {
+      return initialData.content.map((p) =>
+        typeof p === 'string'
+          ? { text: p, imageUrl: undefined }
+          : { text: p.text || '', imageUrl: p.imageUrl }
+      )
+    }
+    return [{ text: '', imageUrl: undefined }]
+  })
 
   // 학습 포인트
   const [studyExpression, setStudyExpression] = useState(
@@ -100,20 +105,26 @@ export default function LetterEditorForm({
   const [isLocating, setIsLocating] = useState(false)
   const [locationStatus, setLocationStatus] = useState<string | null>(null)
 
-  // 단락 추가/제거
+  // 단락 추가/제거/내용변경
   const handleAddParagraph = () => {
-    setContentParagraphs([...contentParagraphs, ''])
+    setContentParagraphs([...contentParagraphs, { text: '', imageUrl: undefined }])
   }
 
-  const handleParagraphChange = (index: number, text: string) => {
+  const handleParagraphTextChange = (index: number, text: string) => {
     const updated = [...contentParagraphs]
-    updated[index] = text
+    updated[index] = { ...updated[index], text }
+    setContentParagraphs(updated)
+  }
+
+  const handleParagraphImageChange = (index: number, url: string) => {
+    const updated = [...contentParagraphs]
+    updated[index] = { ...updated[index], imageUrl: url.trim() || undefined }
     setContentParagraphs(updated)
   }
 
   const handleRemoveParagraph = (index: number) => {
     if (contentParagraphs.length === 1) {
-      setContentParagraphs([''])
+      setContentParagraphs([{ text: '', imageUrl: undefined }])
       return
     }
     setContentParagraphs(contentParagraphs.filter((_, i) => i !== index))
@@ -252,7 +263,9 @@ export default function LetterEditorForm({
       setErrorMsg('대표 사진을 업로드하거나 URL을 입력해주세요.')
       return
     }
-    const validParagraphs = contentParagraphs.filter((p) => p.trim().length > 0)
+    const validParagraphs = contentParagraphs.filter(
+      (p) => p.text.trim().length > 0 || Boolean(p.imageUrl)
+    )
     if (validParagraphs.length === 0) {
       setErrorMsg('본문 내용을 최소 한 단락 이상 작성해주세요.')
       return
@@ -495,11 +508,20 @@ export default function LetterEditorForm({
               {/* 단락 텍스트에어리어 (전폭 활용) */}
               <textarea
                 rows={3}
-                value={paragraph}
-                onChange={(e) => handleParagraphChange(index, e.target.value)}
+                value={paragraph.text}
+                onChange={(e) => handleParagraphTextChange(index, e.target.value)}
                 placeholder="일본어 문장을 자유롭게 적어보세요..."
                 className="w-full text-xs p-1 bg-transparent text-[#2D3748] leading-relaxed placeholder:text-gray-400 focus:outline-none resize-y"
               />
+
+              {/* 단락별 사진 첨부 (선택 사항) */}
+              <div className="pt-2 border-t border-[#EDE8E1]/50">
+                <ImageUploader
+                  value={paragraph.imageUrl || ''}
+                  onChange={(url) => handleParagraphImageChange(index, url)}
+                  variant="compact"
+                />
+              </div>
             </div>
           ))}
 

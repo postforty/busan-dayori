@@ -18,6 +18,11 @@ export interface PlaceInfo {
   googleMapUrl: string;
 }
 
+export interface LetterParagraph {
+  text: string;
+  imageUrl?: string;
+}
+
 export interface Letter {
   id: string;
   title: string;
@@ -26,7 +31,7 @@ export interface Letter {
   region: string;
   imageUrl: string;
   summary: string;
-  content: string[]; // 단락별 일본어 본문
+  content: LetterParagraph[]; // 단락별 일본어 본문 및 선택적 이미지
   studyPoint: {
     expression: string;
     meaning: string;

@@ -10,12 +10,14 @@ interface ImageUploaderProps {
   value: string
   onChange: (url: string) => void
   bucketName?: string
+  variant?: 'hero' | 'compact'
 }
 
 export default function ImageUploader({
   value,
   onChange,
   bucketName = 'letter-images',
+  variant = 'hero',
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadStatusText, setUploadStatusText] = useState<string>('')
@@ -153,6 +155,88 @@ export default function ImageUploader({
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  if (variant === 'compact') {
+    return (
+      <div className="space-y-1.5 pt-1">
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              handleUpload(e.target.files[0])
+            }
+          }}
+        />
+
+        {value ? (
+          <div className="relative rounded-xl overflow-hidden border border-[#EDE8E1] bg-[#FAF0E6]/25 aspect-video max-h-44 w-full shadow-2xs group">
+            <Image
+              src={value}
+              alt="단락 첨부 사진"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 500px"
+            />
+            {/* 호버/상시 조작 버튼 */}
+            <div className="absolute top-2 right-2 flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="px-2.5 py-1 bg-white/95 hover:bg-white text-[#2D3748] rounded-lg text-[11px] font-bold shadow-xs transition-transform active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                사진 변경
+              </button>
+              <button
+                type="button"
+                onClick={handleRemove}
+                disabled={isUploading}
+                className="p-1 bg-red-600/90 hover:bg-red-600 text-white rounded-lg shadow-xs transition-transform active:scale-95 disabled:opacity-50 cursor-pointer"
+                title="사진 삭제"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border border-dashed rounded-xl px-3 py-2 text-center cursor-pointer transition-all flex items-center justify-center gap-2 group ${
+              dragOver
+                ? 'border-[#E07A5F] bg-[#FAF0E6]'
+                : 'border-[#EDE8E1] hover:border-[#E07A5F]/60 bg-white hover:bg-[#FAF0E6]/30'
+            }`}
+          >
+            {isUploading ? (
+              <div className="flex items-center gap-2 text-[#E07A5F] py-0.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span className="text-[11px] font-medium text-[#2D3748]">
+                  {uploadStatusText || '사진 최적화 중...'}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 py-0.5 text-[#718096] group-hover:text-[#E07A5F] transition-colors">
+                <Upload className="w-3.5 h-3.5" />
+                <span className="text-[11px] font-semibold">
+                  이 단락에 사진 첨부하기 (선택)
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {errorMsg && (
+          <p className="text-[11px] text-red-600 font-medium">{errorMsg}</p>
+        )}
+      </div>
+    )
   }
 
   return (
