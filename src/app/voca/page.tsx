@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SavedWord, DailyLesson } from '@/types';
 import { speakJapanese } from '@/utils/tts';
 import { getPronunciation } from '@/utils/japanesePronounce';
@@ -13,7 +13,9 @@ import {
   BookOpen,
   FolderArchive,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export default function VocaPage() {
@@ -114,6 +116,119 @@ export default function VocaPage() {
   });
 
   const currentFlashcard = filteredWords[flashcardIndex];
+
+  // 플래시카드 이전 / 다음 이동
+  const handlePrevFlashcard = useCallback(() => {
+    if (flashcardIndex > 0) {
+      setFlashcardIndex((prev) => prev - 1);
+      setIsFlipped(false);
+    }
+  }, [flashcardIndex]);
+
+  const handleNextFlashcard = useCallback(() => {
+    if (flashcardIndex < filteredWords.length - 1) {
+      setFlashcardIndex((prev) => prev + 1);
+      setIsFlipped(false);
+    }
+  }, [flashcardIndex, filteredWords.length]);
+
+  // 스와이프(좌우 쓸어넘기기) 상태 및 핸들러
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const didSwipeRef = useRef(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    setIsDragging(true);
+    didSwipeRef.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartPos.current) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartPos.current.x;
+    const deltaY = touch.clientY - touchStartPos.current.y;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
+      setDragOffset(dampened);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartPos.current) return;
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartPos.current.x;
+    const deltaY = touch.clientY - touchStartPos.current.y;
+
+    touchStartPos.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      didSwipeRef.current = true;
+      if (deltaX < 0) {
+        handleNextFlashcard();
+      } else {
+        handlePrevFlashcard();
+      }
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    touchStartPos.current = { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    didSwipeRef.current = false;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !touchStartPos.current) return;
+    const deltaX = e.clientX - touchStartPos.current.x;
+    const deltaY = e.clientY - touchStartPos.current.y;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
+      setDragOffset(dampened);
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isDragging || !touchStartPos.current) return;
+    const deltaX = e.clientX - touchStartPos.current.x;
+    const deltaY = e.clientY - touchStartPos.current.y;
+
+    touchStartPos.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      didSwipeRef.current = true;
+      if (deltaX < 0) {
+        handleNextFlashcard();
+      } else {
+        handlePrevFlashcard();
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      touchStartPos.current = null;
+      setIsDragging(false);
+      setDragOffset(0);
+    }
+  };
+
+  const handleCardClick = () => {
+    if (didSwipeRef.current) {
+      didSwipeRef.current = false;
+      return;
+    }
+    setIsFlipped(!isFlipped);
+  };
 
   return (
     <div className="px-4 pt-4 space-y-5">
@@ -230,101 +345,124 @@ export default function VocaPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs text-gray-400 px-1">
                 <span>進捗: {flashcardIndex + 1} / {filteredWords.length}</span>
-                <span>カードをタップすると裏返ります</span>
+                <span>💡 左右スワイプで前・次へ、タップで裏返し</span>
               </div>
 
               {currentFlashcard && (
                 <div
-                  onClick={() => setIsFlipped(!isFlipped)}
-                  className="min-h-64 bg-white rounded-3xl p-8 border border-[#EDE8E1] card-shadow cursor-pointer flex flex-col justify-between items-center text-center transition-all hover:border-[#E07A5F]/50 select-none"
+                  className="relative touch-pan-y"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={handleCardClick}
                 >
-                  <div className="w-full flex justify-between items-center text-gray-400 text-xs">
-                    <span className="border border-gray-200 px-2 py-0.5 rounded text-[10px]">
-                      {currentFlashcard.partOfSpeech}
-                    </span>
-                    <button
-                      onClick={(e) => handlePlay(e, currentFlashcard.kanji)}
-                      className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
-                      title="発音を聞く"
-                    >
-                      <Volume2 className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {!isFlipped ? (
-                    /* 앞면 */
-                    <div className="space-y-2 my-auto">
-                      <p className="text-sm text-gray-400 font-mono">
-                        {currentFlashcard.reading}
-                      </p>
-                      <h2 className="text-2xl font-black text-[#2D3748] tracking-tight leading-snug">
-                        {currentFlashcard.kanji}
-                      </h2>
-                      <p className="text-xs font-bold text-[#E07A5F]">
-                        [{getPronunciation(currentFlashcard.kanji, currentFlashcard.reading)}]
-                      </p>
-                      <p className="text-[11px] text-gray-400 pt-2">
-                        タップして意味を確認
-                      </p>
+                  {/* 스와이프 방향 피드백 인디케이터 배지 */}
+                  {dragOffset < -25 && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-[#E07A5F] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
+                      <span>次の単語</span>
+                      <ChevronRight className="w-4 h-4" />
                     </div>
-                  ) : (
-                    /* 뒷면 */
-                    <div className="space-y-2 my-auto">
-                      <h2 className="text-xl font-black text-[#E07A5F] leading-snug">
-                        {currentFlashcard.meaning}
-                      </h2>
-                      <p className="text-xs text-gray-400 font-mono">
-                        {currentFlashcard.kanji} ({currentFlashcard.reading})
-                      </p>
-                      <p className="text-xs font-semibold text-gray-500">
-                        [{getPronunciation(currentFlashcard.kanji, currentFlashcard.reading)}]
-                      </p>
+                  )}
+                  {dragOffset > 25 && (
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-[#2D3748] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>前の単語</span>
                     </div>
                   )}
 
-                  <div className="w-full flex justify-between items-center pt-4 border-t border-gray-100">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleMemorized(currentFlashcard.id);
-                      }}
-                      className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
-                        currentFlashcard.isMemorized
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{currentFlashcard.isMemorized ? '覚えた！' : '勉強中'}</span>
-                    </button>
+                  <div
+                    className="min-h-64 bg-white rounded-3xl p-8 border border-[#EDE8E1] card-shadow cursor-pointer flex flex-col justify-between items-center text-center transition-all hover:border-[#E07A5F]/50 select-none"
+                    style={{
+                      transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.04}deg)`,
+                      transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
+                    }}
+                  >
+                    <div className="w-full flex justify-between items-center text-gray-400 text-xs">
+                      <span className="border border-gray-200 px-2 py-0.5 rounded text-[10px]">
+                        {currentFlashcard.partOfSpeech}
+                      </span>
+                      <button
+                        onClick={(e) => handlePlay(e, currentFlashcard.kanji)}
+                        className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
+                        title="発音を聞く"
+                      >
+                        <Volume2 className="w-5 h-5" />
+                      </button>
+                    </div>
 
-                    <div className="flex items-center gap-2">
+                    {!isFlipped ? (
+                      /* 앞면 */
+                      <div className="space-y-2 my-auto">
+                        <p className="text-sm text-gray-400 font-mono">
+                          {currentFlashcard.reading}
+                        </p>
+                        <h2 className="text-2xl font-black text-[#2D3748] tracking-tight leading-snug">
+                          {currentFlashcard.kanji}
+                        </h2>
+                        <p className="text-xs font-bold text-[#E07A5F]">
+                          [{getPronunciation(currentFlashcard.kanji, currentFlashcard.reading)}]
+                        </p>
+                        <p className="text-[11px] text-gray-400 pt-2">
+                          タップして意味を確認
+                        </p>
+                      </div>
+                    ) : (
+                      /* 뒷면 */
+                      <div className="space-y-2 my-auto">
+                        <h2 className="text-xl font-black text-[#E07A5F] leading-snug">
+                          {currentFlashcard.meaning}
+                        </h2>
+                        <p className="text-xs text-gray-400 font-mono">
+                          {currentFlashcard.kanji} ({currentFlashcard.reading})
+                        </p>
+                        <p className="text-xs font-semibold text-gray-500">
+                          [{getPronunciation(currentFlashcard.kanji, currentFlashcard.reading)}]
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="w-full flex justify-between items-center pt-4 border-t border-gray-100">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (flashcardIndex > 0) {
-                            setFlashcardIndex(flashcardIndex - 1);
-                            setIsFlipped(false);
-                          }
+                          handleToggleMemorized(currentFlashcard.id);
                         }}
-                        disabled={flashcardIndex === 0}
-                        className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-30 rounded-xl text-xs font-bold text-gray-600 transition-all"
+                        className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
+                          currentFlashcard.isMemorized
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                        }`}
                       >
-                        前へ
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{currentFlashcard.isMemorized ? '覚えた！' : '勉強中'}</span>
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (flashcardIndex < filteredWords.length - 1) {
-                            setFlashcardIndex(flashcardIndex + 1);
-                            setIsFlipped(false);
-                          }
-                        }}
-                        disabled={flashcardIndex === filteredWords.length - 1}
-                        className="px-3 py-1.5 bg-[#2D3748] hover:bg-black disabled:opacity-30 rounded-xl text-xs font-bold text-white transition-all"
-                      >
-                        次へ
-                      </button>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrevFlashcard();
+                          }}
+                          disabled={flashcardIndex === 0}
+                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-30 rounded-xl text-xs font-bold text-gray-600 transition-all"
+                        >
+                          前へ
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNextFlashcard();
+                          }}
+                          disabled={flashcardIndex === filteredWords.length - 1}
+                          className="px-3 py-1.5 bg-[#2D3748] hover:bg-black disabled:opacity-30 rounded-xl text-xs font-bold text-white transition-all"
+                        >
+                          次へ
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

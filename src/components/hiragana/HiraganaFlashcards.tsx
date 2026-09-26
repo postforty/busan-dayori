@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   HIRAGANA_GRID,
   CONFUSING_PAIRS,
@@ -168,21 +168,127 @@ export default function HiraganaFlashcards({
   );
 
   // 이전 카드로 이동
-  const handlePrevCard = () => {
+  const handlePrevCard = useCallback(() => {
     if (currentIndex > 0) {
       stopJapaneseSpeech();
       setCurrentIndex((prev) => prev - 1);
       setIsFlipped(false);
     }
-  };
+  }, [currentIndex]);
 
   // 다음 카드로 단순 이동
-  const handleNextCard = () => {
+  const handleNextCard = useCallback(() => {
     if (currentIndex < cardDeck.length - 1) {
       stopJapaneseSpeech();
       setCurrentIndex((prev) => prev + 1);
       setIsFlipped(false);
     }
+  }, [currentIndex, cardDeck.length]);
+
+  // --- 스와이프(좌우 쓸어넘기기) 및 드래그 제스처 상태 및 핸들러 ---
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const didSwipeRef = useRef(false);
+
+  // 모바일 터치 제스처
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    setIsDragging(true);
+    didSwipeRef.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartPos.current) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - touchStartPos.current.x;
+    const deltaY = touch.clientY - touchStartPos.current.y;
+
+    // 수평 이동 거리가 수직 이동보다 클 때만 스와이프 모션 적용
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
+      setDragOffset(dampened);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartPos.current) return;
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStartPos.current.x;
+    const deltaY = touch.clientY - touchStartPos.current.y;
+
+    touchStartPos.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+
+    // 수평 이동 거리가 45px 이상이고 수직보다 클 때 넘기기
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      didSwipeRef.current = true;
+      if (deltaX < 0) {
+        // 오른쪽 -> 왼쪽: 다음 카드
+        handleNextCard();
+      } else {
+        // 왼쪽 -> 오른쪽: 이전 카드
+        handlePrevCard();
+      }
+    }
+  };
+
+  // 데스크톱 마우스 드래그 지원
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // 버튼이나 인터랙티브 엘리먼트 클릭 시 드래그 시작 무시
+    if ((e.target as HTMLElement).closest('button')) return;
+    touchStartPos.current = { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    didSwipeRef.current = false;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !touchStartPos.current) return;
+    const deltaX = e.clientX - touchStartPos.current.x;
+    const deltaY = e.clientY - touchStartPos.current.y;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
+      setDragOffset(dampened);
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isDragging || !touchStartPos.current) return;
+    const deltaX = e.clientX - touchStartPos.current.x;
+    const deltaY = e.clientY - touchStartPos.current.y;
+
+    touchStartPos.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+
+    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      didSwipeRef.current = true;
+      if (deltaX < 0) {
+        handleNextCard();
+      } else {
+        handlePrevCard();
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      touchStartPos.current = null;
+      setIsDragging(false);
+      setDragOffset(0);
+    }
+  };
+
+  // 카드 클릭/탭 핸들러 (스와이프 완료 시 불필요한 뒤집힘 방지)
+  const handleCardClick = () => {
+    if (didSwipeRef.current) {
+      didSwipeRef.current = false;
+      return;
+    }
+    handleFlip();
   };
 
   // 세션 다시 시작
@@ -508,19 +614,48 @@ export default function HiraganaFlashcards({
       ) : (
         /* 카드 영역 */
         <div className="space-y-4">
-          {/* 플립 카드 컨테이너 (3D Flip Effect) */}
+          {/* 플립 & 스와이프 카드 컨테이너 */}
           <div
-            className="w-full min-h-[340px] select-none cursor-pointer"
+            className="w-full min-h-[340px] select-none cursor-pointer touch-pan-y relative"
             style={{ perspective: '1200px' }}
-            onClick={handleFlip}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            onClick={handleCardClick}
           >
+            {/* 스와이프 방향 피드백 인디케이터 배지 */}
+            {dragOffset < -25 && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-[#E07A5F] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
+                <span>다음 글자</span>
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            )}
+            {dragOffset > 25 && (
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-[#2D3748] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
+                <ChevronLeft className="w-4 h-4" />
+                <span>이전 글자</span>
+              </div>
+            )}
+
+            {/* 좌우 이동 및 살짝 기울어지는 모션 래퍼 */}
             <div
-              className="relative w-full h-full min-h-[340px] rounded-3xl transition-transform duration-500"
+              className="w-full h-full min-h-[340px]"
               style={{
-                transformStyle: 'preserve-3d',
-                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.04}deg)`,
+                transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
               }}
             >
+              <div
+                className="relative w-full h-full min-h-[340px] rounded-3xl transition-transform duration-500"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                }}
+              >
               {/* =========================================
                   앞면 (Front Card)
               ========================================= */}
@@ -655,6 +790,7 @@ export default function HiraganaFlashcards({
                 <div className="h-6" aria-hidden="true" />
               </div>
             </div>
+            </div>
           </div>
 
           {/* 3. 하단 액션 버튼 컨트롤러 */}
@@ -714,9 +850,10 @@ export default function HiraganaFlashcards({
               </div>
             )}
 
-            {/* 키보드 단축키 팁 */}
+            {/* 제스처 및 단축키 안내 팁 */}
             <p className="text-center text-[10px] text-[#A0AEC0]">
-              단축키: <kbd className="px-1 py-0.5 bg-stone-100 rounded text-stone-600">Space</kbd> 뒤집기 •{' '}
+              💡 좌우로 쓸어 넘겨 이전/다음 • 탭하여 뒤집기 •{' '}
+              <kbd className="px-1 py-0.5 bg-stone-100 rounded text-stone-600">Space</kbd> 뒤집기 •{' '}
               <kbd className="px-1 py-0.5 bg-stone-100 rounded text-stone-600">1</kbd> 헷갈려요 •{' '}
               <kbd className="px-1 py-0.5 bg-stone-100 rounded text-stone-600">2</kbd> 외웠어요
             </p>
