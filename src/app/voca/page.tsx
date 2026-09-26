@@ -132,79 +132,58 @@ export default function VocaPage() {
     }
   }, [flashcardIndex, filteredWords.length]);
 
-  // 스와이프(좌우 쓸어넘기기) 상태 및 핸들러
+  // --- 스와이프(좌우 쓸어넘기기) Pointer Events 핸들러 ---
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const didSwipeRef = useRef(false);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
-    setIsDragging(true);
-    didSwipeRef.current = false;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartPos.current) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartPos.current.x;
-    const deltaY = touch.clientY - touchStartPos.current.y;
-
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
-      setDragOffset(dampened);
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartPos.current) return;
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStartPos.current.x;
-    const deltaY = touch.clientY - touchStartPos.current.y;
-
-    touchStartPos.current = null;
-    setIsDragging(false);
-    setDragOffset(0);
-
-    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      didSwipeRef.current = true;
-      if (deltaX < 0) {
-        handleNextFlashcard();
-      } else {
-        handlePrevFlashcard();
-      }
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest('button')) return;
-    touchStartPos.current = { x: e.clientX, y: e.clientY };
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // 무시
+    }
+
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
     setIsDragging(true);
     didSwipeRef.current = false;
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !touchStartPos.current) return;
-    const deltaX = e.clientX - touchStartPos.current.x;
-    const deltaY = e.clientY - touchStartPos.current.y;
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !pointerStartRef.current) return;
+
+    const deltaX = e.clientX - pointerStartRef.current.x;
+    const deltaY = e.clientY - pointerStartRef.current.y;
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
+      const dampened = Math.max(-120, Math.min(120, deltaX * 0.75));
       setDragOffset(dampened);
     }
   };
 
-  const handleMouseUp = (e: React.MouseEvent) => {
-    if (!isDragging || !touchStartPos.current) return;
-    const deltaX = e.clientX - touchStartPos.current.x;
-    const deltaY = e.clientY - touchStartPos.current.y;
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !pointerStartRef.current) return;
 
-    touchStartPos.current = null;
+    const deltaX = e.clientX - pointerStartRef.current.x;
+    const deltaY = e.clientY - pointerStartRef.current.y;
+
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
+    }
+
+    pointerStartRef.current = null;
     setIsDragging(false);
     setDragOffset(0);
 
-    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY)) {
       didSwipeRef.current = true;
       if (deltaX < 0) {
         handleNextFlashcard();
@@ -214,12 +193,17 @@ export default function VocaPage() {
     }
   };
 
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      touchStartPos.current = null;
-      setIsDragging(false);
-      setDragOffset(0);
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
     }
+    pointerStartRef.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
   };
 
   const handleCardClick = () => {
@@ -351,34 +335,17 @@ export default function VocaPage() {
               {currentFlashcard && (
                 <div
                   className="relative touch-pan-y"
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseLeave}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerCancel}
                   onClick={handleCardClick}
                 >
-                  {/* 스와이프 방향 피드백 인디케이터 배지 */}
-                  {dragOffset < -25 && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-[#E07A5F] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
-                      <span>次の単語</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </div>
-                  )}
-                  {dragOffset > 25 && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-[#2D3748] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
-                      <ChevronLeft className="w-4 h-4" />
-                      <span>前の単語</span>
-                    </div>
-                  )}
-
                   <div
                     className="min-h-64 bg-white rounded-3xl p-8 border border-[#EDE8E1] card-shadow cursor-pointer flex flex-col justify-between items-center text-center transition-all hover:border-[#E07A5F]/50 select-none"
                     style={{
                       transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.04}deg)`,
-                      transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
+                      transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)'
                     }}
                   >
                     <div className="w-full flex justify-between items-center text-gray-400 text-xs">

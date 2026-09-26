@@ -63,6 +63,13 @@ export default function HiraganaFlashcards({
   const [isFlipped, setIsFlipped] = useState(false);
   const [isPlayingSound, setIsPlayingSound] = useState(false);
 
+  // 캐로우셀 슬라이드 애니메이션 상태
+  // slideDir: 'none' | 'left' | 'right'
+  //   'left'  = 다음 카드 방향 (현재 카드 → 왼쪽 exit, 새 카드 → 오른쪽에서 enter)
+  //   'right' = 이전 카드 방향 (현재 카드 → 오른쪽 exit, 새 카드 → 왼쪽에서 enter)
+  const [slideDir, setSlideDir] = useState<'none' | 'left' | 'right'>('none');
+  const [isSliding, setIsSliding] = useState(false);
+
   // 학습 세션 결과 (외운 글자 / 헷갈린 글자)
   const [knownCharIds, setKnownCharIds] = useState<Set<string>>(new Set());
   const [confusedCharIds, setConfusedCharIds] = useState<Set<string>>(new Set());
@@ -138,11 +145,11 @@ export default function HiraganaFlashcards({
     }
   }, [isFlipped, autoSpeech, playCurrentSound, currentCard]);
 
-  // 다음 카드로 이동 (알아요 / 헷갈려요)
+  // handleGradeCard: 다음 카드로 이동 (외웠어요/헷갈려요) - 캐로우셀 슬라이드 포함
   const handleGradeCard = useCallback(
     (isKnown: boolean) => {
       stopJapaneseSpeech();
-      if (!currentCard) return;
+      if (!currentCard || isSliding) return;
 
       const charChar = currentCard.char;
       if (isKnown) {
@@ -156,115 +163,108 @@ export default function HiraganaFlashcards({
         setConfusedCharIds((prev) => new Set(prev).add(charChar));
       }
 
-      // 마지막 카드인 경우 세션 종료
       if (currentIndex >= cardDeck.length - 1) {
         setIsSessionFinished(true);
       } else {
-        setCurrentIndex((prev) => prev + 1);
-        setIsFlipped(false);
+        setSlideDir('left');
+        setIsSliding(true);
+        setTimeout(() => {
+          setCurrentIndex((prev) => prev + 1);
+          setIsFlipped(false);
+          setIsSliding(false);
+          setSlideDir('none');
+        }, 320);
       }
     },
-    [currentCard, currentIndex, cardDeck.length]
+    [currentCard, currentIndex, cardDeck.length, isSliding]
   );
 
-  // 이전 카드로 이동
+  // 이전 카드로 이동 (캐로우셀 슬라이드)
   const handlePrevCard = useCallback(() => {
-    if (currentIndex > 0) {
+    if (currentIndex > 0 && !isSliding) {
       stopJapaneseSpeech();
-      setCurrentIndex((prev) => prev - 1);
-      setIsFlipped(false);
+      setSlideDir('right');
+      setIsSliding(true);
+      setTimeout(() => {
+        setCurrentIndex((prev) => prev - 1);
+        setIsFlipped(false);
+        setIsSliding(false);
+        setSlideDir('none');
+      }, 320);
     }
-  }, [currentIndex]);
+  }, [currentIndex, isSliding]);
 
-  // 다음 카드로 단순 이동
+  // 다음 카드로 이동 (캐로우셀 슬라이드)
   const handleNextCard = useCallback(() => {
-    if (currentIndex < cardDeck.length - 1) {
+    if (currentIndex < cardDeck.length - 1 && !isSliding) {
       stopJapaneseSpeech();
-      setCurrentIndex((prev) => prev + 1);
-      setIsFlipped(false);
+      setSlideDir('left');
+      setIsSliding(true);
+      setTimeout(() => {
+        setCurrentIndex((prev) => prev + 1);
+        setIsFlipped(false);
+        setIsSliding(false);
+        setSlideDir('none');
+      }, 320);
     }
-  }, [currentIndex, cardDeck.length]);
+  }, [currentIndex, cardDeck.length, isSliding]);
 
-  // --- 스와이프(좌우 쓸어넘기기) 및 드래그 제스처 상태 및 핸들러 ---
+  // --- 스와이프(좌우 쓸어넘기기) Pointer Events 핸들러 ---
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const didSwipeRef = useRef(false);
 
-  // 모바일 터치 제스처
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
-    setIsDragging(true);
-    didSwipeRef.current = false;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartPos.current) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - touchStartPos.current.x;
-    const deltaY = touch.clientY - touchStartPos.current.y;
-
-    // 수평 이동 거리가 수직 이동보다 클 때만 스와이프 모션 적용
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
-      setDragOffset(dampened);
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartPos.current) return;
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStartPos.current.x;
-    const deltaY = touch.clientY - touchStartPos.current.y;
-
-    touchStartPos.current = null;
-    setIsDragging(false);
-    setDragOffset(0);
-
-    // 수평 이동 거리가 45px 이상이고 수직보다 클 때 넘기기
-    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      didSwipeRef.current = true;
-      if (deltaX < 0) {
-        // 오른쪽 -> 왼쪽: 다음 카드
-        handleNextCard();
-      } else {
-        // 왼쪽 -> 오른쪽: 이전 카드
-        handlePrevCard();
-      }
-    }
-  };
-
-  // 데스크톱 마우스 드래그 지원
-  const handleMouseDown = (e: React.MouseEvent) => {
-    // 버튼이나 인터랙티브 엘리먼트 클릭 시 드래그 시작 무시
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // 내부 버튼 클릭 시 제스처 무시
     if ((e.target as HTMLElement).closest('button')) return;
-    touchStartPos.current = { x: e.clientX, y: e.clientY };
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (isSliding) return;
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // 일부 브라우저 예외 무시
+    }
+
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
     setIsDragging(true);
     didSwipeRef.current = false;
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !touchStartPos.current) return;
-    const deltaX = e.clientX - touchStartPos.current.x;
-    const deltaY = e.clientY - touchStartPos.current.y;
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !pointerStartRef.current) return;
 
+    const deltaX = e.clientX - pointerStartRef.current.x;
+    const deltaY = e.clientY - pointerStartRef.current.y;
+
+    // 수평 이동 거리가 수직 이동보다 클 때 카드가 좌우로 반응
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      const dampened = Math.max(-100, Math.min(100, deltaX * 0.75));
+      const dampened = Math.max(-140, Math.min(140, deltaX * 0.85));
       setDragOffset(dampened);
     }
   };
 
-  const handleMouseUp = (e: React.MouseEvent) => {
-    if (!isDragging || !touchStartPos.current) return;
-    const deltaX = e.clientX - touchStartPos.current.x;
-    const deltaY = e.clientY - touchStartPos.current.y;
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !pointerStartRef.current) return;
 
-    touchStartPos.current = null;
+    const deltaX = e.clientX - pointerStartRef.current.x;
+    const deltaY = e.clientY - pointerStartRef.current.y;
+
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
+    }
+
+    pointerStartRef.current = null;
     setIsDragging(false);
     setDragOffset(0);
 
-    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    // 수평 이동 거리가 35px 이상이고 수직보다 크면 스와이프 판정
+    if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY)) {
       didSwipeRef.current = true;
       if (deltaX < 0) {
         handleNextCard();
@@ -274,12 +274,17 @@ export default function HiraganaFlashcards({
     }
   };
 
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      touchStartPos.current = null;
-      setIsDragging(false);
-      setDragOffset(0);
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
     }
+    pointerStartRef.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
   };
 
   // 카드 클릭/탭 핸들러 (스와이프 완료 시 불필요한 뒤집힘 방지)
@@ -616,43 +621,32 @@ export default function HiraganaFlashcards({
         <div className="space-y-4">
           {/* 플립 & 스와이프 카드 컨테이너 */}
           <div
-            className="w-full min-h-[340px] select-none cursor-pointer touch-pan-y relative"
-            style={{ perspective: '1200px' }}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
+            className="w-full min-h-[340px] select-none cursor-pointer touch-pan-y relative overflow-hidden"
+            style={{ perspective: "1200px" }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerCancel}
             onClick={handleCardClick}
           >
-            {/* 스와이프 방향 피드백 인디케이터 배지 */}
-            {dragOffset < -25 && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-[#E07A5F] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
-                <span>다음 글자</span>
-                <ChevronRight className="w-4 h-4" />
-              </div>
-            )}
-            {dragOffset > 25 && (
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-[#2D3748] text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-lg pointer-events-none flex items-center gap-1.5 animate-bounce">
-                <ChevronLeft className="w-4 h-4" />
-                <span>이전 글자</span>
-              </div>
-            )}
-
-            {/* 좌우 이동 및 살짝 기울어지는 모션 래퍼 */}
+            {/* 캐로우셀 슬라이드 & 드래그 모션 래퍼 */}
             <div
-              className="w-full h-full min-h-[340px]"
+              key={currentIndex}
+              className="w-full min-h-[340px]"
               style={{
-                transform: `translateX(${dragOffset}px) rotate(${dragOffset * 0.04}deg)`,
-                transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)'
+                transform: isSliding
+                  ? `translateX(${slideDir === 'left' ? '-115%' : '115%'})`
+                  : `translateX(${dragOffset}px) rotate(${dragOffset * 0.025}deg)`,
+                opacity: isSliding ? 0 : 1,
+                transition: isSliding
+                  ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease'
+                  : isDragging ? 'none' : dragOffset !== 0 ? 'transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none',
               }}
             >
               <div
                 className="relative w-full h-full min-h-[340px] rounded-3xl transition-transform duration-500"
                 style={{
-                  transformStyle: 'preserve-3d',
+                  transformStyle: "preserve-3d",
                   transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
                 }}
               >
