@@ -141,7 +141,7 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                         히라가나 마스터 스튜디오 오픈!
                       </span>
                       <p className="text-[11px] text-[#A84A33]">
-                        50음도 소리 탐색부터 캔버스 손글씨 쓰기, 미니 단어 읽기까지
+                        50음도 소리 탐색부터 캔버스 손글씨 쓰기, 플래시 암기 카드, 미니 단어 읽기까지
                       </p>
                     </div>
                     <Link

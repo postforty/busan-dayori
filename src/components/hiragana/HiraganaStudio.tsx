@@ -14,7 +14,6 @@ import {
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import {
   Volume2,
-  VolumeX,
   Pencil,
   RotateCcw,
   Sparkles,
@@ -27,11 +26,12 @@ import {
   EyeOff,
   Flame,
   ChevronRight,
-  Compass,
   Lightbulb
 } from 'lucide-react';
 
-type StudioStep = 'sound' | 'write' | 'words' | 'dialogue';
+import HiraganaFlashcards from './HiraganaFlashcards';
+
+type StudioStep = 'sound' | 'write' | 'cards' | 'words' | 'dialogue';
 
 const ALL_HIRAGANA_CHARS: HiraganaChar[] = HIRAGANA_GRID.flatMap((r) =>
   r.chars.filter(Boolean) as HiraganaChar[]
@@ -406,16 +406,17 @@ export default function HiraganaStudio({
           <span className="text-[#E07A5F] text-lg">소리로 듣고 손으로 익히는 히라가나</span>
         </h1>
         <p className="text-xs text-[#718096] leading-relaxed">
-          일본어의 첫 단추! 50음도 소리 탐색부터 획순 손글씨 연습, 실생활 미니 단어 읽기까지 차근차근 마스터해요.
+          일본어의 첫 단추! 50음도 소리 탐색부터 획순 손글씨 연습, 플래시 암기 카드, 실생활 미니 단어 읽기까지 차근차근 마스터해요.
         </p>
 
-        {/* 4단계 탭 버튼 */}
-        <div className="grid grid-cols-4 gap-1.5 mt-4 pt-3 border-t border-[#F4DDD4]/80">
+        {/* 5단계 탭 버튼 */}
+        <div className="grid grid-cols-5 gap-1 mt-4 pt-3 border-t border-[#F4DDD4]/80">
           {[
             { key: 'sound', label: '1. 소리 탐색', icon: Volume2 },
             { key: 'write', label: '2. 쓰기 연습', icon: Pencil },
-            { key: 'words', label: '3. 미니 단어', icon: BookOpen },
-            { key: 'dialogue', label: '4. 첫 발화', icon: Flame }
+            { key: 'cards', label: '3. 암기 카드', icon: Sparkles },
+            { key: 'words', label: '4. 미니 단어', icon: BookOpen },
+            { key: 'dialogue', label: '5. 첫 발화', icon: Flame }
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = currentStep === tab.key;
@@ -427,7 +428,7 @@ export default function HiraganaStudio({
                   stopJapaneseSpeech();
                   setCurrentStep(tab.key as StudioStep);
                 }}
-                className={`flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-[11px] font-bold transition-all ${isActive
+                className={`flex flex-col items-center justify-center py-2 px-0.5 rounded-2xl text-[10px] sm:text-[11px] font-bold transition-all ${isActive
                   ? 'bg-[#E07A5F] text-white shadow-xs scale-[1.02]'
                   : 'bg-white/80 text-[#718096] hover:bg-white hover:text-[#2D3748] border border-[#EDE8E1]'
                   }`}
@@ -463,7 +464,7 @@ export default function HiraganaStudio({
                 onClick={() => setCurrentStep('write')}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition-colors shrink-0 whitespace-nowrap"
               >
-                <span>'{selectedChar.char}' 써보기</span>
+                <span>&apos;{selectedChar.char}&apos; 써보기</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -592,7 +593,7 @@ export default function HiraganaStudio({
               className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
             >
               <Pencil className="w-4 h-4 text-amber-400" />
-              <span>'{selectedChar.char}' 캔버스에서 직접 써보기 (Step 2)</span>
+              <span>&apos;{selectedChar.char}&apos; 캔버스에서 직접 써보기 (Step 2)</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -845,11 +846,37 @@ export default function HiraganaStudio({
               );
             })()}
           </div>
+
+          {/* 다음 단계(Step 3 암기 카드) 이동 CTA */}
+          <button
+            type="button"
+            onClick={() => {
+              stopJapaneseSpeech();
+              setCurrentStep('cards');
+            }}
+            className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>플래시 암기 카드로 자가 점검하기 (Step 3)</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </section>
       )}
 
       {/* ========================================================
-          STEP 3: 미니 단어 매칭 (Micro Reading)
+          STEP 3: 플래시 암기 카드 (Active Recall Flashcards)
+      ======================================================== */}
+      {currentStep === 'cards' && (
+        <HiraganaFlashcards
+          onCompleteToNextStep={() => {
+            stopJapaneseSpeech();
+            setCurrentStep('words');
+          }}
+        />
+      )}
+
+      {/* ========================================================
+          STEP 4: 미니 단어 매칭 (Micro Reading)
       ======================================================== */}
       {currentStep === 'words' && (
         <section className="space-y-4">
@@ -942,11 +969,25 @@ export default function HiraganaStudio({
               <span>소리 듣기</span>
             </button>
           </div>
+
+          {/* 다음 단계(Step 5 첫 발화) 이동 CTA */}
+          <button
+            type="button"
+            onClick={() => {
+              stopJapaneseSpeech();
+              setCurrentStep('dialogue');
+            }}
+            className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+          >
+            <Flame className="w-4 h-4 text-amber-400" />
+            <span>배운 단어로 첫 인사 발화 연습하기 (Step 5)</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </section>
       )}
 
       {/* ========================================================
-          STEP 4: 첫 발화 챌린지 (First Dialogue)
+          STEP 5: 첫 발화 챌린지 (First Dialogue)
       ======================================================== */}
       {currentStep === 'dialogue' && (
         <section className="space-y-4">
@@ -1001,7 +1042,7 @@ export default function HiraganaStudio({
                       </span>
 
                       {isCompleted && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E07A5F]">
                           <CheckCircle className="w-3.5 h-3.5" />
                           <span>발화 완료!</span>
                         </span>
@@ -1030,7 +1071,7 @@ export default function HiraganaStudio({
 
                       {/* 한글 발음 (토글 상태에 따라 노출) */}
                       {showKoreanPronunciation && (
-                        <p className="text-xs font-bold text-[#D97706]">
+                        <p className="text-xs font-bold text-[#C45B40]">
                           [{item.koreanPronunciation}] ({item.romaji})
                         </p>
                       )}
@@ -1041,31 +1082,34 @@ export default function HiraganaStudio({
                     </div>
 
                     {/* 발화 팁 */}
-                    <p className="text-[11px] text-[#718096] bg-[#FAF9F7] p-2 rounded-xl border border-[#EDE8E1]">
-                      💬 {item.tip}
-                    </p>
+                    <div className="text-[11px] text-[#718096] bg-[#FAF9F7] p-2.5 rounded-xl border border-[#EDE8E1] flex items-start gap-1.5 leading-relaxed">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                      <span>{item.tip}</span>
+                    </div>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* 수료 축하 카드 */}
-          <div className="bg-gradient-to-br from-emerald-50 via-white to-amber-50 rounded-3xl p-5 border border-emerald-200/70 shadow-xs text-center space-y-2.5">
-            <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-inner">
-              <CheckCircle className="w-6 h-6" />
+          {/* 수료 축하 카드 (Lv.0 ➔ Lv.1 코랄 성장 사다리 규격) */}
+          <div className="bg-gradient-to-br from-[#FFF9F2] via-[#FAF0E6] to-[#FFF6F1] rounded-3xl p-6 border border-[#F4DDD4] shadow-xs text-center space-y-3">
+            <div className="w-12 h-12 bg-white text-[#E07A5F] rounded-full flex items-center justify-center mx-auto shadow-xs border border-[#F4DDD4]">
+              <Sparkles className="w-6 h-6 text-[#E07A5F]" />
             </div>
-            <h3 className="text-base font-black text-[#2D3748]">
-              축하합니다! 히라가나 첫걸음 완주 🎉
-            </h3>
-            <p className="text-xs text-[#718096] leading-relaxed max-w-sm mx-auto">
-              이제 기본 글자를 읽을 수 있는 단단한 기초가 마련되었습니다.
-              다음 단계인 <strong>Lv.1 초급 (기본 패턴 & 여행 회화)</strong>으로 나아가 볼까요?
-            </p>
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-[#2D3748]">
+                축하합니다! 히라가나 첫걸음 완주
+              </h3>
+              <p className="text-xs text-[#718096] leading-relaxed max-w-sm mx-auto">
+                이제 기본 글자를 읽을 수 있는 단단한 기초가 마련되었습니다.
+                다음 단계인 <strong className="text-[#E07A5F]">Lv.1 초급 (기본 패턴 & 여행 회화)</strong>으로 나아가 볼까요?
+              </p>
+            </div>
 
             <Link
               href="/roadmap"
-              className="inline-flex items-center justify-center gap-1.5 py-2.5 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs"
+              className="inline-flex items-center justify-center gap-1.5 py-3 px-6 rounded-2xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-black transition-all shadow-xs active:scale-95"
             >
               <span>Lv.1 초급 로드맵 보러가기</span>
               <ArrowRight className="w-3.5 h-3.5" />

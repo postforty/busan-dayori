@@ -187,7 +187,7 @@ export default function Header() {
 
             <div className="text-xs text-[#4A5568] space-y-2.5 leading-relaxed bg-[#FBF9F5] p-3.5 rounded-xl border border-[#EDE8E1]">
               <p>
-                こんにちは！私は釜山に生まれ育った韓国人です。日本と日本語が大好きで、JLPTや会話を日々勉強しています。
+                こんにちは！私は釜山に住んでいる韓国人です。日本と日本語が大好きで、JLPTや会話を日々勉強しています。
               </p>
               <p>
                 このサイトは、<strong>「自分の日本語の練習」</strong>のために、大好きな釜山の街や本当におすすめしたい行きつけのお店を日本語で綴るために作りました。
@@ -198,7 +198,7 @@ export default function Header() {
             </div>
 
             <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
-              <span>管理人：ドンヒョン (釜山在住)</span>
+              <span>管理人：シンヒ (釜山在住)</span>
               <button
                 onClick={() => setShowAboutModal(false)}
                 className="px-3 py-1.5 bg-[#2D3748] text-white rounded-lg font-medium hover:bg-black transition-colors"

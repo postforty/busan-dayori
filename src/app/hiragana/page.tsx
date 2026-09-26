@@ -3,7 +3,7 @@ import HiraganaStudio from '@/components/hiragana/HiraganaStudio';
 
 export const metadata = {
   title: '히라가나 마스터 스튜디오 | 釜山だより',
-  description: '소리 탐색, 획순 인터랙티브 손글씨 쓰기, 실생활 미니 단어 읽기, 첫 발화 챌린지로 완성하는 히라가나 입문 코스'
+  description: '소리 탐색, 획순 손글씨 쓰기, 플래시 암기 카드, 실생활 미니 단어, 첫 발화 챌린지로 완성하는 히라가나 입문 코스'
 };
 
 interface HiraganaPageProps {
@@ -15,7 +15,7 @@ interface HiraganaPageProps {
 
 export default async function HiraganaPage({ searchParams }: HiraganaPageProps) {
   const resolvedParams = await searchParams;
-  const initialStep = (resolvedParams.step as 'sound' | 'write' | 'words' | 'dialogue') || 'sound';
+  const initialStep = (resolvedParams.step as 'sound' | 'write' | 'cards' | 'words' | 'dialogue') || 'sound';
   const initialChar = resolvedParams.char || 'あ';
 
   return (
