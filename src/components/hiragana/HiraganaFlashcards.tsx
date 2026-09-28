@@ -823,7 +823,7 @@ export default function HiraganaFlashcards({
                   className="py-3 px-4 rounded-2xl bg-white hover:bg-[#FAF9F7] text-[#4A5568] border-2 border-[#EDE8E1] text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-95 shadow-2xs"
                 >
                   <RotateCcw className="w-4 h-4 text-[#718096]" />
-                  <span>헷갈려요 (다시 볼래요)</span>
+                  <span>헷갈려요</span>
                 </button>
 
                 <button
@@ -832,7 +832,7 @@ export default function HiraganaFlashcards({
                   className="py-3 px-4 rounded-2xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-95 shadow-xs"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>외웠어요! (다음 카드)</span>
+                  <span>외웠어요!</span>
                 </button>
               </div>
             ) : (

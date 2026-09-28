@@ -472,11 +472,11 @@ export default function HiraganaStudio({
         {/* 5단계 탭 버튼 */}
         <div className="grid grid-cols-5 gap-1 mt-4 pt-3 border-t border-[#F4DDD4]/80">
           {[
-            { key: 'sound', label: '1. 소리 탐색', icon: Volume2 },
-            { key: 'write', label: '2. 쓰기 연습', icon: Pencil },
-            { key: 'cards', label: '3. 암기 카드', icon: Sparkles },
-            { key: 'words', label: '4. 미니 단어', icon: BookOpen },
-            { key: 'dialogue', label: '5. 첫 발화', icon: Flame }
+            { key: 'sound', label: '소리 탐색', icon: Volume2 },
+            { key: 'write', label: '쓰기 연습', icon: Pencil },
+            { key: 'cards', label: '암기 카드', icon: Sparkles },
+            { key: 'words', label: '미니 단어', icon: BookOpen },
+            { key: 'dialogue', label: '첫 발화', icon: Flame }
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = currentStep === tab.key;
