@@ -422,31 +422,40 @@ export default function HiraganaStudio({
         <div className="flex items-center justify-between gap-2 mb-3">
           <Link
             href="/roadmap"
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#E07A5F] hover:text-[#C55D42] bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-[#F4DDD4] transition-colors"
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#E07A5F] hover:text-[#C55D42] bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-[#F4DDD4] transition-colors whitespace-nowrap shrink-0"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>로드맵으로 돌아가기</span>
+            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+            <span>
+              로드맵<span className="hidden sm:inline">으로 돌아가기</span>
+            </span>
           </Link>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             {/* 전체 글꼴 토글 버튼 */}
             <button
               type="button"
               onClick={handleToggleFontStyle}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border shadow-2xs ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border shadow-2xs whitespace-nowrap shrink-0 ${
                 fontStyle === 'serif'
                   ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
                   : 'bg-white/90 hover:bg-white text-[#4A5568] border-[#EDE8E1] font-sans'
               }`}
               title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 흘림체(명조)"
             >
-              <Type className="w-3 h-3 text-[#E07A5F]" />
-              <span>{fontStyle === 'serif' ? '흘림체(명조)' : '정자체(고딕)'}</span>
+              <Type className="w-3 h-3 text-[#E07A5F] shrink-0" />
+              <span>
+                {fontStyle === 'serif' ? '흘림체' : '정자체'}
+                <span className="hidden sm:inline">
+                  {fontStyle === 'serif' ? '(명조)' : '(고딕)'}
+                </span>
+              </span>
             </button>
 
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-black border border-amber-300 shadow-2xs">
-              <Sparkles className="w-3 h-3 text-amber-600" />
-              <span>Lv.0 입문 스튜디오</span>
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-black border border-amber-300 shadow-2xs whitespace-nowrap shrink-0">
+              <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+              <span>
+                Lv.0 입문<span className="hidden sm:inline"> 스튜디오</span>
+              </span>
             </div>
           </div>
         </div>
