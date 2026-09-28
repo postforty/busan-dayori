@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600;700&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -39,3 +40,14 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* 일본어 정자체 (교과서체/단정한 서체) - さ, き, ふ 등의 획이 교과서 기준대로 정확히 분리된 표준 학습체 */
+.font-jp-gothic {
+  font-family: "Klee One", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif !important;
+}
+
+/* 일본어 흘림체 (명조/붓글씨 세리프) - 삐침과 연결 획이 살아있는 전통 명조 서체 */
+.font-jp-mincho {
+  font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif !important;
+}
+

@@ -26,7 +26,8 @@ import {
   EyeOff,
   Flame,
   ChevronRight,
-  Lightbulb
+  Lightbulb,
+  Type
 } from 'lucide-react';
 
 import HiraganaFlashcards from './HiraganaFlashcards';
@@ -47,6 +48,33 @@ export default function HiraganaStudio({
   initialChar = 'あ'
 }: HiraganaStudioProps) {
   const [currentStep, setCurrentStep] = useState<StudioStep>(initialStep);
+
+  // 글꼴 상태 ('sans': 고딕/정자체, 'serif': 명조/흘림체)
+  const [fontStyle, setFontStyle] = useState<'sans' | 'serif'>('sans');
+
+  // 로컬 스토리지에서 글꼴 상태 동기화
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('hiragana_font_style');
+      if (saved === 'sans' || saved === 'serif') {
+        setFontStyle(saved);
+      }
+    } catch {
+      // 무시
+    }
+  }, []);
+
+  const handleToggleFontStyle = useCallback(() => {
+    setFontStyle((prev) => {
+      const next = prev === 'sans' ? 'serif' : 'sans';
+      try {
+        localStorage.setItem('hiragana_font_style', next);
+      } catch {
+        // 무시
+      }
+      return next;
+    });
+  }, []);
 
   // --- Step 1: 소리 탐색 상태 ---
   const [selectedChar, setSelectedChar] = useState<HiraganaChar>(() => {
@@ -172,20 +200,24 @@ export default function HiraganaStudio({
     const ctx = offscreen.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
 
-    ctx.font = '900 160px sans-serif';
+    const fontFam =
+      fontStyle === 'serif'
+        ? "'Noto Serif JP', 'Yu Mincho', serif"
+        : "'Klee One', 'Noto Sans JP', sans-serif";
+    ctx.font = `bold 160px ${fontFam}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#000000';
     ctx.fillText(selectedChar.char, width / 2, height / 2);
 
     charMaskRef.current = ctx.getImageData(0, 0, width, height);
-  }, [selectedChar]);
+  }, [selectedChar, fontStyle]);
 
-  // 글자 변경 시 캔버스 초기화 및 마스크 갱신
+  // 글자 또는 글꼴 변경 시 캔버스 초기화 및 마스크 갱신
   useEffect(() => {
     clearCanvas();
     updateCharMask();
-  }, [selectedChar, clearCanvas, updateCharMask]);
+  }, [selectedChar, clearCanvas, updateCharMask, fontStyle]);
 
   // 글자 변경 시 또는 쓰기 스텝 진입 시 가로 스크롤 목록에서 현재 글자가 화면 중앙에 보이도록 자동 스크롤
   useEffect(() => {
@@ -394,9 +426,26 @@ export default function HiraganaStudio({
             <span>로드맵으로 돌아가기</span>
           </Link>
 
-          <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-black border border-amber-300 shadow-2xs">
-            <Sparkles className="w-3 h-3 text-amber-600" />
-            <span>Lv.0 입문 스튜디오</span>
+          <div className="flex items-center gap-1.5">
+            {/* 전체 글꼴 토글 버튼 */}
+            <button
+              type="button"
+              onClick={handleToggleFontStyle}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border shadow-2xs ${
+                fontStyle === 'serif'
+                  ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
+                  : 'bg-white/90 hover:bg-white text-[#4A5568] border-[#EDE8E1] font-sans'
+              }`}
+              title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 흘림체(명조)"
+            >
+              <Type className="w-3 h-3 text-[#E07A5F]" />
+              <span>{fontStyle === 'serif' ? '흘림체(명조)' : '정자체(고딕)'}</span>
+            </button>
+
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-black border border-amber-300 shadow-2xs">
+              <Sparkles className="w-3 h-3 text-amber-600" />
+              <span>Lv.0 입문 스튜디오</span>
+            </div>
           </div>
         </div>
 
@@ -520,8 +569,19 @@ export default function HiraganaStudio({
                             }`}
                         >
                           <span
-                            className={`text-lg font-black leading-none ${isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
-                              }`}
+                            className={`text-lg font-bold leading-none transition-all ${
+                              isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
+                            } ${
+                              fontStyle === 'serif'
+                                ? 'font-jp-mincho'
+                                : 'font-jp-gothic'
+                            }`}
+                            style={{
+                              fontFamily:
+                                fontStyle === 'serif'
+                                  ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                  : "'Klee One', 'Noto Sans JP', sans-serif"
+                            }}
                           >
                             {charItem.char}
                           </span>
@@ -546,7 +606,19 @@ export default function HiraganaStudio({
           <div className="bg-gradient-to-br from-white to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4] shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center text-3xl font-black text-[#E07A5F]">
+                <div
+                  className={`w-14 h-14 rounded-2xl bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center text-3xl font-bold text-[#E07A5F] ${
+                    fontStyle === 'serif'
+                      ? 'font-jp-mincho'
+                      : 'font-jp-gothic'
+                  }`}
+                  style={{
+                    fontFamily:
+                      fontStyle === 'serif'
+                        ? "'Noto Serif JP', 'Yu Mincho', serif"
+                        : "'Klee One', 'Noto Sans JP', sans-serif"
+                  }}
+                >
                   {selectedChar.char}
                 </div>
                 <div>
@@ -659,12 +731,23 @@ export default function HiraganaStudio({
                     type="button"
                     data-active={isSelected}
                     onClick={() => setSelectedChar(c)}
-                    className={`relative w-9 h-9 rounded-xl text-sm font-black shrink-0 transition-all ${isSelected
-                      ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
-                      : isDone
-                        ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
-                        : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
-                      }`}
+                    className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${
+                      isSelected
+                        ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
+                        : isDone
+                          ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
+                          : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                    } ${
+                      fontStyle === 'serif'
+                        ? 'font-jp-mincho'
+                        : 'font-jp-gothic'
+                    }`}
+                    style={{
+                      fontFamily:
+                        fontStyle === 'serif'
+                          ? "'Noto Serif JP', 'Yu Mincho', serif"
+                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    }}
                   >
                     {c.char}
                     {isDone && (
@@ -695,7 +778,19 @@ export default function HiraganaStudio({
 
               {/* 배경 연한 가이드 텍스트 */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                <span className="text-[160px] font-black text-stone-200 leading-none">
+                <span
+                  className={`text-[160px] font-bold text-stone-200 leading-none ${
+                    fontStyle === 'serif'
+                      ? 'font-jp-mincho'
+                      : 'font-jp-gothic'
+                  }`}
+                  style={{
+                    fontFamily:
+                      fontStyle === 'serif'
+                        ? "'Noto Serif JP', 'Yu Mincho', serif"
+                        : "'Klee One', 'Noto Sans JP', sans-serif"
+                  }}
+                >
                   {selectedChar.char}
                 </span>
               </div>
@@ -823,7 +918,19 @@ export default function HiraganaStudio({
                           key={item!.char}
                           className="bg-white rounded-xl p-3 border border-[#EDE8E1] flex flex-col items-center text-center gap-1"
                         >
-                          <span className="text-3xl font-black text-[#E07A5F]">
+                          <span
+                            className={`text-3xl font-bold text-[#E07A5F] ${
+                              fontStyle === 'serif'
+                                ? 'font-jp-mincho'
+                                : 'font-jp-gothic'
+                            }`}
+                            style={{
+                              fontFamily:
+                                fontStyle === 'serif'
+                                  ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                  : "'Klee One', 'Noto Sans JP', sans-serif"
+                            }}
+                          >
                             {item!.char}
                           </span>
                           <span className="text-xs font-bold text-[#2D3748]">
@@ -868,6 +975,8 @@ export default function HiraganaStudio({
       ======================================================== */}
       {currentStep === 'cards' && (
         <HiraganaFlashcards
+          fontStyle={fontStyle}
+          onToggleFontStyle={handleToggleFontStyle}
           onCompleteToNextStep={() => {
             stopJapaneseSpeech();
             setCurrentStep('words');

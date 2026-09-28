@@ -19,7 +19,8 @@ import {
   Pencil,
   Check,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Type
 } from 'lucide-react';
 
 // 50음도 전체 글자 추출 (46자)
@@ -46,16 +47,51 @@ type FilterCategory = 'all' | 'confusing' | 'row' | 'wrong';
 
 interface HiraganaFlashcardsProps {
   onCompleteToNextStep?: () => void;
+  fontStyle?: 'sans' | 'serif';
+  onToggleFontStyle?: () => void;
 }
 
 export default function HiraganaFlashcards({
-  onCompleteToNextStep
+  onCompleteToNextStep,
+  fontStyle: propFontStyle,
+  onToggleFontStyle
 }: HiraganaFlashcardsProps) {
   // --- 상태 관리 ---
   const [filterType, setFilterType] = useState<FilterCategory>('all');
   const [selectedRow, setSelectedRow] = useState<string>('あ');
   const [studyMode, setStudyMode] = useState<'charToSound' | 'soundToChar'>('charToSound');
   const [autoSpeech, setAutoSpeech] = useState(true);
+
+  // 글꼴 상태 ('sans': 고딕/정자체, 'serif': 명조/흘림체)
+  const [localFontStyle, setLocalFontStyle] = useState<'sans' | 'serif'>('sans');
+
+  // 로컬 스토리지에서 글꼴 설정 불러오기
+  useEffect(() => {
+    try {
+      const savedFont = localStorage.getItem('hiragana_font_style');
+      if (savedFont === 'sans' || savedFont === 'serif') {
+        setLocalFontStyle(savedFont);
+      }
+    } catch {
+      // 무시
+    }
+  }, []);
+
+  const currentFontStyle = propFontStyle !== undefined ? propFontStyle : localFontStyle;
+
+  const handleToggleFont = useCallback(() => {
+    if (onToggleFontStyle) {
+      onToggleFontStyle();
+    } else {
+      const next = currentFontStyle === 'sans' ? 'serif' : 'sans';
+      setLocalFontStyle(next);
+      try {
+        localStorage.setItem('hiragana_font_style', next);
+      } catch {
+        // 무시
+      }
+    }
+  }, [currentFontStyle, onToggleFontStyle]);
 
   // 카드 목록 및 진행 상태
   const [cardDeck, setCardDeck] = useState<HiraganaChar[]>(ALL_HIRAGANA_CHARS);
@@ -486,6 +522,26 @@ export default function HiraganaFlashcards({
           </div>
 
           <div className="flex items-center gap-1">
+            {/* 글꼴 스타일 토글 (정자체 / 흘림체) */}
+            <button
+              type="button"
+              onClick={handleToggleFont}
+              className={`px-2 py-1 rounded-xl text-[11px] font-bold transition-all border flex items-center gap-1 shadow-2xs ${
+                currentFontStyle === 'serif'
+                  ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
+                  : 'bg-white hover:bg-stone-50 text-[#4A5568] border-[#EDE8E1] font-sans'
+              }`}
+              title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 흘림체(명조)"
+            >
+              <Type className="w-3 h-3 text-[#E07A5F]" />
+              <span className="hidden sm:inline">
+                {currentFontStyle === 'serif' ? '흘림체(명조)' : '정자체(고딕)'}
+              </span>
+              <span className="sm:hidden">
+                {currentFontStyle === 'serif' ? '흘림체' : '정자체'}
+              </span>
+            </button>
+
             {/* 소리 자동 재생 토글 */}
             <button
               type="button"
@@ -571,7 +627,17 @@ export default function HiraganaFlashcards({
                       onClick={() => playCurrentSound(char)}
                       className="px-2.5 py-1 bg-white hover:bg-[#FAF9F7] rounded-xl border border-[#EDE8E1] text-[#2D3748] text-xs font-bold flex items-center gap-1 transition-all"
                     >
-                      <span>{char}</span>
+                      <span
+                        className={currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}
+                        style={{
+                          fontFamily:
+                            currentFontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
+                        {char}
+                      </span>
                       <span className="text-[10px] text-[#718096] font-normal">
                         ({item?.koreanSound})
                       </span>
@@ -666,15 +732,47 @@ export default function HiraganaFlashcards({
                     {currentCard.row}행 • {currentCard.strokeCount}획
                   </span>
 
-                  <span className="text-[11px] font-semibold text-[#E07A5F] bg-[#FFF4EE] px-2 py-0.5 rounded-full border border-[#F4DDD4]">
-                    {studyMode === 'charToSound' ? '글자를 보고 읽기' : '소리를 듣고 글자 맞히기'}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {/* 카드 내 즉시 글꼴 전환 버튼 */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleFont();
+                      }}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-all border flex items-center gap-1 ${
+                        currentFontStyle === 'serif'
+                          ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
+                          : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#718096] border-[#EDE8E1] font-sans'
+                      }`}
+                      title="클릭하여 정자체 ⇄ 흘림체 변경"
+                    >
+                      <Type className="w-2.5 h-2.5 text-[#E07A5F]" />
+                      <span>{currentFontStyle === 'serif' ? '흘림체' : '정자체'}</span>
+                    </button>
+
+                    <span className="text-[11px] font-semibold text-[#E07A5F] bg-[#FFF4EE] px-2 py-0.5 rounded-full border border-[#F4DDD4]">
+                      {studyMode === 'charToSound' ? '글자를 보고 읽기' : '소리를 듣고 글자 맞히기'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* 중앙 메인 콘텐츠 */}
                 <div className="my-auto py-4 flex flex-col items-center justify-center">
                   {studyMode === 'charToSound' ? (
-                    <span className="text-8xl sm:text-9xl font-black text-[#2D3748] tracking-tight leading-none drop-shadow-xs font-serif">
+                    <span
+                      className={`text-8xl sm:text-9xl font-bold text-[#2D3748] tracking-tight leading-none drop-shadow-xs transition-all duration-150 ${
+                        currentFontStyle === 'serif'
+                          ? 'font-jp-mincho'
+                          : 'font-jp-gothic'
+                      }`}
+                      style={{
+                        fontFamily:
+                          currentFontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif"
+                      }}
+                    >
                       {currentCard.char}
                     </span>
                   ) : (
@@ -747,7 +845,19 @@ export default function HiraganaFlashcards({
                 {/* 중앙 정답 상세 정보 */}
                 <div className="my-auto py-2 flex flex-col items-center gap-2 max-w-sm">
                   <div className="flex items-baseline gap-3">
-                    <span className="text-5xl font-black text-[#2D3748] font-serif">
+                    <span
+                      className={`text-5xl font-bold text-[#2D3748] transition-all duration-150 ${
+                        currentFontStyle === 'serif'
+                          ? 'font-jp-mincho'
+                          : 'font-jp-gothic'
+                      }`}
+                      style={{
+                        fontFamily:
+                          currentFontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif"
+                      }}
+                    >
                       {currentCard.char}
                     </span>
                     <div className="text-left">

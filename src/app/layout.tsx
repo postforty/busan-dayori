@@ -46,6 +46,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className="h-full">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600;700&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[#FBF9F5] text-[#2D3748] antialiased selection:bg-[#E07A5F]/20 selection:text-[#E07A5F]">
         <div className="w-full max-w-xl mx-auto min-h-screen flex flex-col bg-white shadow-sm border-x border-[#EDE8E1]">
           <Suspense fallback={null}>
