@@ -146,20 +146,63 @@ export const HIRAGANA_GRID: HiraganaRow[] = [
   }
 ];
 
-// 배운 글자로 바로 읽는 실생활 미니 단어 세트
+// 배운 글자로 바로 읽는 실생활 미니 단어 세트 (50음도 46자 + 조사 を, 받침 ん 전수 포함)
 export const MINI_WORDS: MiniWord[] = [
+  // --- 음식 ---
   { id: 'mw-1', japanese: 'すし', romaji: 'su-shi', koreanMeaning: '초밥', emoji: '🍣', category: '음식' },
-  { id: 'mw-2', japanese: 'ねこ', romaji: 'ne-ko', koreanMeaning: '고양이', emoji: '🐱', category: '동물' },
-  { id: 'mw-3', japanese: 'いぬ', romaji: 'i-nu', koreanMeaning: '강아지', emoji: '🐶', category: '동물' },
-  { id: 'mw-4', japanese: 'あい', romaji: 'a-i', koreanMeaning: '사랑', emoji: '❤️', category: '감정' },
-  { id: 'mw-5', japanese: 'かさ', romaji: 'ka-sa', koreanMeaning: '우산', emoji: '☂️', category: '물건' },
-  { id: 'mw-6', japanese: 'あさ', romaji: 'a-sa', koreanMeaning: '아침', emoji: '🌅', category: '시간' },
-  { id: 'mw-7', japanese: 'えき', romaji: 'e-ki', koreanMeaning: '기차역 / 지하철역', emoji: '🚉', category: '장소' },
-  { id: 'mw-8', japanese: 'ゆき', romaji: 'yu-ki', koreanMeaning: '눈 (snow)', emoji: '❄️', category: '자연' },
-  { id: 'mw-9', japanese: 'やま', romaji: 'ya-ma', koreanMeaning: '산 (mountain)', emoji: '⛰️', category: '자연' },
-  { id: 'mw-10', japanese: 'みず', romaji: 'mi-zu', koreanMeaning: '물 (water)', emoji: '💧', category: '음식' },
-  { id: 'mw-11', japanese: 'あめ', romaji: 'a-me', koreanMeaning: '비 / 사탕', emoji: '🍬', category: '일상' },
-  { id: 'mw-12', japanese: 'とり', romaji: 'to-ri', koreanMeaning: '새 (bird)', emoji: '🐦', category: '동물' },
+  { id: 'mw-2', japanese: 'にく', romaji: 'ni-ku', koreanMeaning: '고기', emoji: '🥩', category: '음식' },
+  { id: 'mw-3', japanese: 'たこ', romaji: 'ta-ko', koreanMeaning: '문어', emoji: '🐙', category: '음식' },
+  { id: 'mw-4', japanese: 'もも', romaji: 'mo-mo', koreanMeaning: '복숭아', emoji: '🍑', category: '음식' },
+  { id: 'mw-5', japanese: 'みかん', romaji: 'mi-ka-n', koreanMeaning: '귤', emoji: '🍊', category: '음식' },
+
+  // --- 동물 ---
+  { id: 'mw-6', japanese: 'いぬ', romaji: 'i-nu', koreanMeaning: '강아지', emoji: '🐶', category: '동물' },
+  { id: 'mw-7', japanese: 'ねこ', romaji: 'ne-ko', koreanMeaning: '고양이', emoji: '🐱', category: '동물' },
+  { id: 'mw-8', japanese: 'くま', romaji: 'ku-ma', koreanMeaning: '곰', emoji: '🐻', category: '동물' },
+  { id: 'mw-9', japanese: 'きつね', romaji: 'ki-tsu-ne', koreanMeaning: '여우', emoji: '🦊', category: '동물' },
+  { id: 'mw-10', japanese: 'とり', romaji: 'to-ri', koreanMeaning: '새', emoji: '🐦', category: '동물' },
+  { id: 'mw-11', japanese: 'はち', romaji: 'ha-chi', koreanMeaning: '꿀벌', emoji: '🐝', category: '동물' },
+
+  // --- 자연 ---
+  { id: 'mw-12', japanese: 'うみ', romaji: 'u-mi', koreanMeaning: '바다', emoji: '🌊', category: '자연' },
+  { id: 'mw-13', japanese: 'やま', romaji: 'ya-ma', koreanMeaning: '산', emoji: '⛰️', category: '자연' },
+  { id: 'mw-14', japanese: 'かわ', romaji: 'ka-wa', koreanMeaning: '강 (river)', emoji: '🏞️', category: '자연' },
+  { id: 'mw-15', japanese: 'そら', romaji: 'so-ra', koreanMeaning: '하늘', emoji: '🌤️', category: '자연' },
+  { id: 'mw-16', japanese: 'ゆき', romaji: 'yu-ki', koreanMeaning: '눈 (snow)', emoji: '❄️', category: '자연' },
+  { id: 'mw-17', japanese: 'つき', romaji: 'tsu-ki', koreanMeaning: '달 (moon)', emoji: '🌙', category: '자연' },
+  { id: 'mw-18', japanese: 'ほし', romaji: 'ho-shi', koreanMeaning: '별 (star)', emoji: '⭐', category: '자연' },
+  { id: 'mw-19', japanese: 'はな', romaji: 'ha-na', koreanMeaning: '꽃', emoji: '🌸', category: '자연' },
+  { id: 'mw-20', japanese: 'さくら', romaji: 'sa-ku-ra', koreanMeaning: '벚꽃', emoji: '🌸', category: '자연' },
+  { id: 'mw-21', japanese: 'たけ', romaji: 'ta-ke', koreanMeaning: '대나무', emoji: '🎋', category: '자연' },
+  { id: 'mw-22', japanese: 'せみ', romaji: 'se-mi', koreanMeaning: '매미', emoji: '🦗', category: '자연' },
+
+  // --- 물건 ---
+  { id: 'mw-23', japanese: 'かさ', romaji: 'ka-sa', koreanMeaning: '우산', emoji: '☂️', category: '물건' },
+  { id: 'mw-24', japanese: 'ほん', romaji: 'ho-n', koreanMeaning: '책', emoji: '📖', category: '물건' },
+  { id: 'mw-25', japanese: 'ぬの', romaji: 'nu-no', koreanMeaning: '천 / 패브릭', emoji: '🧶', category: '물건' },
+  { id: 'mw-26', japanese: 'ふね', romaji: 'fu-ne', koreanMeaning: '배 (선박)', emoji: '🚢', category: '물건' },
+
+  // --- 시간 ---
+  { id: 'mw-27', japanese: 'あさ', romaji: 'a-sa', koreanMeaning: '아침', emoji: '🌅', category: '시간' },
+  { id: 'mw-28', japanese: 'よる', romaji: 'yo-ru', koreanMeaning: '밤', emoji: '🌙', category: '시간' },
+  { id: 'mw-29', japanese: 'なつ', romaji: 'na-tsu', koreanMeaning: '여름', emoji: '🌻', category: '시간' },
+
+  // --- 일상 ---
+  { id: 'mw-30', japanese: 'えき', romaji: 'e-ki', koreanMeaning: '기차역 / 지하철역', emoji: '🚉', category: '일상' },
+  { id: 'mw-31', japanese: 'おと', romaji: 'o-to', koreanMeaning: '소리', emoji: '🎵', category: '일상' },
+  { id: 'mw-32', japanese: 'へや', romaji: 'he-ya', koreanMeaning: '방 (room)', emoji: '🚪', category: '일상' },
+  { id: 'mw-33', japanese: 'て', romaji: 'te', koreanMeaning: '손', emoji: '✋', category: '일상' },
+  { id: 'mw-34', japanese: 'ひと', romaji: 'hi-to', koreanMeaning: '사람', emoji: '👤', category: '일상' },
+  { id: 'mw-35', japanese: 'あめ', romaji: 'a-me', koreanMeaning: '비 / 사탕', emoji: '🍬', category: '일상' },
+  { id: 'mw-36', japanese: 'けむり', romaji: 'ke-mu-ri', koreanMeaning: '연기', emoji: '💨', category: '일상' },
+  { id: 'mw-37', japanese: 'これ', romaji: 'ko-re', koreanMeaning: '이것', emoji: '👈', category: '일상' },
+  { id: 'mw-38', japanese: 'しろ', romaji: 'shi-ro', koreanMeaning: '하양 / 성(城)', emoji: '🏯', category: '일상' },
+
+  // --- 감정 ---
+  { id: 'mw-39', japanese: 'あい', romaji: 'a-i', koreanMeaning: '사랑', emoji: '❤️', category: '감정' },
+
+  // --- 표현 (조사 を) ---
+  { id: 'mw-40', japanese: 'ほんを', romaji: 'ho-n-wo', koreanMeaning: '책을 (조사 を)', emoji: '🎯', category: '표현' },
 ];
 
 // 도플갱어 (헷갈리는 글자) 대조 훈련 데이터
