@@ -59,7 +59,6 @@ export default function HiraganaFlashcards({
   // --- 상태 관리 ---
   const [filterType, setFilterType] = useState<FilterCategory>('all');
   const [selectedRow, setSelectedRow] = useState<string>('あ');
-  const [studyMode, setStudyMode] = useState<'charToSound' | 'soundToChar'>('charToSound');
   const [autoSpeech, setAutoSpeech] = useState(true);
 
   // 글꼴 상태 ('sans': 고딕/정자체, 'serif': 명조/흘림체)
@@ -394,7 +393,7 @@ export default function HiraganaFlashcards({
     <section className="space-y-4">
       {/* 1. 상단 컨트롤 패널 (학습 범위 & 모드 설정) */}
       <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#EDE8E1] shadow-xs space-y-3.5">
-        <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
             <span className="p-2 rounded-2xl bg-[#FFF4EE] text-[#E07A5F] border border-[#F4DDD4]">
               <Layers className="w-4 h-4" />
@@ -407,38 +406,6 @@ export default function HiraganaFlashcards({
                 앞뒤로 뒤집으며 글자와 소리를 번개처럼 연결해보세요.
               </p>
             </div>
-          </div>
-
-          {/* 모드 전환 (글자 ➔ 소리 vs 소리 ➔ 글자) */}
-          <div className="flex items-center bg-[#FAF9F7] p-1 rounded-2xl border border-[#EDE8E1] text-[11px] font-bold">
-            <button
-              type="button"
-              onClick={() => {
-                setStudyMode('charToSound');
-                setIsFlipped(false);
-              }}
-              className={`px-2.5 py-1 rounded-xl transition-all ${
-                studyMode === 'charToSound'
-                  ? 'bg-[#E07A5F] text-white shadow-2xs'
-                  : 'text-[#718096] hover:text-[#2D3748]'
-              }`}
-            >
-              글자 ➔ 소리
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setStudyMode('soundToChar');
-                setIsFlipped(false);
-              }}
-              className={`px-2.5 py-1 rounded-xl transition-all ${
-                studyMode === 'soundToChar'
-                  ? 'bg-[#E07A5F] text-white shadow-2xs'
-                  : 'text-[#718096] hover:text-[#2D3748]'
-              }`}
-            >
-              소리 ➔ 글자
-            </button>
           </div>
         </div>
 
@@ -731,77 +698,25 @@ export default function HiraganaFlashcards({
                   <span className="px-2.5 py-0.5 rounded-full bg-stone-100 text-[#718096] text-[10px] font-bold">
                     {currentCard.row}행 • {currentCard.strokeCount}획
                   </span>
-
-                  <div className="flex items-center gap-1.5">
-                    {/* 카드 내 즉시 글꼴 전환 버튼 */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleFont();
-                      }}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-all border flex items-center gap-1 ${
-                        currentFontStyle === 'serif'
-                          ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
-                          : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#718096] border-[#EDE8E1] font-sans'
-                      }`}
-                      title="클릭하여 정자체 ⇄ 흘림체 변경"
-                    >
-                      <Type className="w-2.5 h-2.5 text-[#E07A5F]" />
-                      <span>{currentFontStyle === 'serif' ? '흘림체' : '정자체'}</span>
-                    </button>
-
-                    <span className="text-[11px] font-semibold text-[#E07A5F] bg-[#FFF4EE] px-2 py-0.5 rounded-full border border-[#F4DDD4]">
-                      {studyMode === 'charToSound' ? '글자를 보고 읽기' : '소리를 듣고 글자 맞히기'}
-                    </span>
-                  </div>
                 </div>
 
                 {/* 중앙 메인 콘텐츠 */}
                 <div className="my-auto py-4 flex flex-col items-center justify-center">
-                  {studyMode === 'charToSound' ? (
-                    <span
-                      className={`text-8xl sm:text-9xl font-bold text-[#2D3748] tracking-tight leading-none drop-shadow-xs transition-all duration-150 ${
+                  <span
+                    className={`text-8xl sm:text-9xl font-bold text-[#2D3748] tracking-tight leading-none drop-shadow-xs transition-all duration-150 ${
+                      currentFontStyle === 'serif'
+                        ? 'font-jp-mincho'
+                        : 'font-jp-gothic'
+                    }`}
+                    style={{
+                      fontFamily:
                         currentFontStyle === 'serif'
-                          ? 'font-jp-mincho'
-                          : 'font-jp-gothic'
-                      }`}
-                      style={{
-                        fontFamily:
-                          currentFontStyle === 'serif'
-                            ? "'Noto Serif JP', 'Yu Mincho', serif"
-                            : "'Klee One', 'Noto Sans JP', sans-serif"
-                      }}
-                    >
-                      {currentCard.char}
-                    </span>
-                  ) : (
-                    <div className="flex flex-col items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playCurrentSound();
-                        }}
-                        className={`w-20 h-20 rounded-full flex items-center justify-center transition-all shadow-md ${
-                          isPlayingSound
-                            ? 'bg-[#E07A5F] text-white scale-105 animate-pulse'
-                            : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
-                        }`}
-                        title="소리 다시 듣기"
-                      >
-                        <Volume2 className="w-10 h-10" />
-                      </button>
-                      <div className="space-y-0.5">
-                        <span className="text-3xl font-black text-[#2D3748]">
-                          [{currentCard.koreanSound}]
-                        </span>
-                        <p className="text-sm font-bold text-[#718096]">
-                          {currentCard.romaji}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                          ? "'Noto Serif JP', 'Yu Mincho', serif"
+                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    }}
+                  >
+                    {currentCard.char}
+                  </span>
                 </div>
 
                 {/* 하단 여백 균형 유지 */}

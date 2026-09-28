@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import HiraganaFlashcards from './HiraganaFlashcards';
+import MiniWordFlashcards from './MiniWordFlashcards';
 
 type StudioStep = 'sound' | 'write' | 'cards' | 'words' | 'dialogue';
 
@@ -106,7 +107,8 @@ export default function HiraganaStudio({
   const [accuracyFeedback, setAccuracyFeedback] = useState<string | null>(null);
   const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // --- Step 3: 미니 단어 상태 ---
+  // --- Step 4: 미니 단어 상태 ---
+  const [wordsViewMode, setWordsViewMode] = useState<'cards' | 'grid'>('cards');
   const [selectedWord, setSelectedWord] = useState<MiniWord>(MINI_WORDS[0]);
   const [playingWordId, setPlayingWordId] = useState<string | null>(null);
 
@@ -979,119 +981,206 @@ export default function HiraganaStudio({
           onToggleFontStyle={handleToggleFontStyle}
           onCompleteToNextStep={() => {
             stopJapaneseSpeech();
+            setWordsViewMode('cards');
             setCurrentStep('words');
           }}
         />
       )}
 
       {/* ========================================================
-          STEP 4: 미니 단어 매칭 (Micro Reading)
+          STEP 4: 미니 단어 (Mini Words) - 암기 카드 & 도감 보기
       ======================================================== */}
       {currentStep === 'words' && (
         <section className="space-y-4">
-          <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
-            <div>
-              <h2 className="text-sm font-bold text-[#2D3748]">
-                배운 글자로 바로 읽는 미니 단어
+          {/* 서브 탭: 암기 카드 vs 단어 도감 */}
+          <div className="bg-white rounded-3xl p-4 border border-[#EDE8E1] shadow-xs flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <h2 className="text-sm font-black text-[#2D3748] truncate">
+                배운 글자로 읽는 실생활 미니 단어
               </h2>
-              <p className="text-xs text-[#718096]">
-                카드를 누르면 단어가 1글자씩 소리 내어 읽히며 바로 발음할 수 있어요.
+              <p className="text-xs text-[#718096] truncate">
+                {wordsViewMode === 'cards'
+                  ? '카드를 뒤집으며 단어의 뜻과 음절 소리를 외워요.'
+                  : '12개 단어를 한눈에 모아보며 발음을 들어봐요.'}
               </p>
             </div>
 
-            {/* 미니 단어 그리드 */}
-            <div className="grid grid-cols-2 gap-2.5">
-              {MINI_WORDS.map((word) => {
-                const isSelected = selectedWord.id === word.id;
-                const isPlaying = playingWordId === word.id;
+            {/* 뷰 모드 스위치 */}
+            <div className="flex items-center bg-stone-100 p-0.5 rounded-2xl border border-[#EDE8E1] shrink-0">
+              <button
+                type="button"
+                onClick={() => setWordsViewMode('cards')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  wordsViewMode === 'cards'
+                    ? 'bg-[#E07A5F] text-white shadow-2xs'
+                    : 'text-[#718096] hover:text-[#2D3748]'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>암기 카드</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setWordsViewMode('grid')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  wordsViewMode === 'grid'
+                    ? 'bg-[#2D3748] text-white shadow-2xs'
+                    : 'text-[#718096] hover:text-[#2D3748]'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>도감 보기</span>
+              </button>
+            </div>
+          </div>
 
-                return (
+          {/* 1) 암기 카드 모드 */}
+          {wordsViewMode === 'cards' && (
+            <MiniWordFlashcards
+              fontStyle={fontStyle}
+              onToggleFontStyle={handleToggleFontStyle}
+              onCompleteToNextStep={() => {
+                stopJapaneseSpeech();
+                setCurrentStep('dialogue');
+              }}
+            />
+          )}
+
+          {/* 2) 단어 도감 모드 */}
+          {wordsViewMode === 'grid' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#718096]">
+                    전체 단어 목록 ({MINI_WORDS.length})
+                  </span>
                   <button
-                    key={word.id}
                     type="button"
-                    onClick={() => {
-                      setSelectedWord(word);
-                      handlePlayWordSound(word);
-                    }}
-                    className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col gap-2 group relative overflow-hidden ${isSelected
-                      ? 'bg-gradient-to-br from-[#FAF0E6] to-white border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
-                      : 'bg-white hover:bg-stone-50 border-[#EDE8E1]'
-                      }`}
+                    onClick={() => setWordsViewMode('cards')}
+                    className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#FAF0E6] text-[#E07A5F] text-xs font-bold border border-[#F4DDD4] hover:bg-[#F5E5D8] transition-all"
                   >
-                    <div className="flex items-start justify-between gap-1">
-                      <span className="text-2xl">{word.emoji}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-[#718096]">
-                        {word.category}
-                      </span>
-                    </div>
-
-                    <div>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-lg font-black text-[#2D3748] tracking-wider group-hover:text-[#E07A5F] transition-colors">
-                          {word.japanese}
-                        </span>
-                        <span className="text-[11px] font-medium text-[#A0AEC0]">
-                          [{word.romaji}]
-                        </span>
-                      </div>
-                      <p className="text-xs font-bold text-[#4A5568] mt-0.5">
-                        {word.koreanMeaning}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-end">
-                      <div
-                        className={`p-1.5 rounded-full transition-colors ${isPlaying
-                          ? 'bg-[#E07A5F] text-white'
-                          : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
-                          }`}
-                      >
-                        <Volume2 className="w-3.5 h-3.5" />
-                      </div>
-                    </div>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>암기 카드로 외우기</span>
                   </button>
-                );
-              })}
-            </div>
-          </div>
+                </div>
 
-          {/* 단어 복습 큰 카드 */}
-          <div className="bg-gradient-to-br from-amber-50/70 to-[#FAF0E6] rounded-3xl p-5 border border-amber-200/80 shadow-xs flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-4xl">{selectedWord.emoji}</span>
-              <div>
-                <span className="text-2xl font-black text-[#2D3748] tracking-widest">
-                  {selectedWord.japanese}
-                </span>
-                <p className="text-xs font-bold text-[#E07A5F]">
-                  {selectedWord.koreanMeaning} ({selectedWord.romaji})
-                </p>
+                {/* 미니 단어 그리드 */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  {MINI_WORDS.map((word) => {
+                    const isSelected = selectedWord.id === word.id;
+                    const isPlaying = playingWordId === word.id;
+
+                    return (
+                      <button
+                        key={word.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedWord(word);
+                          handlePlayWordSound(word);
+                        }}
+                        className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col gap-2 group relative overflow-hidden ${
+                          isSelected
+                            ? 'bg-gradient-to-br from-[#FAF0E6] to-white border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
+                            : 'bg-white hover:bg-stone-50 border-[#EDE8E1]'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-1">
+                          <span className="text-2xl">{word.emoji}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-[#718096]">
+                            {word.category}
+                          </span>
+                        </div>
+
+                        <div>
+                          <div className="flex items-baseline gap-1.5">
+                            <span
+                              className={`text-lg font-bold text-[#2D3748] tracking-wider group-hover:text-[#E07A5F] transition-colors ${
+                                fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                              }`}
+                              style={{
+                                fontFamily:
+                                  fontStyle === 'serif'
+                                    ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                    : "'Klee One', 'Noto Sans JP', sans-serif"
+                              }}
+                            >
+                              {word.japanese}
+                            </span>
+                            <span className="text-[11px] font-medium text-[#A0AEC0]">
+                              [{word.romaji}]
+                            </span>
+                          </div>
+                          <p className="text-xs font-bold text-[#4A5568] mt-0.5">
+                            {word.koreanMeaning}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-end">
+                          <div
+                            className={`p-1.5 rounded-full transition-colors ${
+                              isPlaying
+                                ? 'bg-[#E07A5F] text-white'
+                                : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
+                            }`}
+                          >
+                            <Volume2 className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              {/* 단어 복습 큰 카드 */}
+              <div className="bg-gradient-to-br from-[#FAF0E6]/80 to-white rounded-3xl p-5 border border-[#F4DDD4] shadow-xs flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl">{selectedWord.emoji}</span>
+                  <div>
+                    <span
+                      className={`text-2xl font-bold text-[#2D3748] tracking-widest ${
+                        fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                      }`}
+                      style={{
+                        fontFamily:
+                          fontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif"
+                      }}
+                    >
+                      {selectedWord.japanese}
+                    </span>
+                    <p className="text-xs font-bold text-[#E07A5F]">
+                      {selectedWord.koreanMeaning} ({selectedWord.romaji})
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handlePlayWordSound(selectedWord)}
+                  className="px-4 py-2.5 rounded-2xl bg-[#E07A5F] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:bg-[#C55D42] transition-all"
+                >
+                  <Volume2 className="w-4 h-4" />
+                  <span>소리 듣기</span>
+                </button>
+              </div>
+
+              {/* 다음 단계(Step 5 첫 발화) 이동 CTA */}
+              <button
+                type="button"
+                onClick={() => {
+                  stopJapaneseSpeech();
+                  setCurrentStep('dialogue');
+                }}
+                className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                <Flame className="w-4 h-4 text-amber-400" />
+                <span>배운 단어로 첫 인사 발화 연습하기 (Step 5)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={() => handlePlayWordSound(selectedWord)}
-              className="px-4 py-2.5 rounded-2xl bg-[#E07A5F] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:bg-[#C55D42] transition-all"
-            >
-              <Volume2 className="w-4 h-4" />
-              <span>소리 듣기</span>
-            </button>
-          </div>
-
-          {/* 다음 단계(Step 5 첫 발화) 이동 CTA */}
-          <button
-            type="button"
-            onClick={() => {
-              stopJapaneseSpeech();
-              setCurrentStep('dialogue');
-            }}
-            className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
-          >
-            <Flame className="w-4 h-4 text-amber-400" />
-            <span>배운 단어로 첫 인사 발화 연습하기 (Step 5)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          )}
         </section>
       )}
 
