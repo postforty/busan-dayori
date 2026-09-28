@@ -869,13 +869,6 @@ export default function HiraganaFlashcards({
               </div>
             )}
 
-            {/* 제스처 및 단축키 안내 팁 */}
-            <p className="text-center text-[10px] text-[#A0AEC0]">
-              💡 좌우로 쓸어 넘겨 이전/다음 • 탭하여 뒤집기 •{' '}
-              <kbd className="px-1 py-0.5 bg-stone-100 rounded text-stone-600">Space</kbd> 뒤집기 •{' '}
-              <kbd className="px-1 py-0.5 bg-stone-100 rounded text-stone-600">1</kbd> 헷갈려요 •{' '}
-              <kbd className="px-1 py-0.5 bg-stone-100 rounded text-stone-600">2</kbd> 외웠어요
-            </p>
           </div>
         </div>
       )}
