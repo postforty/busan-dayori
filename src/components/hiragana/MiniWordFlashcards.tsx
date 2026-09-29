@@ -9,6 +9,8 @@ import {
   Shuffle,
   Sparkles,
   ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
   Check,
   ArrowRight,
   Type,
@@ -184,6 +186,20 @@ export default function MiniWordFlashcards({
     }, 250);
   }, [currentIndex, isSliding]);
 
+  // 다음 카드로 이동
+  const handleNextCard = useCallback(() => {
+    if (currentIndex >= cardDeck.length - 1 || isSliding) return;
+    setSlideDir('left');
+    setIsSliding(true);
+
+    setTimeout(() => {
+      setCurrentIndex((prev) => prev + 1);
+      setIsFlipped(false);
+      setSlideDir('none');
+      setIsSliding(false);
+    }, 250);
+  }, [currentIndex, cardDeck.length, isSliding]);
+
   // 헷갈린 단어만 다시 복습
   const handleReviewConfused = () => {
     stopJapaneseSpeech();
@@ -212,22 +228,40 @@ export default function MiniWordFlashcards({
     setConfusedWordIds(new Set());
   };
 
-  // 키보드 단축키
+  // 키보드 단축키 지원 (스페이스바: 뒤집기, 1/2번 또는 화살표 키)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
         return;
       }
 
       if (e.code === 'Space' || e.code === 'Enter') {
         e.preventDefault();
         handleFlip();
-      } else if (e.code === 'ArrowRight' || e.code === 'Digit2' || e.code === 'Numpad2') {
+      } else if (e.code === 'Digit1' || e.code === 'Numpad1' || e.key === '1') {
+        if (isFlipped) {
+          e.preventDefault();
+          handleGradeCard(false); // 헷갈려요
+        }
+      } else if (e.code === 'Digit2' || e.code === 'Numpad2' || e.key === '2') {
+        if (isFlipped) {
+          e.preventDefault();
+          handleGradeCard(true); // 외웠어요
+        }
+      } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        handleGradeCard(true);
-      } else if (e.code === 'ArrowLeft' || e.code === 'Digit1' || e.code === 'Numpad1') {
+        if (isFlipped) {
+          handleGradeCard(false);
+        } else {
+          handlePrevCard();
+        }
+      } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        handleGradeCard(false);
+        if (isFlipped) {
+          handleGradeCard(true);
+        } else {
+          handleNextCard();
+        }
       } else if (e.code === 'KeyR') {
         e.preventDefault();
         playCurrentSound();
@@ -236,7 +270,7 @@ export default function MiniWordFlashcards({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleFlip, handleGradeCard, playCurrentSound]);
+  }, [handleFlip, handleGradeCard, handlePrevCard, handleNextCard, playCurrentSound, isFlipped]);
 
   // 스와이프 제스처 핸들링
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
@@ -661,43 +695,65 @@ export default function MiniWordFlashcards({
             </div>
           </div>
 
-          {/* 3. 하단 컨트롤 버튼 바 */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handlePrevCard}
-              disabled={currentIndex === 0 || isSliding}
-              className={`p-3 rounded-2xl border transition-all ${
-                currentIndex === 0 || isSliding
-                  ? 'bg-stone-50 border-stone-200 text-stone-300 cursor-not-allowed'
-                  : 'bg-white hover:bg-stone-50 border-[#EDE8E1] text-[#718096] hover:text-[#2D3748] shadow-2xs'
-              }`}
-              title="이전 카드 (단축키: ←)"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+          {/* 3. 하단 액션 버튼 컨트롤러 */}
+          <div className="space-y-2">
+            {isFlipped ? (
+              /* 카드가 뒤집혔을 때: 헷갈려요 vs 외웠어요 평가 버튼 */
+              <div className="grid grid-cols-2 gap-2.5 animate-fadeIn">
+                <button
+                  type="button"
+                  onClick={() => handleGradeCard(false)}
+                  disabled={isSliding}
+                  className="py-3 px-4 rounded-2xl bg-white hover:bg-[#FAF9F7] text-[#4A5568] border-2 border-[#EDE8E1] text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-95 shadow-2xs"
+                >
+                  <RotateCcw className="w-4 h-4 text-[#718096]" />
+                  <span>헷갈려요</span>
+                </button>
 
-            {/* 헷갈려요 버튼 */}
-            <button
-              type="button"
-              onClick={() => handleGradeCard(false)}
-              disabled={isSliding}
-              className="flex-1 py-3 px-4 rounded-2xl bg-white hover:bg-stone-50 active:scale-98 text-[#718096] hover:text-[#2D3748] border border-[#EDE8E1] shadow-2xs font-extrabold text-sm transition-all flex items-center justify-center gap-2"
-            >
-              <RotateCcw className="w-4 h-4 text-[#718096]" />
-              <span>헷갈려요 (↺)</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => handleGradeCard(true)}
+                  disabled={isSliding}
+                  className="py-3 px-4 rounded-2xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-95 shadow-xs"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>외웠어요!</span>
+                </button>
+              </div>
+            ) : (
+              /* 카드가 뒤집히기 전: 탭하여 뒤집기 안내 또는 단순 이전/다음 */
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrevCard}
+                  disabled={currentIndex === 0 || isSliding}
+                  className="p-3 rounded-2xl bg-white border border-[#EDE8E1] text-[#718096] hover:bg-[#FAF9F7] disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs"
+                  title="이전 카드"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
 
-            {/* 외웠어요 버튼 */}
-            <button
-              type="button"
-              onClick={() => handleGradeCard(true)}
-              disabled={isSliding}
-              className="flex-1 py-3 px-4 rounded-2xl bg-[#E07A5F] hover:bg-[#C55D42] active:scale-98 text-white shadow-xs font-extrabold text-sm transition-all flex items-center justify-center gap-2"
-            >
-              <Check className="w-4 h-4 text-white stroke-[3]" />
-              <span>외웠어요 (✓)</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={handleFlip}
+                  disabled={isSliding}
+                  className="flex-1 py-3 px-4 rounded-2xl bg-[#E07A5F] hover:bg-[#C55D42] text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.99]"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>정답 확인하기 (탭)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNextCard}
+                  disabled={currentIndex === cardDeck.length - 1 || isSliding}
+                  className="p-3 rounded-2xl bg-white border border-[#EDE8E1] text-[#718096] hover:bg-[#FAF9F7] disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs"
+                  title="다음 카드"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
