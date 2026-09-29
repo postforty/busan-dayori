@@ -436,17 +436,14 @@ export default function HiraganaStudio({
               type="button"
               onClick={handleToggleFontStyle}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border shadow-2xs whitespace-nowrap shrink-0 ${fontStyle === 'serif'
-                  ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
-                  : 'bg-white/90 hover:bg-white text-[#4A5568] border-[#EDE8E1] font-sans'
+                ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
+                : 'bg-white/90 hover:bg-white text-[#4A5568] border-[#EDE8E1] font-sans'
                 }`}
               title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 흘림체(명조)"
             >
               <Type className="w-3 h-3 text-[#E07A5F] shrink-0" />
               <span>
-                {fontStyle === 'serif' ? '흘림체' : '정자체'}
-                <span className="hidden sm:inline">
-                  {fontStyle === 'serif' ? '(명조)' : '(고딕)'}
-                </span>
+                {fontStyle === 'serif' ? '흘림' : '정자'}
               </span>
             </button>
 
@@ -616,8 +613,8 @@ export default function HiraganaStudio({
               <div className="flex items-center gap-3">
                 <div
                   className={`w-14 h-14 rounded-2xl bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center text-3xl font-bold text-[#E07A5F] ${fontStyle === 'serif'
-                      ? 'font-jp-mincho'
-                      : 'font-jp-gothic'
+                    ? 'font-jp-mincho'
+                    : 'font-jp-gothic'
                     }`}
                   style={{
                     fontFamily:
@@ -739,10 +736,10 @@ export default function HiraganaStudio({
                     data-active={isSelected}
                     onClick={() => setSelectedChar(c)}
                     className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${isSelected
-                        ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
-                        : isDone
-                          ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
-                          : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                      ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
+                      : isDone
+                        ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
+                        : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
                       } ${fontStyle === 'serif'
                         ? 'font-jp-mincho'
                         : 'font-jp-gothic'
@@ -785,8 +782,8 @@ export default function HiraganaStudio({
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
                 <span
                   className={`text-[160px] font-bold text-stone-200 leading-none ${fontStyle === 'serif'
-                      ? 'font-jp-mincho'
-                      : 'font-jp-gothic'
+                    ? 'font-jp-mincho'
+                    : 'font-jp-gothic'
                     }`}
                   style={{
                     fontFamily:
@@ -924,8 +921,8 @@ export default function HiraganaStudio({
                         >
                           <span
                             className={`text-3xl font-bold text-[#E07A5F] ${fontStyle === 'serif'
-                                ? 'font-jp-mincho'
-                                : 'font-jp-gothic'
+                              ? 'font-jp-mincho'
+                              : 'font-jp-gothic'
                               }`}
                             style={{
                               fontFamily:
@@ -1012,8 +1009,8 @@ export default function HiraganaStudio({
                 type="button"
                 onClick={() => setWordsViewMode('cards')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${wordsViewMode === 'cards'
-                    ? 'bg-[#E07A5F] text-white shadow-2xs'
-                    : 'text-[#718096] hover:text-[#2D3748]'
+                  ? 'bg-[#E07A5F] text-white shadow-2xs'
+                  : 'text-[#718096] hover:text-[#2D3748]'
                   }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
@@ -1023,8 +1020,8 @@ export default function HiraganaStudio({
                 type="button"
                 onClick={() => setWordsViewMode('grid')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${wordsViewMode === 'grid'
-                    ? 'bg-[#2D3748] text-white shadow-2xs'
-                    : 'text-[#718096] hover:text-[#2D3748]'
+                  ? 'bg-[#2D3748] text-white shadow-2xs'
+                  : 'text-[#718096] hover:text-[#2D3748]'
                   }`}
               >
                 <BookOpen className="w-3.5 h-3.5" />
@@ -1078,8 +1075,8 @@ export default function HiraganaStudio({
                           handlePlayWordSound(word);
                         }}
                         className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col gap-2 group relative overflow-hidden ${isSelected
-                            ? 'bg-gradient-to-br from-[#FAF0E6] to-white border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
-                            : 'bg-white hover:bg-stone-50 border-[#EDE8E1]'
+                          ? 'bg-gradient-to-br from-[#FAF0E6] to-white border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
+                          : 'bg-white hover:bg-stone-50 border-[#EDE8E1]'
                           }`}
                       >
                         <div className="flex items-start justify-between gap-1">
@@ -1115,8 +1112,8 @@ export default function HiraganaStudio({
                         <div className="flex items-center justify-end">
                           <div
                             className={`p-1.5 rounded-full transition-colors ${isPlaying
-                                ? 'bg-[#E07A5F] text-white'
-                                : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
+                              ? 'bg-[#E07A5F] text-white'
+                              : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
                               }`}
                           >
                             <Volume2 className="w-3.5 h-3.5" />
