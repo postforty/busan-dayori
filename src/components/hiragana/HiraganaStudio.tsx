@@ -435,11 +435,10 @@ export default function HiraganaStudio({
             <button
               type="button"
               onClick={handleToggleFontStyle}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border shadow-2xs whitespace-nowrap shrink-0 ${
-                fontStyle === 'serif'
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border shadow-2xs whitespace-nowrap shrink-0 ${fontStyle === 'serif'
                   ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
                   : 'bg-white/90 hover:bg-white text-[#4A5568] border-[#EDE8E1] font-sans'
-              }`}
+                }`}
               title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 흘림체(명조)"
             >
               <Type className="w-3 h-3 text-[#E07A5F] shrink-0" />
@@ -580,13 +579,11 @@ export default function HiraganaStudio({
                             }`}
                         >
                           <span
-                            className={`text-lg font-bold leading-none transition-all ${
-                              isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
-                            } ${
-                              fontStyle === 'serif'
+                            className={`text-lg font-bold leading-none transition-all ${isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
+                              } ${fontStyle === 'serif'
                                 ? 'font-jp-mincho'
                                 : 'font-jp-gothic'
-                            }`}
+                              }`}
                             style={{
                               fontFamily:
                                 fontStyle === 'serif'
@@ -618,11 +615,10 @@ export default function HiraganaStudio({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-14 h-14 rounded-2xl bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center text-3xl font-bold text-[#E07A5F] ${
-                    fontStyle === 'serif'
+                  className={`w-14 h-14 rounded-2xl bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center text-3xl font-bold text-[#E07A5F] ${fontStyle === 'serif'
                       ? 'font-jp-mincho'
                       : 'font-jp-gothic'
-                  }`}
+                    }`}
                   style={{
                     fontFamily:
                       fontStyle === 'serif'
@@ -742,17 +738,15 @@ export default function HiraganaStudio({
                     type="button"
                     data-active={isSelected}
                     onClick={() => setSelectedChar(c)}
-                    className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${
-                      isSelected
+                    className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${isSelected
                         ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
                         : isDone
                           ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
                           : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
-                    } ${
-                      fontStyle === 'serif'
+                      } ${fontStyle === 'serif'
                         ? 'font-jp-mincho'
                         : 'font-jp-gothic'
-                    }`}
+                      }`}
                     style={{
                       fontFamily:
                         fontStyle === 'serif'
@@ -790,11 +784,10 @@ export default function HiraganaStudio({
               {/* 배경 연한 가이드 텍스트 */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
                 <span
-                  className={`text-[160px] font-bold text-stone-200 leading-none ${
-                    fontStyle === 'serif'
+                  className={`text-[160px] font-bold text-stone-200 leading-none ${fontStyle === 'serif'
                       ? 'font-jp-mincho'
                       : 'font-jp-gothic'
-                  }`}
+                    }`}
                   style={{
                     fontFamily:
                       fontStyle === 'serif'
@@ -930,11 +923,10 @@ export default function HiraganaStudio({
                           className="bg-white rounded-xl p-3 border border-[#EDE8E1] flex flex-col items-center text-center gap-1"
                         >
                           <span
-                            className={`text-3xl font-bold text-[#E07A5F] ${
-                              fontStyle === 'serif'
+                            className={`text-3xl font-bold text-[#E07A5F] ${fontStyle === 'serif'
                                 ? 'font-jp-mincho'
                                 : 'font-jp-gothic'
-                            }`}
+                              }`}
                             style={{
                               fontFamily:
                                 fontStyle === 'serif'
@@ -1019,11 +1011,10 @@ export default function HiraganaStudio({
               <button
                 type="button"
                 onClick={() => setWordsViewMode('cards')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  wordsViewMode === 'cards'
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${wordsViewMode === 'cards'
                     ? 'bg-[#E07A5F] text-white shadow-2xs'
                     : 'text-[#718096] hover:text-[#2D3748]'
-                }`}
+                  }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>암기 카드</span>
@@ -1031,11 +1022,10 @@ export default function HiraganaStudio({
               <button
                 type="button"
                 onClick={() => setWordsViewMode('grid')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  wordsViewMode === 'grid'
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${wordsViewMode === 'grid'
                     ? 'bg-[#2D3748] text-white shadow-2xs'
                     : 'text-[#718096] hover:text-[#2D3748]'
-                }`}
+                  }`}
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>도감 보기</span>
@@ -1063,14 +1053,14 @@ export default function HiraganaStudio({
                   <span className="text-xs font-bold text-[#718096]">
                     전체 단어 목록 ({MINI_WORDS.length})
                   </span>
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => setWordsViewMode('cards')}
                     className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#FAF0E6] text-[#E07A5F] text-xs font-bold border border-[#F4DDD4] hover:bg-[#F5E5D8] transition-all"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>암기 카드로 외우기</span>
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* 미니 단어 그리드 */}
@@ -1087,11 +1077,10 @@ export default function HiraganaStudio({
                           setSelectedWord(word);
                           handlePlayWordSound(word);
                         }}
-                        className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col gap-2 group relative overflow-hidden ${
-                          isSelected
+                        className={`p-3.5 rounded-2xl border text-left transition-all flex flex-col gap-2 group relative overflow-hidden ${isSelected
                             ? 'bg-gradient-to-br from-[#FAF0E6] to-white border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
                             : 'bg-white hover:bg-stone-50 border-[#EDE8E1]'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start justify-between gap-1">
                           <span className="text-2xl">{word.emoji}</span>
@@ -1103,9 +1092,8 @@ export default function HiraganaStudio({
                         <div>
                           <div className="flex items-baseline gap-1.5">
                             <span
-                              className={`text-lg font-bold text-[#2D3748] tracking-wider group-hover:text-[#E07A5F] transition-colors ${
-                                fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
-                              }`}
+                              className={`text-lg font-bold text-[#2D3748] tracking-wider group-hover:text-[#E07A5F] transition-colors ${fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                                }`}
                               style={{
                                 fontFamily:
                                   fontStyle === 'serif'
@@ -1126,11 +1114,10 @@ export default function HiraganaStudio({
 
                         <div className="flex items-center justify-end">
                           <div
-                            className={`p-1.5 rounded-full transition-colors ${
-                              isPlaying
+                            className={`p-1.5 rounded-full transition-colors ${isPlaying
                                 ? 'bg-[#E07A5F] text-white'
                                 : 'bg-stone-50 group-hover:bg-[#FAF0E6] text-[#718096] group-hover:text-[#E07A5F]'
-                            }`}
+                              }`}
                           >
                             <Volume2 className="w-3.5 h-3.5" />
                           </div>
@@ -1139,40 +1126,6 @@ export default function HiraganaStudio({
                     );
                   })}
                 </div>
-              </div>
-
-              {/* 단어 복습 큰 카드 */}
-              <div className="bg-gradient-to-br from-[#FAF0E6]/80 to-white rounded-3xl p-5 border border-[#F4DDD4] shadow-xs flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl">{selectedWord.emoji}</span>
-                  <div>
-                    <span
-                      className={`text-2xl font-bold text-[#2D3748] tracking-widest ${
-                        fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
-                      }`}
-                      style={{
-                        fontFamily:
-                          fontStyle === 'serif'
-                            ? "'Noto Serif JP', 'Yu Mincho', serif"
-                            : "'Klee One', 'Noto Sans JP', sans-serif"
-                      }}
-                    >
-                      {selectedWord.japanese}
-                    </span>
-                    <p className="text-xs font-bold text-[#E07A5F]">
-                      {selectedWord.koreanMeaning} ({selectedWord.romaji})
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handlePlayWordSound(selectedWord)}
-                  className="px-4 py-2.5 rounded-2xl bg-[#E07A5F] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:bg-[#C55D42] transition-all"
-                >
-                  <Volume2 className="w-4 h-4" />
-                  <span>소리 듣기</span>
-                </button>
               </div>
 
               {/* 다음 단계(Step 5 첫 발화) 이동 CTA */}
