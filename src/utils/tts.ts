@@ -51,6 +51,61 @@ function computeCharTimings(text: string, rate: number): CharTiming[] {
   return timings;
 }
 
+// 브라우저 보이스 목록 비동기 로딩 대비 프리로드
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
+
+/**
+ * 기계음을 피하고 사람에 가까운 고품질 신경망(Natural / Online / Google 등) 음성을 우선적으로 탐색
+ */
+export function getBestVoice(langPrefix: 'ja' | 'ko'): SpeechSynthesisVoice | null {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
+
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+
+  const candidates = voices.filter((v) => {
+    const lang = v.lang.toLowerCase().replace('_', '-');
+    return lang.startsWith(langPrefix);
+  });
+
+  if (candidates.length === 0) return null;
+
+  const scoreVoice = (voice: SpeechSynthesisVoice): number => {
+    const name = voice.name.toLowerCase();
+    let score = 0;
+
+    // 1. 최고 품질: Microsoft Online Natural 신경망 음성 (Edge/Windows 등에서 사람 음성에 근접)
+    if (name.includes('natural')) score += 100;
+    if (name.includes('online')) score += 50;
+
+    // 2. Google 신경망 음성 (Chrome 환경)
+    if (name.includes('google')) score += 40;
+
+    // 3. Apple 고품질 음성 (Siri / Enhanced / Premium)
+    if (name.includes('siri') || name.includes('enhanced') || name.includes('premium')) score += 40;
+
+    // 4. 선호 인명 보이스 가산점
+    if (langPrefix === 'ja') {
+      if (name.includes('nanami') || name.includes('keita') || name.includes('kyoko') || name.includes('otoya')) score += 20;
+    } else if (langPrefix === 'ko') {
+      if (name.includes('sunhi') || name.includes('injoon') || name.includes('yuna')) score += 20;
+    }
+
+    // 5. 구형 로컬 데스크톱 음성 감점 (기계음)
+    if (name.includes('desktop') || name.includes('sapi')) score -= 30;
+
+    if (voice.default) score += 5;
+
+    return score;
+  };
+
+  return [...candidates].sort((a, b) => scoreVoice(b) - scoreVoice(a))[0] || null;
+}
+
 let activeTimer: ReturnType<typeof setInterval> | null = null;
 
 export function stopJapaneseSpeech() {
@@ -81,6 +136,12 @@ export function speakJapanese(
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ja-JP';
   utterance.rate = rate; // 0.65: 초저속, 0.8: 천천히, 0.95: 보통
+
+  // 고품질(Natural/Online/Google) 일본어 보이스 우선 적용
+  const bestVoice = getBestVoice('ja');
+  if (bestVoice) {
+    utterance.voice = bestVoice;
+  }
 
   const timings = computeCharTimings(text, rate);
 
@@ -160,11 +221,10 @@ export function speakKorean(
   utterance.lang = 'ko-KR';
   utterance.rate = rate; // 0.8: 천천히, 0.9~1.0: 보통
 
-  // 브라우저의 ko-KR 음성 우선 탐색
-  const voices = window.speechSynthesis.getVoices();
-  const koreanVoice = voices.find((v) => v.lang.startsWith('ko') || v.lang.includes('KR'));
-  if (koreanVoice) {
-    utterance.voice = koreanVoice;
+  // 고품질(Natural/Online/Google) 한국어 보이스 우선 적용
+  const bestVoice = getBestVoice('ko');
+  if (bestVoice) {
+    utterance.voice = bestVoice;
   }
 
   utterance.onstart = () => {

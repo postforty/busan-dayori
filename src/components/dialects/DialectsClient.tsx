@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Dialect } from '@/types';
+import { speakKorean, stopKoreanSpeech } from '@/utils/tts';
 import { Volume2, Sparkles, Info } from 'lucide-react';
 
 interface DialectsClientProps {
@@ -12,16 +13,18 @@ export default function DialectsClient({ initialDialects }: DialectsClientProps)
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
 
   const handleSpeak = (text: string, id: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 0.9;
-      utterance.onstart = () => setIsPlaying(id);
-      utterance.onend = () => setIsPlaying(null);
-      utterance.onerror = () => setIsPlaying(null);
-      window.speechSynthesis.speak(utterance);
+    if (isPlaying === id) {
+      stopKoreanSpeech();
+      setIsPlaying(null);
+      return;
     }
+
+    speakKorean(
+      text,
+      0.9,
+      () => setIsPlaying(id),
+      () => setIsPlaying(null)
+    );
   };
 
   return (

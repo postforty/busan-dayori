@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Phrase } from '@/types';
+import { speakKorean, stopKoreanSpeech } from '@/utils/tts';
 import {
   Volume2,
   Maximize2,
@@ -37,22 +38,20 @@ export default function PhrasesClient({ initialPhrases }: PhrasesClientProps) {
     ? initialPhrases
     : initialPhrases.filter((p) => p.category === selectedCategory);
 
-  // 한국어 음성 읽어주기 (Web Speech API)
+  // 한국어 음성 읽어주기 (공통 TTS 모듈 연동)
   const handleSpeak = (koreanText: string, id: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(koreanText);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 0.9;
-
-      utterance.onstart = () => setIsPlaying(id);
-      utterance.onend = () => setIsPlaying(null);
-      utterance.onerror = () => setIsPlaying(null);
-
-      window.speechSynthesis.speak(utterance);
-    } else {
-      alert('お使いのブラウザは音声読み上げに対応していません。');
+    if (isPlaying === id) {
+      stopKoreanSpeech();
+      setIsPlaying(null);
+      return;
     }
+
+    speakKorean(
+      koreanText,
+      0.9,
+      () => setIsPlaying(id),
+      () => setIsPlaying(null)
+    );
   };
 
   return (
