@@ -15,7 +15,6 @@ import {
   ArrowRight,
   Type,
   BookOpen,
-  Target,
   Zap,
   X,
   Trash2
@@ -308,7 +307,6 @@ export default function MiniWordFlashcards({
   const unreviewedWords = cardDeck.filter(
     (w) => !knownWordIds.has(w.id) && !confusedWordIds.has(w.id)
   );
-  const unfinishedWords = cardDeck.filter((w) => !knownWordIds.has(w.id));
 
   // 다음 카드로 이동 (마지막 카드에서 다음을 누르면 세션 완료)
   const handleNextCard = useCallback(() => {
@@ -328,12 +326,13 @@ export default function MiniWordFlashcards({
     }, 250);
   }, [currentIndex, cardDeck.length, isSliding]);
 
-  // 🎯 미완료 단어 복습 (헷갈림 + 건너뜀)
-  const handleReviewUnfinished = () => {
+  // ✨ 외운 단어 복습
+  const handleReviewKnown = () => {
     stopJapaneseSpeech();
-    if (unfinishedWords.length === 0) return;
+    const targetWords = MINI_WORDS.filter((w) => knownWordIds.has(w.id));
+    if (targetWords.length === 0) return;
 
-    setCardDeck(unfinishedWords);
+    setCardDeck(targetWords);
     setCurrentIndex(0);
     setIsFlipped(false);
     setIsSessionFinished(false);
@@ -738,35 +737,95 @@ export default function MiniWordFlashcards({
               미니 단어 암기 세션 완료! 🎉
             </h3>
             <p className="text-xs text-[#718096]">
-              배운 히라가나로 실생활 단어 1사이클을 마쳤습니다. 상태별로 모아 복습해보세요.
+              배운 히라가나로 실생활 단어 1사이클을 마쳤습니다. 상태별 카드를 눌러 바로 복습해보세요.
             </p>
           </div>
 
-          {/* 3분할 스코어 카드 (외움 / 헷갈림 / 건너뜀) */}
+          {/* 3분할 스코어 카드 겸 복습 트리거 버튼 (외움 / 헷갈림 / 건너뜀) */}
           <div className="grid grid-cols-3 gap-2.5 max-w-md mx-auto">
-            {/* 1. 외운 단어 */}
-            <div className="p-3 bg-[#FAF0E6] rounded-2xl border border-[#F4DDD4] text-center">
-              <span className="text-[11px] font-bold text-[#E07A5F]">외운 단어</span>
-              <p className="text-xl sm:text-2xl font-black text-[#E07A5F] mt-0.5">
+            {/* 1. 외운 단어 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewKnown}
+              disabled={knownWords.length === 0}
+              className={`p-3 bg-[#FAF0E6] rounded-2xl border border-[#F4DDD4] text-center transition-all group flex flex-col items-center justify-between ${
+                knownWords.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#E8C5B8] active:scale-95'
+              }`}
+              title={knownWords.length > 0 ? `외운 단어 ${knownWords.length}개 복습하기` : '외운 단어가 없습니다'}
+            >
+              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#E07A5F]">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>외운 단어</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#E07A5F] my-0.5">
                 {knownWords.length} <span className="text-xs font-semibold">개</span>
               </p>
-            </div>
+              {knownWords.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#E07A5F] opacity-80 group-hover:opacity-100 transition-opacity">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0]">0개</span>
+              )}
+            </button>
 
-            {/* 2. 헷갈린 단어 */}
-            <div className="p-3 bg-[#F7EBE5] rounded-2xl border border-[#ECCDC2] text-center">
-              <span className="text-[11px] font-bold text-[#C45B40]">헷갈린 단어</span>
-              <p className="text-xl sm:text-2xl font-black text-[#C45B40] mt-0.5">
+            {/* 2. 헷갈린 단어 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewConfused}
+              disabled={confusedWords.length === 0}
+              className={`p-3 bg-[#F7EBE5] rounded-2xl border border-[#ECCDC2] text-center transition-all group flex flex-col items-center justify-between ${
+                confusedWords.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#DFB0A1] active:scale-95'
+              }`}
+              title={confusedWords.length > 0 ? `헷갈린 단어 ${confusedWords.length}개 복습하기` : '헷갈린 단어가 없습니다'}
+            >
+              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#C45B40]">
+                <Zap className="w-3.5 h-3.5" />
+                <span>헷갈린 단어</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#C45B40] my-0.5">
                 {confusedWords.length} <span className="text-xs font-semibold">개</span>
               </p>
-            </div>
+              {confusedWords.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#C45B40] opacity-80 group-hover:opacity-100 transition-opacity">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0]">0개</span>
+              )}
+            </button>
 
-            {/* 3. 건너뛴 단어 */}
-            <div className="p-3 bg-[#F8F6F2] rounded-2xl border border-[#EDE8E1] text-center">
-              <span className="text-[11px] font-bold text-[#718096]">건너뛴 단어</span>
-              <p className="text-xl sm:text-2xl font-black text-[#2D3748] mt-0.5">
+            {/* 3. 건너뛴 단어 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewSkipped}
+              disabled={unreviewedWords.length === 0}
+              className={`p-3 bg-[#F8F6F2] rounded-2xl border border-[#EDE8E1] text-center transition-all group flex flex-col items-center justify-between ${
+                unreviewedWords.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#D6D0C7] active:scale-95'
+              }`}
+              title={unreviewedWords.length > 0 ? `건너뛴 단어 ${unreviewedWords.length}개 복습하기` : '건너뛴 단어가 없습니다'}
+            >
+              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#718096]">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>건너뛴 단어</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#2D3748] my-0.5">
                 {unreviewedWords.length} <span className="text-xs font-semibold">개</span>
               </p>
-            </div>
+              {unreviewedWords.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#718096] opacity-80 group-hover:opacity-100 transition-opacity">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0]">0개</span>
+              )}
+            </button>
           </div>
 
           {/* 3색 복합 진행 바 */}
@@ -836,7 +895,7 @@ export default function MiniWordFlashcards({
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-1.5 max-h-48 overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
                 {((reviewListTab === 'confused' && confusedWords.length > 0)
                   ? confusedWords
                   : (unreviewedWords.length > 0 ? unreviewedWords : confusedWords)
@@ -845,82 +904,40 @@ export default function MiniWordFlashcards({
                     key={item.id}
                     type="button"
                     onClick={() => playCurrentSound(item.japanese)}
-                    className="px-2.5 py-1 bg-white hover:bg-[#FAF9F7] active:scale-95 rounded-xl border border-[#EDE8E1] text-[#2D3748] text-xs font-bold flex items-center gap-1 transition-all shadow-2xs"
+                    className="px-2.5 py-2 bg-white hover:bg-[#FAF9F7] active:scale-98 rounded-xl border border-[#EDE8E1] hover:border-[#E8C5B8] flex items-center justify-between gap-1.5 transition-all shadow-2xs group text-left"
+                    title={`클릭하여 '${item.japanese}' 발음 듣기`}
                   >
-                    <span>{item.emoji}</span>
-                    <span
-                      className={currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}
-                      style={{
-                        fontFamily:
-                          currentFontStyle === 'serif'
-                            ? "'Noto Serif JP', 'Yu Mincho', serif"
-                            : "'Klee One', 'Noto Sans JP', sans-serif"
-                      }}
-                    >
-                      {item.japanese}
-                    </span>
-                    <span className="text-[10px] text-[#718096] font-normal">
-                      ({item.koreanMeaning})
-                    </span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-base shrink-0">{item.emoji}</span>
+                      <div className="flex flex-col min-w-0">
+                        <span
+                          className={`text-xs font-black text-[#2D3748] truncate leading-tight ${
+                            currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                          }`}
+                          style={{
+                            fontFamily:
+                              currentFontStyle === 'serif'
+                                ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                : "'Klee One', 'Noto Sans JP', sans-serif"
+                          }}
+                        >
+                          {item.japanese}
+                        </span>
+                        <span className="text-[10px] text-[#718096] truncate leading-tight mt-0.5 font-medium">
+                          {item.koreanMeaning.replace(/\s*\([a-zA-Z\s]+\)/g, '')}
+                        </span>
+                      </div>
+                    </div>
+                    <Volume2 className="w-3.5 h-3.5 shrink-0 text-[#CBD5E1] group-hover:text-[#E07A5F] group-hover:scale-110 transition-all" />
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 하단 액션 버튼 그룹 (가로 한 줄 복습 버튼 & 보조 버튼) */}
+          {/* 하단 액션 버튼 그룹 (재학습 & 다음 단계 메인 버튼) */}
           <div className="flex flex-col gap-2 pt-2 max-w-md mx-auto">
-            {/* 가로 한 줄 복습 버튼: [헷갈림 복습] [건너뜀 복습] [둘다 복습] */}
-            {unfinishedWords.length > 0 && (
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                {/* 1. 헷갈림 복습 (브릭 틴트 - 스코어 카드와 통일) */}
-                <button
-                  type="button"
-                  onClick={handleReviewConfused}
-                  disabled={confusedWords.length === 0}
-                  className={`py-3 px-1 sm:px-2.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 whitespace-nowrap border ${confusedWords.length === 0
-                      ? 'bg-stone-50 text-stone-300 border-stone-200 cursor-not-allowed'
-                      : 'bg-[#F7EBE5] hover:bg-[#F2DDD3] text-[#C45B40] border-[#ECCDC2] shadow-2xs'
-                    }`}
-                  title={confusedWords.length > 0 ? `헷갈린 단어 ${confusedWords.length}개 복습` : '헷갈린 단어가 없습니다'}
-                >
-                  <Zap className="w-3.5 h-3.5 shrink-0 text-[#C45B40]" />
-                  <span>헷갈림 복습</span>
-                </button>
-
-                {/* 2. 건너뜀 복습 (웜 페이퍼 틴트 - 스코어 카드와 통일) */}
-                <button
-                  type="button"
-                  onClick={handleReviewSkipped}
-                  disabled={unreviewedWords.length === 0}
-                  className={`py-3 px-1 sm:px-2.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 whitespace-nowrap border ${unreviewedWords.length === 0
-                      ? 'bg-stone-50 text-stone-300 border-stone-200 cursor-not-allowed'
-                      : 'bg-[#F8F6F2] hover:bg-[#EFECE5] text-[#556377] border-[#EDE8E1] shadow-2xs'
-                    }`}
-                  title={unreviewedWords.length > 0 ? `건너뛴 단어 ${unreviewedWords.length}개 복습` : '건너뛴 단어가 없습니다'}
-                >
-                  <BookOpen className="w-3.5 h-3.5 shrink-0 text-[#718096]" />
-                  <span>건너뜀 복습</span>
-                </button>
-
-                {/* 3. 둘다 복습 (시그니처 코랄 틴트 - 스코어 카드와 통일) */}
-                <button
-                  type="button"
-                  onClick={handleReviewUnfinished}
-                  disabled={unfinishedWords.length === 0}
-                  className={`py-3 px-1 sm:px-2.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 whitespace-nowrap border ${unfinishedWords.length === 0
-                      ? 'bg-stone-50 text-stone-300 border-stone-200 cursor-not-allowed'
-                      : 'bg-[#FAF0E6] hover:bg-[#F4DDD4] text-[#E07A5F] border-[#F4DDD4] shadow-2xs'
-                    }`}
-                  title={`미완료 단어(헷갈림+건너뜀) ${unfinishedWords.length}개 전체 복습`}
-                >
-                  <Target className="w-3.5 h-3.5 shrink-0 text-[#E07A5F]" />
-                  <span>둘다 복습</span>
-                </button>
-              </div>
-            )}
-
-            {/* 보조 액션 버튼들 */}
+            {/* 메인 액션 버튼들 */}
             <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
               <button
                 type="button"

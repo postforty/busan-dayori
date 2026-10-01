@@ -14,11 +14,10 @@ import {
 import {
   BookOpen,
   Sparkles,
+  GraduationCap,
   FolderArchive,
   Compass,
   ArrowRight,
-  Baby,
-  Pencil,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -187,11 +186,11 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
-                  <Pencil className="w-4 h-4 text-[#E07A5F]" />
+                  <GraduationCap className="w-4 h-4 text-[#E07A5F]" />
                 </div>
                 <div className="text-left min-w-0">
                   <div className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors flex items-center gap-1.5 flex-wrap">
-                    <span>히라가나 캔버스 스튜디오</span>
+                    <span>히라가나 마스터 스튜디오</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
                       Lv.0 입문
                     </span>

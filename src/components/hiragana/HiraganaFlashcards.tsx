@@ -22,7 +22,6 @@ import {
   ArrowRight,
   Type,
   BookOpen,
-  Target,
   Zap,
   X,
   Trash2
@@ -495,14 +494,15 @@ export default function HiraganaFlashcards({
   const unreviewedChars = cardDeck.filter(
     (c) => !knownCharIds.has(c.char) && !confusedCharIds.has(c.char)
   );
-  const unfinishedChars = cardDeck.filter((c) => !knownCharIds.has(c.char));
 
-  // 🎯 미완료 글자 복습 (헷갈림 + 건너뜀)
-  const handleReviewUnfinished = () => {
+  // ✨ 외운 글자 복습
+  const handleReviewKnown = () => {
     stopJapaneseSpeech();
-    if (unfinishedChars.length === 0) return;
+    const knownDeck = ALL_HIRAGANA_CHARS.filter((c) => knownCharIds.has(c.char));
+    if (knownDeck.length === 0) return;
 
-    setCardDeck(unfinishedChars);
+    setFilterType('all');
+    setCardDeck(knownDeck);
     setCurrentIndex(0);
     setIsFlipped(false);
     setIsSessionFinished(false);
@@ -858,35 +858,95 @@ export default function HiraganaFlashcards({
               플래시 암기 세션 완료! 🎉
             </h3>
             <p className="text-xs text-[#718096]">
-              선택한 카드를 모두 학습했습니다. 상태별로 모아 바로 복습해보세요.
+              선택한 카드를 모두 학습했습니다. 상태별 카드를 눌러 바로 복습해보세요.
             </p>
           </div>
 
-          {/* 3분할 스코어 카드 (외움 / 헷갈림 / 건너뜀) */}
+          {/* 3분할 스코어 카드 겸 복습 트리거 버튼 (외움 / 헷갈림 / 건너뜀) */}
           <div className="grid grid-cols-3 gap-2.5 max-w-md mx-auto">
-            {/* 1. 외운 글자 */}
-            <div className="p-3 bg-[#FAF0E6] rounded-2xl border border-[#F4DDD4] text-center">
-              <span className="text-[11px] font-bold text-[#E07A5F]">외운 글자</span>
-              <p className="text-xl sm:text-2xl font-black text-[#E07A5F] mt-0.5">
+            {/* 1. 외운 글자 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewKnown}
+              disabled={knownChars.length === 0}
+              className={`p-3 bg-[#FAF0E6] rounded-2xl border border-[#F4DDD4] text-center transition-all group flex flex-col items-center justify-between ${
+                knownChars.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#E8C5B8] active:scale-95'
+              }`}
+              title={knownChars.length > 0 ? `외운 글자 ${knownChars.length}자 복습하기` : '외운 글자가 없습니다'}
+            >
+              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#E07A5F]">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>외운 글자</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#E07A5F] my-0.5">
                 {knownChars.length} <span className="text-xs font-semibold">자</span>
               </p>
-            </div>
+              {knownChars.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#E07A5F] opacity-80 group-hover:opacity-100 transition-opacity">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0]">0자</span>
+              )}
+            </button>
 
-            {/* 2. 헷갈린 글자 */}
-            <div className="p-3 bg-[#F7EBE5] rounded-2xl border border-[#ECCDC2] text-center">
-              <span className="text-[11px] font-bold text-[#C45B40]">헷갈린 글자</span>
-              <p className="text-xl sm:text-2xl font-black text-[#C45B40] mt-0.5">
+            {/* 2. 헷갈린 글자 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewConfused}
+              disabled={confusedChars.length === 0}
+              className={`p-3 bg-[#F7EBE5] rounded-2xl border border-[#ECCDC2] text-center transition-all group flex flex-col items-center justify-between ${
+                confusedChars.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#DFB0A1] active:scale-95'
+              }`}
+              title={confusedChars.length > 0 ? `헷갈린 글자 ${confusedChars.length}자 복습하기` : '헷갈린 글자가 없습니다'}
+            >
+              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#C45B40]">
+                <Zap className="w-3.5 h-3.5" />
+                <span>헷갈린 글자</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#C45B40] my-0.5">
                 {confusedChars.length} <span className="text-xs font-semibold">자</span>
               </p>
-            </div>
+              {confusedChars.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#C45B40] opacity-80 group-hover:opacity-100 transition-opacity">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0]">0자</span>
+              )}
+            </button>
 
-            {/* 3. 건너뛴 글자 */}
-            <div className="p-3 bg-[#F8F6F2] rounded-2xl border border-[#EDE8E1] text-center">
-              <span className="text-[11px] font-bold text-[#718096]">건너뛴 글자</span>
-              <p className="text-xl sm:text-2xl font-black text-[#2D3748] mt-0.5">
+            {/* 3. 건너뛴 글자 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewSkipped}
+              disabled={unreviewedChars.length === 0}
+              className={`p-3 bg-[#F8F6F2] rounded-2xl border border-[#EDE8E1] text-center transition-all group flex flex-col items-center justify-between ${
+                unreviewedChars.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#D6D0C7] active:scale-95'
+              }`}
+              title={unreviewedChars.length > 0 ? `건너뛴 글자 ${unreviewedChars.length}자 복습하기` : '건너뛴 글자가 없습니다'}
+            >
+              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#718096]">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>건너뛴 글자</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#2D3748] my-0.5">
                 {unreviewedChars.length} <span className="text-xs font-semibold">자</span>
               </p>
-            </div>
+              {unreviewedChars.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#718096] opacity-80 group-hover:opacity-100 transition-opacity">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0]">0자</span>
+              )}
+            </button>
           </div>
 
           {/* 3색 복합 진행 바 */}
@@ -958,7 +1018,7 @@ export default function HiraganaFlashcards({
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-1.5 max-h-48 overflow-y-auto pr-1">
+              <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto pr-1">
                 {((reviewListTab === 'confused' && confusedChars.length > 0)
                   ? confusedChars
                   : (unreviewedChars.length > 0 ? unreviewedChars : confusedChars)
@@ -967,83 +1027,36 @@ export default function HiraganaFlashcards({
                     key={item.char}
                     type="button"
                     onClick={() => playCurrentSound(item.char)}
-                    className="px-2.5 py-1 bg-white hover:bg-[#FAF9F7] active:scale-95 rounded-xl border border-[#EDE8E1] text-[#2D3748] text-xs font-bold flex items-center gap-1 transition-all shadow-2xs"
+                    className="px-2.5 py-2 bg-white hover:bg-[#FAF9F7] active:scale-98 rounded-xl border border-[#EDE8E1] hover:border-[#E8C5B8] flex items-center justify-between gap-1 transition-all shadow-2xs group text-left"
+                    title={`클릭하여 '${item.char}' 발음 듣기`}
                   >
-                    <span
-                      className={currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}
-                      style={{
-                        fontFamily:
-                          currentFontStyle === 'serif'
-                            ? "'Noto Serif JP', 'Yu Mincho', serif"
-                            : "'Klee One', 'Noto Sans JP', sans-serif"
-                      }}
-                    >
-                      {item.char}
-                    </span>
-                    <span className="text-[10px] text-[#718096] font-normal">
-                      ({item.koreanSound})
-                    </span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className={`text-sm font-black text-[#2D3748] ${
+                          currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                        }`}
+                        style={{
+                          fontFamily:
+                            currentFontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
+                        {item.char}
+                      </span>
+                      <span className="text-[10px] text-[#718096] truncate font-medium">
+                        {item.koreanSound}
+                      </span>
+                    </div>
+                    <Volume2 className="w-3.5 h-3.5 shrink-0 text-[#CBD5E1] group-hover:text-[#E07A5F] group-hover:scale-110 transition-all" />
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* 하단 액션 버튼 그룹 (가로 한 줄 복습 버튼 & 보조 버튼) */}
+          {/* 하단 액션 버튼 그룹 (재학습 & 다음 단계 메인 버튼) */}
           <div className="flex flex-col gap-2 pt-2 max-w-md mx-auto">
-            {/* 가로 한 줄 복습 버튼: [헷갈림 복습] [건너뜀 복습] [둘다 복습] */}
-            {unfinishedChars.length > 0 && (
-              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                {/* 1. 헷갈림 복습 (브릭 틴트 - 스코어 카드와 통일) */}
-                <button
-                  type="button"
-                  onClick={handleReviewConfused}
-                  disabled={confusedChars.length === 0}
-                  className={`py-3 px-1 sm:px-2.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 whitespace-nowrap border ${
-                    confusedChars.length === 0
-                      ? 'bg-stone-50 text-stone-300 border-stone-200 cursor-not-allowed'
-                      : 'bg-[#F7EBE5] hover:bg-[#F2DDD3] text-[#C45B40] border-[#ECCDC2] shadow-2xs'
-                  }`}
-                  title={confusedChars.length > 0 ? `헷갈린 글자 ${confusedChars.length}자 복습` : '헷갈린 글자가 없습니다'}
-                >
-                  <Zap className="w-3.5 h-3.5 shrink-0 text-[#C45B40]" />
-                  <span>헷갈림 복습</span>
-                </button>
-
-                {/* 2. 건너뜀 복습 (웜 페이퍼 틴트 - 스코어 카드와 통일) */}
-                <button
-                  type="button"
-                  onClick={handleReviewSkipped}
-                  disabled={unreviewedChars.length === 0}
-                  className={`py-3 px-1 sm:px-2.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 whitespace-nowrap border ${
-                    unreviewedChars.length === 0
-                      ? 'bg-stone-50 text-stone-300 border-stone-200 cursor-not-allowed'
-                      : 'bg-[#F8F6F2] hover:bg-[#EFECE5] text-[#556377] border-[#EDE8E1] shadow-2xs'
-                  }`}
-                  title={unreviewedChars.length > 0 ? `건너뛴 글자 ${unreviewedChars.length}자 복습` : '건너뛴 글자가 없습니다'}
-                >
-                  <BookOpen className="w-3.5 h-3.5 shrink-0 text-[#718096]" />
-                  <span>건너뜀 복습</span>
-                </button>
-
-                {/* 3. 둘다 복습 (시그니처 코랄 틴트 - 스코어 카드와 통일) */}
-                <button
-                  type="button"
-                  onClick={handleReviewUnfinished}
-                  disabled={unfinishedChars.length === 0}
-                  className={`py-3 px-1 sm:px-2.5 rounded-2xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 whitespace-nowrap border ${
-                    unfinishedChars.length === 0
-                      ? 'bg-stone-50 text-stone-300 border-stone-200 cursor-not-allowed'
-                      : 'bg-[#FAF0E6] hover:bg-[#F4DDD4] text-[#E07A5F] border-[#F4DDD4] shadow-2xs'
-                  }`}
-                  title={`미완료 글자(헷갈림+건너뜀) ${unfinishedChars.length}자 전체 복습`}
-                >
-                  <Target className="w-3.5 h-3.5 shrink-0 text-[#E07A5F]" />
-                  <span>둘다 복습</span>
-                </button>
-              </div>
-            )}
-
             {/* 보조 액션 버튼들 */}
             <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
               <button
