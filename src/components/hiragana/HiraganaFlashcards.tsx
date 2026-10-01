@@ -24,7 +24,8 @@ import {
   BookOpen,
   Target,
   Zap,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 
 // 50음도 전체 글자 추출 (46자)
@@ -144,6 +145,9 @@ export default function HiraganaFlashcards({
   const [confusedCharIds, setConfusedCharIds] = useState<Set<string>>(new Set());
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [reviewListTab, setReviewListTab] = useState<'confused' | 'skipped'>('confused');
+
+  // 뱃지 클릭 시 글자 상세/복습 모달 ('known' | 'confused' | null)
+  const [activeBadgeModal, setActiveBadgeModal] = useState<'known' | 'confused' | null>(null);
 
   // 로컬 스토리지 복원 완료 여부 (초기 빈 state가 저장 데이터를 덮어쓰지 않도록 방어)
   const [isLoaded, setIsLoaded] = useState(false);
@@ -559,11 +563,66 @@ export default function HiraganaFlashcards({
     });
   };
 
+  // 모달 대상 글자 목록
+  const modalChars = activeBadgeModal === 'known'
+    ? ALL_HIRAGANA_CHARS.filter((c) => knownCharIds.has(c.char))
+    : activeBadgeModal === 'confused'
+      ? ALL_HIRAGANA_CHARS.filter((c) => confusedCharIds.has(c.char))
+      : [];
+
+  // 모달에서 글자 복습 시작
+  const handleStartReviewFromModal = () => {
+    if (modalChars.length === 0) return;
+    stopJapaneseSpeech();
+    setCardDeck(modalChars);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsSessionFinished(false);
+    setActiveBadgeModal(null);
+  };
+
+  // 모달 내 단일 글자 제거
+  const handleRemoveCharFromModal = (charChar: string) => {
+    if (activeBadgeModal === 'known') {
+      setKnownCharIds((prev) => {
+        const next = new Set(prev);
+        next.delete(charChar);
+        if (next.size === 0) setActiveBadgeModal(null);
+        return next;
+      });
+    } else if (activeBadgeModal === 'confused') {
+      setConfusedCharIds((prev) => {
+        const next = new Set(prev);
+        next.delete(charChar);
+        if (next.size === 0) setActiveBadgeModal(null);
+        return next;
+      });
+    }
+  };
+
+  // 모달 내 전체 초기화
+  const handleResetFromModal = () => {
+    if (activeBadgeModal === 'known') {
+      handleResetKnownChars();
+    } else if (activeBadgeModal === 'confused') {
+      handleResetConfusedChars();
+    }
+    setActiveBadgeModal(null);
+  };
+
   // 키보드 단축키 지원 (스페이스바: 뒤집기, 화살표/1/2번)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // 폼 입력 중일 땐 무시
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      if (activeBadgeModal) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setActiveBadgeModal(null);
+        }
         return;
       }
 
@@ -599,7 +658,7 @@ export default function HiraganaFlashcards({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleFlip, handleGradeCard, handlePrevCard, handleNextCard, isFlipped]);
+  }, [handleFlip, handleGradeCard, handlePrevCard, handleNextCard, isFlipped, activeBadgeModal]);
 
   // 진행률 계산
   const progressPercent = Math.round(
@@ -694,7 +753,7 @@ export default function HiraganaFlashcards({
             <div className="flex items-center gap-1.5 text-[11px] font-bold">
               <button
                 type="button"
-                onClick={handleResetKnownChars}
+                onClick={() => setActiveBadgeModal('known')}
                 disabled={knownCharIds.size === 0}
                 className={`flex items-center gap-0.5 bg-[#FAF0E6] text-[#E07A5F] px-2 py-0.5 rounded-full border border-[#F4DDD4] transition-all ${
                   knownCharIds.size > 0
@@ -703,7 +762,7 @@ export default function HiraganaFlashcards({
                 }`}
                 title={
                   knownCharIds.size > 0
-                    ? `외운 글자 ${knownCharIds.size}자 (클릭 시 기록 초기화)`
+                    ? `외운 글자 ${knownCharIds.size}자 (클릭 시 목록 확인 및 복습)`
                     : '외운 글자 0자'
                 }
               >
@@ -712,7 +771,7 @@ export default function HiraganaFlashcards({
               </button>
               <button
                 type="button"
-                onClick={handleResetConfusedChars}
+                onClick={() => setActiveBadgeModal('confused')}
                 disabled={confusedCharIds.size === 0}
                 className={`flex items-center gap-0.5 bg-[#F7EBE5] text-[#C45B40] px-2 py-0.5 rounded-full border border-[#ECCDC2] transition-all ${
                   confusedCharIds.size > 0
@@ -721,7 +780,7 @@ export default function HiraganaFlashcards({
                 }`}
                 title={
                   confusedCharIds.size > 0
-                    ? `헷갈린 글자 ${confusedCharIds.size}자 (클릭 시 기록 초기화)`
+                    ? `헷갈린 글자 ${confusedCharIds.size}자 (클릭 시 목록 확인 및 복습)`
                     : '헷갈린 글자 0자'
                 }
               >
@@ -1238,6 +1297,146 @@ export default function HiraganaFlashcards({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 뱃지 상세 모달 (외운 글자 / 헷갈린 글자 목록 및 복습/초기화) */}
+      {activeBadgeModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200"
+          onClick={() => setActiveBadgeModal(null)}
+        >
+          <div
+            className="bg-white rounded-3xl p-5 max-w-sm w-full border border-[#EDE8E1] shadow-xl space-y-4 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 모달 헤더 */}
+            <div className="flex items-center justify-between border-b border-[#EDE8E1] pb-3 shrink-0">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeBadgeModal === 'known'
+                      ? 'bg-[#FAF0E6] text-[#E07A5F]'
+                      : 'bg-[#F7EBE5] text-[#C45B40]'
+                  }`}
+                >
+                  {activeBadgeModal === 'known' ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <RotateCcw className="w-4 h-4" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-[#2D3748] flex items-center gap-1.5">
+                    <span>
+                      {activeBadgeModal === 'known' ? '외운 글자' : '헷갈린 글자'}
+                    </span>
+                    <span className="text-xs font-semibold text-[#718096]">
+                      ({modalChars.length}자)
+                    </span>
+                  </h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveBadgeModal(null)}
+                className="text-[#A0AEC0] hover:text-[#718096] p-1.5 rounded-full transition-colors"
+                title="닫기"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* 설명 */}
+            <p className="text-xs text-[#718096] shrink-0">
+              {activeBadgeModal === 'known'
+                ? '외운 글자로 분류된 목록입니다. 발음을 듣거나 복습할 수 있습니다.'
+                : '학습 중 헷갈렸던 글자 목록입니다. 다시 복습해보세요.'}
+            </p>
+
+            {/* 글자 리스트 */}
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[120px]">
+              {modalChars.length === 0 ? (
+                <div className="py-8 text-center text-xs text-[#A0AEC0]">
+                  목록에 글자가 없습니다.
+                </div>
+              ) : (
+                modalChars.map((item) => (
+                  <div
+                    key={item.char}
+                    className="flex items-center justify-between p-2.5 rounded-2xl bg-[#FAF9F7] border border-[#EDE8E1] hover:bg-[#F4EFEA]/60 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
+                      <span
+                        className={`text-xl font-black text-[#2D3748] shrink-0 w-7 text-center ${
+                          currentFontStyle === 'serif' ? 'font-serif' : 'font-sans'
+                        }`}
+                      >
+                        {item.char}
+                      </span>
+                      <div className="flex items-baseline gap-1.5 min-w-0 flex-1 truncate">
+                        <span className="font-bold text-xs text-[#2D3748] shrink-0">
+                          [{item.koreanSound}]
+                        </span>
+                        <span className="text-[10px] text-[#A0AEC0] font-mono shrink-0">
+                          {item.romaji}
+                        </span>
+                        <span className="text-[11px] font-semibold text-[#718096] truncate">
+                          {item.row}행
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {/* 발음 듣기 */}
+                      <button
+                        type="button"
+                        onClick={() => playCurrentSound(item.char)}
+                        className="p-1.5 rounded-xl bg-white hover:bg-stone-100 text-[#718096] hover:text-[#E07A5F] border border-[#EDE8E1] transition-colors"
+                        title="발음 듣기"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                      {/* 개별 제외 */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCharFromModal(item.char)}
+                        className="p-1.5 rounded-xl bg-white hover:bg-rose-50 text-[#A0AEC0] hover:text-rose-500 border border-[#EDE8E1] transition-colors"
+                        title="목록에서 제외"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* 하단 액션 버튼 */}
+            <div className="pt-2 border-t border-[#EDE8E1] flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleResetFromModal}
+                disabled={modalChars.length === 0}
+                className="flex-1 py-2.5 px-3 rounded-2xl bg-[#FAF9F7] hover:bg-rose-50 text-[#718096] hover:text-rose-600 border border-[#EDE8E1] hover:border-rose-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-40"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>초기화</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleStartReviewFromModal}
+                disabled={modalChars.length === 0}
+                className="flex-1 py-2.5 px-3 rounded-2xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>복습</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

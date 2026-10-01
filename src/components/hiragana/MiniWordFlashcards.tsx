@@ -17,7 +17,8 @@ import {
   BookOpen,
   Target,
   Zap,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 
 // 로컬 스토리지 키 및 저장 구조
@@ -96,6 +97,9 @@ export default function MiniWordFlashcards({
   const [confusedWordIds, setConfusedWordIds] = useState<Set<string>>(new Set());
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [reviewListTab, setReviewListTab] = useState<'confused' | 'skipped'>('confused');
+
+  // 뱃지 클릭 시 단어 상세/복습 모달 ('known' | 'confused' | null)
+  const [activeBadgeModal, setActiveBadgeModal] = useState<'known' | 'confused' | null>(null);
 
   // 실행 취소(Undo) 지원 토스트 상태
   const [toast, setToast] = useState<{
@@ -421,10 +425,65 @@ export default function MiniWordFlashcards({
     });
   };
 
+  // 모달 대상 단어 목록
+  const modalWords = activeBadgeModal === 'known'
+    ? MINI_WORDS.filter((w) => knownWordIds.has(w.id))
+    : activeBadgeModal === 'confused'
+      ? MINI_WORDS.filter((w) => confusedWordIds.has(w.id))
+      : [];
+
+  // 모달에서 단어 복습 시작
+  const handleStartReviewFromModal = () => {
+    if (modalWords.length === 0) return;
+    stopJapaneseSpeech();
+    setCardDeck(modalWords);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsSessionFinished(false);
+    setActiveBadgeModal(null);
+  };
+
+  // 모달 내 단일 단어 제거
+  const handleRemoveWordFromModal = (wordId: string) => {
+    if (activeBadgeModal === 'known') {
+      setKnownWordIds((prev) => {
+        const next = new Set(prev);
+        next.delete(wordId);
+        if (next.size === 0) setActiveBadgeModal(null);
+        return next;
+      });
+    } else if (activeBadgeModal === 'confused') {
+      setConfusedWordIds((prev) => {
+        const next = new Set(prev);
+        next.delete(wordId);
+        if (next.size === 0) setActiveBadgeModal(null);
+        return next;
+      });
+    }
+  };
+
+  // 모달 내 전체 초기화
+  const handleResetFromModal = () => {
+    if (activeBadgeModal === 'known') {
+      handleResetKnownWords();
+    } else if (activeBadgeModal === 'confused') {
+      handleResetConfusedWords();
+    }
+    setActiveBadgeModal(null);
+  };
+
   // 키보드 단축키 지원 (스페이스바: 뒤집기, 1/2번 또는 화살표 키)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      if (activeBadgeModal) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setActiveBadgeModal(null);
+        }
         return;
       }
 
@@ -463,7 +522,7 @@ export default function MiniWordFlashcards({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleFlip, handleGradeCard, handlePrevCard, handleNextCard, playCurrentSound, isFlipped]);
+  }, [handleFlip, handleGradeCard, handlePrevCard, handleNextCard, playCurrentSound, isFlipped, activeBadgeModal]);
 
   // 스와이프 제스처 핸들링
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
@@ -576,7 +635,7 @@ export default function MiniWordFlashcards({
             <div className="flex items-center gap-1.5 text-[11px] font-bold">
               <button
                 type="button"
-                onClick={handleResetKnownWords}
+                onClick={() => setActiveBadgeModal('known')}
                 disabled={knownWordIds.size === 0}
                 className={`flex items-center gap-0.5 bg-[#FAF0E6] text-[#E07A5F] px-2 py-0.5 rounded-full border border-[#F4DDD4] transition-all ${knownWordIds.size > 0
                     ? 'hover:bg-[#F4DDD4] hover:opacity-90 active:scale-95 cursor-pointer shadow-2xs'
@@ -584,7 +643,7 @@ export default function MiniWordFlashcards({
                   }`}
                 title={
                   knownWordIds.size > 0
-                    ? `외운 단어 ${knownWordIds.size}개 (클릭 시 기록 초기화)`
+                    ? `외운 단어 ${knownWordIds.size}개 (클릭 시 목록 확인 및 복습)`
                     : '외운 단어 0개'
                 }
               >
@@ -593,7 +652,7 @@ export default function MiniWordFlashcards({
               </button>
               <button
                 type="button"
-                onClick={handleResetConfusedWords}
+                onClick={() => setActiveBadgeModal('confused')}
                 disabled={confusedWordIds.size === 0}
                 className={`flex items-center gap-0.5 bg-[#F7EBE5] text-[#C45B40] px-2 py-0.5 rounded-full border border-[#ECCDC2] transition-all ${confusedWordIds.size > 0
                     ? 'hover:bg-[#F2DDD3] hover:opacity-90 active:scale-95 cursor-pointer shadow-2xs'
@@ -601,7 +660,7 @@ export default function MiniWordFlashcards({
                   }`}
                 title={
                   confusedWordIds.size > 0
-                    ? `헷갈린 단어 ${confusedWordIds.size}개 (클릭 시 기록 초기화)`
+                    ? `헷갈린 단어 ${confusedWordIds.size}개 (클릭 시 목록 확인 및 복습)`
                     : '헷갈린 단어 0개'
                 }
               >
@@ -1098,6 +1157,144 @@ export default function MiniWordFlashcards({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 뱃지 상세 모달 (외운 단어 / 헷갈린 단어 목록 및 복습/초기화) */}
+      {activeBadgeModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200"
+          onClick={() => setActiveBadgeModal(null)}
+        >
+          <div
+            className="bg-white rounded-3xl p-5 max-w-sm w-full border border-[#EDE8E1] shadow-xl space-y-4 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 모달 헤더 */}
+            <div className="flex items-center justify-between border-b border-[#EDE8E1] pb-3 shrink-0">
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeBadgeModal === 'known'
+                      ? 'bg-[#FAF0E6] text-[#E07A5F]'
+                      : 'bg-[#F7EBE5] text-[#C45B40]'
+                  }`}
+                >
+                  {activeBadgeModal === 'known' ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <RotateCcw className="w-4 h-4" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-[#2D3748] flex items-center gap-1.5">
+                    <span>
+                      {activeBadgeModal === 'known' ? '외운 단어' : '헷갈린 단어'}
+                    </span>
+                    <span className="text-xs font-semibold text-[#718096]">
+                      ({modalWords.length}개)
+                    </span>
+                  </h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveBadgeModal(null)}
+                className="text-[#A0AEC0] hover:text-[#718096] p-1.5 rounded-full transition-colors"
+                title="닫기"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* 설명 */}
+            <p className="text-xs text-[#718096] shrink-0">
+              {activeBadgeModal === 'known'
+                ? '외운 단어로 분류된 목록입니다. 발음을 듣거나 복습할 수 있습니다.'
+                : '학습 중 헷갈렸던 단어 목록입니다. 다시 복습해보세요.'}
+            </p>
+
+            {/* 단어 리스트 */}
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[120px]">
+              {modalWords.length === 0 ? (
+                <div className="py-8 text-center text-xs text-[#A0AEC0]">
+                  목록에 단어가 없습니다.
+                </div>
+              ) : (
+                modalWords.map((word) => (
+                  <div
+                    key={word.id}
+                    className="flex items-center justify-between p-2.5 rounded-2xl bg-[#FAF9F7] border border-[#EDE8E1] hover:bg-[#F4EFEA]/60 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
+                      <span className="text-base shrink-0">{word.emoji}</span>
+                      <div className="flex items-baseline gap-2 min-w-0 flex-1 truncate">
+                        <span
+                          className={`font-black text-sm text-[#2D3748] shrink-0 ${
+                            currentFontStyle === 'serif' ? 'font-serif' : 'font-sans'
+                          }`}
+                        >
+                          {word.japanese}
+                        </span>
+                        <span className="text-[10px] text-[#A0AEC0] font-mono shrink-0">
+                          {word.romaji}
+                        </span>
+                        <span className="text-xs font-semibold text-[#718096] truncate">
+                          {word.koreanMeaning}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      {/* 발음 듣기 */}
+                      <button
+                        type="button"
+                        onClick={() => playCurrentSound(word.japanese)}
+                        className="p-1.5 rounded-xl bg-white hover:bg-stone-100 text-[#718096] hover:text-[#E07A5F] border border-[#EDE8E1] transition-colors"
+                        title="발음 듣기"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                      </button>
+                      {/* 개별 제외 */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveWordFromModal(word.id)}
+                        className="p-1.5 rounded-xl bg-white hover:bg-rose-50 text-[#A0AEC0] hover:text-rose-500 border border-[#EDE8E1] transition-colors"
+                        title="목록에서 제외"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* 하단 액션 버튼 */}
+            <div className="pt-2 border-t border-[#EDE8E1] flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleResetFromModal}
+                disabled={modalWords.length === 0}
+                className="flex-1 py-2.5 px-3 rounded-2xl bg-[#FAF9F7] hover:bg-rose-50 text-[#718096] hover:text-rose-600 border border-[#EDE8E1] hover:border-rose-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-40"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>초기화</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleStartReviewFromModal}
+                disabled={modalWords.length === 0}
+                className="flex-1 py-2.5 px-3 rounded-2xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>복습</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
