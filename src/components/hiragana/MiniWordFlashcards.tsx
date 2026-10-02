@@ -736,38 +736,41 @@ export default function MiniWordFlashcards({
             <h3 className="text-xl font-black text-[#2D3748]">
               미니 단어 암기 세션 완료! 🎉
             </h3>
-            <p className="text-xs text-[#718096]">
+            <p className="text-xs text-[#718096] break-keep">
               배운 히라가나로 실생활 단어 1사이클을 마쳤습니다. 상태별 카드를 눌러 바로 복습해보세요.
             </p>
           </div>
 
           {/* 3분할 스코어 카드 겸 복습 트리거 버튼 (외움 / 헷갈림 / 건너뜀) */}
-          <div className="grid grid-cols-3 gap-2.5 max-w-md mx-auto">
+          <div className="grid grid-cols-3 gap-2 sm:gap-2.5 max-w-md mx-auto">
             {/* 1. 외운 단어 복습 카드 */}
             <button
               type="button"
               onClick={handleReviewKnown}
               disabled={knownWords.length === 0}
-              className={`p-3 bg-[#FAF0E6] rounded-2xl border border-[#F4DDD4] text-center transition-all group flex flex-col items-center justify-between ${
+              className={`p-2.5 sm:p-3 bg-[#FAF0E6] rounded-2xl border border-[#F4DDD4] text-center transition-all group flex flex-col items-center justify-between min-w-0 ${
                 knownWords.length === 0
                   ? 'opacity-50 cursor-not-allowed'
                   : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#E8C5B8] active:scale-95'
               }`}
               title={knownWords.length > 0 ? `외운 단어 ${knownWords.length}개 복습하기` : '외운 단어가 없습니다'}
             >
-              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#E07A5F]">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>외운 단어</span>
+              <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs font-bold text-[#E07A5F] whitespace-nowrap">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  <span className="sm:hidden">외움</span>
+                  <span className="hidden sm:inline">외운 단어</span>
+                </span>
               </div>
-              <p className="text-xl sm:text-2xl font-black text-[#E07A5F] my-0.5">
-                {knownWords.length} <span className="text-xs font-semibold">개</span>
+              <p className="text-xl sm:text-2xl font-black text-[#E07A5F] my-0.5 whitespace-nowrap">
+                {knownWords.length}<span className="text-xs font-semibold ml-0.5">개</span>
               </p>
               {knownWords.length > 0 ? (
-                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#E07A5F] opacity-80 group-hover:opacity-100 transition-opacity">
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#E07A5F] opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   복습하기 ›
                 </span>
               ) : (
-                <span className="text-[10px] text-[#A0AEC0]">0개</span>
+                <span className="text-[10px] text-[#A0AEC0] whitespace-nowrap">없음</span>
               )}
             </button>
 
@@ -776,26 +779,29 @@ export default function MiniWordFlashcards({
               type="button"
               onClick={handleReviewConfused}
               disabled={confusedWords.length === 0}
-              className={`p-3 bg-[#F7EBE5] rounded-2xl border border-[#ECCDC2] text-center transition-all group flex flex-col items-center justify-between ${
+              className={`p-2.5 sm:p-3 bg-[#F7EBE5] rounded-2xl border border-[#ECCDC2] text-center transition-all group flex flex-col items-center justify-between min-w-0 ${
                 confusedWords.length === 0
                   ? 'opacity-50 cursor-not-allowed'
                   : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#DFB0A1] active:scale-95'
               }`}
               title={confusedWords.length > 0 ? `헷갈린 단어 ${confusedWords.length}개 복습하기` : '헷갈린 단어가 없습니다'}
             >
-              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#C45B40]">
-                <Zap className="w-3.5 h-3.5" />
-                <span>헷갈린 단어</span>
+              <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs font-bold text-[#C45B40] whitespace-nowrap">
+                <Zap className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  <span className="sm:hidden">헷갈림</span>
+                  <span className="hidden sm:inline">헷갈린 단어</span>
+                </span>
               </div>
-              <p className="text-xl sm:text-2xl font-black text-[#C45B40] my-0.5">
-                {confusedWords.length} <span className="text-xs font-semibold">개</span>
+              <p className="text-xl sm:text-2xl font-black text-[#C45B40] my-0.5 whitespace-nowrap">
+                {confusedWords.length}<span className="text-xs font-semibold ml-0.5">개</span>
               </p>
               {confusedWords.length > 0 ? (
-                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#C45B40] opacity-80 group-hover:opacity-100 transition-opacity">
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#C45B40] opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   복습하기 ›
                 </span>
               ) : (
-                <span className="text-[10px] text-[#A0AEC0]">0개</span>
+                <span className="text-[10px] text-[#A0AEC0] whitespace-nowrap">없음</span>
               )}
             </button>
 
@@ -804,26 +810,29 @@ export default function MiniWordFlashcards({
               type="button"
               onClick={handleReviewSkipped}
               disabled={unreviewedWords.length === 0}
-              className={`p-3 bg-[#F8F6F2] rounded-2xl border border-[#EDE8E1] text-center transition-all group flex flex-col items-center justify-between ${
+              className={`p-2.5 sm:p-3 bg-[#F8F6F2] rounded-2xl border border-[#EDE8E1] text-center transition-all group flex flex-col items-center justify-between min-w-0 ${
                 unreviewedWords.length === 0
                   ? 'opacity-50 cursor-not-allowed'
                   : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#D6D0C7] active:scale-95'
               }`}
               title={unreviewedWords.length > 0 ? `건너뛴 단어 ${unreviewedWords.length}개 복습하기` : '건너뛴 단어가 없습니다'}
             >
-              <div className="flex items-center justify-center gap-1 text-[11px] font-bold text-[#718096]">
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>건너뛴 단어</span>
+              <div className="flex items-center justify-center gap-1 text-[11px] sm:text-xs font-bold text-[#718096] whitespace-nowrap">
+                <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  <span className="sm:hidden">건너뜀</span>
+                  <span className="hidden sm:inline">건너뛴 단어</span>
+                </span>
               </div>
-              <p className="text-xl sm:text-2xl font-black text-[#2D3748] my-0.5">
-                {unreviewedWords.length} <span className="text-xs font-semibold">개</span>
+              <p className="text-xl sm:text-2xl font-black text-[#2D3748] my-0.5 whitespace-nowrap">
+                {unreviewedWords.length}<span className="text-xs font-semibold ml-0.5">개</span>
               </p>
               {unreviewedWords.length > 0 ? (
-                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#718096] opacity-80 group-hover:opacity-100 transition-opacity">
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#718096] opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   복습하기 ›
                 </span>
               ) : (
-                <span className="text-[10px] text-[#A0AEC0]">0개</span>
+                <span className="text-[10px] text-[#A0AEC0] whitespace-nowrap">없음</span>
               )}
             </button>
           </div>
