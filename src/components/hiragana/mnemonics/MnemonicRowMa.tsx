@@ -1,0 +1,656 @@
+import { MnemonicSvgChildProps } from './types';
+import MnemonicCharOverlay from './MnemonicCharOverlay';
+
+export default function MnemonicRowMa({ char, fontFamily }: MnemonicSvgChildProps) {
+  if (char === 'ま') {
+    // ま: 마술 (실크햇 모자와 트럼프 카드, 흰 장갑 손의 마술봉에서 터지는 마법 별빛, 뿅! 튀어나온 마술 토끼와 펄럭이는 망토!)
+    // ⚠️ 1획은 실크햇 모자 챙·레드 리본·골드 버클, 2획은 흰 장갑이 쥔 마술봉 & 마법 연기 폭발, 3획 상단은 실크햇·트럼프 카드, 3획 루프는 양 앞발을 얹은 마술 토끼, 3획 뻗침은 레드 안감 마술 망토와 완벽 일치!
+    return (
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* 1. 배경 신비로운 마술 스테이지 조명 (Mystic Magic Stage) */}
+        <circle cx="100" cy="80" r="68" fill="#FAF5FF" />
+        <circle cx="100" cy="80" r="52" fill="#F3E8FF" opacity="0.6" />
+        {/* 바닥 스테이지 원형 조명 */}
+        <ellipse cx="100" cy="138" rx="62" ry="7" fill="#E9D5FF" opacity="0.5" />
+        <ellipse cx="100" cy="138" rx="44" ry="4" fill="#DDD6FE" opacity="0.7" />
+
+        {/* 2. 상단 마술 실크햇 (Top Hat) & 트럼프 카드 2장 (Playing Cards) */}
+        {/* 트럼프 카드 1: 하트(♥) 카드 (왼쪽 뒤로 기울어져 꽂힘) */}
+        <g transform="rotate(-22 78 28)">
+          <rect x="68" y="14" width="18" height="26" rx="2.5" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.2" />
+          {/* 하트 심볼 */}
+          <path
+            d="M 77 22 C 77 19.5 73.5 19.5 73.5 22 C 73.5 24.5 77 27.5 77 27.5 C 77 27.5 80.5 24.5 80.5 22 C 80.5 19.5 77 19.5 77 22 Z"
+            fill="#EF4444"
+          />
+          <circle cx="71.5" cy="18" r="1.1" fill="#EF4444" />
+          <circle cx="82.5" cy="36" r="1.1" fill="#EF4444" />
+        </g>
+
+        {/* 트럼프 카드 2: 에이스 스페이드(♠) 카드 (그 앞쪽에 비스듬히 꽂힘) */}
+        <g transform="rotate(-6 86 28)">
+          <rect x="76" y="14" width="18" height="26" rx="2.5" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="1.2" />
+          {/* 스페이드 심볼 */}
+          <path
+            d="M 85 20 C 85 22.8 81.5 24.5 81.5 26 C 81.5 27.5 83.5 27.5 84 26.8 L 83.5 29 L 86.5 29 L 86 26.8 C 86.5 27.5 88.5 27.5 88.5 26 C 88.5 24.5 85 22.8 85 20 Z"
+            fill="#0F172A"
+          />
+          <circle cx="79.5" cy="18" r="1.1" fill="#0F172A" />
+          <circle cx="90.5" cy="36" r="1.1" fill="#0F172A" />
+        </g>
+
+        {/* 3획 상단부: 마술사의 대형 블랙 실크햇 (Top Hat 크라운) */}
+        {/* 모자 원통 바디 (글자 획보다 훨씬 넓어 좌우로 뚜렷이 보임!) */}
+        <path
+          d="M 86 48 L 89 18 C 89 14 127 14 127 18 L 130 48 Z"
+          fill="#1E293B"
+          stroke="#0F172A"
+          strokeWidth="1.8"
+        />
+        {/* 모자 상단 뚜껑 타원 */}
+        <ellipse cx="108" cy="18" rx="19" ry="4" fill="#334155" />
+        {/* 모자 실크 광택 하이라이트 라인 */}
+        <line x1="96" y1="21" x2="94" y2="45" stroke="#64748B" strokeWidth="2" strokeLinecap="round" />
+
+        {/* 3. 글자 'ま' 1획: 와이드 실크햇 모자 챙(Brim) & 레드 리본 & 골드 버클 */}
+        {/* 좌우로 100px 시원하게 펼쳐진 타원형 모자 챙 */}
+        <path
+          d="M 56 50 C 74 43 142 43 160 50 C 148 56 68 56 56 50 Z"
+          fill="#0F172A"
+        />
+        {/* 모자를 두른 선명한 레드 실크 리본 띠 */}
+        <path
+          d="M 85 47 C 98 44 118 44 131 47"
+          stroke="#EF4444"
+          strokeWidth="5.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 87 47 C 99 45 117 45 129 47"
+          stroke="#F87171"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+        {/* 중앙 황금 버클 (Gold Buckle) */}
+        <rect x="104" y="44" width="8" height="6" rx="1.2" fill="#F59E0B" stroke="#D97706" strokeWidth="0.8" />
+        <rect x="106" y="45.5" width="4" height="3" rx="0.6" fill="#1E293B" />
+
+        {/* 4. 글자 'ま' 2획: 마술 지팡이(Magic Wand) + 화이트 장갑 손 + 마법 연기 폭발 & 별빛 */}
+        {/* 마술 지팡이 본체 (화면을 가로지르는 롱 완드 x=38 ~ 164) */}
+        <line x1="38" y1="74" x2="164" y2="74" stroke="#0F172A" strokeWidth="5.2" strokeLinecap="round" />
+        {/* 지팡이 양끝 화이트 팁 */}
+        <line x1="38" y1="74" x2="48" y2="74" stroke="#F8FAFC" strokeWidth="5.2" strokeLinecap="round" />
+        <line x1="154" y1="74" x2="164" y2="74" stroke="#F8FAFC" strokeWidth="5.2" strokeLinecap="round" />
+        {/* 골든 악센트 링 */}
+        <line x1="48" y1="71" x2="48" y2="77" stroke="#F59E0B" strokeWidth="1.6" />
+        <line x1="154" y1="71" x2="154" y2="77" stroke="#F59E0B" strokeWidth="1.6" />
+
+        {/* 4-1. 좌측 (x=40~65): 지팡이를 쥐고 있는 마술사의 화이트 실크 장갑 (White Glove Hand) */}
+        {/* 블랙 턱시도 소매 커프스 */}
+        <rect x="40" y="66" width="7" height="16" rx="2" fill="#1E293B" stroke="#0F172A" strokeWidth="1" />
+        <line x1="47" y1="67" x2="47" y2="81" stroke="#FFFFFF" strokeWidth="1.5" />
+        {/* 장갑 낀 손바닥 */}
+        <ellipse cx="54" cy="74" rx="7" ry="6.5" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.3" />
+        {/* 지팡이를 감싼 손가락들 */}
+        <circle cx="58" cy="71" r="3" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.1" />
+        <circle cx="60" cy="74" r="3" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.1" />
+        <circle cx="58" cy="77" r="3" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.1" />
+        <circle cx="53" cy="71" r="2.8" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1" />
+
+        {/* 4-2. 우측 (x=150~182): 지팡이 끝에서 펑! 터지는 마법 연기 구름 (Magic Smoke Puff) */}
+        <circle cx="164" cy="72" r="8.5" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1.3" />
+        <circle cx="173" cy="67" r="6.5" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1.3" />
+        <circle cx="174" cy="77" r="7" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1.3" />
+        <circle cx="160" cy="80" r="5.5" fill="#FFFFFF" opacity="0.9" />
+
+        {/* 4-3. 지팡이 끝 대형 황금 마법 별빛 (Sparkle ✦) */}
+        <path
+          d="M 170 60 L 172.5 69 L 181 72 L 172.5 75 L 170 84 L 167.5 75 L 159 72 L 167.5 69 Z"
+          fill="#F59E0B"
+        />
+        <path
+          d="M 170 64 L 171.8 69.5 L 177 72 L 171.8 74.5 L 170 80 L 168.2 74.5 L 163 72 L 168.2 69.5 Z"
+          fill="#FDE047"
+        />
+        {/* 주변 마법 별빛 & 빛가루 */}
+        <path d="M 152 56 L 153.5 60 L 157 61.5 L 153.5 63 L 152 67 L 150.5 63 L 147 61.5 L 150.5 60 Z" fill="#FBBF24" />
+        <path d="M 182 86 L 183.5 89 L 187 90.5 L 183.5 92 L 182 95 L 180.5 92 L 177 90.5 L 180.5 89 Z" fill="#FBBF24" />
+        <circle cx="162" cy="57" r="1.6" fill="#FDE047" />
+        <circle cx="180" cy="58" r="1.8" fill="#F59E0B" />
+        <circle cx="158" cy="90" r="1.3" fill="#FBBF24" />
+
+        {/* 5. 글자 'ま' 3획 하단: 모자에서 튀어나와 난간을 쥔 귀여운 마술 토끼 (Magic Rabbit) */}
+        {/* 쫑긋한 하얀 두 귀 (위로 높고 시원하게 솟음 y=62~95) */}
+        {/* 왼쪽 귀 */}
+        <path
+          d="M 88 95 C 82 76 86 63 92 65 C 97 66 98 81 96 95 Z"
+          fill="#FFFFFF"
+          stroke="#CBD5E1"
+          strokeWidth="1.6"
+        />
+        <path d="M 89 92 C 85 78 88 69 92 70 C 94 71 95 82 94 92 Z" fill="#FDA4AF" />
+        {/* 오른쪽 귀 */}
+        <path
+          d="M 118 95 C 120 76 126 63 132 65 C 136 67 132 82 126 95 Z"
+          fill="#FFFFFF"
+          stroke="#CBD5E1"
+          strokeWidth="1.6"
+        />
+        <path d="M 120 92 C 122 78 126 69 130 70 C 132 72 129 82 124 92 Z" fill="#FDA4AF" />
+
+        {/* 큼직하고 포근한 토끼 얼굴 본체 (글자 루프 바깥으로 뺨이 풍성하게 드러남!) */}
+        <ellipse
+          cx="106"
+          cy="106"
+          rx="23"
+          ry="19"
+          fill="#FFFFFF"
+          stroke="#CBD5E1"
+          strokeWidth="1.6"
+        />
+
+        {/* 똘망똘망한 눈망울 (하이라이트 포함) */}
+        <ellipse cx="98" cy="103" rx="2.5" ry="3" fill="#1E293B" />
+        <circle cx="97.2" cy="101.8" r="1" fill="#FFFFFF" />
+        <ellipse cx="114" cy="103" rx="2.5" ry="3" fill="#1E293B" />
+        <circle cx="113.2" cy="101.8" r="1" fill="#FFFFFF" />
+
+        {/* 앙증맞은 핑크 삼각 코 & 'ㅅ'자 웃는 입 */}
+        <polygon points="104.5,107 107.5,107 106,109.5" fill="#F43F5E" />
+        <path d="M 103 110 Q 106 112 106 109.5 Q 106 112 109 110" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+        {/* 사랑스러운 핑크 볼터치 */}
+        <ellipse cx="93" cy="108" rx="3.5" ry="2" fill="#FDA4AF" />
+        <ellipse cx="119" cy="108" rx="3.5" ry="2" fill="#FDA4AF" />
+
+        {/* 뺨 수염 양옆 2줄씩 */}
+        <line x1="88" y1="106" x2="80" y2="104" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+        <line x1="88" y1="109" x2="81" y2="111" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+        <line x1="124" y1="106" x2="132" y2="104" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+        <line x1="124" y1="109" x2="131" y2="111" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" />
+
+        {/* 토끼의 양 앞발 (글자 루프 테두리를 꼭 쥔 채 고개를 쏙 내민 연출!) */}
+        <ellipse cx="85" cy="116" rx="5.5" ry="4" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.3" transform="rotate(-15 85 116)" />
+        <line x1="83" y1="116" x2="83" y2="119" stroke="#E2E8F0" strokeWidth="1" />
+        <line x1="86" y1="116" x2="86" y2="119" stroke="#E2E8F0" strokeWidth="1" />
+
+        <ellipse cx="127" cy="116" rx="5.5" ry="4" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.3" transform="rotate(15 127 116)" />
+        <line x1="126" y1="116" x2="126" y2="119" stroke="#E2E8F0" strokeWidth="1" />
+        <line x1="129" y1="116" x2="129" y2="119" stroke="#E2E8F0" strokeWidth="1" />
+
+        {/* 토끼 턱 아래 앙증맞은 레드 나비넥타이 (Bowtie) */}
+        <polygon points="101,116 106,119 101,122" fill="#EF4444" />
+        <polygon points="111,116 106,119 111,122" fill="#EF4444" />
+        <circle cx="106" cy="119" r="2" fill="#DC2626" />
+
+        {/* 6. 글자 'ま' 3획 우하향 뻗침: 펄럭이는 레드 안감의 마술 망토 (Magic Cape) */}
+        {/* 망토 블랙 겉감 */}
+        <path
+          d="M 120 110 C 132 112 148 118 162 128 C 156 136 138 132 122 122 Z"
+          fill="#0F172A"
+        />
+        {/* 망토 선명한 레드 실크 안감 */}
+        <path
+          d="M 126 114 C 136 118 152 124 164 129 C 158 135 142 133 128 124 Z"
+          fill="#EF4444"
+        />
+        {/* 망토 끝자락 골든 태슬 장식 */}
+        <circle cx="164" cy="129" r="2.2" fill="#F59E0B" />
+        <line x1="164" y1="129" x2="167" y2="134" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* 공중 흩날리는 신비로운 마법 가루 */}
+        <circle cx="62" cy="46" r="1.5" fill="#F59E0B" />
+        <circle cx="148" cy="38" r="1.5" fill="#FBBF24" />
+        <circle cx="76" cy="100" r="1.2" fill="#FDE047" />
+        <circle cx="136" cy="102" r="1.2" fill="#FDE047" />
+
+        {/* 글자 'ま' 오버레이 */}
+        <MnemonicCharOverlay char="ま" fontFamily={fontFamily} x="108" y="118" />
+      </svg>
+    );
+  }
+
+  if (char === 'み') {
+    // み: 미로 (질서정연한 미로 벽을 단숨에 뚫고 탈출하는 성공 경로와 출구 깃발!)
+    // ⚠️ 1획은 입구에서 루프를 돌아 출구로 빠져나가는 유려한 탈출 경로, 2획은 출구의 승리 깃대·깃발과 1:1 완벽 일치!
+    return (
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* 1. 미로 보드 베이스 플랫폼 (도톰하고 단정한 라운드 보드) */}
+        {/* 하단 그림자 베이스 */}
+        <rect
+          x="38"
+          y="28"
+          width="134"
+          height="116"
+          rx="14"
+          fill="#EDE9FE"
+        />
+        {/* 메인 보드 상판 */}
+        <rect
+          x="38"
+          y="24"
+          width="134"
+          height="116"
+          rx="14"
+          fill="#FAF5FF"
+          stroke="#DDD6FE"
+          strokeWidth="1.8"
+        />
+
+        {/* 2. 질서정연하고 입체적인 미로 벽면들 (Maze Walls) */}
+        {/* 외곽 가이드 벽 (입구와 출구는 열려 있음) */}
+        <path
+          d="M 72 32 L 48 32 C 44 32 44 32 44 36 L 44 130 C 44 134 44 134 48 134 L 162 134 C 166 134 166 134 166 130 L 166 118"
+          stroke="#C4B5FD"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M 94 32 L 162 32 C 166 32 166 32 166 36 L 166 104"
+          stroke="#C4B5FD"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* 내부 미로 벽면들 (길을 형성하고 막다른 골목을 만드는 구조) */}
+        {/* 상단 가로 벽 */}
+        <path d="M 64 48 L 94 48" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 112 44 L 148 44" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        {/* 우측 상단 세로벽 */}
+        <path d="M 148 44 L 148 70" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        {/* 중앙 상단 사선/세로 벽 (대각선 통로 가이드) */}
+        <path d="M 128 58 L 128 86" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 104 62 L 104 88" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 60 64 L 84 64" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 60 64 L 60 92" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        {/* 좌하단 루프 방 외곽 벽 */}
+        <path d="M 58 106 L 58 122 M 72 90 L 72 100" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        {/* 하단 메인 탈출 통로 상하 벽 */}
+        <path d="M 88 98 L 120 98" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        <path d="M 92 124 L 146 124" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+        {/* 우측 막다른 골목 벽 */}
+        <path d="M 148 84 L 148 108" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
+
+        {/* 3. START: 좌상단 입구 초록색 깃발 */}
+        <g id="start-flag">
+          {/* 깃대 */}
+          <line x1="80" y1="44" x2="80" y2="28" stroke="#15803D" strokeWidth="1.5" strokeLinecap="round" />
+          {/* 초록 깃발 */}
+          <path d="M 80 28 L 70 33 L 80 38 Z" fill="#22C55E" stroke="#16A34A" strokeWidth="1" strokeLinejoin="round" />
+          <circle cx="80" cy="27" r="1.5" fill="#FACC15" />
+        </g>
+
+        {/* 4. 글자 'み' 1획: 미로 탈출 성공 경로 (The Golden Escape Route) */}
+        {/* 입구(82,40) -> 꺾임(116,56) -> 대각선(76,110) -> 루프(70~96) -> 출구 직진(148,114) */}
+        <path
+          d="M 82 40 
+             L 116 56 
+             L 76 110 
+             C 66 114 66 124 74 126 
+             C 84 126 94 116 88 108 
+             C 84 104 78 108 78 114 
+             L 152 114"
+          stroke="#A855F7"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* 탈출 성공 경로 내부 하이라이트 빛 라인 */}
+        <path
+          d="M 82 40 L 116 56 L 76 110 C 66 114 66 124 74 126 C 84 126 94 116 88 108 C 84 104 78 108 78 114 L 152 114"
+          stroke="#E9D5FF"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* 경로 위 탐험 마커 볼 (입구 구슬) */}
+        <circle cx="82" cy="40" r="3" fill="#F59E0B" stroke="#B45309" strokeWidth="1" />
+
+        {/* 5. 글자 'み' 2획: 미로 출구 승리의 깃대 & 펄럭이는 레드 깃발 (GOAL / FINISH) */}
+        {/* 2획 궤적을 이루는 메탈 깃대 (우상단 136,72 -> 좌하단 114,128) */}
+        <path
+          d="M 136 72 L 114 128"
+          stroke="#475569"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        {/* 깃대 꼭대기 골든 피니얼 (볼) */}
+        <circle cx="137" cy="71" r="2.8" fill="#F59E0B" stroke="#D97706" strokeWidth="0.8" />
+
+        {/* 펄럭이는 선명한 레드 결승 깃발 (FINISH Flag) */}
+        <path
+          d="M 136 72 
+             C 144 68 154 74 162 70 
+             L 154 84 
+             C 146 88 138 82 131 86 Z"
+          fill="#EF4444"
+          stroke="#DC2626"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        {/* 깃발 펄럭임 음영 */}
+        <path
+          d="M 144 72 C 150 74 156 72 162 70 L 154 84 C 148 86 142 84 136 86 Z"
+          fill="#F87171"
+          opacity="0.6"
+        />
+
+        {/* 6. 탈출 축하 반짝이 별빛 (Victory Sparkles) */}
+        <path d="M 158 104 L 160 98 L 162 104 L 168 106 L 162 108 L 160 114 L 158 108 L 152 106 Z" fill="#FBBF24" />
+        <circle cx="166" cy="118" r="1.5" fill="#F59E0B" />
+
+        {/* 글자 'み' 오버레이 */}
+        <MnemonicCharOverlay char="み" fontFamily={fontFamily} x="108" y="118" />
+      </svg>
+    );
+  }
+
+  if (char === 'む') {
+    // む: 무용 (공중으로 우아하게 도약하는 발레리나의 그랑 주테 도약, 풍성한 3단 핑크 튀튀와 토슈즈 실크 리본!)
+    // ⚠️ 1획은 양옆으로 펼친 우아한 양팔(Port de bras), 2획 상단은 올림머리·티아라와 코르셋 레오타드, 2획 루프는 무릎을 굽힌 앞다리(Attitude)와 핑크 토슈즈, 2획 우상향 곡선은 공중으로 뻗은 뒷다리(Grand Jeté), 3획은 흩날리는 실크 리본과 꽃잎과 1:1 완벽 일치!
+    return (
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* 1. 환상적인 무용 무대 스포트라이트 (Ballet Stage Spotlight) */}
+        <circle cx="104" cy="84" r="66" fill="#FDF2F8" />
+        <circle cx="104" cy="84" r="50" fill="#FCE7F3" opacity="0.65" />
+        {/* 무대 바닥 반사광 타원 */}
+        <ellipse cx="104" cy="138" rx="62" ry="7" fill="#FBCFE8" opacity="0.45" />
+        <ellipse cx="104" cy="138" rx="42" ry="4" fill="#F472B6" opacity="0.3" />
+
+        {/* 2. 발레리나 우아한 올림머리(Bun Hair) & 핑크 티아라 (글자 2획 상단 왼쪽) */}
+        {/* 풍성한 번 헤어 */}
+        <circle cx="78" cy="27" r="7.5" fill="#78350F" />
+        {/* 핑크 발레 티아라 & 골드 큐빅 장식 */}
+        <ellipse cx="80" cy="30" rx="6" ry="2" fill="#F472B6" />
+        <circle cx="78" cy="27" r="1.5" fill="#FDE047" />
+
+        {/* 발레리나 예쁜 얼굴 윤곽 */}
+        <ellipse cx="83" cy="38" rx="9" ry="10" fill="#FFE4E6" stroke="#FDA4AF" strokeWidth="1.2" />
+        {/* 밤색 앞머리 & 옆머리 */}
+        <path d="M 76 33 C 80 30 88 32 90 37 C 88 38 84 36 78 37 Z" fill="#78350F" />
+        {/* 감미롭게 눈을 감고 미소 짓는 표정 */}
+        <path d="M 79 38 Q 82 41 84 38" stroke="#881337" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+        <line x1="84" y1="38" x2="86" y2="36" stroke="#881337" strokeWidth="1" strokeLinecap="round" />
+        <path d="M 80 43 Q 83 45 85 43" stroke="#F43F5E" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+        {/* 발그레한 핑크 볼터치 */}
+        <ellipse cx="78" cy="41" rx="2.5" ry="1.5" fill="#FDA4AF" opacity="0.85" />
+
+        {/* 가녀린 목선 */}
+        <path d="M 82 47 L 82 56 L 87 56 L 87 47 Z" fill="#FFE4E6" />
+
+        {/* 3. 글자 'む' 1획: 우아하게 활짝 펼친 양팔 (Port de bras) */}
+        {/* 왼쪽 팔 (위로 부드럽게 곡선을 그리며 들린 팔과 손끝) */}
+        <path
+          d="M 82 54 C 70 52 56 50 48 46"
+          stroke="#FFE4E6"
+          strokeWidth="4.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 48 46 C 44 44 42 42 40 43 C 41 45 44 47 46 48"
+          fill="#FFE4E6"
+          stroke="#FDA4AF"
+          strokeWidth="0.8"
+        />
+        {/* 왼쪽 손목 핑크 리본 팔찌 */}
+        <line x1="46" y1="44" x2="48" y2="48" stroke="#F472B6" strokeWidth="1.6" strokeLinecap="round" />
+
+        {/* 오른쪽 팔 (시원하게 사선으로 뻗은 팔과 섬세한 손끝) */}
+        <path
+          d="M 86 54 C 100 52 116 53 128 55"
+          stroke="#FFE4E6"
+          strokeWidth="4.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 128 55 C 132 56 135 55 137 57"
+          stroke="#FDA4AF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path d="M 78 55 Q 85 58 92 55" stroke="#FDA4AF" strokeWidth="1" fill="none" />
+
+        {/* 4. 코르셋 레오타드 & 화사하고 풍성한 3단 레이스 튀튀 (Tutu 스커트) */}
+        {/* 슬림한 핑크 코르셋 상의 (Leotard) */}
+        <path
+          d="M 80 56 L 80 72 C 80 74 90 74 90 72 L 90 56 Z"
+          fill="#F472B6"
+          stroke="#DB2777"
+          strokeWidth="1.1"
+        />
+        <ellipse cx="85" cy="57" rx="4" ry="2" fill="#FDF2F8" />
+
+        {/* 3단 튀튀 스커트 - 좌우로 풍성하게 퍼져 글자 밖으로 100% 돋보임! */}
+        {/* 1단 하부 쉬폰 프릴 (너비 84px) */}
+        <path
+          d="M 52 84 C 70 78 108 78 134 84 C 140 90 136 97 124 98 C 98 95 80 95 56 98 C 46 94 46 88 52 84 Z"
+          fill="#FFF1F2"
+          stroke="#FDA4AF"
+          strokeWidth="1.2"
+          strokeDasharray="4 2"
+        />
+        {/* 2단 중간 레이스 튀튀 (너비 74px) */}
+        <path
+          d="M 58 79 C 72 73 104 73 126 79 C 134 84 130 91 120 92 C 100 89 80 89 62 92 C 54 90 52 82 58 79 Z"
+          fill="#FCE7F3"
+          stroke="#F472B6"
+          strokeWidth="1.3"
+        />
+        {/* 3단 상단 메인 튀튀 (너비 60px) */}
+        <path
+          d="M 66 74 C 76 68 96 68 116 74 C 122 78 118 84 112 85 C 96 82 82 82 66 85 C 60 83 60 76 66 74 Z"
+          fill="#F472B6"
+          stroke="#E11D48"
+          strokeWidth="1.3"
+        />
+        {/* 튀튀 허리 벨트 & 골드 버클 장식 */}
+        <polygon points="85,73 82,70 88,70" fill="#BE185D" />
+        <circle cx="85" cy="73" r="1.8" fill="#FDE047" />
+
+        {/* 5. 글자 'む' 2획 하단 루프: 우아하게 무릎을 굽힌 앞다리 (Attitude) & 핑크 토슈즈 */}
+        {/* 다리 타이즈 (화이트 & 핑크 림) */}
+        <path
+          d="M 84 88 C 76 96 72 104 72 108 C 72 114 78 116 86 114 C 92 112 94 106 94 98"
+          stroke="#FFFFFF"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M 84 88 C 76 96 72 104 72 108 C 72 114 78 116 86 114 C 92 112 94 106 94 98"
+          stroke="#FDA4AF"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+        {/* 앞발 핑크 토슈즈 (Pointe Shoe) */}
+        <ellipse cx="86" cy="114" rx="5" ry="3.2" fill="#F472B6" stroke="#E11D48" strokeWidth="1" />
+        {/* 발목 X자 새틴 리본끈 */}
+        <line x1="80" y1="109" x2="86" y2="114" stroke="#DB2777" strokeWidth="1.2" />
+        <line x1="86" y1="109" x2="80" y2="114" stroke="#DB2777" strokeWidth="1.2" />
+
+        {/* 6. 글자 'む' 2획 하단 바닥 ~ 우상향 곡선: 공중으로 솟구친 뒷다리 (Grand Jeté 도약) */}
+        <path
+          d="M 88 88 C 104 100 120 114 136 102 C 142 98 146 88 148 78"
+          stroke="#FFFFFF"
+          strokeWidth="5.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 88 88 C 104 100 120 114 136 102 C 142 98 146 88 148 78"
+          stroke="#FDA4AF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        {/* 뒷발 발끝 포인(Pointe) 핑크 토슈즈 */}
+        <path d="M 145 80 L 150 72 L 153 75 L 148 83 Z" fill="#F472B6" stroke="#E11D48" strokeWidth="1" />
+        {/* 뒷발목 X자 리본끈 */}
+        <line x1="144" y1="83" x2="149" y2="77" stroke="#DB2777" strokeWidth="1.2" />
+        <line x1="148" y1="83" x2="143" y2="77" stroke="#DB2777" strokeWidth="1.2" />
+
+        {/* 7. 글자 'む' 3획 우상단 점: 공중에 흩날리는 토슈즈 실크 리본 (Fluttering Ribbon) */}
+        <path
+          d="M 148 74 C 155 68 152 56 142 54 C 136 52 138 46 146 48"
+          stroke="#F472B6"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M 148 74 C 155 68 152 56 142 54"
+          stroke="#FDA4AF"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <polygon points="146,48 149,44 144,45" fill="#DB2777" />
+
+        {/* 8. 공중에 흩날리는 벚꽃 꽃잎들과 황금빛 멜로디 음표 */}
+        {/* 벚꽃 꽃잎들 */}
+        <path d="M 158 50 C 162 46 166 50 162 54 C 158 54 156 52 158 50 Z" fill="#FB7185" />
+        <path d="M 64 42 C 67 38 71 41 68 45 C 65 45 63 43 64 42 Z" fill="#FDA4AF" />
+        <path d="M 128 122 C 131 119 135 122 132 125 C 129 125 127 124 128 122 Z" fill="#FDA4AF" />
+
+        {/* 황금빛 음표 & 스파클 별빛 */}
+        <path d="M 163 93 L 163 83 L 169 81 L 169 85 L 165 86 L 165 93 Z" fill="#F59E0B" />
+        <circle cx="161" cy="93" r="2.2" fill="#F59E0B" />
+        <path d="M 52 108 L 53.5 104 L 55 108 L 59 109.5 L 55 111 L 53.5 115 L 52 111 L 48 109.5 Z" fill="#FBBF24" />
+        <circle cx="154" cy="38" r="1.5" fill="#FBBF24" />
+
+        {/* 글자 'む' 오버레이 */}
+        <MnemonicCharOverlay char="む" fontFamily={fontFamily} x="108" y="118" />
+      </svg>
+    );
+  }
+
+  if (char === 'め') {
+    // め: 메기 (타원형 머리와 양옆으로 뻗은 메기 수염선)
+    // ⚠️ ぬ(누에: 꼬리 매듭 있음)와 명확히 구분되는 꼬리 매듭 없는 유려한 삐침 강조!
+    return (
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* 메기 둥근 몸체 실루엣 */}
+        <ellipse
+          cx="108"
+          cy="92"
+          rx="38"
+          ry="28"
+          fill="#FEFCE8"
+          opacity="0.5"
+          stroke="#FEF08A"
+          strokeWidth="1.5"
+        />
+
+        {/* 메기 눈망울 2개 */}
+        <circle cx="82" cy="74" r="3" fill="#1C1917" />
+        <circle cx="81" cy="73" r="1" fill="#FFFFFF" />
+
+        {/* 메기 수염선 (글자 め의 양 갈래 교차 획과 완벽 조화) */}
+        <path
+          d="M 82 82 C 60 76 46 94 42 108"
+          stroke="#78716C"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 94 86 C 120 74 154 94 168 114"
+          stroke="#78716C"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+
+        {/* 연노랑 가슴 지느러미 (포인트 컬러) */}
+        <path
+          d="M 124 108 C 136 102 144 116 138 126 Z"
+          fill="#FEF08A"
+          stroke="#EAB308"
+          strokeWidth="1.3"
+        />
+
+        {/* 보글보글 물방울 2개 */}
+        <circle cx="58" cy="62" r="3" fill="#38BDF8" />
+        <circle cx="68" cy="52" r="2" fill="#38BDF8" />
+
+        {/* 글자 'め' 오버레이 */}
+        <MnemonicCharOverlay char="め" fontFamily={fontFamily} x="108" y="118" />
+      </svg>
+    );
+  }
+
+  if (char === 'も') {
+    // も: 모자 (둥근 챙 모자의 중앙 띠와 가로지르는 리본 장식선)
+    return (
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* 모자 둥근 크라운(머리 덮개) 돔 실루엣 */}
+        <path
+          d="M 64 88 C 64 42 146 42 146 88 Z"
+          fill="#F0FDFA"
+          stroke="#A8A29E"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+
+        {/* 모자 넓은 챙 곡선 (하단 타원 챙) */}
+        <ellipse
+          cx="105"
+          cy="94"
+          rx="58"
+          ry="16"
+          fill="#FFFFFF"
+          stroke="#78716C"
+          strokeWidth="2"
+        />
+
+        {/* 모자 민트 리본 띠 (포인트 컬러: 글자 も의 가로 획 영역) */}
+        <path
+          d="M 68 82 C 86 78 124 78 142 82 L 143 88 C 124 84 86 84 67 88 Z"
+          fill="#CCFBF1"
+          stroke="#2DD4BF"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+
+        {/* 모자 옆 리본 매듭 삐침 장식 */}
+        <g id="hat-ribbon">
+          <ellipse cx="66" cy="85" rx="5" ry="3" fill="#2DD4BF" />
+          <path d="M 64 86 Q 56 94 52 102 M 66 87 Q 62 98 60 106" stroke="#0D9488" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+
+        {/* 글자 'も' 오버레이 */}
+        <MnemonicCharOverlay char="も" fontFamily={fontFamily} x="106" y="118" />
+      </svg>
+    );
+  }
+
+  return null;
+}

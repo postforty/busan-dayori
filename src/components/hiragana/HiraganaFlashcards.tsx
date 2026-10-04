@@ -26,6 +26,8 @@ import {
   X,
   Trash2
 } from 'lucide-react';
+import HiraganaMnemonicSvg from './HiraganaMnemonicSvg';
+import { MNEMONIC_DATA } from './mnemonics/types';
 
 // 50음도 전체 글자 추출 (46자)
 const ALL_HIRAGANA_CHARS: HiraganaChar[] = HIRAGANA_GRID.flatMap((r) =>
@@ -1201,49 +1203,61 @@ export default function HiraganaFlashcards({
                   </div>
 
                   {/* 중앙 정답 상세 정보 */}
-                  <div className="my-auto py-2 flex flex-col items-center gap-2 max-w-sm">
-                    <div className="flex items-baseline gap-3">
-                      <span
-                        className={`text-5xl font-bold text-[#2D3748] transition-all duration-150 ${currentFontStyle === 'serif'
-                          ? 'font-jp-mincho'
-                          : 'font-jp-gothic'
-                          }`}
-                        style={{
-                          fontFamily:
-                            currentFontStyle === 'serif'
-                              ? "'Noto Serif JP', 'Yu Mincho', serif"
-                              : "'Klee One', 'Noto Sans JP', sans-serif"
-                        }}
-                      >
-                        {currentCard.char}
-                      </span>
-                      <div className="text-left">
-                        <span className="text-3xl font-black text-[#E07A5F]">
-                          [{currentCard.koreanSound}]
-                        </span>
-                        <span className="text-sm font-bold text-[#718096] ml-2">
-                          {currentCard.romaji}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 한국인 발음 팁이 있을 경우 */}
-                    {currentCard.soundTip && (
-                      <div className="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-2.5 text-left text-[11px] text-amber-900 leading-relaxed flex items-start gap-2 mt-1">
-                        <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                        <span>{currentCard.soundTip}</span>
-                      </div>
-                    )}
-
-                    {/* 획순 가이드 */}
-                    {currentCard.strokeGuide && (
-                      <div className="bg-stone-50 border border-stone-200/80 rounded-2xl p-2.5 text-left text-[11px] text-[#718096] leading-relaxed w-full flex items-start gap-2">
-                        <Pencil className="w-3.5 h-3.5 text-[#718096] shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold text-[#4A5568] mr-1">획순:</span>
-                          <span>{currentCard.strokeGuide}</span>
+                  <div className="my-auto py-2 flex flex-col items-center gap-2 max-w-sm w-full">
+                    {/* 50음도 연상 기억법(Visual Mnemonic) SVG 그림 카드 표시 */}
+                    {MNEMONIC_DATA[currentCard.char] ? (
+                      <HiraganaMnemonicSvg
+                        char={currentCard.char}
+                        koreanSound={currentCard.koreanSound}
+                        romaji={currentCard.romaji}
+                        fontStyle={currentFontStyle}
+                      />
+                    ) : (
+                      <>
+                        <div className="flex items-baseline gap-3">
+                          <span
+                            className={`text-5xl font-bold text-[#2D3748] transition-all duration-150 ${currentFontStyle === 'serif'
+                              ? 'font-jp-mincho'
+                              : 'font-jp-gothic'
+                              }`}
+                            style={{
+                              fontFamily:
+                                currentFontStyle === 'serif'
+                                  ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                  : "'Klee One', 'Noto Sans JP', sans-serif"
+                            }}
+                          >
+                            {currentCard.char}
+                          </span>
+                          <div className="text-left">
+                            <span className="text-3xl font-black text-[#E07A5F]">
+                              [{currentCard.koreanSound}]
+                            </span>
+                            <span className="text-sm font-bold text-[#718096] ml-2">
+                              {currentCard.romaji}
+                            </span>
+                          </div>
                         </div>
-                      </div>
+
+                        {/* 한국인 발음 팁이 있을 경우 */}
+                        {currentCard.soundTip && (
+                          <div className="bg-amber-50/90 border border-amber-200/80 rounded-2xl p-2.5 text-left text-[11px] text-amber-900 leading-relaxed flex items-start gap-2 mt-1">
+                            <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                            <span>{currentCard.soundTip}</span>
+                          </div>
+                        )}
+
+                        {/* 획순 가이드 */}
+                        {currentCard.strokeGuide && (
+                          <div className="bg-stone-50 border border-stone-200/80 rounded-2xl p-2.5 text-left text-[11px] text-[#718096] leading-relaxed w-full flex items-start gap-2">
+                            <Pencil className="w-3.5 h-3.5 text-[#718096] shrink-0 mt-0.5" />
+                            <div>
+                              <span className="font-bold text-[#4A5568] mr-1">획순:</span>
+                              <span>{currentCard.strokeGuide}</span>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
 
