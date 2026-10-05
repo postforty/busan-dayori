@@ -34,7 +34,7 @@ export const MNEMONIC_DATA: Record<string, MnemonicItem> = {
 
   // た행
   た: { char: 'た', word: '타조', highlightIndex: 0, romaji: 'ta' },
-  ち: { char: 'ち', word: '치약', highlightIndex: 0, romaji: 'chi' },
+  ち: { char: 'ち', word: '5·치ㄹ', highlightIndex: 2, romaji: 'chi' },
   つ: { char: 'つ', word: '부츠', highlightIndex: 1, romaji: 'tsu' },
   て: { char: 'て', word: '테이프', highlightIndex: 0, romaji: 'te' },
   と: { char: 'と', word: '토끼', highlightIndex: 0, romaji: 'to' },
