@@ -803,7 +803,8 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'れ') {
-    // れ: 애벌레 (나뭇잎 위를 꿈틀꿈틀 기어가는 애벌레의 마디마디 굴곡선)
+    // れ: 애벌레 (나뭇가지 기둥과 싱그러운 뽕잎 위를 꿈틀꿈틀 기어가며 아삭아삭 잎을 갉아먹는 귀여운 연두빛 애벌레!)
+    // ⚠️ 글자 1획은 수직 나뭇가지 기둥, 2획은 등허리를 둥글게 치켜세우며 꿈틀거리는 통통한 애벌레의 마디마디 굴곡선 및 우측으로 삐친 머리·더듬이와 1:1 완벽 일체화!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -811,34 +812,225 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 애벌레가 기어가는 나뭇가지 수직 기둥 (글자 れ 왼쪽 수직선 매칭) */}
+        <defs>
+          {/* 싱그러운 나뭇잎 그라디언트 */}
+          <linearGradient id="leaf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#DCFCE7" />
+            <stop offset="100%" stopColor="#86EFAC" />
+          </linearGradient>
+
+          {/* 애벌레 몸통 입체 그라디언트 (라임 그린) */}
+          <linearGradient id="caterpillar-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#86EFAC" />
+            <stop offset="60%" stopColor="#4ADE80" />
+            <stop offset="100%" stopColor="#22C55E" />
+          </linearGradient>
+
+          {/* 애벌레 머리 그라디언트 (화사하고 밝은 애플그린) */}
+          <linearGradient id="caterpillar-head" x1="20%" y1="10%" x2="80%" y2="90%">
+            <stop offset="0%" stopColor="#BBF7D0" />
+            <stop offset="70%" stopColor="#4ADE80" />
+            <stop offset="100%" stopColor="#22C55E" />
+          </linearGradient>
+
+          {/* 나뭇가지 그라디언트 */}
+          <linearGradient id="branch-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#A16207" />
+            <stop offset="50%" stopColor="#CA8A04" />
+            <stop offset="100%" stopColor="#854D0E" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 배경: 부드러운 햇살 & 정원 분위기 */}
+        <circle cx="165" cy="30" r="15" fill="#FEF08A" opacity="0.35" />
+
+        {/* 2. 싱싱하고 커다란 나뭇잎 (애벌레가 올라타서 아삭아삭 갉아먹은 홈 자국이 선명한 잎사귀!) */}
+        {/* 나뭇잎 그림자 */}
         <path
-          d="M 68 34 L 68 128"
-          stroke="#78716C"
-          strokeWidth="2.5"
-          strokeLinecap="round"
+          d="M 68 85 C 95 62 142 60 176 86 C 162 120 115 130 68 112 Z"
+          fill="#E2E8F0"
+          opacity="0.3"
         />
 
-        {/* 싱싱한 연두색 뽕잎 실루엣 */}
+        {/* 메인 나뭇잎 바디 (가장자리에 와삭와삭 갉아먹은 반원형 베어문 자국 3곳!) */}
         <path
-          d="M 70 82 C 114 62 152 74 164 102 C 146 114 108 118 70 108"
-          fill="#DCFCE7"
-          stroke="#86EFAC"
+          d="M 68 82 
+             C 92 56 136 54 166 72
+             C 163 78 166 84 172 86
+             C 167 92 169 99 175 102
+             C 158 126 108 128 68 108
+             Z"
+          fill="url(#leaf-grad)"
+          stroke="#4ADE80"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+
+        {/* 나뭇잎 섬세한 잎맥 (주 잎맥 & 곁 잎맥) */}
+        <path
+          d="M 68 86 C 105 84 138 90 168 90"
+          stroke="#22C55E"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          opacity="0.7"
+        />
+        <path d="M 98 84 C 112 74 126 70 138 70" stroke="#22C55E" strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+        <path d="M 116 86 C 130 96 144 102 154 104" stroke="#22C55E" strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+        <path d="M 82 85 C 92 78 104 76 112 76" stroke="#22C55E" strokeWidth="1.1" strokeLinecap="round" opacity="0.4" />
+        <path d="M 134 89 C 146 82 156 82 164 84" stroke="#22C55E" strokeWidth="1.1" strokeLinecap="round" opacity="0.4" />
+
+        {/* 갉아먹은 잎가에 튄 작은 나뭇잎 부스러기들 */}
+        <circle cx="176" cy="80" r="1.5" fill="#4ADE80" />
+        <circle cx="178" cy="94" r="1.2" fill="#22C55E" />
+        <circle cx="174" cy="108" r="1" fill="#86EFAC" />
+
+        {/* 잎사귀 위 영롱한 아침 이슬방울 */}
+        <ellipse cx="94" cy="106" rx="4" ry="3" fill="#FFFFFF" opacity="0.8" />
+        <circle cx="93" cy="105" r="1.2" fill="#FFFFFF" />
+
+        {/* 3. 나뭇가지 수직 기둥 (글자 れ 왼쪽 세로 획과 1:1 완벽 정렬!) */}
+        {/* 튼튼한 원목 가지 기둥 */}
+        <rect
+          x="65"
+          y="26"
+          width="6.5"
+          height="114"
+          rx="3.2"
+          fill="url(#branch-grad)"
+          stroke="#78350F"
           strokeWidth="1.5"
         />
+        {/* 나뭇가지 마디(나이테 라인) 디테일 */}
+        <line x1="65" y1="48" x2="71.5" y2="48" stroke="#78350F" strokeWidth="1" strokeLinecap="round" />
+        <line x1="65" y1="112" x2="71.5" y2="112" stroke="#78350F" strokeWidth="1" strokeLinecap="round" />
 
-        {/* 꿈틀거리는 애벌레 몸통 마디들 (글자 れ 오른쪽 굴곡과 삐침) */}
-        <circle cx="94" cy="74" r="10" fill="#FFFFFF" stroke="#78716C" strokeWidth="1.5" />
-        <circle cx="112" cy="80" r="10" fill="#FFFFFF" stroke="#78716C" strokeWidth="1.5" />
-        <circle cx="130" cy="88" r="9" fill="#FFFFFF" stroke="#78716C" strokeWidth="1.5" />
+        {/* 나뭇가지에 돋아난 앙증맞은 어린 새싹 잎 2개 (왼쪽 공간 포인트) */}
+        {/* 위쪽 새싹 */}
+        <path
+          d="M 65 42 C 54 40 48 46 48 52 C 55 54 62 48 65 45"
+          fill="#86EFAC"
+          stroke="#22C55E"
+          strokeWidth="1.2"
+        />
+        <path d="M 64 43 C 58 46 54 49 50 51" stroke="#16A34A" strokeWidth="0.8" strokeLinecap="round" />
+        {/* 아래쪽 새싹 */}
+        <path
+          d="M 65 120 C 56 122 52 128 54 134 C 60 133 64 127 65 123"
+          fill="#BBF7D0"
+          stroke="#22C55E"
+          strokeWidth="1.2"
+        />
 
-        {/* 애벌레 얼굴, 더듬이 & 발그레한 볼 (포인트 연홍색) */}
-        <circle cx="91" cy="72" r="1.5" fill="#1C1917" />
-        <ellipse cx="92" cy="77" rx="2.5" ry="1.8" fill="#FDA4AF" />
-        <path d="M 88 66 Q 84 56 78 58" stroke="#78716C" strokeWidth="1.3" strokeLinecap="round" />
+        {/* 4. 주인공: 통통하고 귀여운 꿈틀꿈틀 애벌레 (Segmented Chubby Caterpillar) */}
+        {/* 애벌레의 꼬물꼬물 아기 발들 (노란 젤리 발 - 나뭇잎을 야무지게 짚고 있음) */}
+        <g id="caterpillar-legs">
+          <ellipse cx="78" cy="99" rx="3.2" ry="2" fill="#FACC15" stroke="#CA8A04" strokeWidth="1" />
+          <ellipse cx="92" cy="86" rx="3.2" ry="2" fill="#FACC15" stroke="#CA8A04" strokeWidth="1" />
+          <ellipse cx="125" cy="84" rx="3.2" ry="2" fill="#FACC15" stroke="#CA8A04" strokeWidth="1" />
+          {/* 머리 앞쪽 손발 (나뭇잎을 꼭 쥐고 먹는 앞발) */}
+          <ellipse cx="142" cy="94" rx="3.5" ry="2.2" fill="#FACC15" stroke="#CA8A04" strokeWidth="1" />
+          <ellipse cx="152" cy="94" rx="3.5" ry="2.2" fill="#FACC15" stroke="#CA8A04" strokeWidth="1" />
+        </g>
 
-        {/* 나뭇잎 갉아먹은 귀여운 홈 */}
-        <circle cx="158" cy="94" r="5" fill="#FFFFFF" />
+        {/* 통통한 마디마디 몸통 (글자 れ 2획의 지그재그와 둥근 등허리 굴곡을 완벽 추종) */}
+        {/* [마디 1] 꼬리 마디 (왼쪽 줄기에서 꿈틀 시작) */}
+        <circle cx="78" cy="90" r="10" fill="url(#caterpillar-grad)" stroke="#15803D" strokeWidth="1.6" />
+        <circle cx="76" cy="87" r="2" fill="#FEF08A" />
+
+        {/* [마디 2] 등 올라가는 마디 */}
+        <circle cx="92" cy="74" r="11.5" fill="url(#caterpillar-grad)" stroke="#15803D" strokeWidth="1.6" />
+        <circle cx="90" cy="69" r="2.2" fill="#FEF08A" />
+
+        {/* [마디 3] 꿈틀 치솟은 등허리 꼭대기 아치 정점! (글자 れ 상단 볼록 곡선) */}
+        <circle cx="108" cy="58" r="13" fill="url(#caterpillar-grad)" stroke="#15803D" strokeWidth="1.6" />
+        <circle cx="106" cy="52" r="2.5" fill="#FEF08A" />
+        {/* 등허리 반짝임 하이라이트 */}
+        <path d="M 102 50 C 106 48 111 49 114 52" stroke="#DCFCE7" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* [마디 4] 내려오는 가슴 마디 */}
+        <circle cx="128" cy="72" r="12.5" fill="url(#caterpillar-grad)" stroke="#15803D" strokeWidth="1.6" />
+        <circle cx="127" cy="66" r="2.4" fill="#FEF08A" />
+
+        {/* [마디 5] 커다랗고 사랑스러운 애벌레 머리 & 얼굴 (오른쪽 잎사귀를 향해 방긋!) */}
+        <g id="caterpillar-head-group">
+          {/* 머리 위 쫑긋 솟은 앙증맞은 더듬이 2개 (끝에 분홍 방울 팁!) */}
+          {/* 왼쪽 더듬이 */}
+          <path
+            d="M 144 68 C 141 56 135 52 132 53"
+            stroke="#15803D"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+          <circle cx="131" cy="53" r="3" fill="#F43F5E" stroke="#BE123C" strokeWidth="0.8" />
+          <circle cx="130" cy="52" r="0.9" fill="#FFFFFF" />
+
+          {/* 오른쪽 더듬이 */}
+          <path
+            d="M 151 67 C 153 55 161 52 164 54"
+            stroke="#15803D"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+          <circle cx="165" cy="54" r="3" fill="#F43F5E" stroke="#BE123C" strokeWidth="0.8" />
+          <circle cx="164" cy="53" r="0.9" fill="#FFFFFF" />
+
+          {/* 둥글둥글 통통한 머리 구체 (표정과 볼살이 풍부하게 드러나는 메인 헤드) */}
+          <circle
+            cx="148"
+            cy="80"
+            r="14"
+            fill="url(#caterpillar-head)"
+            stroke="#15803D"
+            strokeWidth="1.8"
+          />
+
+          {/* 똘망똘망 반짝이는 까만 두 눈 */}
+          {/* 왼쪽 눈 */}
+          <circle cx="144.5" cy="76.5" r="2.4" fill="#1C1917" />
+          <circle cx="145.3" cy="75.7" r="0.8" fill="#FFFFFF" />
+          {/* 오른쪽 눈 */}
+          <circle cx="153.5" cy="77.5" r="2.4" fill="#1C1917" />
+          <circle cx="154.3" cy="76.7" r="0.8" fill="#FFFFFF" />
+
+          {/* 수줍고 사랑스러운 핑크빛 볼터치 */}
+          <ellipse cx="141" cy="83" rx="3.2" ry="2" fill="#FDA4AF" opacity="0.85" />
+          <ellipse cx="157" cy="84" rx="3.2" ry="2" fill="#FDA4AF" opacity="0.85" />
+
+          {/* 냠냠 맛있게 방긋 웃는 귀여운 입 */}
+          <path
+            d="M 146.5 82.5 Q 149.5 87 152.5 82.5"
+            stroke="#1C1917"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            fill="#FB7185"
+          />
+        </g>
+
+        {/* 5. 감성 디테일 (와삭와삭 행복한 콧노래 & 스파클) */}
+        {/* 신난 음표 ♪ */}
+        <path
+          d="M 168 42 L 174 40 L 174 48 M 168 42 L 168 50"
+          stroke="#8B5CF6"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+        />
+        <circle cx="166.5" cy="50" r="2" fill="#8B5CF6" />
+        <circle cx="172.5" cy="48" r="2" fill="#8B5CF6" />
+
+        {/* 반짝이 별빛 */}
+        <path
+          d="M 124 38 L 125 35 L 126 38 L 129 39 L 126 40 L 125 43 L 124 40 L 121 39 Z"
+          fill="#FDE047"
+        />
+
+        {/* 꿈틀거리는 경쾌한 모션 라인 */}
+        <path
+          d="M 72 80 C 69 76 68 70 71 66"
+          stroke="#94A3B8"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeDasharray="2 2"
+        />
 
         {/* 글자 'れ' 오버레이 */}
         <MnemonicCharOverlay char="れ" fontFamily={fontFamily} x="108" y="118" />
