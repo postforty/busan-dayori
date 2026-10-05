@@ -550,22 +550,25 @@ export default function HiraganaStudio({
             </div>
 
             {/* 1-2. 기본 50음도 ⇄ 탁음·반탁음 모드 스위처 (좌측 4개 탭에만 종속) */}
-            <div className={`flex items-center p-1 bg-white/70 backdrop-blur-xs rounded-2xl border border-[#F4DDD4] transition-all ${
+            <div className={`flex items-center p-1 bg-white/70 backdrop-blur-xs rounded-2xl border border-[#F4DDD4] transition-all min-w-0 overflow-hidden ${
               currentStep === 'dialogue' ? 'opacity-40 pointer-events-none' : ''
             }`}>
               <button
                 type="button"
                 onClick={() => handleSelectCategory('seion')}
-                className={`flex-1 py-1.5 px-2.5 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-0 py-1.5 px-1.5 sm:px-2.5 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 ${
                   category === 'seion' && currentStep !== 'dialogue'
                     ? 'bg-[#E07A5F] text-white shadow-xs'
                     : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
                 }`}
               >
                 <Flower2 className={`w-3.5 h-3.5 shrink-0 ${category === 'seion' && currentStep !== 'dialogue' ? 'text-white' : 'text-[#E07A5F]'}`} />
-                <span className="truncate">기본 50음도</span>
+                <span className="truncate min-w-0">
+                  <span className="sm:hidden">50음도</span>
+                  <span className="hidden sm:inline">기본 50음도</span>
+                </span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                  className={`text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
                     category === 'seion' && currentStep !== 'dialogue'
                       ? 'bg-white/20 text-white'
                       : 'bg-stone-200/60 text-[#718096]'
@@ -578,16 +581,19 @@ export default function HiraganaStudio({
               <button
                 type="button"
                 onClick={() => handleSelectCategory('dakuon')}
-                className={`flex-1 py-1.5 px-2.5 rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 min-w-0 py-1.5 px-1.5 sm:px-2.5 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 ${
                   category === 'dakuon' && currentStep !== 'dialogue'
                     ? 'bg-[#E07A5F] text-white shadow-xs'
                     : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
                 }`}
               >
                 <Sparkles className={`w-3.5 h-3.5 shrink-0 ${category === 'dakuon' && currentStep !== 'dialogue' ? 'text-amber-200' : 'text-amber-500'}`} />
-                <span className="truncate">탁음 · 반탁음</span>
+                <span className="truncate min-w-0">
+                  <span className="sm:hidden">탁음</span>
+                  <span className="hidden sm:inline">탁음 · 반탁음</span>
+                </span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                  className={`text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
                     category === 'dakuon' && currentStep !== 'dialogue'
                       ? 'bg-white/20 text-white'
                       : 'bg-amber-100 text-amber-800'
@@ -600,7 +606,7 @@ export default function HiraganaStudio({
           </div>
 
           {/* 2. 우측 컬럼: [첫 발화] 단독 컬럼 (종합 실전 회화 코스) */}
-          <div className="w-[74px] sm:w-[88px] flex flex-col">
+          <div className="w-[72px] sm:w-[88px] flex flex-col shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -614,20 +620,20 @@ export default function HiraganaStudio({
               }`}
               title="배운 히라가나로 첫 인사 회화 문장 말해보기"
             >
-              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full mb-1 transition-colors ${
+              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full mb-1 transition-colors whitespace-nowrap ${
                 currentStep === 'dialogue'
                   ? 'bg-white/25 text-white'
                   : 'bg-amber-100 text-amber-800 group-hover:bg-amber-200'
               }`}>
                 실전 회화
               </span>
-              <Flame className={`w-5 h-5 mb-1 transition-transform group-hover:scale-110 ${
+              <Flame className={`w-5 h-5 mb-1 transition-transform group-hover:scale-110 shrink-0 ${
                 currentStep === 'dialogue' ? 'text-amber-300 animate-pulse' : 'text-[#E07A5F]'
               }`} />
-              <span className="text-[11px] sm:text-xs font-black truncate">
+              <span className="text-[11px] sm:text-xs font-black truncate whitespace-nowrap">
                 첫 발화
               </span>
-              <span className={`text-[9px] font-medium mt-0.5 ${
+              <span className={`text-[9px] font-medium mt-0.5 whitespace-nowrap ${
                 currentStep === 'dialogue' ? 'text-white/80' : 'text-[#A0AEC0]'
               }`}>
                 도전
@@ -670,12 +676,18 @@ export default function HiraganaStudio({
             {/* 탁음 모드일 때 탁점 변환 공식 요약 배너 */}
             {category === 'dakuon' && (
               <div className="bg-gradient-to-r from-amber-50 to-[#FFF9F2] rounded-2xl p-3 border border-amber-200/80 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900 min-w-0">
                     <Zap className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span>탁점(゛) & 반탁점(゜) 소리 변환 공식</span>
+                    <span className="truncate whitespace-nowrap break-keep">
+                      <span className="sm:hidden">탁점 · 반탁점 변환 공식</span>
+                      <span className="hidden sm:inline">탁점(゛) & 반탁점(゜) 소리 변환 공식</span>
+                    </span>
                   </div>
-                  <span className="text-[10px] text-amber-700 font-medium">클릭 시 해당 행 이동</span>
+                  <span className="text-[10px] text-amber-700 font-medium shrink-0 whitespace-nowrap">
+                    <span className="sm:hidden">행 이동 ➔</span>
+                    <span className="hidden sm:inline">클릭 시 해당 행 이동</span>
+                  </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
                   {DAKUON_TRANSFORM_RULES.map((rule) => {
