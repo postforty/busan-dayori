@@ -26,11 +26,14 @@ interface HiraganaMnemonicSvgProps {
  */
 export default function HiraganaMnemonicSvg({
   char,
+  romaji,
   fontStyle = 'sans',
   className = ''
 }: HiraganaMnemonicSvgProps) {
   const item = MNEMONIC_DATA[char];
   if (!item) return null;
+
+  const displayRomaji = romaji || item.romaji;
 
   const fontFamily =
     fontStyle === 'serif'
@@ -92,8 +95,8 @@ export default function HiraganaMnemonicSvg({
         {svgContent}
       </div>
 
-      {/* 미니멀 라벨: 연상 단어 중 발음 음절에만 테마 포인트 컬러 적용 */}
-      <div className="mt-2.5 flex items-center justify-center">
+      {/* 미니멀 라벨: 연상 단어 중 발음 음절에만 테마 포인트 컬러 적용 + 로마자 발음 표기 */}
+      <div className="mt-2.5 flex items-center justify-center gap-1.5">
         <span className="text-base font-bold tracking-wider">
           {item.word.split('').map((letter, idx) => (
             <span
@@ -108,6 +111,11 @@ export default function HiraganaMnemonicSvg({
             </span>
           ))}
         </span>
+        {displayRomaji && (
+          <span className="text-sm font-semibold text-stone-400">
+            ({displayRomaji})
+          </span>
+        )}
       </div>
     </div>
   );
