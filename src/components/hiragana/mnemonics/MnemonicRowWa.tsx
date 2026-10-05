@@ -96,7 +96,7 @@ export default function MnemonicRowWa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'ん') {
-    // ん: 응가 (양변기에 앉아 배에 힘을 주며 웅크린 아이의 허리와 다리 굴곡 각도)
+    // ん: 응원 (열정적인 응원단장의 파이팅과 공중으로 힘차게 솟구쳐 휘날리는 응원 리본 궤적)
     return (
       <svg
         viewBox="0 0 200 160"
@@ -104,56 +104,100 @@ export default function MnemonicRowWa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 양변기 실루엣 */}
-        <path
-          d="M 64 88 L 64 126 L 146 126"
-          stroke="#E2E8F0"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        {/* 변기 물탱크 */}
-        <rect
-          x="52"
-          y="62"
-          width="20"
-          height="54"
-          rx="4"
-          fill="#F8FAFC"
-          stroke="#CBD5E1"
-          strokeWidth="1.5"
-        />
-        {/* 변기 물 내림 메탈릭 레버 (포인트 메탈) */}
-        <rect
-          x="58"
-          y="54"
-          width="8"
-          height="8"
-          rx="2"
-          fill="#94A3B8"
-          stroke="#64748B"
-          strokeWidth="1.2"
-        />
-        <line x1="62" y1="58" x2="72" y2="58" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
+        <defs>
+          {/* 활기찬 응원 리본 그라데이션 */}
+          <linearGradient id="n-ribbon-grad" x1="80" y1="60" x2="150" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FDA4AF" />
+            <stop offset="50%" stopColor="#F43F5E" />
+            <stop offset="100%" stopColor="#FB7185" />
+          </linearGradient>
+        </defs>
 
-        {/* 변기에 앉아 웅크린 아이의 등-엉덩이-다리 굴곡 (글자 ん의 N자 유려한 굴곡과 일치) */}
+        {/* 1. 응원단장 꼬마 캐릭터 (왼쪽 1획 지지 라인) */}
+        {/* 다리 & 운동화 */}
+        <line x1="56" y1="112" x2="56" y2="128" stroke="#78716C" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="64" y1="112" x2="64" y2="128" stroke="#78716C" strokeWidth="2.5" strokeLinecap="round" />
+        <ellipse cx="54" cy="130" rx="4.5" ry="2.5" fill="#EF4444" />
+        <ellipse cx="66" cy="130" rx="4.5" ry="2.5" fill="#EF4444" />
+
+        {/* 유니폼 몸통 (스포티한 상큼한 티셔츠) */}
         <path
-          d="M 80 58 L 80 94 C 80 118 126 126 142 88"
-          stroke="#D6D3D1"
-          strokeWidth="4"
+          d="M 52 64 L 46 96 L 74 96 L 68 64 Z"
+          fill="#E0F2FE"
+          stroke="#38BDF8"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        {/* 반바지 */}
+        <path d="M 46 96 L 74 96 L 72 112 L 48 112 Z" fill="#0284C7" />
+
+        {/* 얼굴 & 귀여운 표정 */}
+        <circle cx="60" cy="46" r="13" fill="#FFF7ED" stroke="#78716C" strokeWidth="1.5" />
+        {/* 승리의 빨간 응원 머리띠 & 펄럭이는 꼬리 */}
+        <path d="M 47 43 Q 60 38 73 43" stroke="#EF4444" strokeWidth="3.5" strokeLinecap="round" />
+        <path d="M 47 44 C 40 46 36 54 38 60" stroke="#EF4444" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M 46 45 C 38 50 36 58 40 64" stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" />
+
+        {/* 웃으며 외치는 눈 & 볼터치 & 입 */}
+        <path d="M 53 47 Q 56 44 59 47" stroke="#1C1917" strokeWidth="1.5" strokeLinecap="round" />
+        <ellipse cx="55" cy="51" rx="2.5" ry="1.8" fill="#FDA4AF" />
+        {/* 크게 와아~! 외치는 입 */}
+        <ellipse cx="66" cy="50" rx="3" ry="4" fill="#F43F5E" />
+
+        {/* 2. 메가폰 (확성기 - 승리의 응원 소리 발사!) */}
+        <path
+          d="M 68 50 L 82 42 L 85 58 L 70 56 Z"
+          fill="#FDE047"
+          stroke="#F59E0B"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <ellipse cx="84" cy="50" rx="2.5" ry="8" fill="#F59E0B" />
+        <line x1="72" y1="56" x2="72" y2="64" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="72" cy="62" r="3" fill="#FFF7ED" stroke="#78716C" strokeWidth="1.2" />
+
+        {/* 함성 사운드 웨이브 (와아~!) */}
+        <path d="M 90 44 C 94 42 96 38 94 34" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M 96 48 C 102 46 104 40 101 32" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* 3. 공중으로 휘날리는 대형 응원 리본 띠 (글자 'ん'의 둥근 산과 꼬리 곡선 매칭) */}
+        {/* 리본 그림자 / 은은한 바탕 */}
+        <path
+          d="M 80 114 C 82 76 96 52 110 52 C 132 52 146 110 122 122 C 104 128 126 104 154 70"
+          stroke="#FFE4E6"
+          strokeWidth="10"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+        {/* 리본 본체 라인 */}
+        <path
+          d="M 80 114 C 82 76 96 52 110 52 C 132 52 146 110 122 122 C 104 128 126 104 154 70"
+          stroke="url(#n-ribbon-grad)"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* 펄럭이는 리본 끝자락 V자 꼬리 (우상단) */}
+        <path
+          d="M 152 74 L 162 66 L 158 74 L 164 80 L 152 78 Z"
+          fill="#F43F5E"
+        />
 
-        {/* 아이 머리 & 끙차 힘주는 표정 */}
-        <circle cx="86" cy="46" r="11" fill="#FFFFFF" stroke="#78716C" strokeWidth="1.5" />
-        <path d="M 82 46 Q 86 42 90 46" stroke="#78716C" strokeWidth="1.5" strokeLinecap="round" />
-        <ellipse cx="88" cy="51" rx="2.5" ry="1.8" fill="#FDA4AF" />
-        {/* 땀방울 */}
-        <ellipse cx="74" cy="42" rx="1.8" ry="2.5" fill="#38BDF8" />
-
-        {/* 힘차게 집중하는 집중선 */}
-        <line x1="98" y1="36" x2="104" y2="30" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="102" y1="44" x2="110" y2="42" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" />
+        {/* 4. 응원 콘페티 & 반짝이 축제 효과 */}
+        {/* 반짝이 별 */}
+        <path
+          d="M 168 44 L 170 38 L 172 44 L 178 46 L 172 48 L 170 54 L 168 48 L 162 46 Z"
+          fill="#FDE047"
+        />
+        <path
+          d="M 40 32 L 41 28 L 42 32 L 46 33 L 42 34 L 41 38 L 40 34 L 36 33 Z"
+          fill="#FDE047"
+        />
+        {/* 날리는 색종이 조각들 (Confetti) */}
+        <circle cx="124" cy="36" r="2.5" fill="#38BDF8" />
+        <circle cx="144" cy="46" r="2" fill="#F472B6" />
+        <rect x="156" y="96" width="4" height="4" rx="1" fill="#34D399" transform="rotate(25 158 98)" />
+        <rect x="88" y="132" width="5" height="3" rx="1" fill="#F59E0B" transform="rotate(-15 90 133)" />
 
         {/* 글자 'ん' 오버레이 */}
         <MnemonicCharOverlay char="ん" fontFamily={fontFamily} x="108" y="118" />
