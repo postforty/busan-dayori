@@ -420,8 +420,8 @@ export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'ぬ') {
-    // ぬ: 누에 (뽕잎 위에서 통통한 몸을 둥글게 말아 황금빛 누에고치 실을 잣는 아기 누에벌레!)
-    // ⚠️ 글자 'ぬ'의 둥근 몸통 곡선과 끝단의 둥근 매듭 루프(누에고치)가 완벽히 일치! (め와의 명확한 구분점)
+    // ぬ: 누에 (글자 'ぬ'의 굵은 획을 따라 온몸을 둥글게 만 포동포동 귀여운 젤리 아기 누에벌레!)
+    // ⚠️ 1획은 뽕나무 가지, 2획은 머리(좌측)→배→등허리(상단 아치)→엉덩이→꼬리 루프(우하단 매듭)와 1:1 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -429,101 +429,178 @@ export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 싱그러운 초록 뽕잎 (하단 베이스: 갉아먹은 자국 포함) */}
-        <path
-          d="M 40 128 
-             C 52 112 60 114 68 116 
-             C 72 110 80 112 86 116 
-             C 114 110 152 114 168 126 
-             C 142 140 76 142 40 128 Z"
-          fill="#DCFCE7"
-          stroke="#16A34A"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        {/* 뽕잎 중심 잎맥 및 잔잎맥 */}
-        <path
-          d="M 46 128 C 96 120 138 122 164 126"
-          stroke="#86EFAC"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <line x1="88" y1="123" x2="100" y2="118" stroke="#86EFAC" strokeWidth="1.2" strokeLinecap="round" />
-        <line x1="114" y1="123" x2="128" y2="119" stroke="#86EFAC" strokeWidth="1.2" strokeLinecap="round" />
+        <defs>
+          {/* 누에의 포동포동하고 부드러운 젤리 바디 그라데이션 */}
+          <linearGradient id="nu-body-grad" x1="70" y1="40" x2="160" y2="120" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="40%" stopColor="#FFFDF5" />
+            <stop offset="85%" stopColor="#FEF3C7" />
+            <stop offset="100%" stopColor="#FDE68A" />
+          </linearGradient>
+          {/* 황금빛 누에고치 그라데이션 */}
+          <radialGradient id="nu-cocoon-grad" cx="134" cy="112" r="10" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FEF9C3" />
+            <stop offset="60%" stopColor="#FDE047" />
+            <stop offset="100%" stopColor="#EAB308" />
+          </radialGradient>
+        </defs>
 
-        {/* 꼬리 끝 누에고치 (글자 ぬ 꼬리 루프 매듭과 일체화) */}
+        {/* 1. 배경 은은한 숲속 힐링 그린 아우라 */}
+        <ellipse cx="110" cy="88" rx="64" ry="52" fill="#F0FDF4" opacity="0.75" />
+
+        {/* 2. 싱그러운 초록 뽕잎 (하단 베이스: 아기 누에가 갉아먹은 둥근 홈 포함) */}
+        <g id="mulberry-leaf">
+          <path
+            d="M 30 130 
+               C 42 116 54 116 64 121 
+               C 68 114 78 115 84 122 
+               C 114 112 154 114 174 128 
+               C 152 144 72 146 30 130 Z"
+            fill="#DCFCE7"
+            stroke="#16A34A"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 뽕잎 주 잎맥 및 잔 잎맥 */}
+          <path
+            d="M 36 130 C 88 122 138 123 170 128"
+            stroke="#86EFAC"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+          <path d="M 80 124 C 92 120 102 118 108 120" stroke="#86EFAC" strokeWidth="1.2" strokeLinecap="round" />
+          <path d="M 122 124 C 134 120 144 121 150 125" stroke="#86EFAC" strokeWidth="1.2" strokeLinecap="round" />
+        </g>
+
+        {/* 3. ★ 핵심 싱크로 1: 글자 'ぬ' 1획과 1:1 일치하는 뽕나무 어린 가지 (Mulberry Twig) */}
+        <g id="mulberry-twig">
+          {/* 도톰한 나뭇가지 본체 (1획 빗금 궤적: x=84, y=44 -> x=98, y=122) */}
+          <path
+            d="M 84 44 L 98 122"
+            stroke="#B45309"
+            strokeWidth="6"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 85 45 L 98 121"
+            stroke="#FDE68A"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          {/* 가지 상단의 앙증맞은 어린 뽕잎 새싹 */}
+          <path
+            d="M 83 44 C 75 38 77 30 85 32 C 87 38 85 43 83 44 Z"
+            fill="#86EFAC"
+            stroke="#16A34A"
+            strokeWidth="1.2"
+          />
+        </g>
+
+        {/* 4. ★ 핵심 싱크로 2: 글자 'ぬ' 2획 전체를 두툼하게 형성하는 포동포동 젤리 누에 (Chubby Silkworm) */}
+        <g id="silkworm-body-group">
+          {/* (1) 둥글고 두툼한 메인 몸체 (좌측 U자 배 → 솟아오른 등허리 아치 → 우측 엉덩이 굴곡) */}
+          <path
+            d="M 74 74 
+               C 62 86 60 106 72 118 
+               C 84 128 102 120 108 102 
+               C 112 86 114 62 128 44 
+               C 140 32 160 40 168 62 
+               C 176 84 172 108 158 124 
+               C 144 134 126 130 118 116 
+               C 112 104 120 94 134 94 
+               C 146 94 152 104 148 116 
+               C 144 124 134 124 128 118 
+               C 124 112 128 104 134 104 
+               C 140 104 142 110 138 114 
+               C 150 102 152 80 144 64 
+               C 134 46 118 50 106 68 
+               C 96 82 92 106 82 108 
+               C 74 110 70 98 76 86 
+               Z"
+            fill="url(#nu-body-grad)"
+            stroke="#78716C"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+
+          {/* (2) 올록볼록 엠보싱 마디 주름선 (Chubby Jelly Segments) */}
+          {/* 앞배 마디 주름선 */}
+          <path d="M 64 96 C 72 100 80 98 86 92" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M 68 108 C 76 112 86 110 94 104" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
+          {/* 등허리 마디 주름선 (2획 상단 아치) */}
+          <path d="M 124 42 C 122 52 120 60 116 66" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M 144 44 C 140 54 136 62 132 68" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
+          {/* 우측 엉덩이 마디 주름선 (2획 우측 곡선) */}
+          <path d="M 170 82 C 160 84 152 82 144 80" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M 166 100 C 156 102 148 100 140 98" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
+
+          {/* (3) 누에 특유의 귀여운 초승달/별빛 숨구멍 무늬 (Cute Spot Patterns) */}
+          <circle cx="126" cy="50" r="1.6" fill="#FDE047" opacity="0.9" />
+          <circle cx="144" cy="54" r="1.6" fill="#FDE047" opacity="0.9" />
+          <circle cx="162" cy="74" r="1.6" fill="#FDE047" opacity="0.9" />
+          <circle cx="158" cy="92" r="1.6" fill="#FDE047" opacity="0.9" />
+
+          {/* (4) 꼬물꼬물 앙증맞은 노란색 젤리 발 (Cute Prolegs) */}
+          <circle cx="70" cy="120" r="3.2" fill="#FDE047" stroke="#CA8A04" strokeWidth="1.1" />
+          <circle cx="82" cy="122" r="3.2" fill="#FDE047" stroke="#CA8A04" strokeWidth="1.1" />
+          <circle cx="94" cy="120" r="3.2" fill="#FDE047" stroke="#CA8A04" strokeWidth="1.1" />
+          <circle cx="156" cy="122" r="3.2" fill="#FDE047" stroke="#CA8A04" strokeWidth="1.1" />
+
+          {/* (5) 2획 시작점에 자리 잡은 사랑스러운 아기 누에 머리 & 표정 */}
+          <g id="silkworm-head">
+            {/* 동글동글 볼살 통통한 얼굴 베이스 */}
+            <circle cx="72" cy="70" r="11" fill="#FFFDF7" stroke="#78716C" strokeWidth="1.8" />
+            {/* 머리 위 앙증맞은 미니 더듬이 뿔 2개 */}
+            <path d="M 67 60 C 65 54 69 53 71 57" stroke="#78716C" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M 75 60 C 77 54 81 55 79 58" stroke="#78716C" strokeWidth="1.5" strokeLinecap="round" />
+            {/* 반짝반짝 호기심 가득한 까만 눈 */}
+            <circle cx="75" cy="68" r="2" fill="#1E293B" />
+            <circle cx="75.7" cy="67.3" r="0.7" fill="#FFFFFF" />
+            {/* 복숭아빛 생기 볼터치 */}
+            <ellipse cx="73" cy="74" rx="3.2" ry="2" fill="#FDA4AF" opacity="0.85" />
+            {/* 뽕잎을 보고 신난 방긋 미소 입 */}
+            <path d="M 77 71 C 80 73 79 75 76 74" stroke="#78716C" strokeWidth="1.2" strokeLinecap="round" />
+          </g>
+        </g>
+
+        {/* 5. ★ 핵심 싱크로 3: 글자 'ぬ' 우하단 루프 매듭 속 황금 누에고치 & 비단실 */}
         <g id="silkworm-cocoon">
-          {/* 황금빛 누에고치 본체 */}
+          {/* 황금빛 비단 누에고치 본체 (루프 매듭 x=136, y=114에 쏙 안착) */}
           <ellipse
             cx="136"
             cy="114"
-            rx="12"
-            ry="9"
-            fill="#FEF08A"
-            stroke="#EAB308"
-            strokeWidth="2"
-          />
-          {/* 비단 실이 칭칭 감긴 실타래 텍스처 */}
-          <path
-            d="M 128 110 C 134 108 142 112 144 116"
+            rx="11.5"
+            ry="8.5"
+            fill="url(#nu-cocoon-grad)"
             stroke="#CA8A04"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 130 118 C 136 120 142 116 144 112"
-            stroke="#CA8A04"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-          />
-          {/* 반짝이는 황금 비단실 뿜어나옴 */}
-          <path
-            d="M 144 108 C 156 98 152 82 162 76"
-            stroke="#EAB308"
             strokeWidth="1.8"
+          />
+          {/* 칭칭 감긴 비단실 텍스처 */}
+          <path
+            d="M 129 110 C 135 107 142 110 144 115"
+            stroke="#B45309"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 131 117 C 136 119 141 116 143 112"
+            stroke="#B45309"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
+          {/* 꼬리 끝에서 사르르 뿜어나오는 황금 비단실 점선 */}
+          <path
+            d="M 146 126 C 158 122 164 110 172 106 C 178 102 180 92 178 84"
+            stroke="#F59E0B"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeDasharray="4 2"
           />
-          <circle cx="162" cy="76" r="1.5" fill="#CA8A04" />
+          <circle cx="178" cy="84" r="2" fill="#F59E0B" />
+          {/* 반짝이는 실크 스파클 (별빛 2개) */}
+          <path d="M 172 100 L 173.5 96 L 175 100 L 179 101.5 L 175 103 L 173.5 107 L 172 103 L 168 101.5 Z" fill="#FDE047" />
+          <circle cx="184" cy="94" r="1.4" fill="#FDE047" />
         </g>
-
-        {/* 누에벌레 통통한 몸체 (크림 화이트 바디) */}
-        {/* 왼쪽으로 둥글게 굽은 배와 등허리 */}
-        <path
-          d="M 118 42 
-             C 110 52 84 56 68 76 
-             C 56 92 60 114 78 122 
-             C 96 128 118 122 128 112 
-             C 120 102 110 88 112 70 
-             C 114 56 124 50 126 42 
-             Z"
-          fill="#FFFDF7"
-          stroke="#78716C"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-
-        {/* 누에 애벌레의 마디마디 주름선 (Chubby segments) */}
-        <path d="M 64 88 C 74 92 84 90 92 84" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
-        <path d="M 68 102 C 78 106 88 104 96 98" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
-        <path d="M 80 114 C 88 116 98 114 104 108" stroke="#A8A29E" strokeWidth="1.4" strokeLinecap="round" />
-
-        {/* 누에의 귀여운 꼬물꼬물 아기 발들 (노란 발 3개) */}
-        <circle cx="72" cy="118" r="3" fill="#FDE047" stroke="#CA8A04" strokeWidth="1" />
-        <circle cx="84" cy="122" r="3" fill="#FDE047" stroke="#CA8A04" strokeWidth="1" />
-        <circle cx="96" cy="122" r="3" fill="#FDE047" stroke="#CA8A04" strokeWidth="1" />
-
-        {/* 누에 귀여운 머리와 얼굴 (상단) */}
-        <circle cx="122" cy="38" r="8" fill="#FFFDF7" stroke="#78716C" strokeWidth="1.8" />
-        {/* 머리 위 작은 귀여운 뿔 */}
-        <path d="M 120 30 C 119 26 122 25 124 28" stroke="#78716C" strokeWidth="1.4" strokeLinecap="round" />
-        {/* 반짝이는 까만 눈 */}
-        <circle cx="125" cy="37" r="1.8" fill="#1E293B" />
-        <circle cx="125.5" cy="36.5" r="0.6" fill="#FFFFFF" />
-        {/* 복숭아빛 볼터치 */}
-        <ellipse cx="123" cy="41" rx="2.5" ry="1.6" fill="#FDA4AF" opacity="0.8" />
-        {/* 앙증맞은 입 */}
-        <path d="M 126 40 C 128 41 127 43 125 42" stroke="#78716C" strokeWidth="1" strokeLinecap="round" />
 
         {/* 글자 'ぬ' 오버레이 */}
         <MnemonicCharOverlay char="ぬ" fontFamily={fontFamily} x="108" y="118" />
