@@ -4,7 +4,7 @@ import MnemonicCharOverlay from './MnemonicCharOverlay';
 export default function MnemonicRowSa({ char, fontFamily }: MnemonicSvgChildProps) {
   if (char === 'さ') {
     // さ: 사과 (꼭지와 연초록 잎사귀, 오른쪽으로 감기는 사과의 둥근 볼)
-    // ⚠️ ち(치타, 왼쪽으로 감김)와 명확히 반대 방향인 오른쪽 만곡선 강조!
+    // ⚠️ ち(치약, 왼쪽으로 감김)와 명확히 반대 방향인 오른쪽 만곡선 강조!
     return (
       <svg
         viewBox="0 0 200 160"

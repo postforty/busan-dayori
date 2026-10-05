@@ -62,8 +62,8 @@ export default function MnemonicRowTa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'ち') {
-    // ち: 치타 (바람을 가르며 쾌속 질주하는 날렵한 치타의 몸체, 눈물선과 스팟 반점!)
-    // ⚠️ 글자 'ち'의 가로선과 역동적인 곡선이 치타의 등허리 및 웅크려 도약하는 뒷다리와 일체화
+    // ち: 치약 (칫솔 위에 상쾌하고 도톰하게 둥글게 짜 올려진 3D 민트 치약 젤과 미니 치약 튜브, 몽글몽글 거품 방울!)
+    // ⚠️ 글자 'ち'의 가로선·세로선(치약 튜브 노즐과 흘러내리는 치약 줄기) 및 둥근 곡선(칫솔모 위에 둥글게 소용돌이치며 얹힌 치약 젤 덩어리)과 1:1 완벽 일체화!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -71,111 +71,334 @@ export default function MnemonicRowTa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 질주하는 속도선 (Wind lines) */}
-        <line x1="38" y1="44" x2="56" y2="44" stroke="#CBD5E1" strokeWidth="1.8" strokeLinecap="round" />
-        <line x1="28" y1="54" x2="50" y2="54" stroke="#CBD5E1" strokeWidth="1.8" strokeLinecap="round" />
-        <line x1="34" y1="64" x2="48" y2="64" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" />
+        <defs>
+          {/* 상쾌한 아쿠아 민트 치약 젤 그라디언트 */}
+          <linearGradient id="tp-mint" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#A7F3D0" />
+            <stop offset="40%" stopColor="#34D399" />
+            <stop offset="85%" stopColor="#059669" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
 
-        {/* 발밑 튀어오르는 모래 먼지 퐁퐁 */}
-        <path
-          d="M 64 124 C 60 118 68 114 74 116 C 80 112 88 116 86 122 C 92 120 96 126 92 130 Z"
-          fill="#FEF08A"
-          stroke="#FCD34D"
-          strokeWidth="1.2"
-        />
-        <circle cx="58" cy="116" r="2.5" fill="#FDE68A" />
-        <circle cx="52" cy="122" r="1.8" fill="#FDE68A" />
+          {/* 청량한 스카이 블루 스트라이프 그라디언트 */}
+          <linearGradient id="tp-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#BAE6FD" />
+            <stop offset="50%" stopColor="#38BDF8" />
+            <stop offset="100%" stopColor="#0284C7" />
+          </linearGradient>
 
-        {/* 치타 몸통 전체 실루엣 (따뜻한 골드 옐로우 베이지) */}
-        <path
-          d="M 132 46 
-             C 120 40 98 42 76 52 
-             C 66 58 64 74 74 94 
-             C 82 110 102 122 130 118 
-             C 142 116 148 106 142 94 
-             C 136 84 122 78 126 70 
-             C 134 68 152 70 166 62 
-             C 160 56 146 54 136 50 
-             Z"
-          fill="#FEF3C7"
-          stroke="#B45309"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
+          {/* 깨끗한 펄 화이트 치약 스트라이프 그라디언트 */}
+          <linearGradient id="tp-white" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="60%" stopColor="#F8FAFC" />
+            <stop offset="100%" stopColor="#E2E8F0" />
+          </linearGradient>
 
-        {/* 우아하고 긴 치타 꼬리 (방향타 꼬리: 엉덩이에서 위로 휘어짐) */}
-        <path
-          d="M 72 62 C 54 54 44 42 46 32 C 48 24 56 26 58 32 C 58 38 66 48 76 56"
-          fill="#FEF3C7"
-          stroke="#B45309"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        {/* 꼬리 끝 검은색 팁 & 밴드 */}
-        <path d="M 46 32 C 48 24 56 26 58 32 Z" fill="#1E293B" />
-        <line x1="50" y1="36" x2="57" y2="38" stroke="#1E293B" strokeWidth="2" />
+          {/* 파스텔 치약 튜브 바디 그라디언트 */}
+          <linearGradient id="tube-body" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#67E8F9" />
+            <stop offset="50%" stopColor="#06B6D4" />
+            <stop offset="100%" stopColor="#0891B2" />
+          </linearGradient>
 
-        {/* 치타 얼굴 (오른쪽 상단) */}
-        <circle
-          cx="140"
-          cy="40"
-          r="13"
-          fill="#FEF3C7"
-          stroke="#B45309"
-          strokeWidth="2"
-        />
-        {/* 치타 귀 (둥근 맹수 귀 2개) */}
-        <path
-          d="M 132 30 C 130 22 138 22 140 28 Z"
-          fill="#FDE68A"
-          stroke="#B45309"
-          strokeWidth="1.6"
-        />
-        <path
-          d="M 144 31 C 146 23 154 25 152 31 Z"
-          fill="#FDE68A"
-          stroke="#B45309"
-          strokeWidth="1.6"
-        />
-        <circle cx="135" cy="27" r="2" fill="#FDA4AF" />
+          {/* 칫솔 헤드 & 손잡이 파스텔 바이올렛/블루 그라디언트 */}
+          <linearGradient id="tb-handle" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#DDD6FE" />
+            <stop offset="50%" stopColor="#A78BFA" />
+            <stop offset="100%" stopColor="#7C3AED" />
+          </linearGradient>
 
-        {/* 또렷하고 날렵한 눈 */}
-        <ellipse cx="144" cy="38" rx="2.2" ry="1.6" fill="#1E293B" />
-        <circle cx="144.6" cy="37.4" r="0.7" fill="#FFFFFF" />
+          {/* 칫솔 미끄럼방지 러버 패드 */}
+          <linearGradient id="tb-rubber" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#F472B6" />
+            <stop offset="100%" stopColor="#DB2777" />
+          </linearGradient>
 
-        {/* 치타의 시그니처: 눈물선 (Tear stripe: 눈에서 입가로 이어지는 검은 선) */}
-        <path
-          d="M 143 39 C 144 43 147 45 148 48"
-          stroke="#1E293B"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
+          {/* 싱그러운 민트 잎 그린 그라디언트 */}
+          <linearGradient id="mint-leaf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#86EFAC" />
+            <stop offset="60%" stopColor="#22C55E" />
+            <stop offset="100%" stopColor="#15803D" />
+          </linearGradient>
 
-        {/* 코와 입 */}
-        <polygon points="149,43 152,43 150.5,45" fill="#F43F5E" />
-        <path d="M 150.5 45 L 150.5 47 L 153 47" stroke="#B45309" strokeWidth="1.2" strokeLinecap="round" />
+          {/* 투명 비누 거품 그라디언트 */}
+          <radialGradient id="bubble-grad" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#E0F2FE" stopOpacity="0.5" />
+            <stop offset="85%" stopColor="#BAE6FD" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0.6" />
+          </radialGradient>
+        </defs>
 
-        {/* 수염 (가늘고 날렵한 2가닥) */}
-        <line x1="152" y1="44" x2="160" y2="43" stroke="#78716C" strokeWidth="1" strokeLinecap="round" />
-        <line x1="152" y1="46" x2="159" y2="48" stroke="#78716C" strokeWidth="1" strokeLinecap="round" />
+        {/* 1. 바닥 그림자 & 세면대 환경 */}
+        <ellipse cx="106" cy="144" rx="64" ry="6.5" fill="#E2E8F0" opacity="0.6" />
 
-        {/* 치타 고유의 선명한 블랙 스팟(Spot) 무늬들! */}
-        <circle cx="118" cy="46" r="2.2" fill="#1E293B" />
-        <circle cx="106" cy="48" r="2.5" fill="#1E293B" />
-        <circle cx="92" cy="52" r="2.6" fill="#1E293B" />
-        <circle cx="78" cy="62" r="2.8" fill="#1E293B" />
-        <circle cx="72" cy="74" r="3" fill="#1E293B" />
-        <circle cx="76" cy="88" r="2.8" fill="#1E293B" />
-        <circle cx="86" cy="98" r="2.6" fill="#1E293B" />
-        <circle cx="102" cy="110" r="3" fill="#1E293B" />
-        <circle cx="116" cy="112" r="2.6" fill="#1E293B" />
-        <circle cx="132" cy="108" r="2.2" fill="#1E293B" />
-        {/* 허벅지 안쪽 작은 점들 */}
-        <circle cx="120" cy="96" r="1.8" fill="#B45309" />
-        <circle cx="96" cy="84" r="2" fill="#B45309" />
+        {/* 2. 칫솔 (Toothbrush) - 아래에서 든든하게 받쳐주는 프레임 */}
+        <g id="toothbrush">
+          {/* 칫솔 손잡이 (왼쪽 아래로 부드럽게 뻗어나가는 인체공학적 곡선) */}
+          <path
+            d="M 22 138
+               C 32 132 46 128 62 126
+               C 74 124 84 126 96 128
+               L 96 135
+               C 82 134 70 133 58 136
+               C 42 139 30 144 22 138 Z"
+            fill="url(#tb-handle)"
+            stroke="#6D28D9"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          {/* 손잡이 핑크 고무 그립 패드 (Rubber Grip) */}
+          <path
+            d="M 38 133 C 48 130 58 130 68 131 C 66 134 56 135 44 135 Z"
+            fill="url(#tb-rubber)"
+          />
 
-        {/* 글자 'ち' 오버레이 */}
+          {/* 칫솔 헤드 바디 (Brush Head) - 치약 아래를 받침 */}
+          <path
+            d="M 92 127
+               C 92 124 100 122 116 122
+               C 134 122 146 125 146 128
+               C 146 132 134 135 116 135
+               C 98 135 92 131 92 127 Z"
+            fill="url(#tb-handle)"
+            stroke="#6D28D9"
+            strokeWidth="1.8"
+          />
+
+          {/* 칫솔모 블록 (White Bristles with Aqua accent) */}
+          {/* 칫솔모 기본 흰색 층 */}
+          <path
+            d="M 96 122
+               L 96 112
+               C 96 110 102 109 116 109
+               C 130 109 142 110 142 112
+               L 142 122
+               Z"
+            fill="#FFFFFF"
+            stroke="#CBD5E1"
+            strokeWidth="1.2"
+          />
+          {/* 칫솔모 섬세한 세로 미세모 결 라인 */}
+          <line x1="104" y1="110" x2="104" y2="122" stroke="#E2E8F0" strokeWidth="1.2" />
+          <line x1="112" y1="109" x2="112" y2="122" stroke="#38BDF8" strokeWidth="1.5" />
+          <line x1="120" y1="109" x2="120" y2="122" stroke="#38BDF8" strokeWidth="1.5" />
+          <line x1="128" y1="109" x2="128" y2="122" stroke="#38BDF8" strokeWidth="1.5" />
+          <line x1="135" y1="110" x2="135" y2="122" stroke="#E2E8F0" strokeWidth="1.2" />
+        </g>
+
+        {/* 3. 귀여운 미니 치약 튜브 (Toothpaste Tube - 왼쪽 상단) */}
+        <g id="toothpaste-tube">
+          {/* 튜브 본체 (세련된 아쿠아 시안 튜브) */}
+          <path
+            d="M 28 34
+               L 68 44
+               C 74 46 76 50 74 54
+               C 72 58 66 60 60 58
+               L 24 46
+               Z"
+            fill="url(#tube-body)"
+            stroke="#0E7490"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 튜브 끝 밀봉 주름 (Crimp seal) */}
+          <line x1="24" y1="46" x2="28" y2="34" stroke="#0E7490" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="26" y1="47" x2="30" y2="35" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" />
+
+          {/* 튜브 전면 하얀 스트라이프 & 민트 로고 라벨 */}
+          <path d="M 38 39 L 58 44 L 56 52 L 36 47 Z" fill="#FFFFFF" opacity="0.9" />
+          <path d="M 44 42 L 52 44 L 51 47 L 43 45 Z" fill="#06B6D4" />
+
+          {/* 튜브 숄더 & 노즐 목 */}
+          <path
+            d="M 68 44 L 76 46 L 75 52 L 67 50 Z"
+            fill="#E2E8F0"
+            stroke="#64748B"
+            strokeWidth="1.4"
+          />
+          {/* 나사산 노즐 팁 */}
+          <rect
+            x="76"
+            y="47"
+            width="8"
+            height="5"
+            rx="1.5"
+            fill="#FFFFFF"
+            stroke="#64748B"
+            strokeWidth="1.4"
+            transform="rotate(14 76 47)"
+          />
+        </g>
+
+        {/* 4. ★★★ 메인: 글자 'ち'와 1:1 완벽 일체화되는 상쾌한 치약 젤 (Toothpaste Swirl) ★★★ */}
+        {/* 상단 가로선 & 세로선 흐름: 노즐에서 나와 칫솔 위로 주르륵 이어지는 치약 줄기 */}
+        <g id="toothpaste-flow">
+          {/* 치약 상단 가로 흐름 (글자 'ち' 가로선 영역) */}
+          <path
+            d="M 76 56
+               C 88 56 102 55 116 57
+               C 123 58 126 62 122 65
+               C 114 67 98 67 84 66
+               Z"
+            fill="url(#tp-mint)"
+            stroke="#047857"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 가로 흐름 속 화이트 스트라이프 */}
+          <path
+            d="M 80 58 C 92 58 106 57 118 59"
+            stroke="url(#tp-white)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+
+          {/* 세로 줄기 흐름 (글자 'ち' 세로 획 영역 관통) */}
+          <path
+            d="M 92 58
+               C 92 68 94 76 96 84
+               C 98 88 104 88 104 82
+               C 102 74 100 66 98 58
+               Z"
+            fill="url(#tp-mint)"
+            stroke="#047857"
+            strokeWidth="1.6"
+          />
+        </g>
+
+        {/* ★★★ 칫솔모 위에 둥글게 소용돌이치며 얹혀진 거대한 치약 젤 덩어리 (글자 'ち' 하단 둥근 만곡선과 1:1 완벽 일치!) ★★★ */}
+        <g id="toothpaste-dollop">
+          {/* 치약 젤 메인 볼륨 (아쿠아 민트 베이스) */}
+          <path
+            d="M 94 78
+               C 112 74 136 82 140 100
+               C 143 116 132 130 116 130
+               C 102 130 94 123 96 114
+               C 98 106 108 100 114 94
+               C 118 90 114 84 106 82
+               C 100 81 96 80 94 78 Z"
+            fill="url(#tp-mint)"
+            stroke="#047857"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+
+          {/* 치약 특유의 스카이 블루 스트라이프 (중간 곡선) */}
+          <path
+            d="M 100 82
+               C 116 80 134 88 136 102
+               C 138 116 128 126 114 126
+               C 104 126 98 120 100 113"
+            stroke="url(#tp-blue)"
+            strokeWidth="5"
+            strokeLinecap="round"
+            fill="none"
+          />
+
+          {/* 치약 특유의 순백 펄 화이트 스트라이프 (중심 곡선) */}
+          <path
+            d="M 104 84
+               C 118 83 131 90 133 103
+               C 134 114 125 122 114 122
+               C 106 122 102 117 103 112"
+            stroke="url(#tp-white)"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+            fill="none"
+          />
+
+          {/* 탱글탱글한 치약 윗면의 영롱한 유리알 광택 하이라이트 (Gloss shine) */}
+          <path
+            d="M 112 86 C 124 90 132 98 131 108"
+            stroke="#FFFFFF"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          <circle cx="114" cy="87" r="1.4" fill="#FFFFFF" />
+
+          {/* 치약 끝부분 앙증맞은 말림 스월 팁 (Swirl Tip) */}
+          <path
+            d="M 96 114 C 94 118 98 124 106 125 C 112 126 115 123 114 119"
+            stroke="#A7F3D0"
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </g>
+
+        {/* 5. 싱그러운 민트 잎 2장 (Fresh Mint Leaves) */}
+        <g id="mint-leaves">
+          {/* 큰 민트 잎 */}
+          <path
+            d="M 144 124
+               C 152 118 162 120 166 128
+               C 162 134 152 136 144 128
+               Z"
+            fill="url(#mint-leaf-grad)"
+            stroke="#15803D"
+            strokeWidth="1.3"
+            strokeLinejoin="round"
+          />
+          {/* 민트 잎맥 */}
+          <path d="M 146 126 C 153 124 162 126 164 128" stroke="#DCFCE7" strokeWidth="1" strokeLinecap="round" />
+
+          {/* 작은 곁 잎 */}
+          <path
+            d="M 148 132
+               C 155 130 161 133 163 138
+               C 158 141 152 140 148 135
+               Z"
+            fill="url(#mint-leaf-grad)"
+            stroke="#15803D"
+            strokeWidth="1.2"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        {/* 6. 몽글몽글 투명 비누/치약 거품 방울 (Soap Bubbles) */}
+        <g id="foam-bubbles">
+          {/* 우측 상단 큰 거품 */}
+          <circle cx="156" cy="88" r="9" fill="url(#bubble-grad)" stroke="#BAE6FD" strokeWidth="1" />
+          <ellipse cx="153" cy="84" rx="3" ry="1.8" fill="#FFFFFF" opacity="0.8" transform="rotate(-30 153 84)" />
+
+          {/* 우측 중간 작은 거품 */}
+          <circle cx="164" cy="106" r="6" fill="url(#bubble-grad)" stroke="#BAE6FD" strokeWidth="0.8" />
+          <circle cx="162" cy="104" r="1.5" fill="#FFFFFF" opacity="0.85" />
+
+          {/* 좌측 하단 거품 */}
+          <circle cx="72" cy="116" r="5" fill="url(#bubble-grad)" stroke="#BAE6FD" strokeWidth="0.8" />
+          <circle cx="70.5" cy="114.5" r="1.2" fill="#FFFFFF" opacity="0.85" />
+
+          {/* 미니 퐁퐁 방울들 */}
+          <circle cx="146" cy="74" r="3.2" fill="url(#bubble-grad)" stroke="#BAE6FD" strokeWidth="0.6" />
+          <circle cx="170" cy="94" r="2.5" fill="url(#bubble-grad)" />
+          <circle cx="82" cy="122" r="2.2" fill="url(#bubble-grad)" />
+        </g>
+
+        {/* 7. 깨끗함과 상쾌함을 빛내는 반짝이 별빛 (Sparkles ✦) */}
+        <g id="sparkles">
+          {/* 우측 상단 골드/시안 다이아몬드 별 */}
+          <path
+            d="M 152 50 Q 152 58 160 58 Q 152 58 152 66 Q 152 58 144 58 Q 152 58 152 50 Z"
+            fill="#FACC15"
+          />
+          <circle cx="152" cy="58" r="1.5" fill="#FFFFFF" />
+
+          {/* 중앙 상단 미니 별 */}
+          <path
+            d="M 136 38 Q 136 43 141 43 Q 136 43 136 48 Q 136 43 131 43 Q 136 43 136 38 Z"
+            fill="#38BDF8"
+          />
+
+          {/* 좌상단 튜브 근처 미니 별 */}
+          <path
+            d="M 82 34 Q 82 38 86 38 Q 82 38 82 42 Q 82 38 78 38 Q 82 38 82 34 Z"
+            fill="#FACC15"
+          />
+        </g>
+
+        {/* 8. 글자 'ち' 오버레이 (정중앙 완벽 배치) */}
         <MnemonicCharOverlay char="ち" fontFamily={fontFamily} x="108" y="118" />
       </svg>
     );
