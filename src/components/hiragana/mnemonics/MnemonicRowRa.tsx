@@ -442,8 +442,8 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'る') {
-    // る: 캥거루 (등뼈와 배주머니 속에 쏙 들어간 아기의 둥근 루프)
-    // ⚠️ ろ(롤러스케이트: 루프 없음)와 결정적으로 구별되는 배주머니 속 둥근 아기 루프 고리 강조!
+    // る: 캥거루 (서 있는 엄마 캥거루의 등뼈와 배주머니 속에 쏙 들어간 아기의 둥근 루프 고리!)
+    // ⚠️ ろ(롤러스케이트: 루프 없음)와 결정적으로 구별되는 배주머니 속 둥근 아기 캥거루 루프 강조!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -451,43 +451,350 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 캥거루 귀 & 머리 실루엣 (상단 꺾임 획) */}
-        <path
-          d="M 76 46 L 132 46 C 114 62 82 82 82 98 C 82 124 136 126 136 104"
-          stroke="#D6D3D1"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <defs>
+          {/* 엄마 캥거루 따뜻한 골든 카멜 그라디언트 */}
+          <linearGradient id="kan-body" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FED7AA" />
+            <stop offset="45%" stopColor="#FDBA74" />
+            <stop offset="85%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#D97706" />
+          </linearGradient>
 
-        {/* 캥거루 쫑긋 귀 2개 */}
-        <path d="M 130 46 L 138 28 L 144 44" fill="#FEF3C7" stroke="#78716C" strokeWidth="1.4" />
-        <path d="M 134 46 L 142 32" stroke="#D97706" strokeWidth="1.2" />
+          {/* 포근한 가슴 & 배 크림 그라디언트 */}
+          <linearGradient id="kan-belly" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="60%" stopColor="#FFFBEB" />
+            <stop offset="100%" stopColor="#FEF3C7" />
+          </linearGradient>
 
-        {/* 캥거루 눈 */}
-        <circle cx="128" cy="52" r="1.8" fill="#1C1917" />
+          {/* 아기 캥거루 (조이) 그라디언트 */}
+          <linearGradient id="kan-joey" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFEDD5" />
+            <stop offset="50%" stopColor="#FED7AA" />
+            <stop offset="100%" stopColor="#FDBA74" />
+          </linearGradient>
 
-        {/* る의 핵심: 배주머니 속에 쏙 들어간 귀여운 아기 캥거루 (둥근 루프 고리, 포인트 베이지) */}
-        <circle
-          cx="134"
-          cy="104"
-          r="10"
-          fill="#FEF3C7"
-          stroke="#D97706"
-          strokeWidth="1.8"
-        />
-        {/* 아기 캥거루 앙증맞은 귀 & 눈 */}
-        <path d="M 136 96 L 140 88 M 140 96 L 144 90" stroke="#D97706" strokeWidth="1.4" strokeLinecap="round" />
-        <circle cx="132" cy="103" r="1.3" fill="#1C1917" />
-        <circle cx="138" cy="103" r="1.3" fill="#1C1917" />
+          {/* 귓속 & 볼터치 살구 핑크 그라디언트 */}
+          <linearGradient id="kan-inner-ear" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FECDD3" />
+            <stop offset="100%" stopColor="#FDA4AF" />
+          </linearGradient>
 
-        {/* 튼튼한 캥거루 꼬리 받침 */}
-        <path
-          d="M 78 116 C 62 118 52 130 48 136"
-          stroke="#78716C"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
+          {/* 배주머니 안쪽 음영 */}
+          <linearGradient id="kan-pouch-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#9A3412" />
+            <stop offset="100%" stopColor="#7C2D12" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 바닥 그림자 & 초원 잔디 풀잎 */}
+        {/* 안정적인 타원 그림자 */}
+        <ellipse cx="94" cy="141" rx="66" ry="7" fill="#E2E8F0" opacity="0.65" />
+
+        {/* 꼬리 옆 풀잎 (좌측) */}
+        <g id="grass-left">
+          <path
+            d="M 32 142 C 26 133 30 125 36 124 C 36 131 35 137 38 142"
+            fill="#86EFAC"
+            stroke="#16A34A"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 38 142 C 41 130 47 126 51 128 C 48 134 44 139 42 142"
+            fill="#BBF7D0"
+            stroke="#16A34A"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* 발 앞 풀잎 (우측) */}
+        <g id="grass-right">
+          <path
+            d="M 146 142 C 143 133 148 127 153 125 C 151 132 149 138 150 142"
+            fill="#86EFAC"
+            stroke="#16A34A"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+          />
+          <circle cx="156" cy="126" r="2" fill="#FDE047" />
+        </g>
+
+        {/* 2. 캥거루의 시그니처: 굵고 튼튼한 꼬리 (바닥을 짚고 지탱하는 제3의 다리!) */}
+        <g id="kangaroo-tail">
+          {/* 꼬리 본체 (엉덩이에서 왼쪽 아래 바닥으로 묵직하게 뻗어나감) */}
+          <path
+            d="M 74 104
+               C 56 112 40 123 30 133
+               C 25 138 27 141 34 141
+               C 46 141 62 133 80 124
+               Z"
+            fill="url(#kan-body)"
+            stroke="#B45309"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          {/* 꼬리 윗면 볼륨 하이라이트 */}
+          <path
+            d="M 68 108 C 52 116 38 126 33 134"
+            stroke="#FFEDD5"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* 3. 튼튼한 뒷다리와 길쭉한 캥거루 발 */}
+        <g id="hind-leg">
+          {/* 도톰하고 탄탄한 허벅지 근육 */}
+          <path
+            d="M 72 96
+               C 62 106 64 122 72 130
+               C 80 136 92 134 96 124
+               C 100 114 96 100 86 96
+               Z"
+            fill="url(#kan-body)"
+            stroke="#B45309"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 바닥을 딛는 길쭉한 발 (Long Kangaroo Foot) */}
+          <path
+            d="M 76 130
+               L 76 138
+               C 76 140 78 141 82 141
+               L 118 141
+               C 122 141 123 137 119 135
+               L 92 126
+               Z"
+            fill="url(#kan-body)"
+            stroke="#B45309"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 발가락 발톱 디테일 */}
+          <line x1="112" y1="137" x2="118" y2="137" stroke="#78350F" strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="110" y1="140" x2="117" y2="140" stroke="#78350F" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
+
+        {/* 4. 엄마 캥거루 본체 실루엣 (머리, 쫑긋한 귀, 우아한 목, 등허리, 둥근 배) */}
+        <g id="kangaroo-body">
+          {/* 뒤쪽 쫑긋 귀 (왼쪽 귀) */}
+          <path
+            d="M 129 26 C 127 13 134 7 139 11 C 142 15 139 23 136 28 Z"
+            fill="url(#kan-body)"
+            stroke="#B45309"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M 131 23 C 130 15 134 11 137 14 C 139 17 137 22 135 25 Z"
+            fill="url(#kan-inner-ear)"
+          />
+
+          {/* 앞쪽 쫑긋 귀 (오른쪽 메인 귀 - 크고 쫑긋한 캥거루 귀) */}
+          <path
+            d="M 139 25 C 142 9 150 5 155 10 C 158 15 153 25 147 30 Z"
+            fill="url(#kan-body)"
+            stroke="#B45309"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M 142 23 C 144 13 149 10 152 13 C 154 17 151 23 147 27 Z"
+            fill="url(#kan-inner-ear)"
+          />
+
+          {/* 엄마 캥거루 머리~목~등~배 전신 외곽선 */}
+          <path
+            d="M 136 26
+               C 142 27 150 31 155 37
+               C 158 41 157 45 152 47
+               C 144 50 138 54 136 64
+               C 134 76 138 88 140 98
+               C 142 110 132 124 116 126
+               C 96 128 82 118 74 102
+               C 80 82 96 62 116 46
+               C 124 40 128 32 136 26 Z"
+            fill="url(#kan-body)"
+            stroke="#B45309"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+
+          {/* 등/어깨 라인 하이라이트 */}
+          <path
+            d="M 132 30 C 124 38 108 52 94 72 C 84 86 78 98 76 102"
+            stroke="#FFEDD5"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+
+          {/* 부드러운 머즐/턱 밑 크림 패치 */}
+          <path
+            d="M 145 38 C 150 40 154 41 154 44 C 151 47 146 48 140 50 C 138 45 141 40 145 38 Z"
+            fill="url(#kan-belly)"
+          />
+
+          {/* 까만 삼각 코 */}
+          <path
+            d="M 154 39 C 156 38 158 39 158 41 C 158 43 155 44 153 43 Z"
+            fill="#1C1917"
+          />
+
+          {/* 초롱초롱하고 순한 눈망울 */}
+          <path d="M 140 31 C 143 29 146 30 148 32" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" />
+          <ellipse cx="144" cy="35" rx="3.2" ry="3.8" fill="#1C1917" />
+          <circle cx="145.2" cy="33.8" r="1.1" fill="#FFFFFF" />
+          <line x1="147" y1="33" x2="149" y2="31" stroke="#1C1917" strokeWidth="1" strokeLinecap="round" />
+
+          {/* 사랑스러운 복숭아빛 볼터치 */}
+          <ellipse cx="143" cy="42" rx="4.5" ry="3" fill="#FDA4AF" opacity="0.85" />
+
+          {/* 방긋 미소선 */}
+          <path d="M 151 44 C 149 46 146 46 144 45" stroke="#78350F" strokeWidth="1" strokeLinecap="round" />
+        </g>
+
+        {/* 5. 포근한 크림색 가슴 & 배 영역 */}
+        <g id="kangaroo-chest">
+          <path
+            d="M 136 64
+               C 132 75 133 90 134 104
+               C 134 116 124 125 110 125
+               C 98 125 90 118 88 110
+               C 92 98 102 85 114 74
+               C 122 66 128 62 136 64 Z"
+            fill="url(#kan-belly)"
+            stroke="#FDBA74"
+            strokeWidth="1.2"
+          />
+        </g>
+
+        {/* 6. 가슴 앞에서 아기 주머니를 감싸 안는 앙증맞은 두 앞발 (손) */}
+        <g id="front-paws">
+          {/* 뒤쪽 앞발 */}
+          <path
+            d="M 128 66 C 132 66 136 70 135 76 C 134 78 131 79 128 77 C 126 75 126 70 128 66 Z"
+            fill="#FDBA74"
+            stroke="#B45309"
+            strokeWidth="1.4"
+          />
+          {/* 앞쪽 앞발 */}
+          <path
+            d="M 134 68
+               C 140 70 142 75 140 80
+               C 138 83 133 83 131 80
+               C 130 76 130 71 134 68 Z"
+            fill="url(#kan-body)"
+            stroke="#B45309"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          <line x1="135" y1="81" x2="138" y2="79" stroke="#78350F" strokeWidth="1" strokeLinecap="round" />
+        </g>
+
+        {/* 7. ★★★ 배주머니(Pouch)와 아기 캥거루(Joey) - 글자 'る'의 둥근 루프와 1:1 완벽 일체화! ★★★ */}
+        <g id="kangaroo-pouch-and-joey">
+          {/* 배주머니 안쪽 깊은 그림자 공간 */}
+          <path
+            d="M 95 106 C 95 118 103 124 113 124 C 121 124 125 118 125 106 Z"
+            fill="url(#kan-pouch-shadow)"
+            opacity="0.3"
+          />
+
+          {/* 배주머니 속에서 고개를 빼꼼 내민 귀여운 아기 캥거루 (조이) */}
+          {/* 아기 캥거루 머리 */}
+          <ellipse
+            cx="105"
+            cy="107"
+            rx="8"
+            ry="7.5"
+            fill="url(#kan-joey)"
+            stroke="#B45309"
+            strokeWidth="1.5"
+          />
+
+          {/* 아기 캥거루 쫑긋 귀 2개 (배주머니 밖으로 뿅 솟아남) */}
+          {/* 아기 왼쪽 귀 */}
+          <path
+            d="M 99 102 L 95 91 C 94 88 98 88 100 91 L 102 102"
+            fill="url(#kan-joey)"
+            stroke="#B45309"
+            strokeWidth="1.3"
+            strokeLinejoin="round"
+          />
+          <path d="M 97 100 L 96 92 C 95 90 98 90 99 92 L 100 100" fill="url(#kan-inner-ear)" />
+
+          {/* 아기 오른쪽 귀 */}
+          <path
+            d="M 107 102 L 111 90 C 112 87 116 88 115 91 L 111 102"
+            fill="url(#kan-joey)"
+            stroke="#B45309"
+            strokeWidth="1.3"
+            strokeLinejoin="round"
+          />
+          <path d="M 109 100 L 112 92 C 113 90 115 91 114 93 L 110 100" fill="url(#kan-inner-ear)" />
+
+          {/* 아기 캥거루 똘망똘망한 눈망울 */}
+          <circle cx="101.5" cy="106" r="1.3" fill="#1C1917" />
+          <circle cx="102" cy="105.4" r="0.4" fill="#FFFFFF" />
+          <circle cx="107.5" cy="106" r="1.3" fill="#1C1917" />
+          <circle cx="108" cy="105.4" r="0.4" fill="#FFFFFF" />
+
+          {/* 아기 캥거루 크림 머즐 & 까만 코 & 방긋 미소 */}
+          <ellipse cx="104.5" cy="109" rx="3.2" ry="2" fill="#FEF3C7" />
+          <polygon points="103.8,108 105.2,108 104.5,108.9" fill="#1C1917" />
+          <path d="M 103.8 109.5 Q 104.5 110.3 105.2 109.5" stroke="#78350F" strokeWidth="0.7" strokeLinecap="round" />
+
+          {/* 아기 캥거루 발그레 볼터치 */}
+          <circle cx="100" cy="108" r="1.2" fill="#FDA4AF" opacity="0.85" />
+          <circle cx="109" cy="108" r="1.2" fill="#FDA4AF" opacity="0.85" />
+
+          {/* 배주머니 겉 포켓 라인 (엄마 배주머니 입구 테두리 - 루프와 1:1 완벽 정렬!) */}
+          <path
+            d="M 94 105
+               C 94 118 102 126 114 126
+               C 124 126 128 118 126 106"
+            stroke="#B45309"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+          {/* 주머니 입체 하이라이트 주름 */}
+          <path
+            d="M 96 108 C 102 115 116 115 122 108"
+            stroke="#F59E0B"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+
+          {/* 배주머니 가장자리를 꼭 잡은 아기의 앙증맞은 두 앞발 */}
+          <ellipse cx="99" cy="112" rx="2.2" ry="1.5" fill="#FEF3C7" stroke="#B45309" strokeWidth="1" />
+          <ellipse cx="110" cy="112" rx="2.2" ry="1.5" fill="#FEF3C7" stroke="#B45309" strokeWidth="1" />
+        </g>
+
+        {/* 8. 따뜻한 사랑 디테일 (아기 머리 위 미니 핑크 하트 & 햇살 스파클) */}
+        <g id="decorations">
+          {/* 미니 핑크 하트 */}
+          <path
+            d="M 116 88 C 114 85 111 87 114 91 C 117 87 114 85 116 88 Z"
+            fill="#FB7185"
+          />
+          {/* 햇살 스파클 */}
+          <path
+            d="M 166 26 L 167.5 22 L 169 26 L 173 27.5 L 169 29 L 167.5 33 L 166 29 L 162 27.5 Z"
+            fill="#FDE047"
+          />
+          <circle cx="174" cy="36" r="1.2" fill="#FDE047" />
+
+          {/* 경쾌한 도약 모션 점선 */}
+          <path
+            d="M 62 122 C 56 124 52 128 50 132"
+            stroke="#CBD5E1"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeDasharray="3 2"
+          />
+        </g>
 
         {/* 글자 'る' 오버레이 */}
         <MnemonicCharOverlay char="る" fontFamily={fontFamily} x="108" y="118" />
