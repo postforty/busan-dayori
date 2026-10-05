@@ -709,8 +709,8 @@ export default function MnemonicRowMa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'め') {
-    // め: 메기 (타원형 머리와 양옆으로 뻗은 메기 수염선)
-    // ⚠️ ぬ(누에: 꼬리 매듭 있음)와 명확히 구분되는 꼬리 매듭 없는 유려한 삐침 강조!
+    // め: 메기 (동글넓적한 머리, 좌우로 낭창낭창 뻗은 시그니처 메기 수염, 활짝 웃는 입과 물살을 가르는 황금빛 꼬리지느러미!)
+    // ⚠️ ぬ(누에: 꼬리 매듭 있음)와 완벽히 대비되는 매듭 없이 시원하게 빠지는 꼬리지느러미(め) 강조!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -718,47 +718,195 @@ export default function MnemonicRowMa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 메기 둥근 몸체 실루엣 */}
-        <ellipse
-          cx="108"
-          cy="92"
-          rx="38"
-          ry="28"
+        {/* 1. 배경: 잔잔한 강물 수중 환경 & 강바닥 조약돌 */}
+        {/* 잔잔한 수중 물결 흐름선 */}
+        <path
+          d="M 28 34 C 52 30 78 36 102 32 C 126 28 152 34 174 30"
+          stroke="#BAE6FD"
+          strokeWidth="1.6"
+          strokeDasharray="8 6"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 40 44 C 64 40 90 46 114 42 C 138 38 162 44 182 40"
+          stroke="#E0F2FE"
+          strokeWidth="1.4"
+          strokeDasharray="6 6"
+          strokeLinecap="round"
+        />
+
+        {/* 강바닥 동글동글 조약돌 (메기는 강바닥을 누비는 저서성 민물고기!) */}
+        <ellipse cx="36" cy="144" rx="14" ry="7" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="1.2" />
+        <ellipse cx="86" cy="148" rx="18" ry="6" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.2" />
+        <ellipse cx="168" cy="145" rx="15" ry="6.5" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="1.2" />
+
+        {/* 좌측 싱그러운 강 수초 줄기 & 잎사귀 */}
+        <g id="catfish-seaweed">
+          <path
+            d="M 18 150 C 10 126 26 104 18 84 C 26 100 18 126 24 150 Z"
+            fill="#BBF7D0"
+            stroke="#16A34A"
+            strokeWidth="1.2"
+          />
+          <path
+            d="M 28 150 C 36 132 28 116 38 102 C 30 118 36 134 32 150 Z"
+            fill="#DCFCE7"
+            stroke="#22C55E"
+            strokeWidth="1"
+          />
+        </g>
+
+        {/* 2. 메기 본체 실루엣 (둥글넓적한 통통한 체형) */}
+        {/* 등지느러미 (머리 위쪽에 쫑긋 솟은 귀여운 지느러미) */}
+        <path
+          d="M 104 46 C 110 32 124 30 130 42 C 122 44 116 46 112 47 Z"
+          fill="#FDE047"
+          stroke="#CA8A04"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <path d="M 116 36 L 118 44" stroke="#EAB308" strokeWidth="1" strokeLinecap="round" />
+
+        {/* 좌측 가슴지느러미 (Pectoral Fin) */}
+        <path
+          d="M 54 94 C 36 98 30 114 38 122 C 46 120 52 110 56 102 Z"
+          fill="#FEF08A"
+          stroke="#CA8A04"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        <path d="M 40 114 C 46 110 52 106 55 102" stroke="#EAB308" strokeWidth="1" strokeLinecap="round" />
+
+        {/* 우측 가슴지느러미 (Pectoral Fin) */}
+        <path
+          d="M 144 92 C 162 94 168 106 162 116 C 154 114 146 106 142 98 Z"
+          fill="#FEF08A"
+          stroke="#CA8A04"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        <path d="M 158 108 C 152 104 146 100 143 96" stroke="#EAB308" strokeWidth="1" strokeLinecap="round" />
+
+        {/* 메기 토실토실한 물고기 몸체 (슬레이트 블루 바디) */}
+        <path
+          d="M 68 58
+             C 88 44 126 44 146 58
+             C 166 74 168 104 152 122
+             C 136 138 92 140 68 126
+             C 46 112 46 76 68 58 Z"
+          fill="#94A3B8"
+          stroke="#334155"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        />
+
+        {/* 밝고 부드러운 메기 배 (Cream Belly) */}
+        <path
+          d="M 72 82
+             C 90 70 124 70 140 82
+             C 150 96 142 120 126 128
+             C 106 136 84 134 72 122
+             C 62 108 62 92 72 82 Z"
           fill="#FEFCE8"
-          opacity="0.5"
           stroke="#FEF08A"
           strokeWidth="1.5"
         />
 
-        {/* 메기 눈망울 2개 */}
-        <circle cx="82" cy="74" r="3" fill="#1C1917" />
-        <circle cx="81" cy="73" r="1" fill="#FFFFFF" />
+        {/* 메기 등 점박이 무늬 (Cute Spots) */}
+        <circle cx="98" cy="50" r="2.8" fill="#475569" opacity="0.5" />
+        <circle cx="118" cy="48" r="2.2" fill="#475569" opacity="0.5" />
+        <circle cx="134" cy="62" r="2" fill="#475569" opacity="0.5" />
 
-        {/* 메기 수염선 (글자 め의 양 갈래 교차 획과 완벽 조화) */}
+        {/* 3. 황금빛 메기 꼬리지느러미 (글자 め 오른쪽 아래 삐침 끝과 완벽 일체화!) */}
+        <g id="catfish-tail-fin">
+          <path
+            d="M 144 122
+               C 158 112 178 114 188 124
+               C 178 132 178 134 188 142
+               C 174 148 156 142 142 128 Z"
+            fill="#FDE047"
+            stroke="#CA8A04"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 지느러미 결 라인 3가닥 (Fin Rays) */}
+          <path d="M 148 124 C 160 120 174 122 184 125" stroke="#EAB308" strokeWidth="1.2" strokeLinecap="round" />
+          <path d="M 148 126 C 162 128 174 132 184 133" stroke="#EAB308" strokeWidth="1.2" strokeLinecap="round" />
+          <path d="M 146 127 C 156 136 168 140 182 141" stroke="#EAB308" strokeWidth="1.2" strokeLinecap="round" />
+        </g>
+
+        {/* 4. 메기 얼굴 표정 (똘망똘망한 눈, 뻐끔거리는 입, 복숭아 볼터치) */}
+        {/* 좌측 눈망울 */}
+        <circle cx="72" cy="58" r="6" fill="#FFFFFF" stroke="#334155" strokeWidth="1.5" />
+        <circle cx="73" cy="58" r="3.8" fill="#0F172A" />
+        <circle cx="74.5" cy="56.5" r="1.4" fill="#FFFFFF" />
+        <circle cx="72" cy="60" r="0.7" fill="#FFFFFF" />
+        <path d="M 66 50 Q 72 47 78 51" stroke="#334155" strokeWidth="1.4" strokeLinecap="round" />
+
+        {/* 우측 눈망울 */}
+        <circle cx="132" cy="56" r="6" fill="#FFFFFF" stroke="#334155" strokeWidth="1.5" />
+        <circle cx="131" cy="56" r="3.8" fill="#0F172A" />
+        <circle cx="132.5" cy="54.5" r="1.4" fill="#FFFFFF" />
+        <circle cx="130" cy="58" r="0.7" fill="#FFFFFF" />
+        <path d="M 126 49 Q 132 46 138 50" stroke="#334155" strokeWidth="1.4" strokeLinecap="round" />
+
+        {/* 사랑스러운 복숭아빛 볼터치 */}
+        <ellipse cx="64" cy="68" rx="5" ry="3.2" fill="#FDA4AF" opacity="0.85" />
+        <ellipse cx="140" cy="66" rx="5" ry="3.2" fill="#FDA4AF" opacity="0.85" />
+
+        {/* 활짝 웃으며 뻐끔거리는 커다란 메기 입 */}
         <path
-          d="M 82 82 C 60 76 46 94 42 108"
-          stroke="#78716C"
-          strokeWidth="2.2"
+          d="M 84 74 C 92 86 114 86 122 74"
+          stroke="#334155"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+        {/* 입안 붉은색 & 앙증맞은 핑크 혓바닥 */}
+        <path
+          d="M 86 75 C 92 85 114 85 120 75 C 114 80 92 80 86 75 Z"
+          fill="#F43F5E"
+        />
+        <ellipse cx="103" cy="79" rx="4.5" ry="2.2" fill="#FDA4AF" />
+
+        {/* 5. 메기의 시그니처: 좌우로 낭창낭창 뻗은 4가닥 메기 수염 (Iconic Catfish Barbels) */}
+        {/* 좌측 긴 윗수염 */}
+        <path
+          d="M 78 72 C 54 62 34 74 22 92 C 18 98 20 104 25 101"
+          stroke="#1E293B"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+        />
+        {/* 우측 긴 윗수염 */}
+        <path
+          d="M 126 72 C 148 62 168 74 180 92 C 184 98 182 104 177 101"
+          stroke="#1E293B"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+        />
+        {/* 턱 아래 귀여운 작은 보조 수염 2가닥 */}
+        <path
+          d="M 88 84 C 80 94 76 104 80 114"
+          stroke="#475569"
+          strokeWidth="1.8"
           strokeLinecap="round"
         />
         <path
-          d="M 94 86 C 120 74 154 94 168 114"
-          stroke="#78716C"
-          strokeWidth="2.2"
+          d="M 118 84 C 126 94 130 104 126 114"
+          stroke="#475569"
+          strokeWidth="1.8"
           strokeLinecap="round"
         />
 
-        {/* 연노랑 가슴 지느러미 (포인트 컬러) */}
-        <path
-          d="M 124 108 C 136 102 144 116 138 126 Z"
-          fill="#FEF08A"
-          stroke="#EAB308"
-          strokeWidth="1.3"
-        />
-
-        {/* 보글보글 물방울 2개 */}
-        <circle cx="58" cy="62" r="3" fill="#38BDF8" />
-        <circle cx="68" cy="52" r="2" fill="#38BDF8" />
+        {/* 6. 메기 입에서 퐁퐁 솟아오르는 투명 물방울 */}
+        <g id="catfish-bubbles">
+          <circle cx="70" cy="38" r="4" fill="#E0F2FE" stroke="#38BDF8" strokeWidth="1.2" />
+          <circle cx="71.5" cy="36.5" r="1.2" fill="#FFFFFF" />
+          <circle cx="60" cy="24" r="2.6" fill="#E0F2FE" stroke="#38BDF8" strokeWidth="1" />
+          <circle cx="144" cy="34" r="3.4" fill="#E0F2FE" stroke="#38BDF8" strokeWidth="1.1" />
+          <circle cx="145.2" cy="32.8" r="1" fill="#FFFFFF" />
+          <circle cx="154" cy="22" r="2.2" fill="#E0F2FE" stroke="#38BDF8" strokeWidth="0.9" />
+          <circle cx="54" cy="14" r="1.8" fill="#38BDF8" />
+        </g>
 
         {/* 글자 'め' 오버레이 */}
         <MnemonicCharOverlay char="め" fontFamily={fontFamily} x="108" y="118" />
