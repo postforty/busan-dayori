@@ -3,7 +3,7 @@ import MnemonicCharOverlay from './MnemonicCharOverlay';
 
 export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProps) {
   if (char === 'な') {
-    // な: 나비 (더듬이, 왼쪽 날개 1·2획, 오른쪽 앞날개 3획, 둥근 뒷날개 4획이 완벽하게 일체화된 우아한 나비!)
+    // な: 나비 (1·2획은 왼쪽 날개, 3획은 오른쪽 앞날개 무늬 띠, 4획 루프와 꼬리는 오른쪽 뒷날개 안상무늬 & 제비꼬리와 1:1 완벽 일치!)
     return (
       <svg
         viewBox="0 0 200 160"
@@ -11,115 +11,173 @@ export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 나비 비행 궤적 및 반짝이 가루 */}
-        <circle cx="44" cy="56" r="1.5" fill="#C084FC" />
-        <circle cx="160" cy="52" r="1.8" fill="#F472B6" />
-        <path
-          d="M 162 44 L 164 38 L 166 44 L 172 46 L 166 48 L 164 54 L 162 48 L 156 46 Z"
-          fill="#FDE047"
-        />
+        <defs>
+          {/* 날개 은은한 파스텔 라벤더-퍼플 그라데이션 */}
+          <linearGradient id="na-wing-left" x1="50" y1="40" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FAF5FF" />
+            <stop offset="60%" stopColor="#F3E8FF" />
+            <stop offset="100%" stopColor="#E9D5FF" />
+          </linearGradient>
+          <linearGradient id="na-wing-right-top" x1="115" y1="40" x2="165" y2="70" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FAF5FF" />
+            <stop offset="50%" stopColor="#F3E8FF" />
+            <stop offset="100%" stopColor="#E9D5FF" />
+          </linearGradient>
+          <linearGradient id="na-wing-right-bot" x1="110" y1="80" x2="155" y2="125" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FAF5FF" />
+            <stop offset="60%" stopColor="#F3E8FF" />
+            <stop offset="100%" stopColor="#DDD6FE" />
+          </linearGradient>
+          {/* 가녀리고 우아한 나비 몸통 그라데이션 */}
+          <linearGradient id="na-body-grad" x1="110" y1="40" x2="105" y2="90" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#C084FC" />
+            <stop offset="50%" stopColor="#9333EA" />
+            <stop offset="100%" stopColor="#7E22CE" />
+          </linearGradient>
+          {/* 4획 루프와 1:1 싱크로되는 신비로운 공작나비 안상무늬 */}
+          <radialGradient id="na-eyespot-grad" cx="114" cy="107" r="9" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#581C87" />
+            <stop offset="45%" stopColor="#7E22CE" />
+            <stop offset="70%" stopColor="#C084FC" />
+            <stop offset="90%" stopColor="#FDF4FF" />
+            <stop offset="100%" stopColor="#F472B6" />
+          </radialGradient>
+        </defs>
 
-        {/* 좌측 하단 작은 봄꽃 한 송이 (꿀을 머금은 꽃) */}
-        <g id="flower-blossom">
-          <circle cx="46" cy="126" r="4" fill="#FDE047" />
-          <path d="M 46 122 C 43 116 49 116 46 122 Z" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
-          <path d="M 50 126 C 56 123 56 129 50 126 Z" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
-          <path d="M 46 130 C 49 136 43 136 46 130 Z" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
-          <path d="M 42 126 C 36 129 36 123 42 126 Z" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
+        {/* 배경 은은한 나비 비행 아우라 */}
+        <ellipse cx="108" cy="80" rx="66" ry="52" fill="#FAF5FF" opacity="0.6" />
+
+        {/* 1. 좌하단 봄꽃 (나비가 찾아온 향기로운 꽃송이) */}
+        <g id="na-flower-group">
+          {/* 싱그러운 꽃잎 잎사귀 */}
+          <path d="M 34 132 C 24 128 24 138 32 140 Z" fill="#BBF7D0" stroke="#22C55E" strokeWidth="0.9" />
+          <path d="M 48 136 C 54 144 44 146 42 138 Z" fill="#BBF7D0" stroke="#22C55E" strokeWidth="0.9" />
+          {/* 벚꽃 느낌의 화사한 핑크 꽃잎 5장 */}
+          <circle cx="40" cy="128" r="5" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
+          <circle cx="48" cy="126" r="5" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
+          <circle cx="46" cy="134" r="5" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
+          <circle cx="36" cy="134" r="5" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
+          <circle cx="34" cy="127" r="5" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
+          {/* 꽃술 화심 */}
+          <circle cx="41" cy="130" r="3.2" fill="#FDE047" stroke="#EAB308" strokeWidth="0.8" />
+          <circle cx="41" cy="130" r="1.2" fill="#CA8A04" />
         </g>
 
-        {/* 나비 왼쪽 앞날개 (글자 な 1·2획과 맞물림) */}
+        {/* 2. 나비 왼쪽 날개 (글자 な 1획 가로선 & 2획 곡선과 완벽 일체화) */}
+        {/* 왼쪽 날개 외곽선: 1획 상단선을 따라 뻗고, 2획 곡선을 감싸며 우아하게 마감 */}
         <path
-          d="M 108 58 
-             C 92 36 54 40 48 62 
-             C 42 78 60 90 76 86 
-             C 92 82 104 74 108 58 Z"
-          fill="#FAF5FF"
-          stroke="#C084FC"
+          d="M 106 52 
+             C 88 48 64 48 46 60 
+             C 36 68 38 82 48 94 
+             C 58 106 72 108 80 102 
+             C 88 94 98 86 104 74 Z"
+          fill="url(#na-wing-left)"
+          stroke="#A855F7"
           strokeWidth="1.8"
           strokeLinejoin="round"
         />
-        {/* 왼쪽 앞날개 내부 그라데이션 무늬 */}
-        <path
-          d="M 102 60 C 86 46 62 48 56 64 C 54 74 68 80 80 76 Z"
-          fill="#F3E8FF"
-          opacity="0.8"
-        />
+        {/* 왼쪽 날개 내부 시맥 (방사형 날개맥: 1획과 2획의 방향을 자연스럽게 보조) */}
+        <path d="M 102 56 C 82 54 62 58 48 66" stroke="#C084FC" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M 98 64 C 78 68 58 78 50 88" stroke="#C084FC" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M 92 76 C 80 84 68 94 62 98" stroke="#D8B4FE" strokeWidth="1" strokeLinecap="round" />
+        {/* 날개 가장자리 앙증맞은 화이트 레이스 무늬 */}
+        <circle cx="44" cy="68" r="2" fill="#FFFFFF" opacity="0.8" />
+        <circle cx="42" cy="78" r="2.2" fill="#FFFFFF" opacity="0.8" />
+        <circle cx="46" cy="88" r="2" fill="#FFFFFF" opacity="0.8" />
 
-        {/* 나비 왼쪽 뒷날개 (아래로 둥글게 처진 날개) */}
+        {/* 3. 나비 오른쪽 앞날개 (글자 な 3획 대각선 점과 완벽 일치!) */}
         <path
-          d="M 80 86 
-             C 62 94 56 114 72 124 
-             C 86 132 104 118 108 94 
-             C 96 92 86 90 80 86 Z"
-          fill="#FAF5FF"
-          stroke="#C084FC"
+          d="M 112 50 
+             C 126 36 156 36 166 48 
+             C 174 58 168 74 154 82 
+             C 142 86 128 82 114 68 Z"
+          fill="url(#na-wing-right-top)"
+          stroke="#A855F7"
           strokeWidth="1.8"
           strokeLinejoin="round"
         />
-        <circle cx="76" cy="110" r="4.5" fill="#E9D5FF" stroke="#A855F7" strokeWidth="1" />
-        <circle cx="76" cy="110" r="2" fill="#9333EA" />
-
-        {/* 나비 오른쪽 앞날개 (글자 な 3획 팁과 정확히 맞물림) */}
+        {/* 3획 위치를 아름답게 강조하는 날개 띠 무늬 (x=134~150, y=58~74) */}
         <path
-          d="M 112 56 
-             C 128 34 162 40 166 62 
-             C 170 78 152 90 138 86 
-             C 126 82 116 72 112 56 Z"
-          fill="#FAF5FF"
-          stroke="#C084FC"
+          d="M 132 54 C 140 60 148 66 156 74"
+          stroke="#F472B6"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          opacity="0.85"
+        />
+        <circle cx="158" cy="54" r="3.5" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1" />
+        <circle cx="158" cy="54" r="1.5" fill="#E11D48" />
+
+        {/* 4. 나비 오른쪽 뒷날개 (글자 な 4획 루프 & 꼬리와 1:1 완벽 정렬!) */}
+        {/* 뒷날개 본체: 4획 루프(cx=114, cy=107)를 감싸고, 우측 꼬리(x=142)를 향해 제비나비 꼬리 날개로 뻗음 */}
+        <path
+          d="M 110 74 
+             C 122 76 138 80 148 92 
+             C 158 104 156 120 144 126 
+             C 134 130 118 126 106 118 
+             C 98 108 102 88 110 74 Z"
+          fill="url(#na-wing-right-bot)"
+          stroke="#A855F7"
           strokeWidth="1.8"
           strokeLinejoin="round"
         />
-        {/* 오른쪽 앞날개 내부 무늬 (글자 3획 뒤를 받쳐주는 날개 스팟) */}
+        {/* 제비나비 우아한 꼬리 날개 돌기 (4획 끝 삐침 방향과 일치: x=142~158) */}
         <path
-          d="M 118 58 C 132 44 154 48 158 64 C 158 74 146 80 136 76 Z"
-          fill="#F3E8FF"
-          opacity="0.8"
-        />
-        {/* 오른쪽 날개 끝 포인트 장식 (글자 3획과 조화) */}
-        <circle cx="140" cy="62" r="5" fill="#FCE7F3" stroke="#F472B6" strokeWidth="1.2" />
-        <circle cx="140" cy="62" r="2.2" fill="#E11D48" />
-
-        {/* 나비 오른쪽 뒷날개 (글자 な 4획 둥근 루프와 완벽 일치) */}
-        <path
-          d="M 134 86 
-             C 152 94 158 114 142 126 
-             C 126 134 110 118 112 94 
-             C 120 92 128 90 134 86 Z"
-          fill="#FAF5FF"
-          stroke="#C084FC"
-          strokeWidth="1.8"
+          d="M 144 118 C 152 120 156 124 158 128 C 154 130 146 128 140 125"
+          fill="#DDD6FE"
+          stroke="#A855F7"
+          strokeWidth="1.5"
           strokeLinejoin="round"
         />
-        {/* 오른쪽 뒷날개 고리 무늬 (Eye-spot: 글자 4획 루프 중심) */}
-        <circle cx="136" cy="112" r="5" fill="#E9D5FF" stroke="#A855F7" strokeWidth="1" />
-        <circle cx="136" cy="112" r="2.2" fill="#9333EA" />
 
-        {/* 나비 중앙 몸통 (Thorax & Abdomen) */}
+        {/* ★ 핵심 싱크로: 4획 루프 중심의 신비로운 안상 무늬 (Eye-spot, cx=114, cy=107) */}
+        <circle cx="114" cy="107" r="8.5" fill="url(#na-eyespot-grad)" stroke="#C084FC" strokeWidth="1" />
+        <circle cx="114" cy="107" r="4.2" fill="#581C87" />
+        <circle cx="112.5" cy="105.5" r="1.3" fill="#FFFFFF" />
+
+        {/* 5. 부드럽고 가녀린 나비 몸통 (글자 획을 가리지 않고 틈새에 자연스럽게 안착) */}
+        {/* 몸통 본체: 1획과 2획 사이에서 4획으로 이어지는 대각선 흐름(10° 기울기)을 따라 배치 */}
         <path
-          d="M 110 52 C 108 52 107 56 107 72 C 107 88 108 96 110 96 C 112 96 113 88 113 72 C 113 56 112 52 110 52 Z"
-          fill="#78716C"
+          d="M 111 46 
+             C 113 46 114 54 113 68 
+             C 112 80 108 88 105 92 
+             C 103 92 103 88 105 76 
+             C 107 64 109 46 111 46 Z"
+          fill="url(#na-body-grad)"
+          stroke="#7E22CE"
+          strokeWidth="1"
         />
-        {/* 머리 */}
-        <circle cx="110" cy="48" r="3.5" fill="#57534E" />
+        {/* 몸통 마디 주름선 */}
+        <line x1="108" y1="58" x2="112" y2="59" stroke="#E9D5FF" strokeWidth="1" strokeLinecap="round" />
+        <line x1="106" y1="68" x2="110" y2="69" stroke="#E9D5FF" strokeWidth="1" strokeLinecap="round" />
+        <line x1="104" y1="78" x2="108" y2="79" stroke="#E9D5FF" strokeWidth="1" strokeLinecap="round" />
 
-        {/* 나비 우아한 한 쌍의 더듬이 (Antennae - 머리에서 V자로 솟아남) */}
+        {/* 나비 귀여운 머리 */}
+        <circle cx="111" cy="44" r="3" fill="#9333EA" stroke="#7E22CE" strokeWidth="0.8" />
+        <circle cx="110" cy="43.5" r="0.8" fill="#FFFFFF" opacity="0.8" />
+
+        {/* 우아한 더듬이 (글자 위쪽 빈 공간으로 뻗어 획과 전혀 간섭하지 않음) */}
         <path
-          d="M 109 46 C 106 36 98 32 94 30"
-          stroke="#57534E"
-          strokeWidth="1.6"
+          d="M 110 42 C 107 32 99 26 95 24"
+          stroke="#7E22CE"
+          strokeWidth="1.5"
           strokeLinecap="round"
         />
-        <circle cx="94" cy="30" r="1.8" fill="#A855F7" />
+        <circle cx="95" cy="24" r="2" fill="#F472B6" stroke="#DB2777" strokeWidth="0.6" />
 
         <path
-          d="M 111 46 C 114 36 122 32 126 30"
-          stroke="#57534E"
-          strokeWidth="1.6"
+          d="M 112 42 C 115 32 123 26 128 24"
+          stroke="#7E22CE"
+          strokeWidth="1.5"
           strokeLinecap="round"
         />
-        <circle cx="126" cy="30" r="1.8" fill="#A855F7" />
+        <circle cx="128" cy="24" r="2" fill="#F472B6" stroke="#DB2777" strokeWidth="0.6" />
+
+        {/* 6. 흩날리는 꽃가루 & 반짝이 스파클 (나풀나풀 살아있는 생동감) */}
+        <path d="M 166 40 L 167.5 36 L 169 40 L 173 41.5 L 169 43 L 167.5 47 L 166 43 L 162 41.5 Z" fill="#FDE047" />
+        <circle cx="152" cy="30" r="1.5" fill="#F472B6" />
+        <circle cx="174" cy="54" r="1.2" fill="#C084FC" />
+        <circle cx="68" cy="120" r="1.5" fill="#FDE047" />
+        <circle cx="58" cy="112" r="1.2" fill="#C084FC" />
 
         {/* 글자 'な' 오버레이 */}
         <MnemonicCharOverlay char="な" fontFamily={fontFamily} x="108" y="118" />
