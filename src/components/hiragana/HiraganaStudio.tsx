@@ -628,7 +628,18 @@ export default function HiraganaStudio({
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-base font-black text-[#2D3748]">
-                      {selectedChar.char} [{selectedChar.koreanSound}]
+                      <span
+                        className={fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}
+                        style={{
+                          fontFamily:
+                            fontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
+                        {selectedChar.char}
+                      </span>{' '}
+                      [{selectedChar.koreanSound}]
                     </span>
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-stone-100 text-[#718096]">
                       {selectedChar.romaji} • {selectedChar.strokeCount}획
@@ -897,7 +908,29 @@ export default function HiraganaStudio({
                       : 'bg-stone-100 text-[#718096] hover:bg-stone-200'
                       }`}
                   >
-                    {pair.char1.char} vs {pair.char2.char}
+                    <span
+                      className={fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}
+                      style={{
+                        fontFamily:
+                          fontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif"
+                      }}
+                    >
+                      {pair.char1.char}
+                    </span>
+                    {' vs '}
+                    <span
+                      className={fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}
+                      style={{
+                        fontFamily:
+                          fontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif"
+                      }}
+                    >
+                      {pair.char2.char}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -1209,7 +1242,16 @@ export default function HiraganaStudio({
                     {/* 일본어 텍스트 및 발음 */}
                     <div className="space-y-1">
                       <div className="flex items-baseline justify-between">
-                        <span className="text-xl font-black text-[#2D3748] tracking-wider">
+                        <span
+                          className={`text-xl font-black text-[#2D3748] tracking-wider transition-colors ${fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                            }`}
+                          style={{
+                            fontFamily:
+                              fontStyle === 'serif'
+                                ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                : "'Klee One', 'Noto Sans JP', sans-serif"
+                          }}
+                        >
                           {item.japanese}
                         </span>
 
