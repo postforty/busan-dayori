@@ -242,9 +242,9 @@ export default function MnemonicRowYa({ char, fontFamily }: MnemonicSvgChildProp
 
   if (char === 'ゆ') {
     // ゆ: 유도 (도복 깃을 맞잡고 상대를 공중으로 번쩍 들어 메치는 시원한 업어치기 한판!)
-    // ⚠️ 1획 왼쪽 기둥: 백색 도복에 검은 띠를 동여매고 축을 지탱하는 유도 선수,
-    //    1획 회전 루프: 공중에 붕 떠서 거꾸로 휙 날아가는 청색 도복의 상대 선수 & 회전 바람 궤적,
-    //    2획 수직 직선: 상대를 매트로 쾅! 메다꽂는 시원한 수직 축과 다다미 매트 바닥 충격파와 1:1 완벽 일치!
+    // ⚠️ 1획 왼쪽 기둥: 허리를 깊게 숙이고 다리로 버티며 상대를 짊어지는 공격자(Tori, 백색 도복 & 검은 띠)의 등과 몸체,
+    //    1획 회전 루프: 등 위로 번쩍 들려 공중에서 둥글게 원형 루프를 그리며 거꾸로 넘어가는 상대 선수(Uke, 청색 도복)의 휘어진 몸과 다리,
+    //    2획 수직 내리꽂기: 깃과 소매를 바닥 쪽으로 강하게 낚아채어 메다꽂는 공격자의 내리꽂는 팔과 한판(IPPON) 수직 낙하 축!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -263,7 +263,7 @@ export default function MnemonicRowYa({ char, fontFamily }: MnemonicSvgChildProp
           {/* 백색 유도복 입체 쉐이딩 그라디언트 */}
           <linearGradient id="yu-white-gi" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="60%" stopColor="#F1F5F9" />
+            <stop offset="55%" stopColor="#F1F5F9" />
             <stop offset="100%" stopColor="#CBD5E1" />
           </linearGradient>
 
@@ -287,16 +287,15 @@ export default function MnemonicRowYa({ char, fontFamily }: MnemonicSvgChildProp
             <stop offset="100%" stopColor="#0F172A" />
           </linearGradient>
 
-          {/* 업어치기 회전 바람 아크 그라디언트 */}
+          {/* 업어치기 회전 바람 아크 그라디언트 (루프 형태) */}
           <linearGradient id="yu-throw-arc" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.85" />
-            <stop offset="60%" stopColor="#60A5FA" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#93C5FD" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#60A5FA" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#93C5FD" stopOpacity="0.1" />
           </linearGradient>
         </defs>
 
         {/* 1. 배경: 유도 경기장 (공식 다다미 매트 & 위험 경계 적색선) */}
-        {/* 다다미 매트 베이스 */}
         <path
           d="M 0 134 C 40 130 160 130 200 134 L 200 160 L 0 160 Z"
           fill="url(#yu-tatami)"
@@ -316,182 +315,172 @@ export default function MnemonicRowYa({ char, fontFamily }: MnemonicSvgChildProp
           opacity="0.85"
         />
 
-        {/* 2. 업어치기 회전 바람 궤적 (글자 ゆ의 1획 둥근 바디와 일치) */}
+        {/* 2. 업어치기 회전 바람 궤적 (글자 ゆ의 1획 둥근 바디 & 루프와 정확히 일치) */}
         <path
-          d="M 66 102 C 64 128 136 134 144 98 C 150 70 124 50 96 56 C 80 60 72 74 74 88"
+          d="M 76 96 C 74 122 138 128 144 94 C 148 66 124 50 96 54 C 82 58 76 72 78 86"
           stroke="url(#yu-throw-arc)"
-          strokeWidth="11"
+          strokeWidth="12"
           strokeLinecap="round"
         />
         <path
-          d="M 68 104 C 68 126 134 130 142 96 C 146 72 124 54 98 60"
+          d="M 78 98 C 76 120 136 124 142 92 C 146 68 124 52 98 56"
           stroke="#38BDF8"
-          strokeWidth="2.6"
+          strokeWidth="2.8"
           strokeLinecap="round"
         />
         <path
-          d="M 72 108 C 76 122 130 126 138 94 C 142 74 122 58 102 64"
+          d="M 82 104 C 86 118 132 122 138 90 C 142 70 122 56 102 60"
           stroke="#FFFFFF"
           strokeWidth="1.8"
           strokeDasharray="7 4"
           strokeLinecap="round"
         />
 
-        {/* 3. 공중으로 날아가는 상대 선수 (청색 도복 Blue Gi - 유도 올림픽 공식 대결!) */}
-        <g id="judo-blue-opponent">
-          {/* 휘날리는 도복 바지 (양 다리 공중 회전) */}
+        {/* 3. 공격자 (Tori) - 백색 도복 & 검은 띠, 'ゆ' 1획 왼쪽 기둥과 100% 일치 */}
+        <g id="judo-white-attacker">
+          {/* 매트를 딛고 버티는 두 다리와 도복 바지 (낮은 기마 자세) */}
+          {/* 뒷다리 */}
           <path
-            d="M 134 52 C 148 46 162 50 168 58 C 164 64 152 66 138 62 Z"
-            fill="url(#yu-blue-gi-dark)"
-            stroke="#1E3A8A"
+            d="M 52 108 C 50 118 48 126 50 134 L 59 134 C 60 126 62 116 63 106 Z"
+            fill="url(#yu-white-gi)"
+            stroke="#475569"
             strokeWidth="1.6"
           />
+          {/* 앞다리 (상대를 메치기 위해 축을 지탱하는 중심 발) */}
           <path
-            d="M 132 58 C 144 64 154 74 156 84 C 150 86 142 80 134 72 Z"
-            fill="url(#yu-blue-gi)"
-            stroke="#1E3A8A"
+            d="M 68 106 C 70 116 72 126 74 135 L 83 134 C 81 124 78 114 76 104 Z"
+            fill="url(#yu-white-gi)"
+            stroke="#475569"
             strokeWidth="1.6"
           />
-          {/* 공중에 뜬 상대 선수의 양 발 (맨발 투혼) */}
-          <ellipse cx="170" cy="59" rx="4" ry="2.4" fill="#FED7AA" stroke="#9A3412" strokeWidth="1" transform="rotate(-15 170 59)" />
-          <ellipse cx="158" cy="85" rx="3.5" ry="2.4" fill="#FED7AA" stroke="#9A3412" strokeWidth="1" transform="rotate(30 158 85)" />
+          {/* 바닥을 딛고 있는 맨발 */}
+          <ellipse cx="51" cy="135" rx="4.5" ry="2.2" fill="#FED7AA" stroke="#9A3412" strokeWidth="1" />
+          <ellipse cx="76" cy="135" rx="5" ry="2.2" fill="#FED7AA" stroke="#9A3412" strokeWidth="1" />
 
-          {/* 공중에서 거꾸로 넘겨지는 청색 도복 상체 */}
+          {/* 허리를 깊게 숙이고 상대를 업은 듬직한 등과 몸체 ('ゆ' 1획 왼쪽 세로 기둥 축!) */}
           <path
-            d="M 88 56 C 102 44 124 42 136 50 C 142 56 140 68 134 76 C 122 82 102 78 88 66 Z"
+            d="M 54 58 C 66 48 76 48 78 60 C 80 74 79 92 77 108 C 72 110 60 110 56 108 C 52 94 50 74 54 58 Z"
+            fill="url(#yu-white-gi)"
+            stroke="#334155"
+            strokeWidth="2.2"
+            strokeLinejoin="round"
+          />
+          {/* 등의 역동적인 도복 주름 라인 */}
+          <path d="M 60 64 C 66 68 72 74 74 84 M 58 78 C 64 82 70 88 72 96" stroke="#94A3B8" strokeWidth="1.4" strokeLinecap="round" />
+
+          {/* 공격자의 숙인 머리 & 기합의 표정 */}
+          <circle cx="60" cy="46" r="9" fill="#FED7AA" stroke="#78350F" strokeWidth="1.5" />
+          {/* 검은 숏컷 스포츠 머리 */}
+          <path
+            d="M 52 46 C 52 38 58 36 67 37 C 70 41 69 45 68 47 C 64 42 57 42 52 46 Z"
+            fill="#1E293B"
+          />
+          {/* 기합 넣는 눈과 이마의 땀방울 */}
+          <path d="M 60 46 L 66 44" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="50" cy="42" r="1.5" fill="#38BDF8" />
+          <circle cx="70" cy="40" r="1.2" fill="#BAE6FD" />
+
+          {/* ★ 유도의 영혼: 블랙 벨트 (검은 띠) & 역동적으로 휘날리는 띠 자락 ★ */}
+          <rect
+            x="54"
+            y="94"
+            width="24"
+            height="8"
+            rx="2"
+            fill="url(#yu-black-belt)"
+            stroke="#0F172A"
+            strokeWidth="1.4"
+          />
+          {/* 벨트 중앙 매듭 */}
+          <rect x="64" y="93" width="6.5" height="9.5" rx="1.5" fill="#0F172A" stroke="#475569" strokeWidth="1" />
+          {/* 힘차게 펄럭이는 띠 끝자락 */}
+          <path d="M 66 102 C 63 112 56 120 52 127" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          <path d="M 69 102 C 71 112 76 120 78 128" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          <line x1="53" y1="124" x2="55" y2="126" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+          <line x1="76" y1="125" x2="78" y2="127" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" />
+        </g>
+
+        {/* 4. 공중으로 번쩍 들려 둥글게 회전하는 상대 선수 (Uke, 청색 도복 - 'ゆ' 1획 둥근 루프와 100% 일체화!) */}
+        <g id="judo-blue-thrown">
+          {/* 등 너머로 거꾸로 떨어지는 상대 선수의 머리와 어깨 (루프 안쪽 진입부) */}
+          <circle cx="86" cy="78" r="8" fill="#FED7AA" stroke="#78350F" strokeWidth="1.4" />
+          <path d="M 80 77 C 80 70 86 68 93 70 C 94 74 93 78 92 80 C 89 75 83 74 80 77 Z" fill="#1E293B" />
+
+          {/* 공중에서 활처럼 둥글게 휘어진 청색 도복 상체 (루프 상단 곡선 x=88~136, y=50~76) */}
+          <path
+            d="M 86 72 C 92 54 114 48 132 54 C 140 60 138 74 126 82 C 110 88 96 84 86 72 Z"
             fill="url(#yu-blue-gi)"
             stroke="#1E3A8A"
             strokeWidth="1.8"
             strokeLinejoin="round"
           />
-          {/* 청색 도복 빳빳한 옷깃 라인 */}
-          <path d="M 94 58 L 110 52 M 98 64 L 114 58" stroke="#93C5FD" strokeWidth="1.5" strokeLinecap="round" />
+          {/* 청색 도복 옷깃 라인 */}
+          <path d="M 94 66 L 110 58 M 98 72 L 114 64" stroke="#93C5FD" strokeWidth="1.5" strokeLinecap="round" />
 
-          {/* 상대 선수의 흩날리는 검은 띠 */}
+          {/* 공중에서 펄럭이는 상대 선수의 검은 띠 */}
+          <path d="M 122 74 C 130 82 134 94 130 102" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+
+          {/* 공중으로 번쩍 솟구쳐 원을 그리며 돌아가는 두 다리 (루프 우측 및 하단 곡선 x=130~146, y=70~120) */}
+          {/* 위쪽 다리 */}
           <path
-            d="M 116 68 C 126 78 128 92 124 100"
-            stroke="#0F172A"
-            strokeWidth="2.5"
-            strokeLinecap="round"
+            d="M 130 62 C 144 58 154 68 156 80 C 150 82 140 76 132 72 Z"
+            fill="url(#yu-blue-gi-dark)"
+            stroke="#1E3A8A"
+            strokeWidth="1.6"
           />
+          {/* 아래쪽 다리 (루프 바깥쪽을 그리며 돌아감) */}
+          <path
+            d="M 128 76 C 142 84 148 98 146 112 C 140 114 132 106 126 96 Z"
+            fill="url(#yu-blue-gi)"
+            stroke="#1E3A8A"
+            strokeWidth="1.6"
+          />
+          {/* 공중에 솟구친 두 맨발 */}
+          <ellipse cx="157" cy="81" rx="4" ry="2.2" fill="#FED7AA" stroke="#9A3412" strokeWidth="1" transform="rotate(25 157 81)" />
+          <ellipse cx="147" cy="113" rx="4" ry="2.2" fill="#FED7AA" stroke="#9A3412" strokeWidth="1" transform="rotate(70 147 113)" />
         </g>
 
-        {/* 4. 메치는 유도 선수 (Tori - 백색 도복 & 검은 띠, 'ゆ' 1획 왼쪽 기둥) */}
-        <g id="judo-white-player">
-          {/* 듬직한 머리와 결의에 찬 눈매 */}
-          <circle cx="75" cy="38" r="9.5" fill="#FED7AA" stroke="#78350F" strokeWidth="1.5" />
-          {/* 검은 숏컷 스포츠 머리 */}
+        {/* 5. 공격자의 강력한 내리꽂기 팔 & 한판 낙하 축 ('ゆ' 2획 수직선과 100% 일치!) */}
+        <g id="judo-slam-stroke">
+          {/* 상대를 틀어쥐고 바닥으로 내리꽂는 공격자의 뻗은 오른팔 (도복 소매 & 깃을 잡은 손) */}
           <path
-            d="M 67 38 C 67 29 73 27 82 29 C 85 33 85 37 84 39 C 80 33 72 33 67 38 Z"
-            fill="#1E293B"
-          />
-          {/* 기합 넣는 날카로운 눈썹과 눈 */}
-          <path d="M 75 38 L 81 37" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" />
-          {/* 흩뿌려지는 열정의 땀방울 */}
-          <circle cx="65" cy="34" r="1.6" fill="#38BDF8" />
-          <circle cx="90" cy="35" r="1.2" fill="#BAE6FD" />
-
-          {/* 탄탄한 백색 유도복 상체 (등으로 업어 매치는 묵직한 실루엣) */}
-          <path
-            d="M 58 52 C 70 46 84 46 90 54 C 94 68 91 92 87 112 C 84 126 78 134 68 134 C 58 134 54 122 54 104 C 54 82 54 64 58 52 Z"
+            d="M 112 36 L 118 38 L 114 86 L 108 86 Z"
             fill="url(#yu-white-gi)"
-            stroke="#475569"
-            strokeWidth="2"
+            stroke="#334155"
+            strokeWidth="1.8"
             strokeLinejoin="round"
           />
+          {/* 깃과 소매를 강하게 낚아챈 주먹 그립 (쿠미카타 & 히키테) */}
+          <ellipse cx="111" cy="87" rx="5" ry="4" fill="#FED7AA" stroke="#9A3412" strokeWidth="1.3" />
+          <path d="M 108 86 L 114 88" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
 
-          {/* ★ 유도 도복의 핵심: 두툼한 옷깃 (V자 라펠 카라) ★ */}
+          {/* 상대를 매트로 쾅! 메다꽂는 시원한 수직 스피드 스트로크 ('ゆ' 2획의 중심 궤적선) */}
           <path
-            d="M 66 50 L 76 86 L 82 86 L 72 48 Z"
-            fill="#FFFFFF"
-            stroke="#334155"
-            strokeWidth="1.6"
-          />
-          <path
-            d="M 84 50 L 74 86 L 68 86 L 78 48 Z"
-            fill="#F1F5F9"
-            stroke="#334155"
-            strokeWidth="1.6"
-          />
-          {/* 옷깃 안쪽 목선 V-라인 */}
-          <path d="M 72 48 L 75 60 L 78 48" stroke="#64748B" strokeWidth="1.5" fill="#FED7AA" />
-
-          {/* 가슴 유도 패치 (대한민국/국제 유도 마크) */}
-          <rect x="61" y="66" width="6.5" height="8.5" rx="1.5" fill="#FFFFFF" stroke="#DC2626" strokeWidth="1" />
-          <circle cx="64.2" cy="70.2" r="2" fill="#DC2626" />
-
-          {/* ★ 유도의 영혼: 블랙 벨트 (검은 띠, Black Belt) & 매듭 & 띠 자락 ★ */}
-          {/* 허리를 단단하게 감싼 띠 */}
-          <rect
-            x="56"
-            y="86"
-            width="32"
-            height="8.5"
-            rx="2"
-            fill="url(#yu-black-belt)"
-            stroke="#0F172A"
-            strokeWidth="1.5"
-          />
-          {/* 중앙 스퀘어 매듭 (Knot) */}
-          <rect
-            x="70"
-            y="85"
-            width="8"
-            height="9.5"
-            rx="2"
-            fill="#0F172A"
-            stroke="#475569"
-            strokeWidth="1.2"
-          />
-          {/* 휘날리는 두 가닥 띠 끝자락 (금색 단수 자수 라인 포함) */}
-          <path
-            d="M 72 94.5 C 70 105 65 113 61 121"
-            stroke="#0F172A"
-            strokeWidth="3.2"
+            d="M 115 30 L 105 132"
+            stroke="#38BDF8"
+            strokeWidth="2.8"
+            strokeDasharray="9 4"
             strokeLinecap="round"
+            opacity="0.85"
           />
-          <path
-            d="M 76 94.5 C 77 105 83 113 85 123"
-            stroke="#0F172A"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-          />
-          {/* 금색 유단자 자수 줄무늬 */}
-          <line x1="62" y1="118" x2="64" y2="120" stroke="#F59E0B" strokeWidth="2.2" strokeLinecap="round" />
-          <line x1="83" y1="120" x2="85" y2="122" stroke="#F59E0B" strokeWidth="2.2" strokeLinecap="round" />
-
-          {/* 상대 깃과 소매를 강하게 틀어쥔 손 (쿠미카타 그립 & 테이핑) */}
-          <ellipse cx="89" cy="62" rx="4.8" ry="3.6" fill="#FED7AA" stroke="#9A3412" strokeWidth="1.2" />
-          <path d="M 87 61 L 91 63" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M 108 50 L 102 124" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" opacity="0.95" />
+          <path d="M 119 54 L 112 126" stroke="#2563EB" strokeWidth="1.6" strokeLinecap="round" opacity="0.65" />
         </g>
 
-        {/* 5. 메치기 수직 낙하 축 (글자 ゆ의 2획 수직선과 일치) */}
-        {/* 상대를 바닥으로 메다꽂는 시원한 수직 스피드 스트로크 */}
-        <path
-          d="M 112 36 L 106 128"
-          stroke="#38BDF8"
-          strokeWidth="2.2"
-          strokeDasharray="9 4"
-          strokeLinecap="round"
-          opacity="0.75"
-        />
-        <path d="M 104 68 L 102 116" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
-        <path d="M 116 72 L 114 118" stroke="#60A5FA" strokeWidth="1.6" strokeLinecap="round" opacity="0.6" />
-
-        {/* 6. 다다미 매트 위 한판! (IPPON) 폭발 충격파 & 스파크 */}
-        {/* 폭발 충격파 링 */}
-        <ellipse cx="134" cy="136" rx="22" ry="8" fill="none" stroke="#FDE047" strokeWidth="2.4" opacity="0.9" />
-        <ellipse cx="134" cy="136" rx="34" ry="12" fill="none" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.7" />
-        {/* 쾅-! 터지는 한판 스파크 별 (Star-burst) */}
+        {/* 6. 다다미 매트 위 한판! (IPPON) 쾅-! 폭발 충격파 & 스파크 (2획의 바닥 착지점 x=105, y=134) */}
+        {/* 충격파 링 */}
+        <ellipse cx="106" cy="136" rx="24" ry="8" fill="none" stroke="#FDE047" strokeWidth="2.4" opacity="0.9" />
+        <ellipse cx="106" cy="136" rx="36" ry="12" fill="none" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.7" />
+        {/* 바닥에 꽂히는 한판 스파크 별 (Star-burst) */}
         <polygon
-          points="134,124 137,133 146,131 139,137 144,145 135,140 128,146 131,137 123,133 132,132"
+          points="106,124 109,133 118,131 111,137 116,145 107,140 100,146 103,137 95,133 104,132"
           fill="#FEF08A"
           stroke="#F59E0B"
           strokeWidth="1.4"
           strokeLinejoin="round"
         />
-        {/* 바닥으로 뻗어나가는 충격 에너지선 */}
-        <path d="M 118 138 L 106 142 M 150 134 L 164 132 M 146 144 L 158 152 M 122 146 L 112 154" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" />
+        {/* 바닥으로 사방으로 터지는 타격선 */}
+        <path d="M 90 138 L 78 142 M 122 134 L 136 132 M 118 144 L 130 152 M 94 146 L 84 154" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" />
 
         {/* 7. 글자 'ゆ' 오버레이 */}
         <MnemonicCharOverlay char="ゆ" fontFamily={fontFamily} x="108" y="118" />
