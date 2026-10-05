@@ -186,8 +186,8 @@ export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'に') {
-    // に: 바구니 (아치형 손잡이와 땋은 라탄 몸체, 탐스러운 사과와 바게트가 담긴 피크닉 바구니!)
-    // ⚠️ 글자 'に'의 왼쪽 세로획은 손잡이 기둥, 오른쪽 두 가로획은 바구니 속 과일과 하단 라탄 띠와 완벽 일치
+    // に: 니트 (단추를 쪼르르 잠그고 두 개의 포근한 주머니가 달린 따뜻한 니트 스웨터 한 벌!)
+    // ⚠️ 글자 'に'의 1획(왼쪽 세로)은 세로 단추 여밈선, 2·3획(오른쪽 가로 두 줄)은 위아래 두 개의 포켓(주머니)과 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -195,92 +195,223 @@ export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 바닥 그림자 */}
-        <ellipse cx="106" cy="130" rx="52" ry="6" fill="#E2E8F0" opacity="0.7" />
+        <defs>
+          {/* 니트 몸체 그라디언트 (포근하고 따뜻한 크림 피치) */}
+          <linearGradient id="ni-sweater-body-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFF5F5" />
+            <stop offset="100%" stopColor="#FFE4E6" />
+          </linearGradient>
+        </defs>
 
-        {/* 바구니 우아한 아치형 손잡이 (Handle - 글자 に 1획과 일체화) */}
-        <path
-          d="M 76 80 L 76 46 C 76 26 146 26 146 46 L 146 76"
-          stroke="#D97706"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
-        {/* 손잡이 땋은 라탄 텍스처 (나선형 스트라이프) */}
-        <path
-          d="M 76 80 L 76 46 C 76 26 146 26 146 46 L 146 76"
-          stroke="#FEF3C7"
-          strokeWidth="1.5"
-          strokeDasharray="4 3"
-          strokeLinecap="round"
-        />
+        {/* 1. 바닥 그림자 */}
+        <ellipse cx="106" cy="138" rx="60" ry="7" fill="#F1F5F9" opacity="0.85" />
 
-        {/* 바구니 속 풍성한 피크닉 소품들 (상단) */}
-        {/* 1. 노릇노릇한 바게트 빵 */}
-        <g id="picnic-baguette">
+        {/* 2. 배경 포근한 온기 글로우 */}
+        <circle cx="108" cy="85" r="54" fill="#FFF1F2" opacity="0.7" />
+
+        {/* 3. ★ 니트 스웨터 한 벌 전체 실루엣 (Body & Sleeves) */}
+        <g id="knit-sweater">
+          {/* 스웨터 전체 외곽 (소매와 몸통이 자연스럽게 이어지는 귀여운 오버핏 실루엣) */}
           <path
-            d="M 132 64 L 144 38 C 146 34 152 36 150 42 L 142 68 Z"
-            fill="#FDE68A"
-            stroke="#B45309"
+            d="M 88 38 
+               C 76 42 54 54 42 68 
+               C 38 72 40 102 44 110 
+               L 58 106 
+               C 58 96 64 78 68 76 
+               L 68 126 
+               C 68 130 148 130 148 126 
+               L 148 76 
+               C 152 78 158 96 158 106 
+               L 172 110 
+               C 176 102 178 72 174 68 
+               C 162 54 140 42 128 38 
+               Z"
+            fill="url(#ni-sweater-body-grad)"
+            stroke="#FDA4AF"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+
+          {/* 왼쪽 소매 골지 커프스 (Rib Cuff) */}
+          <path
+            d="M 44 110 L 58 106 L 56 114 L 42 118 Z"
+            fill="#FECDD3"
+            stroke="#FB7185"
+            strokeWidth="1.2"
+            strokeLinejoin="round"
+          />
+          {/* 오른쪽 소매 골지 커프스 (Rib Cuff) */}
+          <path
+            d="M 172 110 L 158 106 L 160 114 L 174 118 Z"
+            fill="#FECDD3"
+            stroke="#FB7185"
+            strokeWidth="1.2"
+            strokeLinejoin="round"
+          />
+
+          {/* 스웨터 밑단 골지 시보리 (Rib Hem, y=122~131) */}
+          <rect
+            x="68"
+            y="122"
+            width="80"
+            height="9"
+            rx="3"
+            fill="#FECDD3"
+            stroke="#FB7185"
+            strokeWidth="1.2"
+          />
+          {/* 밑단 골지 세로 주름들 */}
+          <line x1="78" y1="122" x2="78" y2="131" stroke="#F43F5E" strokeWidth="1" strokeLinecap="round" />
+          <line x1="88" y1="122" x2="88" y2="131" stroke="#F43F5E" strokeWidth="1" strokeLinecap="round" />
+          <line x1="98" y1="122" x2="98" y2="131" stroke="#F43F5E" strokeWidth="1" strokeLinecap="round" />
+          <line x1="108" y1="122" x2="108" y2="131" stroke="#F43F5E" strokeWidth="1" strokeLinecap="round" />
+          <line x1="118" y1="122" x2="118" y2="131" stroke="#F43F5E" strokeWidth="1" strokeLinecap="round" />
+          <line x1="128" y1="122" x2="128" y2="131" stroke="#F43F5E" strokeWidth="1" strokeLinecap="round" />
+          <line x1="138" y1="122" x2="138" y2="131" stroke="#F43F5E" strokeWidth="1" strokeLinecap="round" />
+
+          {/* 목둘레 라운드넥 골지 칼라 (Rib Collar, x=88~128, y=34~46) */}
+          <path
+            d="M 88 38 C 92 48 124 48 128 38 C 122 34 94 34 88 38 Z"
+            fill="#FECDD3"
+            stroke="#FB7185"
             strokeWidth="1.5"
             strokeLinejoin="round"
           />
-          {/* 바게트 빵 칼집 주름선 */}
-          <line x1="138" y1="46" x2="144" y2="44" stroke="#B45309" strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="136" y1="54" x2="142" y2="52" stroke="#B45309" strokeWidth="1.2" strokeLinecap="round" />
+          {/* 네크라인 안쪽 브랜드 라벨 태그 */}
+          <rect x="103" y="32" width="10" height="6" rx="1" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="0.8" />
+          <line x1="105" y1="35" x2="111" y2="35" stroke="#FB7185" strokeWidth="0.8" />
+
+          {/* 스웨터 표면 포근한 V자 니트 스티치 패턴 */}
+          <g opacity="0.6">
+            <path d="M 94 62 L 96 65 L 98 62" stroke="#FB7185" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 94 76 L 96 79 L 98 76" stroke="#FB7185" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 94 90 L 96 93 L 98 90" stroke="#FB7185" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M 94 104 L 96 107 L 98 104" stroke="#FB7185" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
         </g>
 
-        {/* 2. 탐스러운 빨간 사과 (글자 2획 뒤) */}
-        <g id="picnic-apple">
-          {/* 사과 꼭지 & 초록 잎사귀 */}
-          <path d="M 118 46 C 118 40 122 38 123 36" stroke="#78716C" strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M 120 40 C 126 36 130 39 128 44 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="1" />
-          {/* 빨간 사과 몸통 */}
-          <circle cx="118" cy="52" r="11" fill="#F43F5E" stroke="#E11D48" strokeWidth="1.5" />
-          {/* 사과 하이라이트 광택 */}
-          <circle cx="114" cy="48" r="2" fill="#FFFFFF" opacity="0.8" />
+        {/* 4. ★ 핵심 싱크로 1: 글자 'に' 1획과 1:1 일치하는 세로 단추 여밈선 (Button Placket) */}
+        <g id="ni-center-placket">
+          {/* 세로 여밈 밴드 베이스 (글자 1획 궤적: x=74~78, y=36~124) */}
+          <path
+            d="M 74 36 L 74 118 C 74 124 78 128 82 126"
+            stroke="#FDA4AF"
+            strokeWidth="7"
+            strokeLinecap="round"
+          />
+          {/* 여밈 밴드 골지 윤곽선 */}
+          <path
+            d="M 74 36 L 74 118 C 74 124 78 128 82 126"
+            stroke="#FB7185"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          {/* 밴드 하이라이트 */}
+          <path
+            d="M 75 38 L 75 116"
+            stroke="#FFFFFF"
+            strokeWidth="1.2"
+            opacity="0.8"
+            strokeLinecap="round"
+          />
+
+          {/* 또르르 달린 귀여운 원목 단추 3개 */}
+          {/* 상단 단추 (y=50) */}
+          <circle cx="74" cy="50" r="3.2" fill="#FDE68A" stroke="#B45309" strokeWidth="1" />
+          <circle cx="73" cy="49.5" r="0.5" fill="#78350F" />
+          <circle cx="75" cy="50.5" r="0.5" fill="#78350F" />
+          {/* 중간 단추 (y=84) */}
+          <circle cx="74" cy="84" r="3.2" fill="#FDE68A" stroke="#B45309" strokeWidth="1" />
+          <circle cx="73" cy="83.5" r="0.5" fill="#78350F" />
+          <circle cx="75" cy="84.5" r="0.5" fill="#78350F" />
+          {/* 하단 단추 (y=112) */}
+          <circle cx="74" cy="112" r="3.2" fill="#FDE68A" stroke="#B45309" strokeWidth="1" />
+          <circle cx="73" cy="111.5" r="0.5" fill="#78350F" />
+          <circle cx="75" cy="112.5" r="0.5" fill="#78350F" />
         </g>
 
-        {/* 3. 앙증맞은 오렌지 한 알 */}
-        <circle cx="98" cy="62" r="8" fill="#FB923C" stroke="#EA580C" strokeWidth="1.2" />
+        {/* 5. ★ 핵심 싱크로 2: 글자 'に' 2획과 1:1 일치하는 오른쪽 가슴 주머니 (Upper Pocket) */}
+        <g id="ni-pocket-top">
+          {/* 주머니 본체 (x=110~146, y=61~78) */}
+          <path
+            d="M 110 61 L 110 78 C 110 82 146 82 146 78 L 146 63 Z"
+            fill="#FFF1F2"
+            stroke="#FDA4AF"
+            strokeWidth="1.2"
+          />
+          {/* 주머니 안쪽 V자 자수 */}
+          <path d="M 126 68 L 128 72 L 130 68" stroke="#FB7185" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
 
-        {/* 4. 바구니 가장자리로 흘러내린 레드 깅엄 체크 냅킨 */}
-        <path
-          d="M 64 74 L 88 74 L 84 94 L 62 90 Z"
-          fill="#FEE2E2"
-          stroke="#EF4444"
-          strokeWidth="1.2"
-        />
-        {/* 체크무늬 라인들 */}
-        <line x1="72" y1="74" x2="70" y2="92" stroke="#EF4444" strokeWidth="1" strokeDasharray="2 2" />
-        <line x1="80" y1="74" x2="78" y2="93" stroke="#EF4444" strokeWidth="1" strokeDasharray="2 2" />
-        <line x1="63" y1="82" x2="86" y2="82" stroke="#EF4444" strokeWidth="1" strokeDasharray="2 2" />
+          {/* ★ 2획과 완벽 일치: 주머니 상단 도톰한 골지 입구 밴드 (x=108~150, y=61) */}
+          <path
+            d="M 108 61 C 118 57 136 57 150 63"
+            stroke="#FDA4AF"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 108 61 C 118 57 136 57 150 63"
+            stroke="#F43F5E"
+            strokeWidth="2.2"
+            strokeDasharray="4 2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 110 60 C 120 56 134 56 148 62"
+            stroke="#FFFFFF"
+            strokeWidth="1.2"
+            opacity="0.8"
+            strokeLinecap="round"
+          />
+        </g>
 
-        {/* 바구니 몸체 본체 (따뜻한 허니 라탄 베이지) */}
-        <path
-          d="M 58 74 
-             C 58 72 152 72 152 74 
-             L 146 122 
-             C 146 126 64 126 64 122 
-             Z"
-          fill="#FEF3C7"
-          stroke="#B45309"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
+        {/* 6. ★ 핵심 싱크로 3: 글자 'に' 3획과 1:1 일치하는 오른쪽 아래 주머니 (Lower Pocket) */}
+        <g id="ni-pocket-bottom">
+          {/* 주머니 본체 (x=108~150, y=107~120) */}
+          <path
+            d="M 108 107 L 108 120 C 108 124 150 124 150 120 L 150 108 Z"
+            fill="#FFF1F2"
+            stroke="#FDA4AF"
+            strokeWidth="1.2"
+          />
 
-        {/* 바구니 상단 도톰한 림 (Braided Rim) */}
-        <ellipse cx="105" cy="74" rx="47" ry="5.5" fill="#FDE68A" stroke="#B45309" strokeWidth="1.8" />
+          {/* ★ 3획과 완벽 일치: 주머니 상단 도톰한 골지 입구 밴드 (x=106~152, y=107) */}
+          <path
+            d="M 106 107 C 118 114 136 114 152 107"
+            stroke="#FDA4AF"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 106 107 C 118 114 136 114 152 107"
+            stroke="#F43F5E"
+            strokeWidth="2.2"
+            strokeDasharray="4 2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 108 108 C 120 115 134 115 150 108"
+            stroke="#FFFFFF"
+            strokeWidth="1.2"
+            opacity="0.8"
+            strokeLinecap="round"
+          />
+        </g>
 
-        {/* 바구니 표면 라탄 격자 짜임새 (Wicker Weave) */}
-        {/* 가로 밴드 (글자 に 3획과 어우러지는 하단 띠) */}
-        <path d="M 62 98 C 88 99 122 99 148 98" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
-        <path d="M 63 112 C 88 113 122 113 147 112" stroke="#D97706" strokeWidth="1.6" strokeLinecap="round" />
-
-        {/* 세로/대각선 라탄 엮음 살들 */}
-        <line x1="82" y1="79" x2="78" y2="122" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" />
-        <line x1="98" y1="79" x2="96" y2="122" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" />
-        <line x1="114" y1="79" x2="114" y2="122" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" />
-        <line x1="130" y1="79" x2="132" y2="122" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" />
+        {/* 7. 아기자기한 감성 포인트: 미니 하트 & 스파클 반짝이 */}
+        <g id="sparkles">
+          {/* 가슴 쪽 미니 하트 와펜 (포인트 자수) */}
+          <path
+            d="M 94 48 C 94 45 90 43 88 45 C 86 43 82 45 82 48 C 82 52 88 56 88 56 C 88 56 94 52 94 48 Z"
+            fill="#FB7185"
+            opacity="0.85"
+          />
+          {/* 온기 스파클 */}
+          <path d="M 166 40 L 167.5 36 L 169 40 L 173 41.5 L 169 43 L 167.5 47 L 166 43 L 162 41.5 Z" fill="#FDE047" />
+          <circle cx="34" cy="80" r="1.5" fill="#FDA4AF" />
+          <circle cx="174" cy="56" r="1.5" fill="#FDA4AF" />
+          <circle cx="98" cy="132" r="1.5" fill="#FDE047" />
+        </g>
 
         {/* 글자 'に' 오버레이 */}
         <MnemonicCharOverlay char="に" fontFamily={fontFamily} x="108" y="118" />
