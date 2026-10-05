@@ -65,7 +65,7 @@ export const MNEMONIC_DATA: Record<string, MnemonicItem> = {
   よ: { char: 'よ', word: '요트', highlightIndex: 0 },
 
   // ら행
-  ら: { char: 'ら', word: '라디오', highlightIndex: 0 },
+  ら: { char: 'ら', word: '라켓', highlightIndex: 0 },
   り: { char: 'り', word: '리본', highlightIndex: 0 },
   る: { char: 'る', word: '캥거루', highlightIndex: 2 },
   れ: { char: 'れ', word: '애벌레', highlightIndex: 2 },

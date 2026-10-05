@@ -3,7 +3,7 @@ import MnemonicCharOverlay from './MnemonicCharOverlay';
 
 export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProps) {
   if (char === 'ら') {
-    // ら: 라디오 (상단 접이식 안테나 손잡이 점과 사각 본체의 둥근 곡선)
+    // ら: 라켓 (공중에 튄 테니스공과 라켓 손잡이 및 둥근 타원형 헤드 프레임)
     return (
       <svg
         viewBox="0 0 200 160"
@@ -11,43 +11,122 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 라디오 상단 접이식 안테나 (글자 ら 상단 점/삐침 획과 매칭) */}
+        {/* 스윙 모션 바람선 (경쾌한 스윙 궤적) */}
         <path
-          d="M 88 42 L 108 26"
-          stroke="#78716C"
-          strokeWidth="2.5"
+          d="M 68 114 C 66 128 78 138 96 138"
+          stroke="#93C5FD"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeDasharray="3 3"
+        />
+        <path
+          d="M 60 106 C 58 126 72 144 102 144"
+          stroke="#CBD5E1"
+          strokeWidth="1.5"
           strokeLinecap="round"
         />
-        <circle cx="109" cy="25" r="3" fill="#38BDF8" />
 
-        {/* 라디오 본체 사각 프레임 실루엣 */}
+        {/* 라켓 손잡이 그립 (글자 ら 왼쪽 세로 획 매칭) */}
         <rect
-          x="62"
-          y="56"
-          width="88"
-          height="74"
-          rx="12"
-          fill="#FAFAF9"
-          stroke="#D6D3D1"
+          x="79"
+          y="48"
+          width="10"
+          height="32"
+          rx="3"
+          fill="#F8FAFC"
+          stroke="#78716C"
           strokeWidth="1.8"
         />
+        {/* 손잡이 상단 마감 칼라링 (포인트 로열블루) */}
+        <rect x="78" y="48" width="12" height="4" rx="1.5" fill="#0284C7" />
+        {/* 그립 테이프 사선선 */}
+        <line x1="79" y1="56" x2="89" y2="53" stroke="#CBD5E1" strokeWidth="1.3" />
+        <line x1="79" y1="64" x2="89" y2="61" stroke="#CBD5E1" strokeWidth="1.3" />
+        <line x1="79" y1="72" x2="89" y2="69" stroke="#CBD5E1" strokeWidth="1.3" />
+        {/* 그립 하단 조인트 */}
+        <path d="M 79 80 L 89 80 L 87 84 L 81 84 Z" fill="#475569" stroke="#334155" strokeWidth="1" />
 
-        {/* 라디오 둥근 스피커 그릴 */}
-        <circle cx="106" cy="95" r="22" fill="#FFFFFF" stroke="#A8A29E" strokeWidth="1.6" />
-        <circle cx="106" cy="95" r="14" stroke="#D6D3D1" strokeWidth="1.2" strokeDasharray="3 3" />
-        <circle cx="106" cy="95" r="4" fill="#78716C" />
+        {/* 라켓 목(Throat) 지지대 */}
+        <path d="M 83 83 L 90 92 M 87 83 L 94 92" stroke="#0284C7" strokeWidth="1.8" strokeLinecap="round" />
 
-        {/* 주파수 튜닝 다이얼 (포인트 연파랑) */}
-        <ellipse cx="80" cy="72" rx="6" ry="6" fill="#E0F2FE" stroke="#38BDF8" strokeWidth="1.4" />
-        <line x1="80" y1="68" x2="80" y2="76" stroke="#0284C7" strokeWidth="1.5" strokeLinecap="round" />
-
-        {/* 라디오 전파 파동선 */}
-        <path
-          d="M 124 24 Q 134 30 128 38 M 134 18 Q 148 26 138 42"
-          stroke="#38BDF8"
-          strokeWidth="1.6"
-          strokeLinecap="round"
+        {/* 라켓 둥근 타원형 헤드 프레임 (글자 ら 오른쪽 볼록한 둥근 곡선 매칭) */}
+        <ellipse
+          cx="114"
+          cy="98"
+          rx="28"
+          ry="26"
+          fill="#F0F9FF"
+          stroke="#0284C7"
+          strokeWidth="2.2"
         />
+        <ellipse
+          cx="114"
+          cy="98"
+          rx="25.5"
+          ry="23.5"
+          stroke="#BAE6FD"
+          strokeWidth="1"
+          strokeDasharray="3 2"
+        />
+
+        {/* 격자 스트링 거트망 */}
+        {/* 세로 스트링 */}
+        <line x1="102" y1="75" x2="102" y2="121" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+        <line x1="110" y1="73" x2="110" y2="123" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+        <line x1="118" y1="73" x2="118" y2="123" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+        <line x1="126" y1="76" x2="126" y2="120" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+        {/* 가로 스트링 */}
+        <line x1="94" y1="86" x2="134" y2="86" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+        <line x1="89" y1="94" x2="139" y2="94" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+        <line x1="89" y1="102" x2="139" y2="102" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+        <line x1="94" y1="110" x2="134" y2="110" stroke="#38BDF8" strokeWidth="1" opacity="0.75" />
+
+        {/* 스위트스팟 로고 포인트 (레드) */}
+        <path
+          d="M 110 95 L 114 101 L 118 95"
+          stroke="#F43F5E"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* 날아오는 테니스공 (글자 ら 상단 점/삐침 획과 1:1 완벽 매칭, 포인트 라임옐로우) */}
+        <g id="tennis-ball">
+          {/* 타격 임팩트 스파크 */}
+          <path
+            d="M 89 22 L 90.5 18 L 92 22 L 96 23.5 L 92 25 L 90.5 29 L 89 25 L 85 23.5 Z"
+            fill="#FACC15"
+          />
+          {/* 공 바디 */}
+          <circle
+            cx="103"
+            cy="34"
+            r="10.5"
+            fill="#D9F99D"
+            stroke="#65A30D"
+            strokeWidth="1.6"
+          />
+          {/* 테니스공 흰색 솔기 곡선 (Seam) */}
+          <path
+            d="M 95 30 C 99 32 99 36 95 38"
+            stroke="#FFFFFF"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 111 30 C 107 32 107 36 111 38"
+            stroke="#FFFFFF"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+          {/* 타격 스피드선 */}
+          <path
+            d="M 116 26 L 124 21 M 118 33 L 128 33 M 116 40 L 124 45"
+            stroke="#F59E0B"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
+        </g>
 
         {/* 글자 'ら' 오버레이 */}
         <MnemonicCharOverlay char="ら" fontFamily={fontFamily} x="108" y="118" />
