@@ -609,8 +609,8 @@ export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'ね') {
-    // ね: 그네 (A자형 프레임, 상단 가랜드, 양쪽 튼튼한 밧줄, 원목 널빤지와 둥근 매듭 루프가 글자 'ね'와 1:1 완벽 일치!)
-    // ⚠️ 글자 1획은 왼쪽 밧줄, 2획 수직부는 오른쪽 밧줄, 2획 우하단 매듭은 둥글게 감긴 밧줄 고리와 일체화!
+    // ね: 그네 (글자 'ね' 모양 자체가 곧 '그네' 그 자체!)
+    // ⚠️ 1획은 그네 기둥, 2획 상단은 가로보 & 지지대, 2획 곡선은 둥글게 흔들리는 그네 밧줄, 우하단 루프는 그네의 원목 좌판 & 매듭으로 완벽 일체화!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -618,198 +618,322 @@ export default function MnemonicRowNa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 1. 배경 잔디 언덕 & 지면 그림자 */}
+        <defs>
+          {/* 부드러운 산들바람 아우라 그라데이션 */}
+          <radialGradient id="ne-sky-glow" cx="50%" cy="45%" r="55%">
+            <stop offset="0%" stopColor="#F0F9FF" stopOpacity="0.9" />
+            <stop offset="60%" stopColor="#E0F2FE" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#E0F2FE" stopOpacity="0" />
+          </radialGradient>
+
+          {/* 원목 기둥 입체 그라데이션 (견고하고 따뜻한 원목 기둥) */}
+          <linearGradient id="ne-wood-pole-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#78350F" />
+            <stop offset="30%" stopColor="#B45309" />
+            <stop offset="70%" stopColor="#D97706" />
+            <stop offset="100%" stopColor="#92400E" />
+          </linearGradient>
+
+          {/* 원목 좌판 그라데이션 (2획 루프 좌판) */}
+          <linearGradient id="ne-wood-seat-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FEF3C7" />
+            <stop offset="35%" stopColor="#F59E0B" />
+            <stop offset="75%" stopColor="#D97706" />
+            <stop offset="100%" stopColor="#92400E" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 배경 하늘빛 아우라 & 부드러운 잔디 언덕 */}
+        <ellipse cx="112" cy="85" rx="76" ry="60" fill="url(#ne-sky-glow)" />
+
         {/* 부드러운 초록 잔디 언덕 */}
         <path
-          d="M 0 148 C 50 140 150 140 200 148 L 200 160 L 0 160 Z"
+          d="M 0 144 C 55 137 145 137 200 144 L 200 160 L 0 160 Z"
           fill="#DCFCE7"
         />
         <path
-          d="M 0 148 C 50 140 150 140 200 148"
+          d="M 0 144 C 55 137 145 137 200 144"
           stroke="#86EFAC"
           strokeWidth="1.5"
         />
-        {/* 잔디밭에 핀 앙증맞은 노란 들꽃들 */}
-        <g id="grass-flowers">
-          <circle cx="28" cy="144" r="2.5" fill="#FDE047" stroke="#EAB308" strokeWidth="0.8" />
-          <circle cx="26" cy="142" r="1.5" fill="#FFFFFF" />
-          <circle cx="30" cy="142" r="1.5" fill="#FFFFFF" />
-          <circle cx="28" cy="146" r="1.5" fill="#FFFFFF" />
 
-          <circle cx="172" cy="144" r="2.5" fill="#FDE047" stroke="#EAB308" strokeWidth="0.8" />
-          <circle cx="170" cy="142" r="1.5" fill="#FFFFFF" />
-          <circle cx="174" cy="142" r="1.5" fill="#FFFFFF" />
-          <circle cx="172" cy="146" r="1.5" fill="#FFFFFF" />
+        {/* 잔디밭 앙증맞은 노란 들꽃들 */}
+        <g id="ne-grass-flowers">
+          <circle cx="28" cy="144" r="2.2" fill="#FDE047" stroke="#EAB308" strokeWidth="0.7" />
+          <circle cx="26" cy="142" r="1.3" fill="#FFFFFF" />
+          <circle cx="30" cy="142" r="1.3" fill="#FFFFFF" />
+          <circle cx="42" cy="147" r="1.8" fill="#FDE047" stroke="#EAB308" strokeWidth="0.6" />
+
+          <circle cx="174" cy="144" r="2.2" fill="#FDE047" stroke="#EAB308" strokeWidth="0.7" />
+          <circle cx="172" cy="142" r="1.3" fill="#FFFFFF" />
+          <circle cx="176" cy="142" r="1.3" fill="#FFFFFF" />
+          <circle cx="186" cy="147" r="1.8" fill="#FDE047" stroke="#EAB308" strokeWidth="0.6" />
         </g>
-        {/* 그네 널빤지의 지면 그림자 (타원) */}
-        <ellipse cx="110" cy="145" rx="46" ry="5.5" fill="#94A3B8" opacity="0.3" />
 
-        {/* 2. 놀이터 A자형 그네 프레임 (누가 봐도 한눈에 '그네'로 알아보는 상징적 구조!) */}
-        {/* 좌측 A자 지지대 다리 2개 & 보강 빔 */}
-        <line x1="38" y1="28" x2="16" y2="150" stroke="#0F766E" strokeWidth="4.5" strokeLinecap="round" />
-        <line x1="38" y1="28" x2="16" y2="150" stroke="#14B8A6" strokeWidth="2.5" strokeLinecap="round" />
-        <line x1="42" y1="28" x2="36" y2="150" stroke="#0F766E" strokeWidth="4" strokeLinecap="round" />
-        <line x1="42" y1="28" x2="36" y2="150" stroke="#2DD4BF" strokeWidth="2" strokeLinecap="round" />
-        {/* 좌측 A자 다리 가로 버팀목 */}
-        <line x1="22" y1="112" x2="36" y2="112" stroke="#0F766E" strokeWidth="3" strokeLinecap="round" />
-        <line x1="22" y1="112" x2="36" y2="112" stroke="#14B8A6" strokeWidth="1.5" strokeLinecap="round" />
+        {/* 그네 좌판 아래 잔디에 드리운 부드러운 그림자 */}
+        <ellipse cx="128" cy="146" rx="22" ry="4.5" fill="#94A3B8" opacity="0.25" />
 
-        {/* 우측 A자 지지대 다리 2개 & 보강 빔 */}
-        <line x1="162" y1="28" x2="184" y2="150" stroke="#0F766E" strokeWidth="4.5" strokeLinecap="round" />
-        <line x1="162" y1="28" x2="184" y2="150" stroke="#14B8A6" strokeWidth="2.5" strokeLinecap="round" />
-        <line x1="158" y1="28" x2="164" y2="150" stroke="#0F766E" strokeWidth="4" strokeLinecap="round" />
-        <line x1="158" y1="28" x2="164" y2="150" stroke="#2DD4BF" strokeWidth="2" strokeLinecap="round" />
-        {/* 우측 A자 다리 가로 버팀목 */}
-        <line x1="164" y1="112" x2="178" y2="112" stroke="#0F766E" strokeWidth="3" strokeLinecap="round" />
-        <line x1="164" y1="112" x2="178" y2="112" stroke="#14B8A6" strokeWidth="1.5" strokeLinecap="round" />
-
-        {/* 상단 굵고 튼튼한 메인 가로 크로스바 (Main Beam) */}
-        <rect x="24" y="24" width="152" height="9" rx="4.5" fill="#0D9488" stroke="#0F766E" strokeWidth="1.5" />
-        <rect x="28" y="25.5" width="144" height="3" rx="1.5" fill="#5EEAD4" opacity="0.6" />
-        {/* 좌우 마감 캡 & 볼트 */}
-        <circle cx="28" cy="28.5" r="2" fill="#E2E8F0" stroke="#475569" strokeWidth="1" />
-        <circle cx="172" cy="28.5" r="2" fill="#E2E8F0" stroke="#475569" strokeWidth="1" />
-
-        {/* 상단에 매달린 귀여운 놀이터 삼각 가랜드 (Pennant Bunting) */}
-        <path d="M 44 33 Q 62 40 82 33 Q 110 42 138 33 Q 148 39 156 33" stroke="#94A3B8" strokeWidth="1" fill="none" />
-        {/* 미니 플래그들 */}
-        <polygon points="52,36 60,37 56,46" fill="#F43F5E" />
-        <polygon points="68,38 76,37 72,47" fill="#FBBF24" />
-        <polygon points="94,38 102,39 98,48" fill="#38BDF8" />
-        <polygon points="110,39 118,38 114,48" fill="#A855F7" />
-        <polygon points="126,37 134,36 130,46" fill="#34D399" />
-        <polygon points="142,35 150,34 146,44" fill="#F43F5E" />
-
-        {/* 3. 그네 상단 메탈 행거 섀클 고리 (Hanger Brackets) */}
-        {/* 왼쪽 섀클 고리 (x=82) */}
-        <rect x="78" y="31" width="8" height="6" rx="2" fill="#94A3B8" stroke="#475569" strokeWidth="1" />
-        <circle cx="82" cy="39" r="3" stroke="#64748B" strokeWidth="2" />
-        {/* 오른쪽 섀클 고리 (x=138) */}
-        <rect x="134" y="31" width="8" height="6" rx="2" fill="#94A3B8" stroke="#475569" strokeWidth="1" />
-        <circle cx="138" cy="39" r="3" stroke="#64748B" strokeWidth="2" />
-
-        {/* 4. 그네 밧줄 2가닥 (Twisted Ropes - 글자 1획 및 2획 수직선과 1:1 완벽 일치!) */}
-        {/* 왼쪽 밧줄: 1획 뒤편 (x=82, y=41 ~ 120) */}
-        <line x1="82" y1="41" x2="82" y2="120" stroke="#B45309" strokeWidth="4.5" strokeLinecap="round" />
-        <line x1="82" y1="41" x2="82" y2="120" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" />
-        {/* 밧줄 꼬임 하이라이트 질감 */}
-        <line x1="82" y1="41" x2="82" y2="120" stroke="#FEF3C7" strokeWidth="1.5" strokeDasharray="3 3" />
-
-        {/* 오른쪽 밧줄: 2획 수직부 뒤편 (x=138, y=41 ~ 118) */}
-        <line x1="138" y1="41" x2="138" y2="118" stroke="#B45309" strokeWidth="4.5" strokeLinecap="round" />
-        <line x1="138" y1="41" x2="138" y2="118" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" />
-        {/* 밧줄 꼬임 하이라이트 질감 */}
-        <line x1="138" y1="41" x2="138" y2="118" stroke="#FEF3C7" strokeWidth="1.5" strokeDasharray="3 3" />
-
-        {/* 5. 역동적인 스윙 모션 & 바람선 (Swing Motion Arcs) */}
-        {/* 앞뒤로 슝슝 날아오르는 바람을 가르는 궤적선 */}
-        <path
-          d="M 148 68 C 166 78 168 98 158 114"
-          stroke="#38BDF8"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeDasharray="16 4"
-        />
-        <path
-          d="M 156 78 C 172 88 172 106 164 118"
-          stroke="#BAE6FD"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-        />
-        {/* 바람에 흩날리는 나뭇잎들 */}
-        <path d="M 166 64 C 172 62 174 66 170 70 C 166 68 164 64 166 64 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.8" />
-        <path d="M 64 88 C 68 84 72 88 68 92 C 64 90 62 86 64 88 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.8" />
-
-        {/* 6. 그네 원목 널빤지 (Wood Swing Board - 넓고 도톰한 원목 좌판) */}
-        {/* 판자 본체 (x=64 ~ 156, y=118 ~ 128, 두께 10px, rx=5) */}
-        <rect
-          x="64"
-          y="118"
-          width="92"
-          height="10"
-          rx="5"
-          fill="#F59E0B"
-          stroke="#B45309"
-          strokeWidth="2"
-        />
-        {/* 판자 상단 원목 광택 하이라이트 */}
-        <rect x="67" y="119.5" width="86" height="3" rx="1.5" fill="#FEF3C7" opacity="0.7" />
-        {/* 판자 하단 입체 그림자 띠 */}
-        <rect x="66" y="125" width="88" height="2" rx="1" fill="#92400E" opacity="0.4" />
-        {/* 판자 표면 나뭇결 디테일 */}
-        <line x1="90" y1="123" x2="114" y2="123" stroke="#B45309" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-        <line x1="120" y1="123" x2="132" y2="123" stroke="#B45309" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-
-        {/* 판자 양쪽 밧줄 관통 금속 아일렛 홀 */}
-        <circle cx="82" cy="123" r="3" fill="#D97706" stroke="#78350F" strokeWidth="1.2" />
-        <circle cx="82" cy="123" r="1.5" fill="#451A03" />
-        <circle cx="138" cy="123" r="3" fill="#D97706" stroke="#78350F" strokeWidth="1.2" />
-        <circle cx="138" cy="123" r="1.5" fill="#451A03" />
-
-        {/* 왼쪽 밧줄 하단 단단한 묶음 매듭 */}
-        <ellipse cx="82" cy="130" rx="3.5" ry="3" fill="#D97706" stroke="#92400E" strokeWidth="1.2" />
-        <path d="M 82 133 L 81 138 M 83 133 L 84 137" stroke="#B45309" strokeWidth="1.2" strokeLinecap="round" />
-
-        {/* 7. 우하단 둥근 밧줄 매듭 루프 (Loop Knot - 글자 'ね'의 2획 우하단 둥근 고리와 1:1 완벽 일치!) */}
-        <g id="rope-knot-loop">
-          {/* 널빤지를 감아 둥글게 원형 루프를 튼 도톰한 밧줄 똬리 */}
-          <ellipse
-            cx="136"
-            cy="114"
-            rx="11"
-            ry="9.5"
-            fill="#FEF3C7"
-            stroke="#B45309"
-            strokeWidth="3.2"
-          />
-          {/* 매듭 꼬임선 텍스처 */}
+        {/* 2. 기둥 상단 뒤편 싱그러운 숲속 나뭇잎 가지 (자연 속 그네 분위기) */}
+        <g id="ne-tree-leaves" opacity="0.85">
           <path
-            d="M 128 111 C 132 108 140 110 144 115"
-            stroke="#D97706"
-            strokeWidth="2"
+            d="M 68 32 C 54 20 74 10 90 18 C 104 8 126 16 122 30 C 114 40 82 42 68 32 Z"
+            fill="#BBF7D0"
+            stroke="#4ADE80"
+            strokeWidth="1.2"
+          />
+          <path d="M 80 18 C 92 14 106 18 108 26" stroke="#22C55E" strokeWidth="1" strokeLinecap="round" opacity="0.7" />
+          <circle cx="68" cy="24" r="2.5" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.7" />
+          <circle cx="118" cy="20" r="2" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.7" />
+        </g>
+
+        {/* 3. ★ [그네의 기둥 = 1획]: 그네를 지탱하는 든든한 메인 원목 기둥 & 상단 가로보 */}
+        <g id="ne-swing-pole-group">
+          {/* 상단 가로 빔 (기둥 꼭대기에서 오른쪽으로 시원하게 뻗은 그네 걸이 암, x=80~126, y=36) */}
+          <path
+            d="M 80 36 L 126 36"
+            stroke="#78350F"
+            strokeWidth="9"
             strokeLinecap="round"
           />
           <path
-            d="M 130 118 C 134 120 142 118 144 113"
+            d="M 80 36 L 126 36"
             stroke="#D97706"
-            strokeWidth="2"
+            strokeWidth="6"
             strokeLinecap="round"
           />
-          {/* 매듭 중앙 고리 구멍 (음영) */}
-          <circle cx="136" cy="114" r="3.2" fill="#78350F" />
-          {/* 둥근 루프 아래로 찰랑이는 밧줄 술(Tassel) 끝자락 */}
           <path
-            d="M 140 123 C 144 128 148 132 150 134"
-            stroke="#B45309"
+            d="M 82 34.5 L 124 34.5"
+            stroke="#FEF3C7"
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity="0.85"
+          />
+
+          {/* 가로보 끝 메탈 섀클 & 행거 링 (그네 줄이 걸려 시작되는 지점) */}
+          <rect x="117" y="32" width="6" height="6" rx="1.5" fill="#94A3B8" stroke="#475569" strokeWidth="1" />
+          <circle cx="120" cy="42" r="3" fill="none" stroke="#64748B" strokeWidth="1.8" />
+          <circle cx="120" cy="42" r="1.2" fill="#334155" />
+
+          {/* ★ 1획 메인 기둥 본체: x1=86, y1=34 -> x2=73, y2=138 (1획 선과 완벽 1:1 일치!) */}
+          <line
+            x1="86"
+            y1="34"
+            x2="73"
+            y2="138"
+            stroke="#78350F"
+            strokeWidth="14"
+            strokeLinecap="round"
+          />
+          <line
+            x1="86"
+            y1="34"
+            x2="73"
+            y2="138"
+            stroke="url(#ne-wood-pole-grad)"
+            strokeWidth="10"
+            strokeLinecap="round"
+          />
+          {/* 기둥 상단 원목 광택 하이라이트선 */}
+          <line
+            x1="87.5"
+            y1="36"
+            x2="75.5"
+            y2="136"
+            stroke="#FEF3C7"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            opacity="0.8"
+          />
+          {/* 기둥 표면 자연스러운 나뭇결 & 옹이 디테일 */}
+          <path d="M 83 60 C 81 72 80 82 78 94" stroke="#78350F" strokeWidth="1.2" strokeLinecap="round" opacity="0.45" />
+          <ellipse cx="77.5" cy="106" rx="2" ry="1.4" fill="#78350F" opacity="0.4" />
+
+          {/* 기둥 상단 모서리 금속 T자 보강 조인트 브래킷 */}
+          <circle cx="86" cy="36" r="4.5" fill="#94A3B8" stroke="#475569" strokeWidth="1" />
+          <circle cx="86" cy="36" r="1.5" fill="#1E293B" />
+
+          {/* 기둥 바닥 잔디 고정 마운트 플랜지 & 작은 풀잎 */}
+          <ellipse cx="73" cy="139" rx="8" ry="3" fill="#0F766E" opacity="0.7" />
+          <path d="M 66 137 C 62 132 60 138 65 140 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.8" />
+          <path d="M 80 138 C 84 133 86 139 81 141 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.8" />
+        </g>
+
+        {/* 4. ★ [그네 상단 지지대 = 2획 상단 꺾임]: 기둥과 가로보를 연결하는 45도 보강 지지대 (Diagonal Brace) */}
+        <g id="ne-swing-brace">
+          {/* 2획 상단 꺾임선 (x=74, y=58 -> x=94, y=54 -> x=80, y=86)과 정확히 일치하는 지지 프레임 */}
+          <path
+            d="M 74 58 L 94 54 L 80 86"
+            stroke="#78350F"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M 74 58 L 94 54 L 80 86"
+            stroke="#D97706"
+            strokeWidth="3.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M 74 58 L 94 54 L 80 86"
+            stroke="#FEF3C7"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.8"
+          />
+          {/* 조인트 볼트 */}
+          <circle cx="94" cy="54" r="2" fill="#E2E8F0" stroke="#475569" strokeWidth="0.8" />
+        </g>
+
+        {/* 5. ★ [그네 밧줄 = 2획 메인 곡선]: 상단 빔에서 내려와 둥글게 흔들리는 도톰한 꼬임 밧줄 (Swinging Hemp Rope) */}
+        <g id="ne-swing-rope-group">
+          {/* 허공을 가르는 시원한 산들바람 스윙 궤적선 */}
+          <path
+            d="M 148 54 C 168 66 172 88 164 108"
+            stroke="#38BDF8"
             strokeWidth="2.2"
             strokeLinecap="round"
+            strokeDasharray="14 4"
+            opacity="0.85"
           />
           <path
-            d="M 142 124 C 146 128 152 130 154 132"
-            stroke="#F59E0B"
-            strokeWidth="1.5"
+            d="M 154 64 C 170 76 172 96 166 114"
+            stroke="#BAE6FD"
+            strokeWidth="1.6"
             strokeLinecap="round"
+            opacity="0.75"
+          />
+          {/* 바람에 흩날리는 나뭇잎들 */}
+          <path d="M 170 50 C 176 48 178 52 174 56 C 170 54 168 50 170 50 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.8" />
+          <path d="M 166 116 C 171 112 174 116 170 120 C 166 118 164 115 166 116 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="0.8" />
+
+          {/* ★ 2획 큰 아치 곡선 본체: 도톰한 황금빛 그네 밧줄 */}
+          <path
+            d="M 80 86 C 104 52 122 46 134 48 C 148 50 156 74 146 102"
+            stroke="#78350F"
+            strokeWidth="9"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 80 86 C 104 52 122 46 134 48 C 148 50 156 74 146 102"
+            stroke="#F59E0B"
+            strokeWidth="6"
+            strokeLinecap="round"
+          />
+          {/* 밧줄 꼬임 하이라이트 질감 대시선 */}
+          <path
+            d="M 80 86 C 104 52 122 46 134 48 C 148 50 156 74 146 102"
+            stroke="#FEF3C7"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeDasharray="4 3"
           />
         </g>
 
-        {/* 8. 널빤지 좌측에 묶여 바람에 펄럭이는 예쁜 리본 (바람의 상쾌함을 더해줌) */}
-        <g id="swing-ribbon">
-          <circle cx="78" cy="118" r="2.5" fill="#F43F5E" />
+        {/* 6. ★ [그네 좌판 = 2획 우하단 루프]: 그네 줄 끝에 매달려 둥글게 매듭진 도톰한 원목 그네 좌판 (Wooden Swing Seat) */}
+        <g id="ne-swing-seat-and-knot">
+          {/* (1) 밧줄이 감겨 도는 도톰한 원형 매듭 똬리 (외곽 루프 rx=14, ry=12, 중심 cx=128, cy=109) */}
+          <ellipse
+            cx="128"
+            cy="109"
+            rx="14"
+            ry="12"
+            fill="#FEF3C7"
+            stroke="#78350F"
+            strokeWidth="3"
+          />
+          {/* 밧줄 똬리 질감 */}
+          <path d="M 119 104 C 124 100 133 100 137 104" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 120 114 C 125 117 132 117 136 114" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+
+          {/* ★ (2) 글자 'ね' 루프 구멍과 1:1 일치하는 안쪽 뚫린 고리 (Inner Loop Hole) */}
+          <ellipse
+            cx="128"
+            cy="109"
+            rx="6.5"
+            ry="5.5"
+            fill="#F0F9FF"
+            stroke="#78350F"
+            strokeWidth="1.8"
+          />
+
+          {/* ★ (3) 그네의 핵심 상징: 그네 줄 끝에 매달린 원목 널빤지 좌판 (Wood Swing Board) */}
+          {/* 좌판 위치: 루프 아래쪽 cx=128, y=114~124에 도톰하고 뚜렷하게 안착! */}
+          <g id="ne-wooden-board-seat">
+            {/* 판자 본체 (x=106 ~ 150, width=44, height=10, rx=4) */}
+            <rect
+              x="106"
+              y="115"
+              width="44"
+              height="10"
+              rx="4"
+              fill="url(#ne-wood-seat-grad)"
+              stroke="#78350F"
+              strokeWidth="2"
+            />
+            {/* 판자 상단 원목 광택선 */}
+            <rect x="108" y="116.5" width="40" height="2.5" rx="1.2" fill="#FEF3C7" opacity="0.85" />
+            {/* 판자 하단 볼륨 음영 */}
+            <rect x="108" y="121" width="40" height="2" rx="1" fill="#78350F" opacity="0.35" />
+            {/* 판자 표면 나뭇결 디테일 */}
+            <line x1="116" y1="120" x2="138" y2="120" stroke="#78350F" strokeWidth="1" strokeLinecap="round" opacity="0.5" />
+
+            {/* 판자 양쪽 밧줄 관통 금속 아일렛 홀 */}
+            <circle cx="113" cy="120" r="2.5" fill="#D97706" stroke="#451A03" strokeWidth="1" />
+            <circle cx="113" cy="120" r="1.2" fill="#451A03" />
+            <circle cx="143" cy="120" r="2.5" fill="#D97706" stroke="#451A03" strokeWidth="1" />
+            <circle cx="143" cy="120" r="1.2" fill="#451A03" />
+          </g>
+
+          {/* (4) 좌판 상단 밧줄 고정 매듭 (x=141, y=104) */}
+          <ellipse cx="141" cy="104" rx="3.5" ry="2.6" fill="#D97706" stroke="#78350F" strokeWidth="1.2" />
+          <circle cx="141" cy="104" r="1" fill="#451A03" />
+
+          {/* ★ (5) [그네 밧줄 술 = 2획 끝 꼬리]: 좌판 아래로 찰랑찰랑 빠져나온 밧줄 술 (Tassel / Fringe) */}
           <path
-            d="M 77 119 C 72 122 66 120 62 123"
-            stroke="#F43F5E"
+            d="M 138 120 C 142 123 146 126 150 128"
+            stroke="#78350F"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 138 120 C 142 123 146 126 150 128"
+            stroke="#F59E0B"
             strokeWidth="2"
             strokeLinecap="round"
           />
-          <path
-            d="M 76 120 C 70 125 64 126 58 128"
-            stroke="#FB7185"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
+          {/* 가느다란 술 가닥들 */}
+          <path d="M 140 121 C 144 125 148 127 153 129" stroke="#D97706" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M 137 122 C 140 127 144 130 148 133" stroke="#B45309" strokeWidth="1.4" strokeLinecap="round" />
+
+          {/* (6) 좌판 좌측에 예쁘게 묶인 핑크빛 바람 리본 */}
+          <g id="ne-seat-ribbon">
+            <circle cx="106" cy="116" r="2.2" fill="#F43F5E" />
+            <path
+              d="M 105 117 C 100 119 96 117 92 121"
+              stroke="#F43F5E"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M 105 118 C 101 123 96 124 91 126"
+              stroke="#FB7185"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+          </g>
         </g>
 
-        {/* 글자 'ね' 오버레이 */}
+        {/* 7. 햇살 반짝임 스파클 (상쾌한 맑은 날) */}
+        <g id="ne-sun-sparkles">
+          <path d="M 166 40 L 167.5 36 L 169 40 L 173 41.5 L 169 43 L 167.5 47 L 166 43 L 162 41.5 Z" fill="#FDE047" />
+          <circle cx="152" cy="32" r="1.5" fill="#38BDF8" opacity="0.8" />
+          <circle cx="176" cy="50" r="1.3" fill="#FDE047" />
+        </g>
+
+        {/* 글자 'ね' 오버레이 - 글자 획 자체가 곧 그네의 기둥, 가로보, 밧줄, 좌판과 완벽 일치! */}
         <MnemonicCharOverlay char="ね" fontFamily={fontFamily} x="108" y="118" />
       </svg>
     );
