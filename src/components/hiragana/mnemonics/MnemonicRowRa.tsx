@@ -443,7 +443,7 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
 
   if (char === 'る') {
     // る: 캥거루 (서 있는 엄마 캥거루의 등뼈와 배주머니 속에 쏙 들어간 아기의 둥근 루프 고리!)
-    // ⚠️ ろ(롤러스케이트: 루프 없음)와 결정적으로 구별되는 배주머니 속 둥근 아기 캥거루 루프 강조!
+    // ⚠️ ろ(로켓: 루프 없음)와 결정적으로 구별되는 배주머니 속 둥근 아기 캥거루 루프 강조!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -1039,8 +1039,9 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'ろ') {
-    // ろ: 롤러스케이트 (바퀴 2개가 달린 차체 프레임, 고리 없이 시원한 꺾임)
-    // ⚠️ る(캥거루: 고리 있음)와 확실히 다르게 하단에 루프가 전혀 없는 깔끔한 마감선 강조!
+    // ろ: 로켓 (ろ의 상단 획 전체를 감싸는 당당한 우주 로켓 본체와 둥글게 뿜어내는 추진 화염 궤적!)
+    // ⚠️ 사용자 피드백 반영: 상단 가로선과 사선 획 전체가 로켓의 뾰족한 노즈콘, 듬직한 메인 동체, 델타 날개와 1:1 완벽 일치!
+    // ⚠️ る(캥거루: 동그란 루프 있음)와 확실히 다르게 하단에 루프 없이 시원하게 트인 불꽃 연기 궤적 강조!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -1048,30 +1049,258 @@ export default function MnemonicRowRa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 롤러스케이트 부츠 외곽선 (글자 ろ와 동일한 상단 꺾임 궤적) */}
+        <defs>
+          {/* 로켓 본체 메탈릭 실버화이트 그라디언트 (풍성한 입체 원통감) */}
+          <linearGradient id="ro-body" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#E2E8F0" />
+            <stop offset="25%" stopColor="#FFFFFF" />
+            <stop offset="70%" stopColor="#F1F5F9" />
+            <stop offset="100%" stopColor="#CBD5E1" />
+          </linearGradient>
+
+          {/* 로켓 노즈콘 & 날개 선명한 루비 레드 그라디언트 */}
+          <linearGradient id="ro-red" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FB7185" />
+            <stop offset="40%" stopColor="#E11D48" />
+            <stop offset="100%" stopColor="#9F1239" />
+          </linearGradient>
+
+          {/* 우주선 전망창 사파이어 블루 그라디언트 */}
+          <linearGradient id="ro-window" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#BAE6FD" />
+            <stop offset="35%" stopColor="#38BDF8" />
+            <stop offset="80%" stopColor="#0284C7" />
+            <stop offset="100%" stopColor="#0369A1" />
+          </linearGradient>
+
+          {/* 화염 외곽 그라디언트 (타오르는 네온 오렌지-레드) */}
+          <linearGradient id="ro-flame-outer" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#F97316" />
+            <stop offset="50%" stopColor="#EF4444" />
+            <stop offset="100%" stopColor="#DC2626" />
+          </linearGradient>
+
+          {/* 화염 중심 코어 그라디언트 (눈부신 레몬 옐로우-화이트) */}
+          <linearGradient id="ro-flame-inner" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="35%" stopColor="#FEF08A" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
+
+          {/* 배기 연기 구름 부드러운 그라디언트 */}
+          <linearGradient id="ro-smoke" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="100%" stopColor="#E2E8F0" />
+          </linearGradient>
+
+          {/* 황금별 그라디언트 */}
+          <linearGradient id="ro-star" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFBEB" />
+            <stop offset="50%" stopColor="#FDE047" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
+
+          {/* 토성 미니 행성 그라디언트 */}
+          <linearGradient id="ro-planet" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#DDD6FE" />
+            <stop offset="100%" stopColor="#8B5CF6" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 배경: 신비로운 우주 분위기 (토성, 반짝이는 별, 속도선) */}
+        {/* 미니 토성 (우측 상단) */}
+        <g id="mini-planet">
+          <ellipse cx="168" cy="32" rx="8.5" ry="8.5" fill="url(#ro-planet)" />
+          {/* 토성 고리 */}
+          <ellipse
+            cx="168"
+            cy="32"
+            rx="15"
+            ry="4.5"
+            fill="none"
+            stroke="#C4B5FD"
+            strokeWidth="1.8"
+            transform="rotate(-22 168 32)"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* 미니 초승달 (좌측 상단) */}
         <path
-          d="M 76 46 L 132 46 C 114 62 82 82 82 98 C 82 122 138 124 146 112"
-          stroke="#D6D3D1"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          d="M 40 32 C 40 40 46 46 54 46 C 48 46 44 42 44 36 C 44 32 45 29 47 26 C 42 27 40 29 40 32 Z"
+          fill="#FDE047"
+          opacity="0.8"
         />
 
-        {/* 스케이트 하단 플레이트 바닥선 */}
-        <line x1="72" y1="116" x2="148" y2="116" stroke="#78716C" strokeWidth="3" strokeLinecap="round" />
+        {/* 반짝이는 4각 황금별들 */}
+        {/* 좌측 중간 별 */}
+        <path
+          d="M 50 76 L 52 69 L 54 76 L 61 78 L 54 80 L 52 87 L 50 80 L 43 78 Z"
+          fill="url(#ro-star)"
+        />
+        {/* 우측 중간 미니 별 */}
+        <path
+          d="M 164 80 L 165.5 76 L 167 80 L 171 81.5 L 167 83 L 165.5 87 L 164 83 L 160 81.5 Z"
+          fill="url(#ro-star)"
+        />
+        {/* 상단 작은 별 */}
+        <path
+          d="M 100 20 L 101 17 L 102 20 L 105 21 L 102 22 L 101 25 L 100 22 L 97 21 Z"
+          fill="#FDE047"
+        />
+        {/* 미니 별가루 도트들 */}
+        <circle cx="36" cy="62" r="1.3" fill="#FDE047" />
+        <circle cx="178" cy="62" r="1.3" fill="#FDE047" />
+        <circle cx="152" cy="136" r="1.5" fill="#FDE047" />
+        <circle cx="46" cy="116" r="1.2" fill="#CBD5E1" />
 
-        {/* 롤러스케이트 앞뒤 바퀴 2개 (포인트 스카이블루 휠) */}
-        {/* 앞바퀴 */}
-        <circle cx="88" cy="130" r="10" fill="#E0F2FE" stroke="#0284C7" strokeWidth="2" />
-        <circle cx="88" cy="130" r="3.5" fill="#38BDF8" />
+        {/* 2. 글자 ろ 상단 가로 획 매칭 가이드라인: 대기권 돌파 음속 스피드 궤적선 */}
+        <line x1="64" y1="44" x2="132" y2="44" stroke="#93C5FD" strokeWidth="2.5" strokeDasharray="5 3" strokeLinecap="round" opacity="0.85" />
+        <line x1="72" y1="38" x2="116" y2="38" stroke="#BAE6FD" strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
+        <line x1="80" y1="50" x2="124" y2="50" stroke="#BAE6FD" strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
 
-        {/* 뒷바퀴 */}
-        <circle cx="132" cy="130" r="10" fill="#E0F2FE" stroke="#0284C7" strokeWidth="2" />
-        <circle cx="132" cy="130" r="3.5" fill="#38BDF8" />
+        {/* 3. ★★★ 글자 ろ 하단 둥근 곡선 매칭 (82, 86 -> 146, 110 -> 88, 134): 추진 화염 및 배기 궤적 ★★★ */}
+        {/* ⚠️ る(캥거루)의 닫힌 루프와 달리, 끝단(88, 134)이 꼬이지 않고 시원하게 열려 뒤로 빠지는 형태! */}
+        <g id="rocket-flames">
+          {/* 외곽 추진 화염 리본 (풍성하고 역동적인 오렌지-레드 화염) */}
+          <path
+            d="M 82 86
+               C 104 84 148 90 148 114
+               C 148 132 122 140 88 134
+               C 80 132 80 125 86 123
+               C 114 126 134 118 134 108
+               C 134 96 98 94 82 86 Z"
+            fill="url(#ro-flame-outer)"
+            stroke="#EA580C"
+            strokeWidth="1.4"
+            strokeLinejoin="round"
+          />
 
-        {/* 스케이트 쌩쌩 질주 속도선 */}
-        <line x1="50" y1="126" x2="68" y2="126" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
-        <line x1="56" y1="134" x2="72" y2="134" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+          {/* 내부 코어 화염 (눈부신 황금빛-화이트) */}
+          <path
+            d="M 83 86
+               C 100 86 140 92 140 111
+               C 140 124 118 131 94 128
+               C 89 126 91 122 96 121
+               C 118 121 129 115 128 107
+               C 127 97 96 93 83 86 Z"
+            fill="url(#ro-flame-inner)"
+          />
+
+          {/* 중앙 화염 광택 스트로크 라인 */}
+          <path
+            d="M 84 87 C 104 89 138 97 138 112 C 138 126 116 131 92 128"
+            stroke="#FEF08A"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            opacity="0.9"
+          />
+
+          {/* 화염 끝단 흩어지는 몽글몽글 배기 연기 구름 (루프 없음! 시원하게 개방된 마감) */}
+          <ellipse cx="88" cy="133" rx="7.5" ry="6" fill="url(#ro-smoke)" stroke="#CBD5E1" strokeWidth="1" />
+          <ellipse cx="77" cy="131" rx="6" ry="4.8" fill="url(#ro-smoke)" stroke="#CBD5E1" strokeWidth="0.9" />
+          <ellipse cx="68" cy="134" rx="4.5" ry="3.5" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="0.8" />
+
+          {/* 추진 스파크 불꽃 파편들 */}
+          <circle cx="145" cy="128" r="2.4" fill="#F59E0B" />
+          <circle cx="151" cy="117" r="1.8" fill="#EF4444" />
+          <circle cx="114" cy="138" r="2" fill="#FDE047" />
+          <circle cx="60" cy="133" r="1.4" fill="#94A3B8" />
+        </g>
+
+        {/* 4. ★★★ 글자 ろ 윗부분 전체 매칭: 당당하고 거대한 우주 로켓 본체! ★★★ */}
+        {/* 로켓 본체 그룹 (중심: 104, 65 / 각도: 46도 -> 사선 획 및 상단 가로선과 1:1 완벽 정렬!) */}
+        <g transform="translate(104, 65) rotate(46)">
+          {/* [1] 좌측 거대 델타 날개 (Big Delta Wing - 글자 ろ의 상단 가로선 76~128과 완벽 일체화!) */}
+          <path
+            d="M -13 -6
+               L -35 8
+               C -35 8 -30 16 -13 20
+               Z"
+            fill="url(#ro-red)"
+            stroke="#881337"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          {/* 델타 날개 상단 엣지 하이라이트 (글자 ろ의 상단 가로선 궤적을 밝혀줌) */}
+          <path d="M -13 -4 L -33 8" stroke="#FECDD3" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="-13" y1="8" x2="-26" y2="12" stroke="#9F1239" strokeWidth="1.2" strokeLinecap="round" />
+
+          {/* [2] 우측 보조 날개 (Right Wing) */}
+          <path
+            d="M 13 -6
+               L 28 14
+               C 28 14 24 18 13 20
+               Z"
+            fill="url(#ro-red)"
+            stroke="#881337"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          {/* 우측 날개 하이라이트 */}
+          <path d="M 13 -4 L 26 13" stroke="#FECDD3" strokeWidth="1.4" strokeLinecap="round" />
+
+          {/* [3] 엔진 추진 노즐 (Thruster Nozzle: 글자 ろ의 사선 끝 82, 86에 정확히 장착) */}
+          <path
+            d="M -9 22 L 9 22 L 12 30 L -12 30 Z"
+            fill="#334155"
+            stroke="#0F172A"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          {/* 노즐 입구 작열하는 오렌지 글로우 */}
+          <ellipse cx="0" cy="30" rx="10" ry="3.2" fill="#F97316" stroke="#EA580C" strokeWidth="1" />
+
+          {/* [4] 로켓 메인 듬직한 유선형 원통 동체 (글자 ろ 사선 획을 통째로 품음) */}
+          <path
+            d="M -13 22
+               L -13 -6
+               C -13 -18 0 -25 0 -25
+               C 0 -25 13 -18 13 -6
+               L 13 22
+               Z"
+            fill="url(#ro-body)"
+            stroke="#475569"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+
+          {/* 동체 좌측 부드러운 원통형 하이라이트 반사광선 */}
+          <path d="M -8 -12 L -8 18" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" opacity="0.9" />
+
+          {/* 동체 하단 레드 & 옐로우 레이싱 스트라이프 밴드 */}
+          <rect x="-13" y="14" width="26" height="3.5" fill="#E11D48" />
+          <rect x="-13" y="17.5" width="26" height="1.8" fill="#FBBF24" />
+
+          {/* [5] 선단부 뾰족한 로열 레드 노즈콘 (Nose Cone: 글자 ろ 상단 꼭짓점 130, 42를 돌파!) */}
+          <path
+            d="M -12 -18
+               C -8 -30 0 -42 0 -42
+               C 0 -42 8 -30 12 -18
+               C 6 -16 -6 -16 -12 -18
+               Z"
+            fill="url(#ro-red)"
+            stroke="#881337"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          {/* 노즈콘 입체 광택선 */}
+          <path d="M 0 -38 C 3 -28 6 -22 6 -18" stroke="#FECDD3" strokeWidth="1.5" strokeLinecap="round" />
+
+          {/* [6] 중앙 크고 영롱한 우주선 전망창 (Porthole with Chrome Bezel) */}
+          <circle cx="0" cy="-3" r="8" fill="#E2E8F0" stroke="#475569" strokeWidth="1.4" />
+          <circle cx="0" cy="-3" r="6.2" fill="url(#ro-window)" />
+          {/* 전망창 유리 반사광 */}
+          <path d="M -3.5 -5.5 A 4.5 4.5 0 0 1 3.5 -5.5" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+          <circle cx="2.5" cy="-1" r="1.1" fill="#FFFFFF" />
+
+          {/* [7] 중앙 수직 안정핀 (Dorsal Fin) */}
+          <rect x="-1.2" y="4" width="2.4" height="15" rx="1.2" fill="#BE123C" />
+        </g>
+
+        {/* 5. 우상단 비행 모션 스피드 대시선 (우주로 솟구치는 추진 방향) */}
+        <line x1="140" y1="32" x2="156" y2="18" stroke="#FDE047" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
+        <line x1="148" y1="44" x2="160" y2="33" stroke="#FDE047" strokeWidth="1.5" strokeLinecap="round" />
 
         {/* 글자 'ろ' 오버레이 */}
         <MnemonicCharOverlay char="ろ" fontFamily={fontFamily} x="108" y="118" />
