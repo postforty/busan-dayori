@@ -190,8 +190,8 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'ひ') {
-    // ひ: 호루라기 (단정하고 클래식한 실버 메탈 호루라기)
-    // ⚠️ 글자 'ひ'의 마우스피스(왼쪽 획), 깊은 U자형 원통 챔버(U자 곡선), 뒷면 고리(우측 삐침)와 1:1 완벽 일치!
+    // ひ: 히죽 (기분 좋게 싱글벙글, 선하고 해맑게 "히죽~" 웃는 아이의 따뜻한 미소!)
+    // ⚠️ 글자 'ひ' 자체가 활짝 웃는 U자 입모양이 되며, 오른쪽 위로 솟은 곡선이 미소 보조개선과 1:1 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -199,131 +199,114 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 1. 바닥 그림자 */}
-        <ellipse cx="106" cy="138" rx="48" ry="6" fill="#E2E8F0" opacity="0.6" />
+        {/* 1. 바닥 미세 그림자 */}
+        <ellipse cx="104" cy="142" rx="46" ry="6" fill="#F1F5F9" />
 
-        {/* 2. 호루라기 마우스피스 (입에 무는 주둥이 - 왼쪽) */}
-        {/* 마우스피스 본체 관 */}
-        <path
-          d="M 44 54 L 84 54 L 84 70 L 44 70 Z"
-          fill="#E2E8F0"
-          stroke="#64748B"
-          strokeWidth="1.8"
-        />
-        {/* 마우스피스 상단 금속 광택 하이라이트 */}
-        <rect x="46" y="55.5" width="36" height="3" rx="1.5" fill="#FFFFFF" opacity="0.9" />
-        {/* 입술 물림 방지 턱 (Bite grip ridge) */}
-        <rect
-          x="50"
-          y="52"
-          width="5"
-          height="20"
-          rx="2"
-          fill="#CBD5E1"
-          stroke="#64748B"
-          strokeWidth="1.2"
-        />
-        {/* 공기 주입구 구멍 */}
-        <ellipse cx="44" cy="62" rx="2.5" ry="7" fill="#475569" />
+        {/* 2. 양쪽 귀 (스킨톤 + 핑크 귓바퀴 라인) */}
+        <g id="ears">
+          {/* 왼쪽 귀 */}
+          <ellipse cx="44" cy="74" rx="7" ry="10" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="2" />
+          <path d="M 44 70 C 42 74 44 78 46 76" stroke="#FDA4AF" strokeWidth="1.5" strokeLinecap="round" />
+          {/* 오른쪽 귀 */}
+          <ellipse cx="164" cy="74" rx="7" ry="10" fill="#FFFBEB" stroke="#F59E0B" strokeWidth="2" />
+          <path d="M 164 70 C 166 74 164 78 162 76" stroke="#FDA4AF" strokeWidth="1.5" strokeLinecap="round" />
+        </g>
 
-        {/* 3. 소리창 (Sound Window / 공기 배출구 - 상단) */}
+        {/* 3. 얼굴 본체 (볼살이 통통하고 사랑스러운 둥근 얼굴) */}
         <path
-          d="M 84 54 L 98 54 L 98 64 L 84 64 Z"
-          fill="#334155"
-        />
-        <line x1="84" y1="54" x2="98" y2="54" stroke="#1E293B" strokeWidth="1.5" />
-        <line x1="98" y1="54" x2="98" y2="64" stroke="#FFFFFF" strokeWidth="1.2" />
-
-        {/* 4. 원통형 공명 챔버 본체 (Resonance Chamber - 글자 ひ의 U자 곡선과 일치) */}
-        {/* 챔버 본체 (매끄러운 실버 메탈) */}
-        <path
-          d="M 84 70 
-             C 76 76 76 124 110 124 
-             C 144 124 146 80 138 64 
-             L 98 64 
-             L 98 70 Z"
-          fill="#F1F5F9"
-          stroke="#64748B"
-          strokeWidth="2"
+          d="M 50 72 
+             C 48 38 72 24 104 24 
+             C 136 24 160 38 158 72 
+             C 158 106 142 136 104 136 
+             C 66 136 50 106 50 72 Z"
+          fill="#FFFBEB"
+          stroke="#F59E0B"
+          strokeWidth="2.5"
           strokeLinejoin="round"
         />
-        {/* 챔버 하단 반사광 하이라이트 */}
+
+        {/* 4. 귀여운 헤어스타일 (정수리 삐죽 솟은 머리 2가닥) */}
+        <g id="hair">
+          <path
+            d="M 100 24 C 96 12 106 10 109 16 C 113 9 124 12 118 24 Z"
+            fill="#78350F"
+            stroke="#451A03"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        {/* 5. 선한 웃음: 온화하고 부드러운 눈썹 & 해맑은 반달 눈웃음 */}
+        {/* 온화하고 다정한 눈썹 (양쪽 대칭의 편안한 아치형) */}
         <path
-          d="M 88 114 C 98 121 122 121 132 114"
-          stroke="#FFFFFF"
-          strokeWidth="2.5"
+          d="M 72 36 Q 82 30 92 35"
+          stroke="#78350F"
+          strokeWidth="2.4"
           strokeLinecap="round"
         />
-
-        {/* 챔버 측면 원형 림 & 중심 볼트 캡 */}
-        <circle
-          cx="110"
-          cy="94"
-          r="22"
-          fill="#E2E8F0"
-          stroke="#94A3B8"
-          strokeWidth="1.8"
-        />
-        <circle
-          cx="110"
-          cy="94"
-          r="22"
-          stroke="#FFFFFF"
-          strokeWidth="1.5"
-          strokeDasharray="20 40"
-        />
-        <circle
-          cx="110"
-          cy="94"
-          r="8"
-          fill="#CBD5E1"
-          stroke="#64748B"
-          strokeWidth="1.2"
-        />
-        <circle cx="110" cy="94" r="2.5" fill="#475569" />
-
-        {/* 5. 목걸이 고리 링 & 심플 스트랩 (글자 ひ 우측 삐침) */}
-        <rect
-          x="135"
-          y="60"
-          width="7"
-          height="8"
-          rx="2"
-          fill="#CBD5E1"
-          stroke="#64748B"
-          strokeWidth="1.2"
-        />
-        <circle
-          cx="144"
-          cy="64"
-          r="5.5"
-          fill="none"
-          stroke="#64748B"
-          strokeWidth="1.8"
-        />
-        {/* 단정한 스트랩 끈 */}
         <path
-          d="M 144 69 C 146 82 150 96 148 110"
-          stroke="#475569"
+          d="M 116 35 Q 126 30 136 36"
+          stroke="#78350F"
           strokeWidth="2.4"
           strokeLinecap="round"
         />
 
-        {/* 6. 단정하고 깔끔한 소리 파동선 2줄기 */}
+        {/* 선하고 다정한 반달 눈웃음 (해맑고 순수한 미소) */}
         <path
-          d="M 154 36 Q 164 46 156 56"
-          stroke="#94A3B8"
-          strokeWidth="2"
+          d="M 72 49 Q 82 40 92 49"
+          stroke="#78350F"
+          strokeWidth="2.8"
           strokeLinecap="round"
         />
         <path
-          d="M 164 28 Q 178 44 166 62"
-          stroke="#CBD5E1"
+          d="M 116 49 Q 126 40 136 49"
+          stroke="#78350F"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+        />
+
+        {/* 앙증맞은 작은 코 */}
+        <path
+          d="M 103 52 Q 105 54 107 52"
+          stroke="#B45309"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+
+        {/* 6. 부드러운 미소 입모양 바탕 (글자 ひ의 U자 굴곡을 받쳐주는 깔끔하고 따뜻한 연분홍) */}
+        <path
+          d="M 80 62 
+             C 78 88 84 114 104 114 
+             C 122 114 128 90 128 62 
+             C 114 58 94 58 80 62 Z"
+          fill="#FFE4E6"
+          stroke="#FDA4AF"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+
+        {/* 7. 양 볼의 화사하고 사랑스러운 복숭아빛 볼터치 */}
+        {/* 왼쪽 볼 */}
+        <circle cx="62" cy="74" r="9" fill="#FDA4AF" opacity="0.7" />
+        {/* 오른쪽 볼 */}
+        <circle cx="146" cy="74" r="9" fill="#FDA4AF" opacity="0.7" />
+
+        {/* 오른쪽 입꼬리 자연스러운 미소 보조개선 (글자 ひ 우측 곡선과 연결) */}
+        <path
+          d="M 136 64 C 143 70 143 80 138 86"
+          stroke="#FDA4AF"
           strokeWidth="2"
           strokeLinecap="round"
         />
 
-        {/* 글자 'ひ' 오버레이 */}
+        {/* 8. 기분 좋은 미소를 나타내는 따뜻한 황금빛 반짝이 */}
+        <path
+          d="M 166 28 Q 166 33 171 33 Q 166 33 166 38 Q 166 33 161 33 Q 166 33 166 28 Z"
+          fill="#F59E0B"
+        />
+        <circle cx="174" cy="26" r="1.2" fill="#FBBF24" />
+
+        {/* 글자 'ひ' 오버레이 (정중앙에서 활짝 웃는 미소 입 완성) */}
         <MnemonicCharOverlay char="ひ" fontFamily={fontFamily} x="108" y="118" />
       </svg>
     );
