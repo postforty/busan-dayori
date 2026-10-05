@@ -500,7 +500,10 @@ export default function MnemonicRowYa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'よ') {
-    // よ: 요트 (바람을 머금은 삼각 돛과 둥근 선체 라인)
+    // よ: 요트 (푸른 바다를 시원하게 가르는 하얀 세일링 요트!)
+    // ⚠️ 1획 가로선: 메인 세일(Mainsail)의 팽팽한 수평 배튼(Batten 살대) & 가로 붐 라인,
+    //    2획 수직선: 하늘 높이 솟은 요트 중심 돛대(마스트 Mast)와 펄럭이는 삼각 페넌트 깃발,
+    //    2획 하단 루프: 요트 선체 콕핏에 걸린 선명한 마린 구명환(Lifebuoy 튜브) 및 물살을 가르는 유선형 선체(Hull)와 1:1 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -508,48 +511,335 @@ export default function MnemonicRowYa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 요트 돛대 마스트 수직 기둥 (글자 よ 수직선 매칭) */}
+        <defs>
+          {/* 바다 그라디언트 (깊고 청량한 코발트 블루) */}
+          <linearGradient id="yo-sea" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#0284C7" />
+            <stop offset="35%" stopColor="#0369A1" />
+            <stop offset="100%" stopColor="#0C4A6E" />
+          </linearGradient>
+
+          {/* 파도 거품 및 수면 하이라이트 그라디언트 */}
+          <linearGradient id="yo-wave" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#BAE6FD" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.8" />
+          </linearGradient>
+
+          {/* 날렵한 화이트 요트 선체(Hull) 펄 그라디언트 */}
+          <linearGradient id="yo-hull" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="55%" stopColor="#F8FAFC" />
+            <stop offset="85%" stopColor="#E2E8F0" />
+            <stop offset="100%" stopColor="#CBD5E1" />
+          </linearGradient>
+
+          {/* 메인 세일(주 돛) 입체 쉐이딩 그라디언트 */}
+          <linearGradient id="yo-sail-main" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="60%" stopColor="#F0F9FF" />
+            <stop offset="100%" stopColor="#BAE6FD" />
+          </linearGradient>
+
+          {/* 앞돛 (지브 세일 Jib Sail) 청량한 스카이블루 그라디언트 */}
+          <linearGradient id="yo-sail-jib" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="50%" stopColor="#BAE6FD" />
+            <stop offset="100%" stopColor="#7DD3FC" />
+          </linearGradient>
+
+          {/* 견고한 마스트(돛대) 알루미늄 메탈 그라디언트 */}
+          <linearGradient id="yo-mast" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#F1F5F9" />
+            <stop offset="50%" stopColor="#94A3B8" />
+            <stop offset="100%" stopColor="#475569" />
+          </linearGradient>
+
+          {/* 펄럭이는 삼각 깃발 오렌지/레드 그라디언트 */}
+          <linearGradient id="yo-flag" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#EA580C" />
+            <stop offset="100%" stopColor="#FB923C" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 배경 하늘 & 자유로운 갈매기 & 바람결 */}
+        {/* 하늘 잔잔한 뭉게구름 */}
         <path
-          d="M 100 28 L 100 126"
-          stroke="#78716C"
+          d="M 16 34 Q 28 28 40 34 Q 50 30 62 34 L 16 34 Z"
+          fill="#F0F9FF"
+          opacity="0.8"
+        />
+        {/* 날아가는 하얀 갈매기 (좌측 상단 & 우측 상단) */}
+        <path
+          d="M 26 25 C 31 20 37 22 40 26 C 43 22 49 20 54 25"
+          stroke="#0284C7"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 164 19 C 168 15 173 17 176 20 C 179 17 184 15 188 19"
+          stroke="#0284C7"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          opacity="0.8"
+        />
+        {/* 청량한 바닷바람 흐름선 (Wind lines) */}
+        <path
+          d="M 18 50 C 38 46 68 52 88 47"
+          stroke="#38BDF8"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.5"
+          strokeDasharray="6 4"
+        />
+        <path
+          d="M 12 76 C 30 72 58 78 78 72"
+          stroke="#38BDF8"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.4"
+          strokeDasharray="5 3"
+        />
+
+        {/* 2. 바다와 출렁이는 파도 수면 */}
+        {/* 메인 딥블루 바다 수면 */}
+        <path
+          d="M 0 126 C 35 120 75 130 115 123 C 150 117 180 128 200 122 L 200 160 L 0 160 Z"
+          fill="url(#yo-sea)"
+        />
+        {/* 중간 넘실거리는 파도 레이어 */}
+        <path
+          d="M 0 136 C 40 130 85 140 130 133 C 165 128 190 136 200 132 L 200 160 L 0 160 Z"
+          fill="#0369A1"
+          opacity="0.75"
+        />
+        {/* 앞쪽 찰랑이는 파도 물결선 */}
+        <path
+          d="M 0 148 C 45 144 95 152 145 146 C 175 142 190 148 200 145"
+          stroke="url(#yo-wave)"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 18 155 C 48 152 78 156 108 154 M 132 154 C 158 152 182 156 196 154"
+          stroke="#E0F2FE"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.8"
+        />
+
+        {/* 3. 팽팽한 리깅 와이어 (마스트에서 선수/선미로 연결) */}
+        {/* 앞쪽 포스테이 (Forestay Wire) */}
+        <line x1="104" y1="24" x2="44" y2="108" stroke="#94A3B8" strokeWidth="1.2" opacity="0.85" />
+        {/* 뒤쪽 백스테이 (Backstay Wire) */}
+        <line x1="104" y1="24" x2="170" y2="114" stroke="#94A3B8" strokeWidth="1.2" opacity="0.85" />
+
+        {/* 4. 삼각 돛 (Sails - 바람을 가득 머금은 풍성한 곡면) */}
+        {/* 앞돛 (지브 세일 Jib Sail / Genoa - 좌측 삼각 돛) */}
+        <g id="yo-jib-sail">
+          <path
+            d="M 103 34 C 84 52 64 78 46 106 C 70 106 90 104 103 98 Z"
+            fill="url(#yo-sail-jib)"
+            stroke="#0284C7"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 지브 세일 패널 재봉선 */}
+          <path d="M 103 56 C 88 68 76 84 62 106" stroke="#38BDF8" strokeWidth="1.3" strokeLinecap="round" opacity="0.75" />
+          <path d="M 103 76 C 94 86 86 96 78 105" stroke="#38BDF8" strokeWidth="1.1" strokeLinecap="round" opacity="0.7" />
+          {/* 햇살 투과 광택 하이라이트 */}
+          <path d="M 98 42 C 86 58 74 78 60 98" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" opacity="0.65" />
+        </g>
+
+        {/* 주 돛 (메인 세일 Mainsail - 우측 삼각 돛) */}
+        {/* ⚠️ 글자 よ의 1획 가로선(y: 55)과 세일의 수평 배튼(Batten) 라인이 1:1 완벽 일치! */}
+        <g id="yo-main-sail">
+          {/* 바람을 머금고 뒤쪽으로 부풀어 오른 메인 세일 바디 */}
+          <path
+            d="M 106 26 C 128 36 156 58 156 90 L 106 90 Z"
+            fill="url(#yo-sail-main)"
+            stroke="#0284C7"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 세일 코너 모서리 보강 패치 */}
+          <polygon points="106,26 114,34 106,38" fill="#38BDF8" opacity="0.4" />
+          <polygon points="156,90 144,88 150,80" fill="#38BDF8" opacity="0.4" />
+          <polygon points="106,90 114,84 106,80" fill="#38BDF8" opacity="0.4" />
+
+          {/* ★ 글자 よ의 1획과 일치하는 메인 세일 중심 배튼(Batten 살대) 라인 ★ */}
+          <path d="M 106 55 L 148 56" stroke="#0284C7" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M 106 53 L 142 53" stroke="#BAE6FD" strokeWidth="1.2" strokeLinecap="round" />
+
+          {/* 상하단 보조 배튼 라인 */}
+          <path d="M 106 40 L 128 42" stroke="#38BDF8" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
+          <path d="M 106 72 L 152 74" stroke="#38BDF8" strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
+
+          {/* 요트 세일 엠블럼 마크 (블루 요트 서클 로고) */}
+          <circle cx="128" cy="68" r="6" fill="none" stroke="#2563EB" strokeWidth="1.2" opacity="0.6" />
+          <path d="M 128 64 L 128 72 M 125 66 L 131 70" stroke="#2563EB" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
+
+          {/* 세일 하단 가로 붐대 (Boom) */}
+          <path d="M 105 92 L 158 92" stroke="#64748B" strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx="158" cy="92" r="2.2" fill="#475569" />
+        </g>
+
+        {/* 5. 요트 중심 돛대 (마스트 Mast - 글자 よ의 2획 수직 기둥과 일치) */}
+        <g id="yo-mast-group">
+          {/* 견고한 알루미늄 마스트 기둥 */}
+          <rect x="103.5" y="22" width="3.2" height="90" rx="1.6" fill="url(#yo-mast)" stroke="#334155" strokeWidth="1" />
+          {/* 돛대 꼭대기 풍향계 & 캡 */}
+          <circle cx="105.1" cy="22" r="2.4" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+          <line x1="105.1" y1="22" x2="105.1" y2="15" stroke="#64748B" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="100" y1="17" x2="110" y2="17" stroke="#EA580C" strokeWidth="1.2" strokeLinecap="round" />
+          {/* 돛대 꼭대기 오렌지 삼각 페넌트 깃발 (Burgee) */}
+          <path
+            d="M 106.5 22 L 126 27 L 106.5 32 Z"
+            fill="url(#yo-flag)"
+            stroke="#C2410C"
+            strokeWidth="1"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        {/* 6. 요트 선체 (Sleek Hull & Deck - 물 위에 당당히 뜬 레이싱 요트 바디!) */}
+        <g id="yo-boat-hull">
+          {/* 갑판 위 날렵한 선실(Cabin) 루프 */}
+          <path
+            d="M 72 110 L 82 103 L 138 103 L 146 111 Z"
+            fill="#E2E8F0"
+            stroke="#64748B"
+            strokeWidth="1.4"
+          />
+          {/* 틴팅된 선실 유리창 (윈드실드) */}
+          <polygon points="84,105 96,105 94,109 82,109" fill="#0284C7" opacity="0.85" />
+          <polygon points="100,105 116,105 116,109 98,109" fill="#0284C7" opacity="0.85" />
+          <polygon points="120,105 134,105 132,109 119,109" fill="#0284C7" opacity="0.85" />
+
+          {/* 날렵한 선체 본체 (Bow 선수 ~ Stern 선미) */}
+          <path
+            d="M 32 110
+               C 70 112 130 112 174 114
+               C 168 126 148 134 116 134
+               C 80 134 45 126 32 110 Z"
+            fill="url(#yo-hull)"
+            stroke="#475569"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+
+          {/* 선체 바닥 킬 음영 라인 */}
+          <path
+            d="M 46 127 C 78 135 120 135 166 124"
+            stroke="#64748B"
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity="0.8"
+          />
+
+          {/* ★ 세련된 마린 스트라이프 (로열 블루 & 골드) ★ */}
+          <path
+            d="M 38 116 C 75 115 125 116 171 118"
+            stroke="#1D4ED8"
+            strokeWidth="2.8"
+            strokeLinecap="round"
+          />
+          <path
+            d="M 44 120 C 78 119 122 120 166 122"
+            stroke="#F59E0B"
+            strokeWidth="1"
+            strokeLinecap="round"
+          />
+
+          {/* 선수 안전 난간 (Bow Pulpit) 실버 파이프 */}
+          <path
+            d="M 32 110 L 34 100 L 48 102 L 48 110"
+            stroke="#94A3B8"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        {/* 7. ★ 클래식 마린 구명환 (Lifebuoy 튜브) - 글자 よ의 2획 하단 루프와 1:1 완벽 일치! ★ */}
+        <g id="yo-lifebuoy">
+          {/* 구명환 외곽 굵은 화이트 베이스 링 (루프 위치: cx 90, cy 106) */}
+          <circle cx="90" cy="106" r="15" fill="#FFFFFF" stroke="#334155" strokeWidth="1.8" />
+          {/* 구명환 중앙 구멍 안쪽 */}
+          <circle cx="90" cy="106" r="7.5" fill="#E0F2FE" stroke="#334155" strokeWidth="1.8" />
+
+          {/* 4방향 세일러 레드 반사 밴드 */}
+          {/* 상단 밴드 */}
+          <path d="M 87 91.5 C 89 91.2 91 91.2 93 91.5 L 92 98.8 C 91 98.6 89 98.6 88 98.8 Z" fill="#EF4444" stroke="#B91C1C" strokeWidth="0.7" />
+          {/* 하단 밴드 */}
+          <path d="M 87 120.5 C 89 120.8 91 120.8 93 120.5 L 92 113.2 C 91 113.4 89 113.4 88 113.2 Z" fill="#EF4444" stroke="#B91C1C" strokeWidth="0.7" />
+          {/* 좌측 밴드 */}
+          <path d="M 75.5 103 C 75.2 105 75.2 107 75.5 109 L 82.8 108 C 82.6 107 82.6 105 82.8 104 Z" fill="#EF4444" stroke="#B91C1C" strokeWidth="0.7" />
+          {/* 우측 밴드 */}
+          <path d="M 104.5 103 C 104.8 105 104.8 107 104.5 109 L 97.2 108 C 97.4 107 97.4 105 97.2 104 Z" fill="#EF4444" stroke="#B91C1C" strokeWidth="0.7" />
+
+          {/* 둘레를 감싸는 골드 구명 로프 (Lifeline grab rope) */}
+          <circle cx="90" cy="106" r="17.5" fill="none" stroke="#F59E0B" strokeWidth="1.1" strokeDasharray="5 3" />
+          {/* 로프 고정 스트랩 핀들 */}
+          <circle cx="90" cy="88.5" r="1.2" fill="#B45309" />
+          <circle cx="90" cy="123.5" r="1.2" fill="#B45309" />
+          <circle cx="72.5" cy="106" r="1.2" fill="#B45309" />
+          <circle cx="107.5" cy="106" r="1.2" fill="#B45309" />
+        </g>
+
+        {/* 8. 글자 よ의 루프 끝 꼬리(x: 106->136, y: 114->120)와 매칭되는 선미 물살 & 방향타 트림 라인 */}
+        <path
+          d="M 98 116 C 112 118 126 118 138 114"
+          stroke="#1D4ED8"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 102 119 C 116 121 128 120 140 116"
+          stroke="#FFFFFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+
+        {/* 9. 역동적인 물보라 스플래시 & 항적 포말 (Bow Wave Splash & Wake) */}
+        {/* 선수가 파도를 가르며 튀어오르는 물보라 */}
+        <path
+          d="M 28 112 C 24 116 26 122 34 120 C 38 116 36 110 32 108 Z"
+          fill="#FFFFFF"
+          stroke="#38BDF8"
+          strokeWidth="1"
+          opacity="0.9"
+        />
+        {/* 튀어오르는 상쾌한 물방울들 */}
+        <circle cx="24" cy="110" r="2.2" fill="#E0F2FE" />
+        <circle cx="20" cy="116" r="1.6" fill="#BAE6FD" />
+        <circle cx="27" cy="105" r="1.3" fill="#FFFFFF" />
+        <circle cx="36" cy="104" r="1.8" fill="#E0F2FE" />
+
+        {/* 선체를 감싸며 뒤로 길게 퍼지는 하얀 거품 항적(Wake) */}
+        <path
+          d="M 38 126 C 60 128 110 134 174 126"
+          stroke="#FFFFFF"
           strokeWidth="2.2"
           strokeLinecap="round"
+          strokeDasharray="8 4"
+          opacity="0.85"
         />
-
-        {/* 삼각 돛 실루엣 (글자 よ 상단 가로 획 및 돛 공간) */}
         <path
-          d="M 64 54 L 100 36 L 100 86 Z"
-          fill="#E0F2FE"
-          stroke="#38BDF8"
+          d="M 52 130 C 85 133 135 137 182 128"
+          stroke="#BAE6FD"
           strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-
-        {/* 돛대 꼭대기 오렌지 삼각 깃발 (포인트 컬러) */}
-        <path
-          d="M 100 28 L 118 34 L 100 40 Z"
-          fill="#FB923C"
-          stroke="#EA580C"
-          strokeWidth="1.2"
-        />
-
-        {/* 둥근 선체(배) 바닥 라인 (글자 よ의 하단 둥근 고리) */}
-        <path
-          d="M 100 88 C 76 88 74 118 98 120 C 122 120 122 96 100 96"
-          stroke="#D6D3D1"
-          strokeWidth="3.5"
           strokeLinecap="round"
+          strokeDasharray="6 3"
+          opacity="0.75"
         />
 
-        {/* 푸른 바다 물결 라인 */}
-        <path
-          d="M 44 130 C 64 126 84 134 104 130 C 124 126 144 134 164 130"
-          stroke="#60A5FA"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
+        {/* 반짝이는 햇살 바다 윤슬 (Sun glints) */}
+        <path d="M 54 144 L 56 142 L 58 144 L 56 146 Z" fill="#FFFFFF" opacity="0.9" />
+        <path d="M 152 142 L 154 140 L 156 142 L 154 144 Z" fill="#FFFFFF" opacity="0.9" />
+        <path d="M 120 152 L 121.5 150.5 L 123 152 L 121.5 153.5 Z" fill="#FFFFFF" opacity="0.8" />
 
-        {/* 글자 'よ' 오버레이 */}
+        {/* 10. 글자 'よ' 오버레이 */}
         <MnemonicCharOverlay char="よ" fontFamily={fontFamily} x="108" y="118" />
       </svg>
     );
