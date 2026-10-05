@@ -387,7 +387,7 @@ export default function MnemonicRowKa({ char, fontFamily }: MnemonicSvgChildProp
 
         {/* 4. 코끼리 둥근 몸체 & 머리-코 실루엣 (위 획=등선, 아래 획=길게 뻗은 코) */}
         <path
-          d="M 48 94 C 44 76 56 54 78 52 C 94 48 112 48 122 56 C 118 66 116 74 128 80 C 144 84 158 88 164 96 C 168 102 164 108 150 108 C 128 108 98 106 72 106 C 52 106 46 104 48 94 Z"
+          d="M 48 94 C 44 76 56 54 78 52 C 94 48 112 48 122 56 C 118 66 116 74 126 78 C 138 81 152 83 163 84 C 168 85 168 91 161 93 C 148 94 135 96 124 99 C 112 103 94 106 72 106 C 52 106 46 104 48 94 Z"
           fill="#F8FAFC"
           stroke="#78716C"
           strokeWidth="1.8"
@@ -410,13 +410,13 @@ export default function MnemonicRowKa({ char, fontFamily }: MnemonicSvgChildProp
 
         {/* 6. 길게 뻗은 코의 자연스러운 주름선 디테일 */}
         <path
-          d="M 136 86 C 138 91 140 96 143 100"
+          d="M 137 83 C 138 86 139 90 141 93"
           stroke="#CBD5E1"
           strokeWidth="1.5"
           strokeLinecap="round"
         />
         <path
-          d="M 148 89 C 150 93 152 97 155 101"
+          d="M 148 85 C 149 88 150 90 151 93"
           stroke="#CBD5E1"
           strokeWidth="1.5"
           strokeLinecap="round"
@@ -445,9 +445,9 @@ export default function MnemonicRowKa({ char, fontFamily }: MnemonicSvgChildProp
         <ellipse cx="96" cy="76" rx="4.5" ry="3" fill="#FDA4AF" opacity="0.85" />
 
         {/* 9. 코 끝에서 뿜어져 나오는 시원한 물방울 분수 (스카이블루 포인트) */}
-        <circle cx="170" cy="78" r="3.2" fill="#38BDF8" />
-        <circle cx="180" cy="66" r="2.4" fill="#38BDF8" />
-        <circle cx="186" cy="80" r="1.8" fill="#38BDF8" />
+        <circle cx="171" cy="74" r="3.2" fill="#38BDF8" />
+        <circle cx="180" cy="62" r="2.4" fill="#38BDF8" />
+        <circle cx="186" cy="75" r="1.8" fill="#38BDF8" />
 
         {/* 10. 글자 'こ' 오버레이 (등선과 길게 뻗은 코 라인에 완벽히 일체화) */}
         <MnemonicCharOverlay char="こ" fontFamily={fontFamily} x="108" y="118" />
