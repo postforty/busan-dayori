@@ -414,27 +414,6 @@ export default function MnemonicRowTa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 부츠 그림자 (바닥) */}
-        <ellipse cx="98" cy="130" rx="56" ry="6" fill="#E2E8F0" opacity="0.6" />
-
-        {/* 도톰한 고무 밑창 & 뒤꿈치 굽 (차콜 그레이 아웃솔) */}
-        {/* 뒤꿈치 굽 (안정적인 블록 굽) */}
-        <path
-          d="M 44 108 L 76 108 L 76 126 C 76 128 74 128 72 128 L 46 128 C 44 128 42 126 42 124 L 42 112 Z"
-          fill="#334155"
-          stroke="#1E293B"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-        {/* 앞쪽 밑창 (Sole) */}
-        <path
-          d="M 76 116 L 140 100 C 146 98 152 104 148 108 L 84 124 C 80 125 76 122 76 118 Z"
-          fill="#334155"
-          stroke="#1E293B"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-
         {/* 부츠 본체 (발목 폭을 널찍하고 안정감 있게 확장) */}
         <path
           d="M 44 28 
