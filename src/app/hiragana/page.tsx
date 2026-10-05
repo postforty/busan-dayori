@@ -10,13 +10,15 @@ interface HiraganaPageProps {
   searchParams: Promise<{
     step?: string;
     char?: string;
+    type?: string;
   }>;
 }
 
 export default async function HiraganaPage({ searchParams }: HiraganaPageProps) {
   const resolvedParams = await searchParams;
   const initialStep = (resolvedParams.step as 'sound' | 'write' | 'cards' | 'words' | 'dialogue') || 'sound';
-  const initialChar = resolvedParams.char || 'あ';
+  const initialCategory = (resolvedParams.type === 'dakuon' ? 'dakuon' : 'seion') as 'seion' | 'dakuon';
+  const initialChar = resolvedParams.char || (initialCategory === 'dakuon' ? 'が' : 'あ');
 
   return (
     <Suspense
@@ -26,7 +28,11 @@ export default async function HiraganaPage({ searchParams }: HiraganaPageProps) 
         </div>
       }
     >
-      <HiraganaStudio initialStep={initialStep} initialChar={initialChar} />
+      <HiraganaStudio
+        initialStep={initialStep}
+        initialChar={initialChar}
+        initialCategory={initialCategory}
+      />
     </Suspense>
   );
 }

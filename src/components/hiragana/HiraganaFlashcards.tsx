@@ -3,6 +3,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   HIRAGANA_GRID,
+  DAKUON_GRID,
+  ALL_SEION_CHARS,
+  ALL_DAKUON_CHARS,
+  COMBINED_HIRAGANA_CHARS,
   CONFUSING_PAIRS,
   HiraganaChar
 } from '@/lib/curriculum/hiraganaData';
@@ -29,10 +33,8 @@ import {
 import HiraganaMnemonicSvg from './HiraganaMnemonicSvg';
 import { MNEMONIC_DATA } from './mnemonics/types';
 
-// 50음도 전체 글자 추출 (46자)
-const ALL_HIRAGANA_CHARS: HiraganaChar[] = HIRAGANA_GRID.flatMap((r) =>
-  r.chars.filter(Boolean) as HiraganaChar[]
-);
+// 기본 50음도 글자 (46자)
+const ALL_HIRAGANA_CHARS: HiraganaChar[] = ALL_SEION_CHARS;
 
 // 헷갈리는 대표 글자 목록 추출 (さ, ち, れ, わ, ね, は, ほ, め, ぬ + る, ろ)
 const CONFUSING_CHAR_SET = new Set<string>();
@@ -51,8 +53,8 @@ const CONFUSING_HIRAGANA_CHARS = ALL_HIRAGANA_CHARS.filter((c) =>
 // 로컬 스토리지 키 및 저장 구조
 const STORAGE_KEY = 'hiragana_flashcards_study_progress';
 
-// 필터 옵션
-type FilterCategory = 'all' | 'confusing' | 'row' | 'wrong';
+// 필터 옵션 (기본 46자, 탁음 25자, 전체 71자, 헷갈리는 글자, 행별, 오답)
+export type FilterCategory = 'all' | 'seion' | 'dakuon' | 'confusing' | 'row' | 'wrong';
 
 interface HiraganaStudyProgress {
   knownChars: string[];
@@ -69,16 +71,26 @@ interface HiraganaFlashcardsProps {
   onCompleteToNextStep?: () => void;
   fontStyle?: 'sans' | 'serif';
   onToggleFontStyle?: () => void;
+  category?: 'seion' | 'dakuon';
 }
 
 export default function HiraganaFlashcards({
   onCompleteToNextStep,
   fontStyle: propFontStyle,
-  onToggleFontStyle
+  onToggleFontStyle,
+  category = 'seion'
 }: HiraganaFlashcardsProps) {
+  // 카테고리별 독립된 스토리지 키 사용 (청음/탁음 간 덱 및 인덱스 꼬임 원천 방지)
+  const storageKey = category === 'dakuon'
+    ? 'hiragana_flashcards_progress_dakuon'
+    : 'hiragana_flashcards_progress_seion';
+
   // --- 상태 관리 ---
-  const [filterType, setFilterType] = useState<FilterCategory>('all');
-  const [selectedRow, setSelectedRow] = useState<string>('あ');
+  const defaultFilter: FilterCategory = category === 'dakuon' ? 'dakuon' : 'seion';
+  const defaultRow = category === 'dakuon' ? 'が' : 'あ';
+
+  const [filterType, setFilterType] = useState<FilterCategory>(defaultFilter);
+  const [selectedRow, setSelectedRow] = useState<string>(defaultRow);
   const [autoSpeech, setAutoSpeech] = useState(true);
 
   // 글꼴 상태 ('sans': 고딕/정자체, 'serif': 명조/흘림체)
@@ -117,22 +129,28 @@ export default function HiraganaFlashcards({
     (type: FilterCategory, rowName: string, wrongIds?: Set<string>) => {
       let result: HiraganaChar[] = [];
       if (type === 'all') {
-        result = [...ALL_HIRAGANA_CHARS];
+        result = [...COMBINED_HIRAGANA_CHARS];
+      } else if (type === 'seion') {
+        result = [...ALL_SEION_CHARS];
+      } else if (type === 'dakuon') {
+        result = [...ALL_DAKUON_CHARS];
       } else if (type === 'confusing') {
         result = [...CONFUSING_HIRAGANA_CHARS];
       } else if (type === 'row') {
-        const foundRow = HIRAGANA_GRID.find((r) => r.name.startsWith(rowName));
+        const foundRow = [...HIRAGANA_GRID, ...DAKUON_GRID].find((r) => r.name.startsWith(rowName));
         result = foundRow ? (foundRow.chars.filter(Boolean) as HiraganaChar[]) : [];
       } else if (type === 'wrong' && wrongIds) {
-        result = ALL_HIRAGANA_CHARS.filter((c) => wrongIds.has(c.char));
+        result = COMBINED_HIRAGANA_CHARS.filter((c) => wrongIds.has(c.char));
       }
-      return result.length > 0 ? result : [...ALL_HIRAGANA_CHARS];
+      return result.length > 0 ? result : (type === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS]);
     },
     []
   );
 
-  // 카드 목록 및 진행 상태
-  const [cardDeck, setCardDeck] = useState<HiraganaChar[]>(ALL_HIRAGANA_CHARS);
+  // 카드 목록 및 진행 상태 (초기값: 카테고리에 맞는 25자/46자)
+  const [cardDeck, setCardDeck] = useState<HiraganaChar[]>(() =>
+    category === 'dakuon' ? ALL_DAKUON_CHARS : ALL_SEION_CHARS
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isPlayingSound, setIsPlayingSound] = useState(false);
@@ -156,7 +174,12 @@ export default function HiraganaFlashcards({
   // 1. 마운트 시 로컬 스토리지에서 학습 진행 상태 복원
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      let saved = localStorage.getItem(storageKey);
+      // 기존 단일 키 하위 호환 마이그레이션 (청음 모드일 때만 참조)
+      if (!saved && category === 'seion') {
+        saved = localStorage.getItem('hiragana_flashcards_study_progress');
+      }
+
       if (saved) {
         const parsed: HiraganaStudyProgress = JSON.parse(saved);
         if (Array.isArray(parsed.knownChars)) {
@@ -166,49 +189,108 @@ export default function HiraganaFlashcards({
           setConfusedCharIds(new Set(parsed.confusedChars));
         }
 
-        // 필터 및 행 복원
-        let fType: FilterCategory = 'all';
-        if (parsed.filterType && ['all', 'confusing', 'row', 'wrong'].includes(parsed.filterType)) {
-          fType = parsed.filterType;
-          setFilterType(fType);
-        }
-        let sRow = 'あ';
-        if (parsed.selectedRow) {
-          sRow = parsed.selectedRow;
-          setSelectedRow(sRow);
-        }
+        // 상위 카테고리(청음 vs 탁음)에 부합하는 필터 및 행 복원
+        let fType: FilterCategory = category === 'dakuon' ? 'dakuon' : 'seion';
+        let sRow = category === 'dakuon' ? 'が' : 'あ';
 
-        // 덱 복원 (저장된 글자 순서 및 복습 덱 상태 보존)
+        if (parsed.filterType) {
+          const selRow = parsed.selectedRow;
+          if (category === 'dakuon') {
+            if (
+              parsed.filterType === 'dakuon' ||
+              (parsed.filterType === 'row' && selRow && DAKUON_GRID.some((r) => r.name.startsWith(selRow))) ||
+              parsed.filterType === 'wrong'
+            ) {
+              fType = parsed.filterType;
+              if (selRow && DAKUON_GRID.some((r) => r.name.startsWith(selRow))) {
+                sRow = selRow;
+              }
+            }
+          } else {
+            if (
+              parsed.filterType === 'seion' ||
+              parsed.filterType === 'confusing' ||
+              (parsed.filterType === 'row' && selRow && HIRAGANA_GRID.some((r) => r.name.startsWith(selRow))) ||
+              parsed.filterType === 'wrong'
+            ) {
+              fType = parsed.filterType;
+              if (selRow && HIRAGANA_GRID.some((r) => r.name.startsWith(selRow))) {
+                sRow = selRow;
+              }
+            }
+          }
+        }
+        setFilterType(fType);
+        setSelectedRow(sRow);
+
+        // 덱 복원 (저장된 글자가 현재 카테고리와 일치할 때만 보존)
         let restoredDeck: HiraganaChar[] = [];
         if (Array.isArray(parsed.deckChars) && parsed.deckChars.length > 0) {
-          const charMap = new Map(ALL_HIRAGANA_CHARS.map((c) => [c.char, c]));
-          restoredDeck = parsed.deckChars
+          const charMap = new Map(COMBINED_HIRAGANA_CHARS.map((c) => [c.char, c]));
+          const validChars = parsed.deckChars
             .map((char) => charMap.get(char))
             .filter((c): c is HiraganaChar => Boolean(c));
+
+          const isMatching = category === 'dakuon'
+            ? validChars.every((c) => ALL_DAKUON_CHARS.some((dc) => dc.char === c.char))
+            : validChars.every((c) => ALL_SEION_CHARS.some((sc) => sc.char === c.char));
+
+          if (isMatching && validChars.length > 0) {
+            restoredDeck = validChars;
+          }
         }
 
         if (restoredDeck.length === 0) {
           restoredDeck = prepareDeck(fType, sRow, new Set(parsed.confusedChars || []));
         }
-        setCardDeck(restoredDeck.length > 0 ? restoredDeck : [...ALL_HIRAGANA_CHARS]);
+        const finalDeck = restoredDeck.length > 0
+          ? restoredDeck
+          : (category === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS]);
+        setCardDeck(finalDeck);
 
-        // 현재 카드 인덱스 복원
-        if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0) {
-          const safeIndex = Math.min(parsed.currentIndex, Math.max(0, restoredDeck.length - 1));
+        // 현재 카드 인덱스 복원 (안전 범위 검사)
+        if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0 && finalDeck.length > 0) {
+          const safeIndex = Math.min(parsed.currentIndex, Math.max(0, finalDeck.length - 1));
           setCurrentIndex(safeIndex);
+        } else {
+          setCurrentIndex(0);
         }
 
         // 세션 완료 상태 복원
         if (typeof parsed.isSessionFinished === 'boolean') {
           setIsSessionFinished(parsed.isSessionFinished);
         }
+      } else {
+        // 저장된 데이터가 없는 경우 카테고리에 맞는 기본 덱으로 초기화
+        const initialDeck = category === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS];
+        setFilterType(defaultFilter);
+        setSelectedRow(defaultRow);
+        setCardDeck(initialDeck);
+        setCurrentIndex(0);
       }
     } catch {
       // 무시
     } finally {
       setIsLoaded(true);
     }
-  }, [prepareDeck]);
+  }, [category, defaultFilter, defaultRow, prepareDeck, storageKey]);
+
+  // 상위 category 변경 시 플래시카드 필터 및 덱 즉시 갱신
+  const prevCategoryRef = useRef(category);
+  useEffect(() => {
+    if (prevCategoryRef.current !== category) {
+      prevCategoryRef.current = category;
+      const newFilter: FilterCategory = category === 'dakuon' ? 'dakuon' : 'seion';
+      const newRow = category === 'dakuon' ? 'が' : 'あ';
+      setFilterType(newFilter);
+      setSelectedRow(newRow);
+      const newDeck = prepareDeck(newFilter, newRow, confusedCharIds);
+      setCardDeck(newDeck);
+      setCurrentIndex(0);
+      setIsFlipped(false);
+      setIsSessionFinished(false);
+    }
+  }, [category, confusedCharIds, prepareDeck]);
 
   // 2. 상태 변경 시 로컬 스토리지에 자동 동기화 (복원 완료 이후에만 실행)
   useEffect(() => {
@@ -224,11 +306,11 @@ export default function HiraganaFlashcards({
         isSessionFinished,
         updatedAt: Date.now()
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(storageKey, JSON.stringify(data));
     } catch {
       // 무시
     }
-  }, [isLoaded, knownCharIds, confusedCharIds, filterType, selectedRow, currentIndex, cardDeck, isSessionFinished]);
+  }, [isLoaded, knownCharIds, confusedCharIds, filterType, selectedRow, currentIndex, cardDeck, isSessionFinished, storageKey]);
 
   // 실행 취소(Undo) 지원 토스트 상태
   const [toast, setToast] = useState<{
@@ -689,47 +771,107 @@ export default function HiraganaFlashcards({
 
         {/* 범위 선택 탭 필터 */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 pb-0.5">
-          <button
-            type="button"
-            onClick={() => handleFilterChange('all')}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${filterType === 'all'
-              ? 'bg-[#2D3748] text-white border-[#2D3748] shadow-2xs'
-              : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
-              }`}
-          >
-            전체 46자
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleFilterChange('confusing')}
-            className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border flex items-center gap-1 ${filterType === 'confusing'
-              ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
-              : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100/60'
-              }`}
-          >
-            <Sparkles className="w-3 h-3 text-amber-500" />
-            <span>헷갈리는 도플갱어 ({CONFUSING_HIRAGANA_CHARS.length})</span>
-          </button>
-
-          {/* 행별 선택 버튼들 */}
-          {HIRAGANA_GRID.map((row) => {
-            const rowChar = row.chars[0]?.char || '';
-            const isSelected = filterType === 'row' && selectedRow === rowChar;
-            return (
+          {category === 'dakuon' ? (
+            <>
+              {/* 탁음 모드 우선 탭 */}
               <button
-                key={row.name}
                 type="button"
-                onClick={() => handleFilterChange('row', rowChar)}
-                className={`px-2.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${isSelected
+                onClick={() => handleFilterChange('dakuon')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border flex items-center gap-1 ${filterType === 'dakuon'
                   ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs'
+                  : 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100/60'
+                  }`}
+              >
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span>탁음·반탁음 25자</span>
+              </button>
+
+              {/* 탁음 행 (が행, ざ행, だ행, ば행, ぱ행) */}
+              {DAKUON_GRID.map((row) => {
+                const rowChar = row.chars[0]?.char || '';
+                const isSelected = filterType === 'row' && selectedRow === rowChar;
+                return (
+                  <button
+                    key={row.name}
+                    type="button"
+                    onClick={() => handleFilterChange('row', rowChar)}
+                    className={`px-2.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${isSelected
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                      : 'bg-amber-50/60 text-amber-900 border-amber-200/70 hover:bg-amber-100/60'
+                      }`}
+                  >
+                    {row.name.split(' ')[0]}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => handleFilterChange('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${filterType === 'all'
+                  ? 'bg-[#2D3748] text-white border-[#2D3748] shadow-2xs'
                   : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
                   }`}
               >
-                {row.name.split(' ')[0]}
+                전체 71자
               </button>
-            );
-          })}
+            </>
+          ) : (
+            <>
+              {/* 청음 모드 우선 탭 */}
+              <button
+                type="button"
+                onClick={() => handleFilterChange('seion')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${filterType === 'seion'
+                  ? 'bg-[#2D3748] text-white border-[#2D3748] shadow-2xs'
+                  : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
+                  }`}
+              >
+                기본 46자
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleFilterChange('confusing')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border flex items-center gap-1 ${filterType === 'confusing'
+                  ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                  : 'bg-stone-50 text-[#718096] border-[#EDE8E1] hover:bg-stone-100'
+                  }`}
+              >
+                <span>도플갱어 ({CONFUSING_HIRAGANA_CHARS.length})</span>
+              </button>
+
+              {/* 기본 50음도 행 */}
+              {HIRAGANA_GRID.map((row) => {
+                const rowChar = row.chars[0]?.char || '';
+                const isSelected = filterType === 'row' && selectedRow === rowChar;
+                return (
+                  <button
+                    key={row.name}
+                    type="button"
+                    onClick={() => handleFilterChange('row', rowChar)}
+                    className={`px-2.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${isSelected
+                      ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs'
+                      : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
+                      }`}
+                  >
+                    {row.name.split(' ')[0]}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => handleFilterChange('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${filterType === 'all'
+                  ? 'bg-[#2D3748] text-white border-[#2D3748] shadow-2xs'
+                  : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
+                  }`}
+              >
+                전체 71자
+              </button>
+            </>
+          )}
 
           {confusedCharIds.size > 0 && (
             <button
@@ -1238,6 +1380,22 @@ export default function HiraganaFlashcards({
                             </span>
                           </div>
                         </div>
+
+                        {/* 탁음 변환 힌트 */}
+                        {currentCard.baseChar && (
+                          <div className="bg-[#FAF0E6] border border-[#F4DDD4] rounded-2xl px-3 py-2 text-center text-xs text-[#2D3748] w-full flex items-center justify-between mt-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-bold text-[#718096]">{currentCard.baseChar} (청음)</span>
+                              <span className="text-[#E07A5F] font-bold">➔</span>
+                              <span className="text-sm font-black text-[#E07A5F]">
+                                {currentCard.char} ({currentCard.soundType === 'handakuon' ? '반탁음' : '탁음'})
+                              </span>
+                            </div>
+                            <span className="text-[10px] bg-white px-2 py-0.5 rounded-md font-bold text-[#E07A5F] border border-[#F4DDD4]">
+                              {currentCard.soundType === 'handakuon' ? '゜동그라미' : '゛땡땡'}
+                            </span>
+                          </div>
+                        )}
 
                         {/* 한국인 발음 팁이 있을 경우 */}
                         {currentCard.soundTip && (

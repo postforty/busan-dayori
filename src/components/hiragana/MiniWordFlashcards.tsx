@@ -1,7 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { MINI_WORDS, MiniWord } from '@/lib/curriculum/hiraganaData';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import {
+  MINI_WORDS,
+  SEION_MINI_WORDS,
+  DAKUON_MINI_WORDS,
+  MiniWord
+} from '@/lib/curriculum/hiraganaData';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import {
   Volume2,
@@ -33,20 +38,28 @@ interface MiniWordsStudyProgress {
   updatedAt: number;
 }
 
-// 카테고리 목록 추출
-const ALL_CATEGORIES = ['all', ...Array.from(new Set(MINI_WORDS.map((w) => w.category)))];
-
 interface MiniWordFlashcardsProps {
   onCompleteToNextStep?: () => void;
   fontStyle?: 'sans' | 'serif';
   onToggleFontStyle?: () => void;
+  category?: 'seion' | 'dakuon';
 }
 
 export default function MiniWordFlashcards({
   onCompleteToNextStep,
   fontStyle: propFontStyle,
-  onToggleFontStyle
+  onToggleFontStyle,
+  category = 'seion'
 }: MiniWordFlashcardsProps) {
+  // 현재 카테고리에 맞는 기본 단어 목록 (청음 40개 vs 탁음 15개)
+  const currentBaseWords = category === 'dakuon' ? DAKUON_MINI_WORDS : SEION_MINI_WORDS;
+
+  // 카테고리 칩 목록 (메모이제이션으로 렌더마다 새 배열 참조가 생성되어 무한 루프 발생하는 현상 방지)
+  const categoryList = useMemo(() => [
+    'all',
+    ...Array.from(new Set(currentBaseWords.map((w) => w.category)))
+  ], [currentBaseWords]);
+
   // --- 상태 관리 ---
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [autoSpeech, setAutoSpeech] = useState(true);
@@ -82,7 +95,7 @@ export default function MiniWordFlashcards({
   }, [currentFontStyle, onToggleFontStyle]);
 
   // 카드 목록 및 덱 관리
-  const [cardDeck, setCardDeck] = useState<MiniWord[]>(MINI_WORDS);
+  const [cardDeck, setCardDeck] = useState<MiniWord[]>(currentBaseWords);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isPlayingSound, setIsPlayingSound] = useState(false);
@@ -124,10 +137,20 @@ export default function MiniWordFlashcards({
   // 로컬 스토리지 복원 완료 여부 (초기 빈 state가 저장 데이터를 덮어쓰지 않도록 방어)
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // 카테고리별 독립된 스토리지 키 사용
+  const storageKey = category === 'dakuon'
+    ? 'mini_words_study_progress_dakuon'
+    : 'mini_words_study_progress_seion';
+
   // 1. 마운트 시 로컬 스토리지에서 학습 진행 상태 복원
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      let saved = localStorage.getItem(storageKey);
+      // 기존 단일 키 하위 호환 (청음 모드일 때만 참조)
+      if (!saved && category === 'seion') {
+        saved = localStorage.getItem('mini_words_study_progress');
+      }
+
       if (saved) {
         const parsed: MiniWordsStudyProgress = JSON.parse(saved);
         if (Array.isArray(parsed.knownIds)) {
@@ -139,44 +162,75 @@ export default function MiniWordFlashcards({
 
         // 카테고리 복원
         let cat = 'all';
-        if (parsed.selectedCategory && ALL_CATEGORIES.includes(parsed.selectedCategory)) {
+        const validCategories = new Set(currentBaseWords.map((w) => w.category));
+        if (parsed.selectedCategory && (validCategories.has(parsed.selectedCategory) || parsed.selectedCategory === 'global_all')) {
           cat = parsed.selectedCategory;
           setSelectedCategory(cat);
         }
 
-        // 덱 복원 (저장된 단어 순서 및 복습 덱 상태 보존)
+        // 덱 복원 (저장된 단어가 현재 카테고리와 일치할 때만 보존)
         let restoredDeck: MiniWord[] = [];
         if (Array.isArray(parsed.deckIds) && parsed.deckIds.length > 0) {
           const wordMap = new Map(MINI_WORDS.map((w) => [w.id, w]));
-          restoredDeck = parsed.deckIds
+          const validWords = parsed.deckIds
             .map((id) => wordMap.get(id))
             .filter((w): w is MiniWord => Boolean(w));
+
+          const isMatching = category === 'dakuon'
+            ? validWords.every((w) => w.wordType === 'dakuon')
+            : validWords.every((w) => w.wordType !== 'dakuon');
+
+          if (isMatching && validWords.length > 0) {
+            restoredDeck = validWords;
+          }
         }
 
         if (restoredDeck.length === 0) {
           restoredDeck = cat === 'all'
-            ? [...MINI_WORDS]
-            : MINI_WORDS.filter((w) => w.category === cat);
+            ? currentBaseWords
+            : (cat === 'global_all' ? [...MINI_WORDS] : currentBaseWords.filter((w) => w.category === cat));
         }
-        setCardDeck(restoredDeck.length > 0 ? restoredDeck : [...MINI_WORDS]);
+        const finalDeck = restoredDeck.length > 0 ? restoredDeck : currentBaseWords;
+        setCardDeck(finalDeck);
 
         // 현재 카드 인덱스 복원
-        if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0) {
-          const safeIndex = Math.min(parsed.currentIndex, Math.max(0, restoredDeck.length - 1));
+        if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0 && finalDeck.length > 0) {
+          const safeIndex = Math.min(parsed.currentIndex, Math.max(0, finalDeck.length - 1));
           setCurrentIndex(safeIndex);
+        } else {
+          setCurrentIndex(0);
         }
 
         // 세션 완료 상태 복원
         if (typeof parsed.isSessionFinished === 'boolean') {
           setIsSessionFinished(parsed.isSessionFinished);
         }
+      } else {
+        // 저장 데이터가 없는 경우 기본 덱으로 초기화
+        setSelectedCategory('all');
+        setCardDeck(currentBaseWords);
+        setCurrentIndex(0);
       }
     } catch {
       // 무시
     } finally {
       setIsLoaded(true);
     }
-  }, []);
+  }, [category, currentBaseWords, storageKey]);
+
+  // 상위 category 변경 시 덱 및 카테고리 즉시 전환
+  const prevCategoryRef = useRef(category);
+  useEffect(() => {
+    if (prevCategoryRef.current !== category) {
+      prevCategoryRef.current = category;
+      const newBase = category === 'dakuon' ? DAKUON_MINI_WORDS : SEION_MINI_WORDS;
+      setSelectedCategory('all');
+      setCardDeck(newBase);
+      setCurrentIndex(0);
+      setIsFlipped(false);
+      setIsSessionFinished(false);
+    }
+  }, [category]);
 
   // 2. 상태 변경 시 로컬 스토리지에 자동 동기화 (복원 완료 이후에만 실행)
   useEffect(() => {
@@ -191,18 +245,25 @@ export default function MiniWordFlashcards({
         isSessionFinished,
         updatedAt: Date.now()
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(storageKey, JSON.stringify(data));
     } catch {
       // 무시
     }
-  }, [isLoaded, knownWordIds, confusedWordIds, selectedCategory, currentIndex, cardDeck, isSessionFinished]);
+  }, [isLoaded, knownWordIds, confusedWordIds, selectedCategory, currentIndex, cardDeck, isSessionFinished, storageKey]);
 
   // 카테고리 필터 변경 (누적 기록 보존)
   const handleCategoryChange = (cat: string) => {
     stopJapaneseSpeech();
     setSelectedCategory(cat);
-    const newDeck = cat === 'all' ? [...MINI_WORDS] : MINI_WORDS.filter((w) => w.category === cat);
-    setCardDeck(newDeck.length > 0 ? newDeck : [...MINI_WORDS]);
+    let newDeck: MiniWord[];
+    if (cat === 'all') {
+      newDeck = currentBaseWords;
+    } else if (cat === 'global_all') {
+      newDeck = MINI_WORDS;
+    } else {
+      newDeck = currentBaseWords.filter((w) => w.category === cat);
+    }
+    setCardDeck(newDeck.length > 0 ? newDeck : currentBaseWords);
     setCurrentIndex(0);
     setIsFlipped(false);
     setIsSessionFinished(false);
@@ -596,8 +657,11 @@ export default function MiniWordFlashcards({
 
         {/* 카테고리 칩 필터 */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5 pb-0.5">
-          {ALL_CATEGORIES.map((cat) => {
+          {categoryList.map((cat) => {
             const isSelected = selectedCategory === cat;
+            const label = cat === 'all'
+              ? (category === 'dakuon' ? `탁음 전체 (${currentBaseWords.length})` : `기본 전체 (${currentBaseWords.length})`)
+              : cat.replace(' (탁음)', '');
             return (
               <button
                 key={cat}
@@ -608,10 +672,21 @@ export default function MiniWordFlashcards({
                   : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
                   }`}
               >
-                {cat === 'all' ? '전체 단어' : cat}
+                {label}
               </button>
             );
           })}
+
+          <button
+            type="button"
+            onClick={() => handleCategoryChange('global_all')}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${selectedCategory === 'global_all'
+              ? 'bg-[#2D3748] text-white border-[#2D3748] shadow-2xs'
+              : 'bg-stone-50 text-[#718096] border-[#EDE8E1] hover:bg-stone-100'
+              }`}
+          >
+            전체 55개
+          </button>
 
           {confusedWordIds.size > 0 && (
             <button
@@ -1035,10 +1110,17 @@ export default function MiniWordFlashcards({
                   </div>
 
                   {/* 중앙 메인 콘텐츠 */}
-                  <div className="my-auto py-6 flex flex-col items-center justify-center">
+                  <div className="my-auto py-6 w-full max-w-full flex flex-col items-center justify-center px-4 overflow-hidden">
                     <span
-                      className={`text-7xl sm:text-8xl md:text-9xl font-bold text-[#2D3748] tracking-widest leading-none drop-shadow-xs transition-all ${currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
-                        }`}
+                      className={`font-bold text-[#2D3748] whitespace-nowrap leading-none drop-shadow-xs transition-all ${
+                        currentCard.japanese.length <= 2
+                          ? 'text-6xl sm:text-7xl md:text-8xl tracking-widest'
+                          : currentCard.japanese.length === 3
+                            ? 'text-5xl sm:text-6xl md:text-7xl tracking-wider'
+                            : currentCard.japanese.length === 4
+                              ? 'text-4xl sm:text-5xl md:text-6xl tracking-wide'
+                              : 'text-3xl sm:text-4xl md:text-5xl tracking-normal'
+                      } ${currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}`}
                       style={{
                         fontFamily:
                           currentFontStyle === 'serif'
@@ -1088,16 +1170,23 @@ export default function MiniWordFlashcards({
                   </div>
 
                   {/* 중앙 정답 상세 정보 */}
-                  <div className="my-auto py-6 flex flex-col items-center justify-center gap-4 text-center">
+                  <div className="my-auto py-6 w-full max-w-full flex flex-col items-center justify-center gap-4 text-center px-4 overflow-hidden">
                     <span className="text-6xl drop-shadow-sm select-none">
                       {currentCard.emoji}
                     </span>
 
-                    <div className="space-y-1.5">
-                      <div className="flex items-baseline justify-center gap-2.5">
+                    <div className="space-y-1.5 w-full max-w-full">
+                      <div className="flex items-baseline justify-center gap-2 flex-wrap">
                         <span
-                          className={`text-5xl sm:text-6xl font-bold text-[#2D3748] tracking-wider transition-all ${currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
-                            }`}
+                          className={`font-bold text-[#2D3748] whitespace-nowrap transition-all ${
+                            currentCard.japanese.length <= 2
+                              ? 'text-4xl sm:text-5xl md:text-6xl tracking-wider'
+                              : currentCard.japanese.length === 3
+                                ? 'text-3xl sm:text-4xl md:text-5xl tracking-wide'
+                                : currentCard.japanese.length === 4
+                                  ? 'text-2xl sm:text-3xl md:text-4xl tracking-normal'
+                                  : 'text-xl sm:text-2xl md:text-3xl tracking-tight'
+                          } ${currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}`}
                           style={{
                             fontFamily:
                               currentFontStyle === 'serif'
@@ -1107,11 +1196,11 @@ export default function MiniWordFlashcards({
                         >
                           {currentCard.japanese}
                         </span>
-                        <span className="text-base font-semibold text-[#A0AEC0]">
+                        <span className="text-base font-semibold text-[#A0AEC0] whitespace-nowrap">
                           [{currentCard.romaji}]
                         </span>
                       </div>
-                      <p className="text-2xl font-black text-[#E07A5F]">
+                      <p className="text-2xl font-black text-[#E07A5F] break-keep">
                         {currentCard.koreanMeaning}
                       </p>
                     </div>
