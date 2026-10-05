@@ -3,8 +3,8 @@ import MnemonicCharOverlay from './MnemonicCharOverlay';
 
 export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProps) {
   if (char === 'は') {
-    // は: 하마 (목 없이 어깨에 큼직한 머리가 바로 얹힌 통통하고 듬직한 하마!)
-    // ⚠️ 1획은 하마의 기둥 같은 굵은 앞다리와 어깨, 2획은 윗턱선, 3획 루프는 둥근 아랫턱과 혀·엄니와 완벽 일치!
+    // は: 하마 (시원하게 "하~!" 하고 입을 쩌억 벌린 사랑스러운 하마의 반정면 클로즈업!)
+    // ⚠️ 1획은 왼쪽 턱선/볼 윤곽, 2획은 크게 벌린 윗입술·윗니, 3획 세로+루프는 쩌억 벌린 입속과 동그란 혀·엄니와 1:1 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -12,7 +12,7 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 1. 배경 강물 표면 & 잔잔한 물결 */}
+        {/* 1. 배경 잔잔한 강물 표면 & 물결 */}
         <path
           d="M 0 132 C 45 128 95 136 145 130 C 175 126 190 132 200 130 L 200 160 L 0 160 Z"
           fill="#E0F2FE"
@@ -30,7 +30,7 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
           strokeDasharray="8 5"
         />
         <path
-          d="M 116 146 C 142 143 170 147 192 144"
+          d="M 126 146 C 150 143 174 147 194 144"
           stroke="#0284C7"
           strokeWidth="1.4"
           strokeLinecap="round"
@@ -51,137 +51,190 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
           <path d="M 22 145 C 18 143 18 148 22 145 Z" fill="#F472B6" stroke="#DB2777" strokeWidth="0.8" />
         </g>
 
-        {/* 3. 하마 전체 본체 (듬직하고 둥글넙적한 몸통 + 굵은 앞다리 + 목 없이 바로 붙은 거대한 머리!) */}
-        {/* 엉덩이(x=24) -> 듬직한 등(x=50) -> 어깨(x=78) -> 윗머리(x=105) -> 콧등 -> 주둥이 -> 턱 -> 앞다리(x=72~86) */}
+        {/* 3. 하마 어깨 및 물속 가슴선 (물속에 잠긴 듬직한 실루엣) */}
         <path
-          d="M 24 134 
-             C 20 110 28 86 46 70 
-             C 58 60 72 56 86 56 
-             C 96 44 104 38 116 38 
-             C 128 38 144 44 158 50 
-             C 166 54 166 64 158 68 
-             C 146 70 128 70 114 68 
-             C 102 70 98 84 102 96 
-             C 106 112 118 126 136 126 
-             C 148 126 154 116 144 106 
-             C 134 100 118 102 108 112 
-             C 98 120 90 102 88 88 
-             L 88 134 
-             C 88 138 68 138 68 134 
-             L 68 106 
-             C 55 110 38 120 24 134 Z"
+          d="M 44 142 C 48 126 62 118 76 116 C 92 116 102 124 108 136 Z"
+          fill="#64748B"
+          opacity="0.3"
+        />
+        <path
+          d="M 38 142 C 44 122 64 112 82 112 C 104 112 146 122 168 142 Z"
           fill="#94A3B8"
           stroke="#475569"
-          strokeWidth="2.2"
+          strokeWidth="2"
+        />
+
+        {/* 4. 하마 얼굴 본체 (클로즈업: 1획과 완벽하게 일치하는 왼쪽 볼·턱 라인!) */}
+        <path
+          d="M 84 32
+             C 72 32 68 45 68 62
+             C 68 82 72 104 74 124
+             C 74 134 86 138 102 138
+             C 126 138 152 134 160 120
+             C 168 104 168 70 158 48
+             C 150 32 130 28 112 28
+             C 98 28 90 32 84 32 Z"
+          fill="#94A3B8"
+          stroke="#475569"
+          strokeWidth="2.5"
           strokeLinejoin="round"
         />
 
-        {/* 앙증맞은 하마 꼬리 (엉덩이 끝) */}
+        {/* 하마 정수리 볼륨 하이라이트 */}
         <path
-          d="M 24 100 C 17 104 16 110 19 114"
-          stroke="#475569"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-        />
-        <circle cx="19" cy="114" r="1.5" fill="#475569" />
-
-        {/* 앞다리 굵은 근육 음영선 (1획과 완벽 일치하는 수직 라인) */}
-        <line x1="68" y1="82" x2="68" y2="134" stroke="#64748B" strokeWidth="1.8" strokeLinecap="round" />
-        {/* 앞다리 둥근 발톱 3개 */}
-        <circle cx="72" cy="134" r="2.5" fill="#FFFFFF" stroke="#64748B" strokeWidth="0.8" />
-        <circle cx="78" cy="134" r="2.5" fill="#FFFFFF" stroke="#64748B" strokeWidth="0.8" />
-        <circle cx="84" cy="134" r="2.5" fill="#FFFFFF" stroke="#64748B" strokeWidth="0.8" />
-
-        {/* 하마 등과 윗머리 부드러운 볼륨 하이라이트 */}
-        <path
-          d="M 36 110 C 44 88 60 68 78 62 C 90 58 102 46 116 44 C 128 44 142 48 152 54"
+          d="M 88 34 C 98 31 114 31 126 34"
           stroke="#CBD5E1"
-          strokeWidth="1.8"
+          strokeWidth="2"
           strokeLinecap="round"
         />
 
-        {/* 4. 시원하게 벌린 하마 입속 (핑크빛 연코랄) */}
+        {/* 1획 가이드 음영 (왼쪽 턱선과 1획의 세로 텐션을 강조하는 볼륨 라인) */}
         <path
-          d="M 114 68 
-             C 130 70 146 70 158 68 
-             C 152 82 144 96 144 106 
-             C 134 110 120 110 110 102 
-             C 98 94 100 78 114 68 Z"
+          d="M 74 42 C 72 65 72 95 76 124"
+          stroke="#64748B"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+
+        {/* 5. 쫑긋한 두 귀 (양쪽 귓속 핑크 포인트) */}
+        {/* 왼쪽 귀 */}
+        <path
+          d="M 66 35 C 58 24 64 14 74 18 C 78 22 78 30 74 36 Z"
+          fill="#94A3B8"
+          stroke="#475569"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path d="M 67 31 C 62 25 66 18 72 21 C 74 24 74 29 71 33 Z" fill="#FDA4AF" />
+
+        {/* 오른쪽 귀 */}
+        <path
+          d="M 142 32 C 148 18 158 16 164 24 C 166 30 160 38 154 38 Z"
+          fill="#94A3B8"
+          stroke="#475569"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path d="M 147 29 C 151 22 157 20 160 25 C 161 29 158 34 154 34 Z" fill="#FDA4AF" />
+
+        {/* 6. 착하고 순한 눈망울 & 핑크빛 볼터치 */}
+        {/* 왼쪽 눈 */}
+        <circle cx="82" cy="46" r="6" fill="#FFFDF7" stroke="#475569" strokeWidth="1.4" />
+        <circle cx="83" cy="46" r="3.6" fill="#1E293B" />
+        <circle cx="84.5" cy="44.5" r="1.3" fill="#FFFFFF" />
+        <path d="M 76 38 Q 82 35 88 38" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" />
+        <ellipse cx="80" cy="56" rx="5" ry="3" fill="#FDA4AF" opacity="0.8" />
+
+        {/* 오른쪽 눈 */}
+        <circle cx="140" cy="42" r="6" fill="#FFFDF7" stroke="#475569" strokeWidth="1.4" />
+        <circle cx="139" cy="42" r="3.6" fill="#1E293B" />
+        <circle cx="140.5" cy="40.5" r="1.3" fill="#FFFFFF" />
+        <path d="M 134 34 Q 140 31 146 34" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" />
+        <ellipse cx="146" cy="52" rx="5" ry="3" fill="#FDA4AF" opacity="0.8" />
+
+        {/* 넙적한 콧등 볼륨 & 동그란 두 콧구멍 */}
+        <path
+          d="M 94 48 C 100 42 130 40 136 46"
+          stroke="#64748B"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <circle cx="106" cy="47" r="2.8" fill="#334155" />
+        <circle cx="124" cy="46" r="2.8" fill="#334155" />
+
+        {/* 7. 시원하게 쩌억 벌린 하마 입속 (구강) - ★ 2획 & 3획과 1:1 완벽 일치! */}
+        {/* 입속 전체 (핑크빛 구강 바탕) */}
+        <path
+          d="M 94 56
+             C 108 52 134 52 148 56
+             C 156 68 156 86 150 102
+             C 144 118 134 128 120 128
+             C 104 128 94 118 90 102
+             C 86 86 86 68 94 56 Z"
           fill="#FFE4E6"
           stroke="#FDA4AF"
-          strokeWidth="1.8"
+          strokeWidth="2.5"
           strokeLinejoin="round"
         />
 
-        {/* 도톰하고 둥근 분홍 혀 (글자 3획 루프 안쪽과 1:1 완벽 일치!) */}
+        {/* 입속 깊은 목구멍 음영 */}
+        <path
+          d="M 102 68
+             C 112 62 128 62 138 68
+             C 140 80 138 90 120 90
+             C 102 90 100 80 102 68 Z"
+          fill="#FB7185"
+          opacity="0.35"
+        />
+
+        {/* 도툼한 윗입술 라인 (글자 2획의 수평 궤적과 1:1 일치!) */}
+        <path
+          d="M 94 56 C 108 52 134 52 148 56"
+          stroke="#F43F5E"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+        />
+
+        {/* 윗입술 아래 가지런한 하얀 윗니 3개 */}
+        <rect x="104" y="55" width="7" height="7" rx="2.5" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="1" />
+        <rect x="116" y="54" width="7" height="7.5" rx="2.5" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="1" />
+        <rect x="128" y="55" width="7" height="7" rx="2.5" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="1" />
+
+        {/* 도톰하고 둥근 분홍 혀 (★ 글자 3획 루프 안쪽에 1:1 완벽 안착!) */}
         <ellipse
-          cx="122"
-          cy="98"
-          rx="13"
-          ry="8.5"
+          cx="120"
+          cy="110"
+          rx="14.5"
+          ry="9.5"
           fill="#FB7185"
           stroke="#E11D48"
-          strokeWidth="1.5"
+          strokeWidth="1.8"
         />
-        <path d="M 122 93 L 122 101" stroke="#BE123C" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M 120 104 L 120 114" stroke="#BE123C" strokeWidth="1.6" strokeLinecap="round" />
 
-        {/* 튼튼한 하얀 이빨 & 하마의 상징 대형 엄니! */}
-        {/* 윗니 (작고 둥근 이빨) */}
-        <rect x="138" y="67" width="7" height="8" rx="3" fill="#FFFFFF" stroke="#64748B" strokeWidth="1.2" />
-        {/* 아랫니 대형 엄니 (위로 쑥 솟아오른 둥근 엄니) */}
+        {/* 하마의 상징: 위로 솟아오른 튼튼한 하얀 대형 엄니들! */}
+        {/* 오른쪽 대형 엄니 (3획 루프 오른쪽 외곽과 완벽 조화) */}
         <path
-          d="M 136 108 C 136 94 144 92 146 96 C 147 102 146 110 143 114 Z"
+          d="M 135 116 C 134 98 144 96 146 102 C 147 110 145 118 140 122 Z"
           fill="#FFFFFF"
           stroke="#64748B"
           strokeWidth="1.4"
           strokeLinejoin="round"
         />
+        {/* 왼쪽 보조 엄니 */}
+        <path
+          d="M 97 118 C 96 104 103 102 105 108 C 106 114 104 118 100 122 Z"
+          fill="#FFFFFF"
+          stroke="#64748B"
+          strokeWidth="1.3"
+          strokeLinejoin="round"
+        />
 
-        {/* 5. 하마 얼굴 디테일 (정확한 옆모습) */}
-        {/* 뒤쪽 귀 */}
-        <ellipse cx="102" cy="36" rx="4.5" ry="6" fill="#64748B" stroke="#475569" strokeWidth="1.2" />
-        {/* 앞쪽 귀 (쫑긋한 핑크 귓속) */}
-        <ellipse cx="114" cy="34" rx="5.5" ry="7.5" fill="#94A3B8" stroke="#475569" strokeWidth="1.5" />
-        <ellipse cx="114" cy="35" rx="3" ry="4.5" fill="#FDA4AF" />
-
-        {/* 맑고 착한 눈망울 (Eye) */}
-        <circle cx="122" cy="46" r="5" fill="#FFFDF7" stroke="#475569" strokeWidth="1.2" />
-        <circle cx="123" cy="46" r="3" fill="#1E293B" />
-        <circle cx="124" cy="45" r="1" fill="#FFFFFF" />
-        {/* 온화한 눈썹 */}
-        <path d="M 118 40 Q 123 38 127 40" stroke="#475569" strokeWidth="1.2" strokeLinecap="round" />
-        {/* 핑크빛 볼터치 */}
-        <ellipse cx="116" cy="54" rx="4.5" ry="2.8" fill="#FDA4AF" opacity="0.8" />
-
-        {/* 두툼한 콧망울과 동그란 콧구멍 */}
-        <circle cx="154" cy="56" r="2.4" fill="#334155" />
-        {/* 콧구멍에서 뿜어 나오는 시원한 물방울 */}
-        <circle cx="166" cy="50" r="2.4" fill="#38BDF8" />
-        <circle cx="172" cy="45" r="1.8" fill="#BAE6FD" />
-
-        {/* 6. 듬직한 등판 위에 편안하게 앉아있는 귀여운 노란 하마새 (Oxpecker) */}
+        {/* 8. 하마 머리 위에 앙증맞게 앉아있는 노란 하마새 (Oxpecker) */}
         <g id="hippo-bird">
           {/* 노란 통통한 몸체 */}
-          <ellipse cx="56" cy="56" rx="6" ry="4.5" fill="#FDE047" stroke="#CA8A04" strokeWidth="1" />
+          <ellipse cx="112" cy="22" rx="5.5" ry="4" fill="#FDE047" stroke="#CA8A04" strokeWidth="1" />
           {/* 둥근 머리 */}
-          <circle cx="52" cy="53" r="3.5" fill="#FDE047" stroke="#CA8A04" strokeWidth="1" />
+          <circle cx="107" cy="19" r="3.2" fill="#FDE047" stroke="#CA8A04" strokeWidth="1" />
           {/* 주황색 부리 */}
-          <polygon points="49,53 44,54 49,56" fill="#F97316" />
+          <polygon points="104,19 99,20 104,22" fill="#F97316" />
           {/* 반짝이는 까만 눈 */}
-          <circle cx="51" cy="52" r="0.8" fill="#1E293B" />
-          {/* 쫑긋한 꼬리깃 */}
-          <path d="M 62 55 L 66 52 L 64 57 Z" fill="#EAB308" />
-          {/* 얇고 귀여운 두 다리 */}
-          <line x1="54" y1="60" x2="54" y2="64" stroke="#78350F" strokeWidth="1" />
-          <line x1="58" y1="60" x2="58" y2="64" stroke="#78350F" strokeWidth="1" />
+          <circle cx="106" cy="18.5" r="0.7" fill="#1E293B" />
+          {/* 꼬리깃 */}
+          <path d="M 117,21 L 121,18 L 119,23 Z" fill="#EAB308" />
+          {/* 귀여운 두 다리 */}
+          <line x1="110" y1="26" x2="110" y2="29" stroke="#78350F" strokeWidth="0.9" />
+          <line x1="114" y1="26" x2="114" y2="29" stroke="#78350F" strokeWidth="0.9" />
         </g>
 
-        {/* 7. 시원하게 튀는 맑은 물방울들 */}
-        <circle cx="48" cy="80" r="2" fill="#38BDF8" />
-        <circle cx="42" cy="98" r="1.6" fill="#BAE6FD" />
-        <circle cx="164" cy="76" r="2.2" fill="#38BDF8" />
-        <circle cx="170" cy="90" r="1.8" fill="#BAE6FD" />
-        <circle cx="156" cy="120" r="2.2" fill="#38BDF8" />
+        {/* 9. 시원하게 "하~" 뿜으며 튀는 맑은 물방울들 */}
+        <circle cx="98" cy="40" r="1.8" fill="#38BDF8" />
+        <circle cx="102" cy="33" r="2.4" fill="#BAE6FD" />
+        <circle cx="130" cy="32" r="2" fill="#38BDF8" />
+        <circle cx="158" cy="74" r="2.2" fill="#38BDF8" />
+        <circle cx="166" cy="88" r="1.6" fill="#BAE6FD" />
+        <circle cx="58" cy="78" r="2" fill="#38BDF8" />
+        <circle cx="52" cy="94" r="1.5" fill="#BAE6FD" />
 
         {/* 글자 'は' 오버레이 */}
         <MnemonicCharOverlay char="は" fontFamily={fontFamily} x="108" y="118" />
@@ -644,8 +697,8 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'ほ') {
-    // ほ: 호랑이 (늠름한 앞다리와 이마의 王자, 포효하는 입과 쫑긋 귀를 지닌 멋진 호랑이!)
-    // ⚠️ 1획은 땅을 딛는 굵은 앞다리, 2·3획은 이마·뺨의 호피 줄무늬, 4획 상단 삐침은 쫑긋 귀, 하단 루프는 포효하는 입·엄니와 1:1 완벽 일치!
+    // ほ: 호랑이 (듬직한 어깨와 앞다리, 이마의 王자, 포효하는 입과 쫑긋 귀를 지닌 늠름한 호랑이!)
+    // ⚠️ 1획은 어깨에서 땅을 딛는 굵은 앞다리, 2·3획은 이마·뺨의 호피 줄무늬, 4획 상단 삐침은 쫑긋 귀, 하단 루프는 포효하는 입·엄니와 1:1 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -653,50 +706,53 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 1. 배경 대나무 숲 잎사귀 포인트 & 바위 지면 */}
-        {/* 좌상단 싱그러운 대나무 잎 */}
-        <g id="bamboo-leaves" opacity="0.85">
-          <path d="M 18 20 C 30 18 44 26 50 34 C 38 32 26 28 18 20 Z" fill="#4ADE80" stroke="#16A34A" strokeWidth="1" />
-          <path d="M 28 26 C 42 26 54 36 58 46 C 46 42 34 36 28 26 Z" fill="#22C55E" stroke="#15803D" strokeWidth="1" />
-          <path d="M 12 28 C 22 32 30 42 32 52 C 24 46 18 38 12 28 Z" fill="#86EFAC" stroke="#16A34A" strokeWidth="1" />
-        </g>
-        {/* 하단 지면 바위 라인 */}
+        {/* 1. 배경 바위 지면 */}
         <path
-          d="M 10 134 C 45 130 90 136 140 132 C 170 130 190 134 200 132 L 200 160 L 0 160 L 0 134 Z"
+          d="M 0 134 C 45 130 90 136 140 132 C 170 130 190 134 200 132 L 200 160 L 0 160 Z"
           fill="#F8FAFC"
         />
         <path
-          d="M 10 134 C 45 130 90 136 140 132 C 170 130 190 134 200 132"
+          d="M 0 134 C 45 130 90 136 140 132 C 170 130 190 134 200 132"
           stroke="#E2E8F0"
           strokeWidth="2"
         />
 
-        {/* 2. 호랑이 몸통 & 등 & 살랑이는 줄무늬 꼬리 (우측 뒤편) */}
-        {/* 몸통 (등과 엉덩이) */}
+        {/* 2. 호랑이 전체 몸통 베이스 (어깨·등·엉덩이·배가 앞다리와 하나로 자연스럽게 연결된 전신!) */}
         <path
-          d="M 128 78 C 146 76 166 84 172 100 C 176 112 174 126 168 132 C 158 134 144 132 136 128 Z"
+          d="M 168 132
+             C 176 122 176 98 168 84
+             C 158 74 138 72 124 76
+             C 106 72 86 54 74 44
+             C 68 40 62 44 58 54
+             C 56 68 56 94 56 124
+             L 56 132
+             C 56 136 80 136 80 132
+             C 80 120 78 102 80 88
+             C 84 94 92 106 96 122
+             C 100 134 130 136 168 132 Z"
           fill="#EA580C"
           stroke="#C2410C"
-          strokeWidth="1.8"
+          strokeWidth="2.2"
           strokeLinejoin="round"
         />
-        {/* 등 부분 하이라이트 톤 */}
+
+        {/* 등 부분 하이라이트 볼륨 */}
         <path
-          d="M 132 82 C 146 80 160 86 166 98 C 158 98 144 94 134 88 Z"
+          d="M 128 80 C 144 76 160 84 164 96 C 156 96 142 92 130 86 Z"
           fill="#F97316"
         />
         {/* 등 호피 줄무늬 2개 */}
-        <path d="M 144 80 L 148 94 L 140 88 Z" fill="#1E293B" />
-        <path d="M 158 86 L 160 102 L 152 96 Z" fill="#1E293B" />
+        <path d="M 142 80 L 146 94 L 138 88 Z" fill="#1E293B" />
+        <path d="M 156 86 L 158 100 L 150 94 Z" fill="#1E293B" />
 
         {/* 살랑살랑 위로 솟은 호랑이 꼬리 (S-Curve Tail) */}
         <path
-          d="M 168 106 
-             C 178 98 184 84 180 72 
-             C 176 62 166 60 162 66 
-             C 160 70 164 74 168 72 
-             C 172 70 174 76 172 82 
-             C 170 92 164 100 160 106 Z"
+          d="M 166 104
+             C 176 96 182 82 178 72
+             C 174 62 164 60 160 66
+             C 158 70 162 74 166 72
+             C 170 70 172 76 170 82
+             C 168 92 162 100 158 104 Z"
           fill="#EA580C"
           stroke="#C2410C"
           strokeWidth="1.5"
@@ -704,47 +760,70 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
         />
         {/* 꼬리 끝 검은 털 */}
         <path
-          d="M 162 66 C 160 70 164 74 168 72 C 172 70 174 64 166 62 Z"
+          d="M 160 66 C 158 70 162 74 166 72 C 170 70 172 64 164 62 Z"
           fill="#1E293B"
         />
         {/* 꼬리 줄무늬 링 2개 */}
-        <path d="M 174 78 L 180 76" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M 170 88 L 176 88" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 172 78 L 178 76" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 168 88 L 174 88" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" />
 
-        {/* 3. 호랑이 1획: 늠름하게 땅을 딛고 선 왼쪽 앞다리 & 발 (글자 ほ 1획과 완벽 일치!) */}
-        {/* 어깨에서 발바닥까지 단단하게 뻗은 앞다리 기둥 */}
+        {/* 3. 호랑이 앞가슴 & 어깨 연결 디테일 (다리와 몸통 사이의 완벽한 유기적 연결!) */}
+        {/* 어깨 상단 근육 하이라이트 (1획 상단으로 부드럽게 흐르는 어깨 라인) */}
         <path
-          d="M 62 46 
-             C 60 62 58 86 58 116 
-             C 58 122 56 128 58 132 
-             C 62 134 76 134 78 130 
-             C 78 122 78 96 78 68 
-             C 78 54 74 46 68 44 Z"
-          fill="#F97316"
-          stroke="#C2410C"
+          d="M 60 52 C 64 44 72 44 80 48 C 90 54 104 68 114 74"
+          stroke="#FDBA74"
           strokeWidth="2"
-          strokeLinejoin="round"
+          strokeLinecap="round"
         />
+
+        {/* 다리 뒤편의 부드럽고 풍성한 하얀 앞가슴 털 (Chest Fur) */}
+        <path
+          d="M 78 86 C 84 80 92 82 96 86 C 98 96 96 112 92 122 C 86 124 80 120 78 110 Z"
+          fill="#FFF7ED"
+          stroke="#EA580C"
+          strokeWidth="1.2"
+        />
+
+        {/* 반대편(오른쪽) 얌전하게 땅을 딛고 있는 앞발 */}
+        <path
+          d="M 86 124 C 86 120 96 120 98 124 L 98 133 C 98 135 86 135 86 133 Z"
+          fill="#FFF7ED"
+          stroke="#C2410C"
+          strokeWidth="1.4"
+        />
+        <line x1="92" y1="126" x2="92" y2="133" stroke="#EA580C" strokeWidth="1" />
+
+        {/* 4. 호랑이 1획: 어깨에서 당당하게 뻗어내려 땅을 딛는 왼쪽 앞다리 & 발 (글자 ほ 1획과 완벽 일치!) */}
+        {/* 앞다리 전면 밝은 오렌지 하이라이트 톤 */}
+        <path
+          d="M 60 52 C 58 68 58 94 58 122 L 78 122 C 78 98 76 68 74 48 C 68 44 62 46 60 52 Z"
+          fill="#F97316"
+        />
+
+        {/* 1획 세로 근육 음영 라인 (1획의 곧은 텐션을 확실하게 살려줌) */}
+        <line x1="68" y1="48" x2="68" y2="124" stroke="#EA580C" strokeWidth="1.8" strokeLinecap="round" />
+
         {/* 둥근 앞발 & 발가락 3개 & 하얀 발톱 */}
         <path
-          d="M 56 124 C 54 132 64 135 78 135 C 84 135 84 126 80 122 C 74 122 66 122 56 124 Z"
+          d="M 54 122 C 52 130 62 135 78 135 C 84 135 84 126 80 120 C 74 120 64 120 54 122 Z"
           fill="#FFF7ED"
           stroke="#C2410C"
           strokeWidth="1.6"
         />
         {/* 발가락 구분선 */}
-        <line x1="64" y1="126" x2="64" y2="134" stroke="#EA580C" strokeWidth="1.3" />
-        <line x1="72" y1="126" x2="72" y2="134" stroke="#EA580C" strokeWidth="1.3" />
+        <line x1="62" y1="124" x2="62" y2="134" stroke="#EA580C" strokeWidth="1.3" />
+        <line x1="70" y1="124" x2="70" y2="134" stroke="#EA580C" strokeWidth="1.3" />
         {/* 발톱 3개 */}
-        <path d="M 58 133 L 60 136 L 62 133 Z" fill="#FFFFFF" stroke="#78716C" strokeWidth="0.8" />
-        <path d="M 66 133 L 68 136 L 70 133 Z" fill="#FFFFFF" stroke="#78716C" strokeWidth="0.8" />
-        <path d="M 74 133 L 76 136 L 78 133 Z" fill="#FFFFFF" stroke="#78716C" strokeWidth="0.8" />
-        {/* 앞다리 블랙 호피 줄무늬 3개 (글자 1획의 세로 텐션 보강) */}
-        <path d="M 59 72 L 72 70 L 68 76 Z" fill="#1E293B" />
-        <path d="M 58 92 L 72 90 L 67 96 Z" fill="#1E293B" />
-        <path d="M 58 110 L 70 108 L 66 114 Z" fill="#1E293B" />
+        <path d="M 56 133 L 58 136 L 60 133 Z" fill="#FFFFFF" stroke="#78716C" strokeWidth="0.8" />
+        <path d="M 64 133 L 66 136 L 68 133 Z" fill="#FFFFFF" stroke="#78716C" strokeWidth="0.8" />
+        <path d="M 72 133 L 74 136 L 76 133 Z" fill="#FFFFFF" stroke="#78716C" strokeWidth="0.8" />
 
-        {/* 4. 호랑이 얼굴 & 쫑긋 귀 (4획 상단 삐침과 완벽 일치!) */}
+        {/* 앞다리 블랙 호피 줄무늬 3개 (글자 1획의 세로 텐션 보강) */}
+        <path d="M 57 70 L 72 68 L 66 74 Z" fill="#1E293B" />
+        <path d="M 57 90 L 72 88 L 66 94 Z" fill="#1E293B" />
+        <path d="M 57 110 L 70 108 L 65 114 Z" fill="#1E293B" />
+
+        {/* 5. 호랑이 얼굴 & 쫑긋 귀 (4획 상단 삐침과 완벽 일치!) */}
         {/* 왼쪽 귀 */}
         <path
           d="M 94 48 C 90 34 98 26 106 32 C 110 36 108 46 104 50 Z"
@@ -769,11 +848,11 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
 
         {/* 얼굴 메인 헤드 베이스 (골든 오렌지 털) */}
         <path
-          d="M 98 52 
-             C 108 46 128 46 138 52 
-             C 148 58 152 70 148 84 
-             C 144 94 134 100 124 102 
-             C 112 102 100 98 94 86 
+          d="M 98 52
+             C 108 46 128 46 138 52
+             C 148 58 152 70 148 84
+             C 144 94 134 100 124 102
+             C 112 102 100 98 94 86
              C 90 74 92 58 98 52 Z"
           fill="#F97316"
           stroke="#C2410C"
@@ -795,7 +874,7 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
           strokeWidth="1.2"
         />
 
-        {/* 5. 이마의 상징: 王 (임금 왕) 자 무늬 & 2·3획 호피 줄무늬 */}
+        {/* 6. 이마의 상징: 王 (임금 왕) 자 무늬 & 2·3획 호피 줄무늬 */}
         {/* 이마 중앙 王자 무늬 */}
         <g id="tiger-king-mark">
           {/* 상단 가로선 (2획 부근) */}
@@ -816,7 +895,7 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
         <path d="M 144 68 L 132 70 L 140 74 Z" fill="#1E293B" />
         <path d="M 146 82 L 134 82 L 142 86 Z" fill="#1E293B" />
 
-        {/* 6. 용맹하고 총명한 호랑이 눈 & 눈썹 */}
+        {/* 7. 용맹하고 총명한 호랑이 눈 & 눈썹 */}
         {/* 눈썹 위 하얀 반점 포인트 */}
         <ellipse cx="106" cy="62" rx="3.5" ry="2" fill="#FFF7ED" />
         <ellipse cx="132" cy="62" rx="3.5" ry="2" fill="#FFF7ED" />
@@ -849,12 +928,12 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
         <path d="M 130 90 L 150 88" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
         <path d="M 130 93 L 152 96" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
 
-        {/* 7. 4획 하단 루프: "어흥~!" 포효하는 입 & 날카로운 엄니와 핑크빛 혀 (글자 ほ 루프와 완벽 일치!) */}
+        {/* 8. 4획 하단 루프: "어흥~!" 포효하는 입 & 날카로운 엄니와 핑크빛 혀 (글자 ほ 루프와 완벽 일치!) */}
         {/* 쩌억 벌린 둥근 입속 챔버 (루프 궤적과 일치) */}
         <path
-          d="M 112 94 
-             C 104 98 100 110 106 120 
-             C 112 128 126 128 132 120 
+          d="M 112 94
+             C 104 98 100 110 106 120
+             C 112 128 126 128 132 120
              C 138 110 134 98 126 94 Z"
           fill="#881337"
           stroke="#C2410C"
@@ -878,7 +957,7 @@ export default function MnemonicRowHa({ char, fontFamily }: MnemonicSvgChildProp
           fill="#FFF7ED"
         />
 
-        {/* 8. 포효하는 "어흥!" 음파 라인 (Roar Waves) */}
+        {/* 9. 포효하는 "어흥!" 음파 라인 (Roar Waves) */}
         <path
           d="M 140 114 C 146 110 152 114 156 112"
           stroke="#F97316"

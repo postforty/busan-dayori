@@ -216,8 +216,8 @@ export default function MnemonicRowMa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'み') {
-    // み: 미로 (질서정연한 미로 벽을 단숨에 뚫고 탈출하는 성공 경로와 출구 깃발!)
-    // ⚠️ 1획은 입구에서 루프를 돌아 출구로 빠져나가는 유려한 탈출 경로, 2획은 출구의 승리 깃대·깃발과 1:1 완벽 일치!
+    // み: 미로 (정교하고 촘촘한 미로 보드게임을 단숨에 돌파하여 탈출하는 성공 경로와 결승 깃발!)
+    // ⚠️ 1획은 START 입구에서 미로 골목을 통과해 루프를 돌아 GOAL 출구로 빠져나가는 완벽한 탈출 성공 경로, 2획은 출구의 승리 깃대·결승 깃발과 1:1 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -225,132 +225,296 @@ export default function MnemonicRowMa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 1. 미로 보드 베이스 플랫폼 (도톰하고 단정한 라운드 보드) */}
+        <defs>
+          {/* 미로 탐험 골든 마블 구슬 입체 그라디언트 */}
+          <radialGradient id="miroGoldMarble" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="45%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#B45309" />
+          </radialGradient>
+          {/* 미로 보드 베이스 그라디언트 */}
+          <linearGradient id="miroBoardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FAF5FF" />
+            <stop offset="100%" stopColor="#F3E8FF" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 미로 보드 베이스 플랫폼 (와이드 라운드 퍼즐 보드) */}
         {/* 하단 그림자 베이스 */}
         <rect
-          x="38"
-          y="28"
-          width="134"
-          height="116"
+          x="14"
+          y="14"
+          width="172"
+          height="136"
           rx="14"
-          fill="#EDE9FE"
+          fill="#DDD6FE"
         />
-        {/* 메인 보드 상판 */}
+        {/* 메인 보드 상판 (도톰한 라일락/바이올렛 베젤) */}
         <rect
-          x="38"
-          y="24"
-          width="134"
-          height="116"
+          x="14"
+          y="10"
+          width="172"
+          height="136"
           rx="14"
-          fill="#FAF5FF"
-          stroke="#DDD6FE"
-          strokeWidth="1.8"
-        />
-
-        {/* 2. 질서정연하고 입체적인 미로 벽면들 (Maze Walls) */}
-        {/* 외곽 가이드 벽 (입구와 출구는 열려 있음) */}
-        <path
-          d="M 72 32 L 48 32 C 44 32 44 32 44 36 L 44 130 C 44 134 44 134 48 134 L 162 134 C 166 134 166 134 166 130 L 166 118"
+          fill="url(#miroBoardBg)"
           stroke="#C4B5FD"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeWidth="2.4"
         />
-        <path
-          d="M 94 32 L 162 32 C 166 32 166 32 166 36 L 166 104"
-          stroke="#C4B5FD"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        {/* 미로 내부 플레이 그라운드 홈 */}
+        <rect
+          x="20"
+          y="16"
+          width="160"
+          height="124"
+          rx="10"
+          fill="#F8F7FF"
+          stroke="#EDE9FE"
+          strokeWidth="1.2"
         />
 
-        {/* 내부 미로 벽면들 (길을 형성하고 막다른 골목을 만드는 구조) */}
-        {/* 상단 가로 벽 */}
-        <path d="M 64 48 L 94 48" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        <path d="M 112 44 L 148 44" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        {/* 우측 상단 세로벽 */}
-        <path d="M 148 44 L 148 70" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        {/* 중앙 상단 사선/세로 벽 (대각선 통로 가이드) */}
-        <path d="M 128 58 L 128 86" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        <path d="M 104 62 L 104 88" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        <path d="M 60 64 L 84 64" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        <path d="M 60 64 L 60 92" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        {/* 좌하단 루프 방 외곽 벽 */}
-        <path d="M 58 106 L 58 122 M 72 90 L 72 100" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        {/* 하단 메인 탈출 통로 상하 벽 */}
-        <path d="M 88 98 L 120 98" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        <path d="M 92 124 L 146 124" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-        {/* 우측 막다른 골목 벽 */}
-        <path d="M 148 84 L 148 108" stroke="#C4B5FD" strokeWidth="3" strokeLinecap="round" />
-
-        {/* 3. START: 좌상단 입구 초록색 깃발 */}
-        <g id="start-flag">
-          {/* 깃대 */}
-          <line x1="80" y1="44" x2="80" y2="28" stroke="#15803D" strokeWidth="1.5" strokeLinecap="round" />
-          {/* 초록 깃발 */}
-          <path d="M 80 28 L 70 33 L 80 38 Z" fill="#22C55E" stroke="#16A34A" strokeWidth="1" strokeLinejoin="round" />
-          <circle cx="80" cy="27" r="1.5" fill="#FACC15" />
+        {/* 미로 바닥 그리드 도트 패턴 (퍼즐 보드게임 질감) */}
+        <g opacity="0.35">
+          <circle cx="36" cy="32" r="0.9" fill="#9333EA" />
+          <circle cx="66" cy="32" r="0.9" fill="#9333EA" />
+          <circle cx="96" cy="32" r="0.9" fill="#9333EA" />
+          <circle cx="126" cy="32" r="0.9" fill="#9333EA" />
+          <circle cx="156" cy="32" r="0.9" fill="#9333EA" />
+          <circle cx="36" cy="62" r="0.9" fill="#9333EA" />
+          <circle cx="166" cy="62" r="0.9" fill="#9333EA" />
+          <circle cx="36" cy="92" r="0.9" fill="#9333EA" />
+          <circle cx="166" cy="92" r="0.9" fill="#9333EA" />
+          <circle cx="36" cy="122" r="0.9" fill="#9333EA" />
+          <circle cx="66" cy="122" r="0.9" fill="#9333EA" />
+          <circle cx="96" cy="122" r="0.9" fill="#9333EA" />
+          <circle cx="126" cy="122" r="0.9" fill="#9333EA" />
+          <circle cx="156" cy="122" r="0.9" fill="#9333EA" />
         </g>
 
-        {/* 4. 글자 'み' 1획: 미로 탈출 성공 경로 (The Golden Escape Route) */}
-        {/* 입구(82,40) -> 꺾임(116,56) -> 대각선(76,110) -> 루프(70~96) -> 출구 직진(148,114) */}
+        {/* 2. 글자 'み' 1획 연상: 미로 탈출 성공 경로 (Golden Solution Route) */}
+        {/* 바닥에 깔린 화사한 탈출 트랙 (START -> 루프 -> GOAL) */}
         <path
-          d="M 82 40 
-             L 116 56 
-             L 76 110 
-             C 66 114 66 124 74 126 
+          d="M 57 28
+             L 57 42
+             L 82 42 
+             L 114 52 
+             L 74 110 
+             C 64 114 64 124 74 126 
              C 84 126 94 116 88 108 
              C 84 104 78 108 78 114 
-             L 152 114"
-          stroke="#A855F7"
-          strokeWidth="3.5"
+             L 174 114"
+          stroke="#FEF08A"
+          strokeWidth="9"
           strokeLinecap="round"
           strokeLinejoin="round"
+          opacity="0.65"
         />
-        {/* 탈출 성공 경로 내부 하이라이트 빛 라인 */}
+        {/* 탈출 트랙 중앙 주황색 점선 안내선 */}
         <path
-          d="M 82 40 L 116 56 L 76 110 C 66 114 66 124 74 126 C 84 126 94 116 88 108 C 84 104 78 108 78 114 L 152 114"
-          stroke="#E9D5FF"
-          strokeWidth="1.2"
+          d="M 57 28 L 57 42 L 82 42 L 114 52 L 74 110 C 64 114 64 124 74 126 C 84 126 94 116 88 108 C 84 104 78 108 78 114 L 174 114"
+          stroke="#F59E0B"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
+          strokeDasharray="3 4"
         />
 
-        {/* 경로 위 탐험 마커 볼 (입구 구슬) */}
-        <circle cx="82" cy="40" r="3" fill="#F59E0B" stroke="#B45309" strokeWidth="1" />
+        {/* 3. 촘촘하고 규칙적인 미로 벽 시스템 (Maze Walls) */}
+        {/* (1) 미로 외곽 벽 (Outer Boundary - START와 GOAL은 시원하게 개방) */}
+        {/* 외벽 그림자 */}
+        <g stroke="#C4B5FD" strokeWidth="4.6" strokeLinecap="round" strokeLinejoin="round">
+          {/* 좌상단 입구 좌측 코너 */}
+          <path d="M 23 43 L 23 21 L 47 21" />
+          {/* 상단 및 우측 벽 (START 입구 우측부터 출구 상단까지) */}
+          <path d="M 67 21 L 177 21 L 177 103" />
+          {/* 하단 및 좌측 벽 (출구 하단부터 입구 하단까지 둘러쌈) */}
+          <path d="M 177 123 L 177 137 L 23 137 L 23 57" />
+        </g>
+        {/* 외벽 본체 */}
+        <g stroke="#7C3AED" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M 23 41 L 23 19 L 47 19" />
+          <path d="M 67 19 L 177 19 L 177 101" />
+          <path d="M 177 123 L 177 135 L 23 135 L 23 57" />
+        </g>
 
-        {/* 5. 글자 'み' 2획: 미로 출구 승리의 깃대 & 펄럭이는 레드 깃발 (GOAL / FINISH) */}
-        {/* 2획 궤적을 이루는 메탈 깃대 (우상단 136,72 -> 좌하단 114,128) */}
+        {/* (2) 내부 미로 벽면들 (사방을 채워 미로의 복잡한 길과 막다른 골목을 형성) */}
+        {/* 벽 하단 입체 그림자 레이어 */}
+        <g stroke="#DDD6FE" strokeWidth="4.4" strokeLinecap="round" strokeLinejoin="round">
+          {/* 좌측 구역 벽들 */}
+          <path d="M 35 19 L 35 45 L 47 45" />
+          <path d="M 23 59 L 47 59 L 47 77" />
+          <path d="M 35 77 L 35 95 L 49 95" />
+          <path d="M 23 111 L 45 111 L 45 125" />
+          <path d="M 57 61 L 57 87" />
+          <path d="M 45 127 L 59 127 L 59 137" />
+
+          {/* 상단 및 우상단 구역 벽들 */}
+          <path d="M 67 33 L 79 33" />
+          <path d="M 95 19 L 95 37 L 115 37" />
+          <path d="M 129 19 L 129 35 L 145 35" />
+          <path d="M 161 19 L 161 47 L 177 47" />
+          <path d="M 143 51 L 165 51" />
+
+          {/* 중앙 통로 가이드 및 갈림길 */}
+          <path d="M 127 49 L 127 67" />
+          <path d="M 147 65 L 147 89 L 165 89" />
+          <path d="M 177 73 L 163 73" />
+          <path d="M 97 51 L 97 75" />
+          <path d="M 77 51 L 77 69 L 89 69" />
+          <path d="M 85 85 L 103 85" />
+
+          {/* 하단 및 출구 가이드 벽들 */}
+          <path d="M 71 129 L 87 129 L 87 137" />
+          <path d="M 99 129 L 115 129 L 115 137" />
+          <path d="M 129 127 L 145 127 L 145 137" />
+          <path d="M 159 125 L 159 137" />
+          <path d="M 135 99 L 163 99 L 163 105" />
+          <path d="M 121 95 L 121 109" />
+        </g>
+
+        {/* 벽 본체 레이어 (단단하고 또렷한 바이올렛 미로 벽) */}
+        <g stroke="#7C3AED" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round">
+          {/* 좌측 구역 벽들 */}
+          <path d="M 35 19 L 35 43 L 47 43" />
+          <path d="M 23 57 L 47 57 L 47 75" />
+          <path d="M 35 75 L 35 93 L 49 93" />
+          <path d="M 23 109 L 45 109 L 45 123" />
+          <path d="M 57 59 L 57 85" />
+          <path d="M 45 125 L 59 125 L 59 135" />
+
+          {/* 상단 및 우상단 구역 벽들 */}
+          <path d="M 67 31 L 79 31" />
+          <path d="M 95 19 L 95 35 L 115 35" />
+          <path d="M 129 19 L 129 33 L 145 33" />
+          <path d="M 161 19 L 161 45 L 177 45" />
+          <path d="M 143 49 L 165 49" />
+
+          {/* 중앙 통로 가이드 및 갈림길 */}
+          <path d="M 127 47 L 127 65" />
+          <path d="M 147 63 L 147 87 L 165 87" />
+          <path d="M 177 71 L 163 71" />
+          <path d="M 97 49 L 97 73" />
+          <path d="M 77 49 L 77 67 L 89 67" />
+          <path d="M 85 83 L 103 83" />
+
+          {/* 하단 및 출구 가이드 벽들 */}
+          <path d="M 71 127 L 87 127 L 87 135" />
+          <path d="M 99 127 L 115 127 L 115 135" />
+          <path d="M 129 125 L 145 125 L 145 135" />
+          <path d="M 159 123 L 159 135" />
+          <path d="M 135 97 L 163 97 L 163 103" />
+          <path d="M 121 93 L 121 107" />
+        </g>
+
+        {/* 미로 벽 교차점/끝단 기둥 볼 (Pegs / Pillars) */}
+        <g fill="#6D28D9">
+          <circle cx="47" cy="43" r="2.2" />
+          <circle cx="47" cy="75" r="2.2" />
+          <circle cx="49" cy="93" r="2.2" />
+          <circle cx="45" cy="123" r="2.2" />
+          <circle cx="79" cy="31" r="2.2" />
+          <circle cx="115" cy="35" r="2.2" />
+          <circle cx="145" cy="33" r="2.2" />
+          <circle cx="165" cy="49" r="2.2" />
+          <circle cx="165" cy="87" r="2.2" />
+          <circle cx="163" cy="71" r="2.2" />
+          <circle cx="89" cy="67" r="2.2" />
+          <circle cx="103" cy="83" r="2.2" />
+          <circle cx="163" cy="103" r="2.2" />
+        </g>
+
+        {/* 막다른 길(Dead ends) 퍼즐 장식 (X 마커 & 보석 아이템) */}
+        {/* 우상단 막다른 길 빨간 X */}
+        <path d="M 143 23 L 149 29 M 149 23 L 143 29" stroke="#EF4444" strokeWidth="1.6" strokeLinecap="round" />
+        {/* 좌측 막다른 길 황금 다이아 보석 */}
+        <polygon points="35,82 38,85 35,88 32,85" fill="#F59E0B" stroke="#D97706" strokeWidth="0.8" />
+        {/* 우측 막다른 길 빨간 X */}
+        <path d="M 169 77 L 175 83 M 175 77 L 169 83" stroke="#EF4444" strokeWidth="1.6" strokeLinecap="round" />
+
+        {/* 4. START (입구 - 좌상단 x=48~66) */}
+        {/* 출발 발판 타일 */}
+        <rect x="49" y="16" width="16" height="8" rx="2" fill="#DCFCE7" stroke="#86EFAC" strokeWidth="1" />
+        {/* START 텍스트 배지 */}
+        <rect x="48" y="6" width="18" height="8" rx="2" fill="#15803D" />
+        <text x="57" y="12.5" fontSize="5" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" letterSpacing="0.5">
+          START
+        </text>
+        {/* 초록색 출발 깃발 */}
+        <line x1="48" y1="20" x2="48" y2="7" stroke="#166534" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M 48 7 L 39 10.5 L 48 14 Z" fill="#22C55E" stroke="#15803D" strokeWidth="0.8" strokeLinejoin="round" />
+        <circle cx="48" cy="6.5" r="1.3" fill="#FACC15" />
+
+        {/* 입구 대기 중인 입체 골든 롤링 구슬 (Marble Ball) */}
+        <circle cx="57" cy="27" r="4.2" fill="url(#miroGoldMarble)" stroke="#B45309" strokeWidth="0.9" />
+        <circle cx="55.5" cy="25.5" r="1.1" fill="#FFFFFF" opacity="0.8" />
+        {/* 구슬 아래 그림자 */}
+        <ellipse cx="57" cy="31.5" rx="3.2" ry="1.2" fill="#000000" opacity="0.15" />
+
+        {/* 5. GOAL (출구 - 우측 x=174~184, y=103~123) */}
+        {/* 결승선 체커보드 바닥 (Racing Finish Line) */}
+        <g opacity="0.85">
+          <rect x="170" y="105" width="4" height="4.5" fill="#1E293B" />
+          <rect x="174" y="105" width="4" height="4.5" fill="#FFFFFF" />
+          <rect x="170" y="109.5" width="4" height="4.5" fill="#FFFFFF" />
+          <rect x="174" y="109.5" width="4" height="4.5" fill="#1E293B" />
+          <rect x="170" y="114" width="4" height="4.5" fill="#1E293B" />
+          <rect x="174" y="114" width="4" height="4.5" fill="#FFFFFF" />
+          <rect x="170" y="118.5" width="4" height="4.5" fill="#FFFFFF" />
+          <rect x="174" y="118.5" width="4" height="4.5" fill="#1E293B" />
+        </g>
+        {/* GOAL 텍스트 배지 */}
+        <rect x="169" y="93" width="16" height="8" rx="2" fill="#DC2626" />
+        <text x="177" y="99.5" fontSize="5" fontWeight="bold" fill="#FFFFFF" textAnchor="middle" letterSpacing="0.5">
+          GOAL
+        </text>
+        {/* 출구 탈출 화살표 */}
+        <path d="M 179 114 L 187 114 M 184 111 L 187 114 L 184 117" stroke="#EA580C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+
+        {/* 6. 글자 'み' 2획 연상: 출구 승리의 깃대 & 펄럭이는 레드 결승 깃발 */}
+        {/* 2획 궤적을 이루는 메탈릭 깃대 (우상단 136,70 -> 좌하단 114,128) */}
         <path
-          d="M 136 72 L 114 128"
-          stroke="#475569"
-          strokeWidth="3"
+          d="M 136 70 L 114 128"
+          stroke="#334155"
+          strokeWidth="3.2"
           strokeLinecap="round"
         />
         {/* 깃대 꼭대기 골든 피니얼 (볼) */}
-        <circle cx="137" cy="71" r="2.8" fill="#F59E0B" stroke="#D97706" strokeWidth="0.8" />
+        <circle cx="136" cy="69" r="3" fill="#F59E0B" stroke="#D97706" strokeWidth="0.9" />
 
-        {/* 펄럭이는 선명한 레드 결승 깃발 (FINISH Flag) */}
+        {/* 펄럭이는 레드 & 화이트 체크 결승 깃발 (FINISH Flag) */}
         <path
-          d="M 136 72 
-             C 144 68 154 74 162 70 
-             L 154 84 
-             C 146 88 138 82 131 86 Z"
+          d="M 136 70 
+             C 146 65 156 73 166 68 
+             L 158 85 
+             C 148 89 138 82 130 87 Z"
           fill="#EF4444"
           stroke="#DC2626"
           strokeWidth="1.4"
           strokeLinejoin="round"
         />
-        {/* 깃발 펄럭임 음영 */}
+        {/* 깃발 펄럭임 주름 음영 */}
         <path
-          d="M 144 72 C 150 74 156 72 162 70 L 154 84 C 148 86 142 84 136 86 Z"
-          fill="#F87171"
-          opacity="0.6"
+          d="M 144 71 C 150 73 158 70 166 68 L 158 85 C 150 87 142 84 136 86 Z"
+          fill="#DC2626"
+          opacity="0.35"
+        />
+        {/* 깃발 내부 화이트 체크 장식 포인트 */}
+        <path
+          d="M 142 70 L 150 68 L 148 76 L 140 78 Z"
+          fill="#FFFFFF"
+          opacity="0.9"
+        />
+        <path
+          d="M 152 76 L 160 74 L 157 82 L 149 84 Z"
+          fill="#FFFFFF"
+          opacity="0.9"
         />
 
-        {/* 6. 탈출 축하 반짝이 별빛 (Victory Sparkles) */}
-        <path d="M 158 104 L 160 98 L 162 104 L 168 106 L 162 108 L 160 114 L 158 108 L 152 106 Z" fill="#FBBF24" />
-        <circle cx="166" cy="118" r="1.5" fill="#F59E0B" />
+        {/* 7. 탈출 축하 반짝이 별빛 & 컨페티 (Victory Sparkles) */}
+        <path d="M 172 101 L 174 96 L 176 101 L 181 103 L 176 105 L 174 110 L 172 105 L 167 103 Z" fill="#FBBF24" />
+        <path d="M 183 124 L 184.5 121 L 186 124 L 189 125.5 L 186 127 L 184.5 130 L 183 127 L 180 125.5 Z" fill="#F59E0B" />
+        <circle cx="166" cy="128" r="1.5" fill="#FDE047" />
+        <circle cx="178" cy="88" r="1.4" fill="#38BDF8" />
+        <circle cx="186" cy="98" r="1.2" fill="#F472B6" />
 
         {/* 글자 'み' 오버레이 */}
         <MnemonicCharOverlay char="み" fontFamily={fontFamily} x="108" y="118" />
