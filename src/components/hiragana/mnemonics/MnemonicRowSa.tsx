@@ -386,8 +386,8 @@ export default function MnemonicRowSa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'そ') {
-    // そ: 소라 (나선형 뾰족 꼭지와 지그재그 층, 둥근 입구를 가진 바다 뿔소라!)
-    // ⚠️ 글자 'そ'의 Z자 상단과 둥근 하단 곡선이 소라고둥의 나선형 껍데기와 완벽 매칭
+    // そ: 소라 (위에서 아래로 꼬불꼬불 나사처럼 회전하며 층층이 감겨 내려오는 나사고둥!)
+    // ⚠️ 글자 'そ'의 지그재그 꺾임(──, ／, ──)과 하단 둥근 곡선(︶)이 나사산(Screw Thread)의 회전 마디와 1:1 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -395,118 +395,256 @@ export default function MnemonicRowSa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 바닷가 모래사장 베이스 (은은한 웜베이지) */}
+        <defs>
+          {/* 나사 소라 메인 바디 부드러운 크림 & 웜 골드 그라디언트 */}
+          <linearGradient id="so-screw-body" x1="10%" y1="10%" x2="90%" y2="90%">
+            <stop offset="0%" stopColor="#FFFDF7" />
+            <stop offset="25%" stopColor="#FEF3C7" />
+            <stop offset="65%" stopColor="#FDE68A" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
+
+          {/* 꼭대기 팁 하이라이트 그라디언트 */}
+          <linearGradient id="so-screw-tip" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="50%" stopColor="#FEF9C3" />
+            <stop offset="100%" stopColor="#FDE68A" />
+          </linearGradient>
+
+          {/* 소라 입구 (Aperture) 살구빛 진주광택 그라디언트 */}
+          <radialGradient id="so-screw-aperture" cx="42%" cy="40%" r="58%">
+            <stop offset="0%" stopColor="#FFF1F2" />
+            <stop offset="35%" stopColor="#FFE4E6" />
+            <stop offset="75%" stopColor="#FECDD3" />
+            <stop offset="100%" stopColor="#FB7185" />
+          </radialGradient>
+
+          {/* 소라 입구 테두리 (Lip) 코랄 오렌지 그라디언트 */}
+          <linearGradient id="so-screw-lip" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFEDD5" />
+            <stop offset="50%" stopColor="#FDBA74" />
+            <stop offset="100%" stopColor="#EA580C" />
+          </linearGradient>
+
+          {/* 신비로운 진주 구슬 입체 그라디언트 */}
+          <radialGradient id="so-screw-pearl" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="45%" stopColor="#FDF2F8" />
+            <stop offset="80%" stopColor="#E0E7FF" />
+            <stop offset="100%" stopColor="#C7D2FE" />
+          </radialGradient>
+
+          {/* 귀여운 아기 불가사리 그라디언트 */}
+          <linearGradient id="so-screw-star" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FDA4AF" />
+            <stop offset="100%" stopColor="#F43F5E" />
+          </linearGradient>
+
+          {/* 맑고 투명한 바닷물 방울 그라디언트 */}
+          <radialGradient id="so-screw-drop" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="60%" stopColor="#38BDF8" />
+            <stop offset="100%" stopColor="#0284C7" />
+          </radialGradient>
+        </defs>
+
+        {/* 1. 바닷가 모래사장 베이스 언덕 & 부드러운 그림자 */}
+        <ellipse cx="106" cy="140" rx="66" ry="7.5" fill="#E2E8F0" opacity="0.55" />
         <path
-          d="M 40 136 C 70 132 130 134 165 138"
+          d="M 30 142 C 65 136 145 137 178 143"
           stroke="#FDE68A"
-          strokeWidth="2.5"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 54 148 C 82 144 128 145 154 148"
+          stroke="#FEF08A"
+          strokeWidth="2"
           strokeLinecap="round"
         />
 
-        {/* 앙증맞은 미니 불가사리 (좌측 하단 포인트) */}
+        {/* 
+          2. 꼬불꼬불 나사 모양 소라 (Screw Shell) 층계별 나선 구조
+          - 꼭대기부터 아래로 점점 커지며 나사산처럼 꼬여 내려오는 4단 회전 링
+        */}
+
+        {/* 꼭대기 나사 뾰족 팁 (Apex Tip) */}
         <path
-          d="M 48 126 L 50 120 L 53 126 L 59 126 L 54 130 L 56 136 L 51 132 L 46 136 L 48 130 L 43 126 Z"
-          fill="#FDA4AF"
-          stroke="#F43F5E"
-          strokeWidth="1"
+          d="M 112 12
+             C 117 12 122 15 120 22
+             C 116 26 106 26 102 22
+             C 102 16 107 12 112 12 Z"
+          fill="url(#so-screw-tip)"
+          stroke="#78716C"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M 112 13 C 114 16 113 19 110 21"
+          stroke="#D97706"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+        />
+
+        {/* 1단 나사 링 (글자 상단 가로선 획과 싱크로: x: 84~134, y: 22~42) */}
+        <path
+          d="M 98 22
+             C 106 20 126 20 134 25
+             C 142 30 142 38 136 42
+             C 126 48 94 46 84 40
+             C 80 34 86 26 98 22 Z"
+          fill="url(#so-screw-body)"
+          stroke="#78716C"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        {/* 1단 나사산 홈 라인 */}
+        <path
+          d="M 86 38 C 104 44 124 44 136 38"
+          stroke="#D97706"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+
+        {/* 2단 나사 링 (글자의 대각선 꺾임과 싱크로: 134에서 72로 비스듬히 감김) */}
+        <path
+          d="M 84 40
+             C 96 46 130 44 142 48
+             C 152 54 150 64 140 70
+             C 126 76 80 72 70 66
+             C 64 58 72 48 84 40 Z"
+          fill="url(#so-screw-body)"
+          stroke="#78716C"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        {/* 2단 나사산 홈 라인 */}
+        <path
+          d="M 72 64 C 92 72 126 72 142 66"
+          stroke="#D97706"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+
+        {/* 3단 나사 링 (글자의 중간 가로선 획과 싱크로: 72에서 130으로 감겨 나감) */}
+        <path
+          d="M 70 66
+             C 84 72 130 70 146 76
+             C 160 84 158 96 146 104
+             C 130 112 70 108 58 98
+             C 50 88 58 76 70 66 Z"
+          fill="url(#so-screw-body)"
+          stroke="#78716C"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        {/* 3단 나사산 홈 라인 */}
+        <path
+          d="M 60 96 C 82 106 128 106 148 98"
+          stroke="#D97706"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+
+        {/* 4단 메인 체층 (글자의 하단 둥근 C곡선과 싱크로: 130에서 둥글게 돌아 입구로 이어짐) */}
+        <path
+          d="M 58 98
+             C 72 110 126 108 148 104
+             C 162 112 158 128 142 134
+             C 122 140 74 138 56 124
+             C 46 114 50 104 58 98 Z"
+          fill="url(#so-screw-body)"
+          stroke="#78716C"
+          strokeWidth="1.8"
           strokeLinejoin="round"
         />
 
-        {/* 소라 껍데기 전체 몸체 볼륨 (부드러운 크림 아이보리) */}
+        {/* 3. 나사산 회전 늑골 세로선 (Screw Ribs & Grooves) */}
+        {/* 1단 나사선 결 */}
+        <path d="M 94 24 C 92 32 90 38 88 42" stroke="#FBBF24" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M 112 24 C 110 32 108 38 106 42" stroke="#FBBF24" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M 126 26 C 124 34 122 40 120 44" stroke="#FBBF24" strokeWidth="1.3" strokeLinecap="round" />
+
+        {/* 2단 나사선 결 */}
+        <path d="M 80 44 C 76 54 74 62 72 68" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M 102 46 C 98 56 96 64 94 70" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M 124 48 C 120 58 118 66 116 72" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" />
+
+        {/* 3단 나사선 결 */}
+        <path d="M 68 72 C 64 82 62 92 60 98" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M 92 74 C 88 84 86 94 84 102" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M 118 76 C 114 86 112 96 110 104" stroke="#FBBF24" strokeWidth="1.4" strokeLinecap="round" />
+
+        {/* 4. 소라의 둥근 입구 (Aperture) - 글자 そ 하단 C곡선 안쪽에 착 안착 */}
         <path
-          d="M 124 24 
-             C 130 20 136 28 132 34 
-             L 142 46 C 146 52 144 58 138 62 
-             L 152 76 C 158 84 156 94 148 104 
-             C 142 124 116 134 86 132 
-             C 62 130 54 110 58 92 
-             C 62 76 74 62 88 52 
-             L 104 36 
-             Z"
-          fill="#FFFDF7"
-          stroke="#D97706"
-          strokeWidth="2"
+          d="M 96 104
+             C 112 98 140 100 146 114
+             C 150 126 134 138 110 138
+             C 90 138 84 124 90 114
+             C 92 110 94 106 96 104 Z"
+          fill="url(#so-screw-aperture)"
+          stroke="url(#so-screw-lip)"
+          strokeWidth="1.8"
           strokeLinejoin="round"
         />
 
-        {/* 소라의 지그재그 나선형 층계 라인 (글자 そ의 Z 모양 궤적과 매칭) */}
-        {/* 꼭대기 1단 나선 */}
+        {/* 입구 안쪽으로 빨려들어가는 부드러운 소용돌이 음영 */}
         <path
-          d="M 104 36 C 114 38 124 38 132 34"
-          stroke="#D97706"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        {/* 2단 나선 */}
-        <path
-          d="M 88 52 C 104 56 124 56 138 62"
-          stroke="#D97706"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        {/* 3단 메인 바디 나선 (글자 중간 가로선 위치) */}
-        <path
-          d="M 72 78 C 96 82 128 78 152 76"
-          stroke="#D97706"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-
-        {/* 뿔소라의 귀여운 뾰족 돌기들 (소라의 특징적 디테일) */}
-        <path d="M 68 66 L 58 64 L 66 74 Z" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5" />
-        <path d="M 58 90 L 48 90 L 58 98 Z" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5" />
-        <path d="M 148 60 L 158 58 L 152 68 Z" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5" />
-
-        {/* 소라 껍데기 세로 늑골 무늬 (골짜기 라인) */}
-        <path
-          d="M 116 28 C 112 38 108 46 102 54"
-          stroke="#FBBF24"
+          d="M 114 106
+             C 124 106 136 112 134 122
+             C 132 128 122 132 112 130
+             C 104 128 106 118 112 114
+             C 116 112 120 114 118 118"
+          stroke="#E11D48"
           strokeWidth="1.4"
           strokeLinecap="round"
-        />
-        <path
-          d="M 128 44 C 122 54 116 66 112 78"
-          stroke="#FBBF24"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-        />
-        <path
-          d="M 76 86 C 80 102 88 116 98 126"
-          stroke="#FBBF24"
-          strokeWidth="1.4"
-          strokeLinecap="round"
+          fill="none"
+          opacity="0.5"
         />
 
-        {/* 소라의 둥근 입구 (Aperture: 글자 そ 하단 C곡선 안쪽 살구/피치빛) */}
-        <ellipse
-          cx="114"
-          cy="114"
-          rx="26"
-          ry="15"
-          fill="#FFEDD5"
-          stroke="#EA580C"
-          strokeWidth="2"
-        />
-        {/* 입구 안쪽 깊은 소용돌이 음영 */}
-        <ellipse
-          cx="112"
-          cy="114"
-          rx="17"
-          ry="9"
-          fill="#FED7AA"
-        />
-        <ellipse
-          cx="110"
-          cy="114"
-          rx="9"
-          ry="5"
-          fill="#FDBA74"
-        />
+        {/* 입구 안쪽의 신비로운 하얀 진주 (Pearl) 알 포인트 */}
+        <circle cx="118" cy="118" r="4.8" fill="url(#so-screw-pearl)" stroke="#C7D2FE" strokeWidth="0.8" />
+        <circle cx="116.5" cy="116.5" r="1.5" fill="#FFFFFF" />
 
-        {/* 맑은 바닷물 방울 / 모래알 반짝임 */}
-        <circle cx="162" cy="116" r="2.5" fill="#38BDF8" />
-        <circle cx="170" cy="126" r="1.8" fill="#67E8F9" />
-        <circle cx="70" cy="132" r="1.5" fill="#FCD34D" />
+        {/* 5. 좌하단 귀여운 아기 불가사리 (Pink Starfish) */}
+        <g transform="translate(40, 120)">
+          <path
+            d="M 10 0
+               L 13 6 L 19 7 L 14 12 L 16 18
+               L 10 14 L 4 18 L 6 12 L 1 7
+               L 7 6 Z"
+            fill="url(#so-screw-star)"
+            stroke="#BE123C"
+            strokeWidth="1.2"
+            strokeLinejoin="round"
+          />
+          {/* 불가사리 똘망한 눈망울 & 미소 */}
+          <circle cx="8.5" cy="8.5" r="0.9" fill="#1C1917" />
+          <circle cx="11.5" cy="8.5" r="0.9" fill="#1C1917" />
+          <path
+            d="M 9.2 10.5 Q 10 11.5 10.8 10.5"
+            stroke="#BE123C"
+            strokeWidth="0.8"
+            strokeLinecap="round"
+          />
+          {/* 발그레 볼터치 */}
+          <circle cx="7" cy="9.8" r="0.8" fill="#FFFFFF" opacity="0.8" />
+          <circle cx="13" cy="9.8" r="0.8" fill="#FFFFFF" opacity="0.8" />
+        </g>
+
+        {/* 6. 맑고 청량한 바닷물 방울 & 반짝이 스파클 */}
+        <circle cx="166" cy="116" r="3" fill="url(#so-screw-drop)" stroke="#0284C7" strokeWidth="0.8" />
+        <circle cx="165" cy="114.8" r="0.9" fill="#FFFFFF" />
+        <circle cx="174" cy="126" r="2" fill="#7DD3FC" />
+        <circle cx="158" cy="130" r="1.5" fill="#BAE6FD" />
+
+        {/* 햇살 반짝이 별 (Sparkle) */}
+        <path
+          d="M 152 40 L 154 35 L 156 40 L 161 42 L 156 44 L 154 49 L 152 44 L 147 42 Z"
+          fill="#FBBF24"
+        />
+        <circle cx="74" cy="138" r="1.5" fill="#FCD34D" />
+        <circle cx="140" cy="142" r="1.2" fill="#FCD34D" />
 
         {/* 글자 'そ' 오버레이 */}
         <MnemonicCharOverlay char="そ" fontFamily={fontFamily} x="108" y="118" />
