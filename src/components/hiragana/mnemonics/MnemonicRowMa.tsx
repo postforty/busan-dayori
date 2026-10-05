@@ -915,7 +915,8 @@ export default function MnemonicRowMa({ char, fontFamily }: MnemonicSvgChildProp
   }
 
   if (char === 'も') {
-    // も: 모자 (둥근 챙 모자의 중앙 띠와 가로지르는 리본 장식선)
+    // も: 모기 ("모~~" 하고 앵앵 날아와 뾰족한 침을 콕 찌르고 배가 빵빵해진 귀여운 모기!)
+    // ⚠️ 1획은 모기의 세로 주둥이 침 & 우측으로 통통하게 굽어 올라간 줄무늬 배, 2획은 상단 투명 날개 쌍, 3획은 하단 날개 쌍 및 윙윙 날갯짓 바람선과 1:1 완벽 일치!
     return (
       <svg
         viewBox="0 0 200 160"
@@ -923,40 +924,199 @@ export default function MnemonicRowMa({ char, fontFamily }: MnemonicSvgChildProp
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* 모자 둥근 크라운(머리 덮개) 돔 실루엣 */}
+        <defs>
+          {/* 모기 날개 투명 하늘빛 그라디언트 */}
+          <linearGradient id="moWingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+            <stop offset="60%" stopColor="#E0F2FE" stopOpacity="0.75" />
+            <stop offset="100%" stopColor="#BAE6FD" stopOpacity="0.85" />
+          </linearGradient>
+          {/* 피를 꿀꺽 마셔 붉게 차오른 배 그라디언트 */}
+          <linearGradient id="moBellyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#475569" />
+            <stop offset="50%" stopColor="#BE123C" />
+            <stop offset="100%" stopColor="#F43F5E" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 배경 은은한 하늘빛 원 & 앵앵 비행 궤적 (Flight Trail) */}
+        <circle cx="100" cy="80" r="68" fill="#F0F9FF" />
+        <circle cx="100" cy="80" r="50" fill="#E0F2FE" opacity="0.6" />
+
+        {/* 모기가 빙글빙글 날아온 비행 궤적 점선 루프 */}
         <path
-          d="M 64 88 C 64 42 146 42 146 88 Z"
-          fill="#F0FDFA"
-          stroke="#A8A29E"
+          d="M 18 42 C 10 24 32 16 42 28 C 48 38 60 34 72 26 C 78 22 84 25 88 26"
+          stroke="#94A3B8"
+          strokeWidth="1.3"
+          strokeDasharray="3 4"
+          strokeLinecap="round"
+        />
+
+        {/* "모~♪" 앵앵거리는 소리 앙증맞은 미니 음표 */}
+        <path
+          d="M 32 24 L 32 17 C 32 15 37 14 39 16"
+          stroke="#0284C7"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+        <ellipse cx="30" cy="24" rx="2.5" ry="1.8" fill="#0284C7" />
+
+        {/* 2. 글자 'も' 3획: 모기 하단 날개 쌍 (Lower Wings) & 날갯짓 바람선 (y=74~84) */}
+        {/* 좌측 하단 날개 */}
+        <path
+          d="M 94 80 C 72 70 44 74 36 80 C 34 84 52 88 94 82 Z"
+          fill="url(#moWingGrad)"
+          stroke="#38BDF8"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <path d="M 90 80 C 70 76 52 78 42 81" stroke="#0284C7" strokeWidth="0.9" strokeLinecap="round" />
+
+        {/* 우측 하단 날개 */}
+        <path
+          d="M 102 80 C 124 70 152 74 160 80 C 162 84 144 88 102 82 Z"
+          fill="url(#moWingGrad)"
+          stroke="#38BDF8"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <path d="M 106 80 C 126 76 144 78 154 81" stroke="#0284C7" strokeWidth="0.9" strokeLinecap="round" />
+
+        {/* 하단 날갯짓 모션 라인 */}
+        <path d="M 40 73 C 50 69 66 71 76 73" stroke="#7DD3FC" strokeWidth="1.2" strokeDasharray="3 3" strokeLinecap="round" />
+        <path d="M 156 73 C 146 69 130 71 120 73" stroke="#7DD3FC" strokeWidth="1.2" strokeDasharray="3 3" strokeLinecap="round" />
+
+        {/* 3. 글자 'も' 2획: 모기 메인 상단 날개 쌍 (Upper Wings, y=50~62) */}
+        {/* 좌측 메인 날개 (시원하게 뻗은 넓은 날개) */}
+        <path
+          d="M 94 56 C 70 42 38 46 28 54 C 26 60 48 66 94 58 Z"
+          fill="url(#moWingGrad)"
+          stroke="#0284C7"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        {/* 좌측 날개 속 정교한 맥 2줄 */}
+        <path d="M 90 56 C 68 48 48 51 34 55" stroke="#0284C7" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M 86 57 C 68 55 52 60 40 63" stroke="#38BDF8" strokeWidth="0.9" strokeLinecap="round" />
+
+        {/* 우측 메인 날개 */}
+        <path
+          d="M 102 56 C 126 42 158 46 168 54 C 170 60 148 66 102 58 Z"
+          fill="url(#moWingGrad)"
+          stroke="#0284C7"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        {/* 우측 날개 속 정교한 맥 2줄 */}
+        <path d="M 106 56 C 128 48 148 51 162 55" stroke="#0284C7" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M 110 57 C 128 55 144 60 156 63" stroke="#38BDF8" strokeWidth="0.9" strokeLinecap="round" />
+
+        {/* 상단 윙윙~ 날갯짓 바람 잔상 */}
+        <path d="M 32 46 C 44 41 62 43 76 47" stroke="#38BDF8" strokeWidth="1.3" strokeDasharray="3 3" strokeLinecap="round" />
+        <path d="M 164 46 C 152 41 134 43 120 47" stroke="#38BDF8" strokeWidth="1.3" strokeDasharray="3 3" strokeLinecap="round" />
+
+        {/* 4. 글자 'も' 1획: 세로 몸통 + 아래로 뻗은 침(Stinger) + 우측으로 굽어 솟은 줄무늬 배(Abdomen) */}
+        {/* 피부 표면 라인 (피부에 콕 내려앉은 연출) */}
+        <path
+          d="M 64 121 C 82 117 114 118 138 123"
+          stroke="#FDBA74"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+
+        {/* 모기 가슴 몸통 (Thorax) */}
+        <ellipse cx="98" cy="67" rx="8" ry="13" fill="#334155" stroke="#0F172A" strokeWidth="1.6" />
+        <line x1="96" y1="58" x2="96" y2="76" stroke="#64748B" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* 1획 세로 궤적: 모기의 길고 날렵한 빨대 침 (Stinger / Proboscis) */}
+        <path
+          d="M 98 78 L 96 114"
+          stroke="#0F172A"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+        />
+        {/* 침 끝 날카로운 바늘 팁 */}
+        <line x1="96.5" y1="110" x2="96" y2="118" stroke="#DC2626" strokeWidth="2.2" strokeLinecap="round" />
+
+        {/* 콕 찌른 자리 앙증맞은 핏방울 하트 & 붉은 스팟 */}
+        <circle cx="96" cy="118" r="3.2" fill="#F43F5E" opacity="0.85" />
+        <circle cx="96" cy="118" r="1.6" fill="#BE123C" />
+
+        {/* 따끔! 번쩍이는 노란색 별빛 스파크 (✦ Zap Sparkles) */}
+        <path
+          d="M 87 114 L 89 109 L 91 114 L 96 116 L 91 118 L 89 123 L 87 118 L 82 116 Z"
+          fill="#F59E0B"
+        />
+        <path
+          d="M 103 109 L 104.5 105 L 106 109 L 110 110.5 L 106 112 L 104.5 116 L 103 112 L 99 110.5 Z"
+          fill="#FDE047"
+        />
+
+        {/* 1획 하단 U자 궤적: 모기의 둥글게 치켜올라간 통통한 줄무늬 배 (Abdomen) */}
+        {/* 통통한 배 실루엣 */}
+        <path
+          d="M 98 75
+             C 98 100 102 126 116 128
+             C 128 130 138 114 134 94
+             C 130 92 124 96 122 108
+             C 118 120 110 116 106 100
+             C 103 88 103 76 98 75 Z"
+          fill="url(#moBellyGrad)"
+          stroke="#0F172A"
           strokeWidth="1.8"
           strokeLinejoin="round"
         />
 
-        {/* 모자 넓은 챙 곡선 (하단 타원 챙) */}
-        <ellipse
-          cx="105"
-          cy="94"
-          rx="58"
-          ry="16"
-          fill="#FFFFFF"
-          stroke="#78716C"
-          strokeWidth="2"
-        />
-
-        {/* 모자 민트 리본 띠 (포인트 컬러: 글자 も의 가로 획 영역) */}
+        {/* 꿀꺽 마신 피로 빵빵하게 붉어진 배 끝 하이라이트 */}
         <path
-          d="M 68 82 C 86 78 124 78 142 82 L 143 88 C 124 84 86 84 67 88 Z"
-          fill="#CCFBF1"
-          stroke="#2DD4BF"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
+          d="M 112 124 C 120 128 132 120 134 98 C 131 95 125 99 122 108 C 117 118 112 118 112 124 Z"
+          fill="#F43F5E"
+          opacity="0.85"
         />
 
-        {/* 모자 옆 리본 매듭 삐침 장식 */}
-        <g id="hat-ribbon">
-          <ellipse cx="66" cy="85" rx="5" ry="3" fill="#2DD4BF" />
-          <path d="M 64 86 Q 56 94 52 102 M 66 87 Q 62 98 60 106" stroke="#0D9488" strokeWidth="1.5" strokeLinecap="round" />
-        </g>
+        {/* 배 마디마디 선명한 차콜 줄무늬 (Abdomen Bands) */}
+        <path d="M 100 87 C 104 88 108 89 111 87" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M 103 99 C 108 102 114 102 118 98" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M 107 111 C 112 116 121 115 126 107" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M 115 123 C 121 125 128 121 130 113" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" />
+
+        {/* 배 광택 반사광 타원 */}
+        <ellipse cx="127" cy="102" rx="2" ry="4" fill="#FFFFFF" opacity="0.6" transform="rotate(25 127 102)" />
+
+        {/* 꺾인 롱 모기 다리 2가닥 */}
+        <path d="M 102 74 C 116 64 128 66 140 58" stroke="#334155" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+        <path d="M 94 72 C 84 66 74 70 66 65" stroke="#334155" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+
+        {/* 5. 모기 머리 & 사랑스러운 만화 표정 (Head & Face, y=24~38) */}
+        {/* 둥근 머리 본체 */}
+        <circle cx="98" cy="34" r="11" fill="#475569" stroke="#0F172A" strokeWidth="1.6" />
+
+        {/* 똘망똘망한 커다란 두 눈망울 */}
+        {/* 좌측 눈 */}
+        <circle cx="94" cy="32" r="5.2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.3" />
+        <circle cx="94.5" cy="32" r="3.3" fill="#0F172A" />
+        <circle cx="95.5" cy="30.8" r="1.2" fill="#FFFFFF" />
+
+        {/* 우측 눈 */}
+        <circle cx="103" cy="32" r="5.2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.3" />
+        <circle cx="102.5" cy="32" r="3.3" fill="#0F172A" />
+        <circle cx="103.5" cy="30.8" r="1.2" fill="#FFFFFF" />
+
+        {/* 사랑스러운 복숭아빛 볼터치 */}
+        <ellipse cx="90" cy="37" rx="3.2" ry="2" fill="#FDA4AF" opacity="0.85" />
+        <ellipse cx="107" cy="37" rx="3.2" ry="2" fill="#FDA4AF" opacity="0.85" />
+
+        {/* 머리 위 귀여운 코일형 더듬이 2가닥 (Antennae) */}
+        <path d="M 94 24 C 90 14 82 16 84 21" stroke="#0F172A" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+        <circle cx="84" cy="21" r="1.6" fill="#38BDF8" />
+
+        <path d="M 102 24 C 106 14 114 16 112 21" stroke="#0F172A" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+        <circle cx="112" cy="21" r="1.6" fill="#38BDF8" />
+
+        {/* 주변 부유 반짝이 가루 */}
+        <circle cx="48" cy="28" r="1.3" fill="#FBBF24" />
+        <circle cx="152" cy="32" r="1.5" fill="#38BDF8" />
+        <circle cx="168" cy="88" r="1.2" fill="#F43F5E" />
 
         {/* 글자 'も' 오버레이 */}
         <MnemonicCharOverlay char="も" fontFamily={fontFamily} x="106" y="118" />
