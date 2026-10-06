@@ -1,27 +1,36 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Sparkles, RotateCcw, Trophy, Volume2, CheckCircle2, Flame, Award } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { RotateCcw, Trophy, Check } from 'lucide-react';
 import { KATAKANA_MATCH_PAIRS, KatakanaMatchPair, playKatakanaAudio } from '@/lib/curriculum/katakanaData';
 
-interface CardItem {
-  uid: string; // 고유 ID (pairId + type)
+interface MatchCard {
+  id: string; // 고유 ID (left-xxx, right-xxx)
   pairId: string;
   char: string;
   type: 'hiragana' | 'katakana';
   romaji: string;
   korean: string;
-  isFlipped: boolean;
-  isMatched: boolean;
 }
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
-const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; pairsCount: number; gridClass: string; badge: string }> = {
-  easy: { label: '초급 (4쌍)', pairsCount: 4, gridClass: 'grid-cols-4', badge: '🌱 입문' },
-  medium: { label: '중급 (6쌍)', pairsCount: 6, gridClass: 'grid-cols-4 sm:grid-cols-6', badge: '🌿 도전' },
-  hard: { label: '고급 (8쌍)', pairsCount: 8, gridClass: 'grid-cols-4', badge: '👑 마스터' }
+const DIFFICULTY_CONFIG: Record<
+  Difficulty,
+  { label: string; pairsCount: number; badge: string }
+> = {
+  easy: { label: '초급 (4쌍)', pairsCount: 4, badge: '🌱 입문' },
+  medium: { label: '중급 (6쌍)', pairsCount: 6, badge: '🌿 도전' },
+  hard: { label: '고급 (8쌍)', pairsCount: 8, badge: '👑 마스터' },
 };
+
+interface ConnectionLine {
+  pairId: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
 
 interface KatakanaMatchGameProps {
   fontStyle?: 'sans' | 'serif';
@@ -29,65 +38,80 @@ interface KatakanaMatchGameProps {
 
 export default function KatakanaMatchGame({ fontStyle = 'sans' }: KatakanaMatchGameProps = {}) {
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
-  const [cards, setCards] = useState<CardItem[]>([]);
-  const [flippedUids, setFlippedUids] = useState<string[]>([]);
-  const [moves, setMoves] = useState(0);
-  const [matches, setMatches] = useState(0);
-  const [isLocked, setIsLocked] = useState(false);
+  const [pairs, setPairs] = useState<KatakanaMatchPair[]>([]);
+  const [leftCards, setLeftCards] = useState<MatchCard[]>([]);
+  const [rightCards, setRightCards] = useState<MatchCard[]>([]);
+
+  // 선택 상태
+  const [selectedLeftId, setSelectedLeftId] = useState<string | null>(null);
+  const [selectedRightId, setSelectedRightId] = useState<string | null>(null);
+
+  // 일치 완료된 pairId 목록
+  const [matchedPairIds, setMatchedPairIds] = useState<string[]>([]);
+
+  // 오답 흔들림 효과용 카드 ID
+  const [shakeCardIds, setShakeCardIds] = useState<string[]>([]);
+
+  // 진행 상태 통계
+  const [attempts, setAttempts] = useState(0);
   const [gameStartTime, setGameStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
+  // SVG 연결선 좌표 목록
+  const [lines, setLines] = useState<ConnectionLine[]>([]);
+
+  // 보드 및 앵커 참조
+  const boardRef = useRef<HTMLDivElement | null>(null);
+  const leftAnchorsRef = useRef<Map<string, HTMLDivElement>>(new Map());
+  const rightAnchorsRef = useRef<Map<string, HTMLDivElement>>(new Map());
+
   // 게임 초기화
   const startNewGame = useCallback((diff: Difficulty = difficulty) => {
     const config = DIFFICULTY_CONFIG[diff];
-    // 랜덤으로 n개 쌍 추출
     const shuffledPool = [...KATAKANA_MATCH_PAIRS].sort(() => Math.random() - 0.5);
-    const selectedPairs = shuffledPool.slice(0, config.pairsCount);
+    const selected = shuffledPool.slice(0, config.pairsCount);
 
-    const generatedCards: CardItem[] = [];
-    selectedPairs.forEach((pair) => {
-      // 히라가나 카드
-      generatedCards.push({
-        uid: `${pair.id}-hira`,
-        pairId: pair.id,
-        char: pair.hiragana,
-        type: 'hiragana',
-        romaji: pair.romaji,
-        korean: pair.korean,
-        isFlipped: false,
-        isMatched: false,
-      });
-      // 가타카나 카드
-      generatedCards.push({
-        uid: `${pair.id}-kata`,
-        pairId: pair.id,
-        char: pair.katakana,
-        type: 'katakana',
-        romaji: pair.romaji,
-        korean: pair.korean,
-        isFlipped: false,
-        isMatched: false,
-      });
-    });
+    const left: MatchCard[] = selected.map((p) => ({
+      id: `left-${p.id}`,
+      pairId: p.id,
+      char: p.hiragana,
+      type: 'hiragana' as const,
+      romaji: p.romaji,
+      korean: p.korean,
+    }));
 
-    // 카드 무작위 셔플
-    setCards(generatedCards.sort(() => Math.random() - 0.5));
-    setFlippedUids([]);
-    setMoves(0);
-    setMatches(0);
-    setIsLocked(false);
+    // 오른쪽 가타카나는 별도로 무작위 셔플
+    const right: MatchCard[] = selected
+      .map((p) => ({
+        id: `right-${p.id}`,
+        pairId: p.id,
+        char: p.katakana,
+        type: 'katakana' as const,
+        romaji: p.romaji,
+        korean: p.korean,
+      }))
+      .sort(() => Math.random() - 0.5);
+
+    setPairs(selected);
+    setLeftCards(left);
+    setRightCards(right);
+    setSelectedLeftId(null);
+    setSelectedRightId(null);
+    setMatchedPairIds([]);
+    setShakeCardIds([]);
+    setAttempts(0);
     setIsCompleted(false);
+    setLines([]);
     setGameStartTime(Date.now());
     setElapsedSeconds(0);
   }, [difficulty]);
 
-  // 최초 시작
   useEffect(() => {
     startNewGame(difficulty);
   }, [difficulty, startNewGame]);
 
-  // 타이머 작동
+  // 타이머
   useEffect(() => {
     if (!gameStartTime || isCompleted) return;
     const interval = setInterval(() => {
@@ -96,62 +120,141 @@ export default function KatakanaMatchGame({ fontStyle = 'sans' }: KatakanaMatchG
     return () => clearInterval(interval);
   }, [gameStartTime, isCompleted]);
 
-  // 카드 클릭 핸들러
-  const handleCardClick = (targetCard: CardItem) => {
-    if (isLocked) return;
-    if (targetCard.isFlipped || targetCard.isMatched) return;
-    if (flippedUids.length >= 2) return;
+  // SVG 선 좌표 계산
+  const updateLines = useCallback(() => {
+    if (!boardRef.current) return;
+    const boardRect = boardRef.current.getBoundingClientRect();
+
+    const newLines: ConnectionLine[] = [];
+    matchedPairIds.forEach((pairId) => {
+      const leftEl = leftAnchorsRef.current.get(pairId);
+      const rightEl = rightAnchorsRef.current.get(pairId);
+
+      if (leftEl && rightEl) {
+        const leftRect = leftEl.getBoundingClientRect();
+        const rightRect = rightEl.getBoundingClientRect();
+
+        newLines.push({
+          pairId,
+          x1: leftRect.left + leftRect.width / 2 - boardRect.left,
+          y1: leftRect.top + leftRect.height / 2 - boardRect.top,
+          x2: rightRect.left + rightRect.width / 2 - boardRect.left,
+          y2: rightRect.top + rightRect.height / 2 - boardRect.top,
+        });
+      }
+    });
+
+    setLines(newLines);
+  }, [matchedPairIds]);
+
+  // 창 크기 조절 및 매칭 변경 시 선 업데이트
+  useEffect(() => {
+    const frame = requestAnimationFrame(updateLines);
+    window.addEventListener('resize', updateLines);
+
+    let observer: ResizeObserver | null = null;
+    if (boardRef.current) {
+      observer = new ResizeObserver(() => {
+        updateLines();
+      });
+      observer.observe(boardRef.current);
+    }
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', updateLines);
+      if (observer) observer.disconnect();
+    };
+  }, [updateLines]);
+
+  // 왼쪽(히라가나) 카드 클릭
+  const handleLeftClick = (card: MatchCard) => {
+    if (matchedPairIds.includes(card.pairId)) return;
+    if (shakeCardIds.length > 0) return;
+
+    // 이미 선택된 상태라면 선택 해제
+    if (selectedLeftId === card.id) {
+      setSelectedLeftId(null);
+      return;
+    }
 
     // 소리 재생
-    playKatakanaAudio(targetCard.char);
+    playKatakanaAudio(card.char);
 
-    // 카드 뒤집기
-    const newFlipped = [...flippedUids, targetCard.uid];
-    setFlippedUids(newFlipped);
+    // 만약 오른쪽 가타카나가 이미 선택되어 있다면 짝 검사
+    if (selectedRightId) {
+      const rightCard = rightCards.find((c) => c.id === selectedRightId);
+      if (rightCard) {
+        setAttempts((prev) => prev + 1);
+        if (card.pairId === rightCard.pairId) {
+          // 정답!
+          const nextMatched = [...matchedPairIds, card.pairId];
+          setMatchedPairIds(nextMatched);
+          setSelectedLeftId(null);
+          setSelectedRightId(null);
 
-    setCards((prev) =>
-      prev.map((c) => (c.uid === targetCard.uid ? { ...c, isFlipped: true } : c))
-    );
-
-    // 2장이 뒤집힌 경우 판정
-    if (newFlipped.length === 2) {
-      setMoves((m) => m + 1);
-      setIsLocked(true);
-
-      const firstCard = cards.find((c) => c.uid === newFlipped[0]);
-      const secondCard = targetCard;
-
-      if (firstCard && firstCard.pairId === secondCard.pairId && firstCard.type !== secondCard.type) {
-        // 일치 성공!
-        setTimeout(() => {
-          setCards((prev) =>
-            prev.map((c) =>
-              c.pairId === firstCard.pairId ? { ...c, isMatched: true, isFlipped: true } : c
-            )
-          );
-          setFlippedUids([]);
-          setIsLocked(false);
-          setMatches((prev) => {
-            const nextMatch = prev + 1;
-            if (nextMatch === DIFFICULTY_CONFIG[difficulty].pairsCount) {
-              setIsCompleted(true);
-            }
-            return nextMatch;
-          });
-        }, 500);
-      } else {
-        // 불일치: 1초 후 다시 뒤집기
-        setTimeout(() => {
-          setCards((prev) =>
-            prev.map((c) =>
-              newFlipped.includes(c.uid) ? { ...c, isFlipped: false } : c
-            )
-          );
-          setFlippedUids([]);
-          setIsLocked(false);
-        }, 900);
+          if (nextMatched.length === DIFFICULTY_CONFIG[difficulty].pairsCount) {
+            setIsCompleted(true);
+          }
+        } else {
+          // 오답!
+          setShakeCardIds([card.id, rightCard.id]);
+          setTimeout(() => {
+            setShakeCardIds([]);
+            setSelectedLeftId(null);
+            setSelectedRightId(null);
+          }, 500);
+        }
+        return;
       }
     }
+
+    setSelectedLeftId(card.id);
+  };
+
+  // 오른쪽(가타카나) 카드 클릭
+  const handleRightClick = (card: MatchCard) => {
+    if (matchedPairIds.includes(card.pairId)) return;
+    if (shakeCardIds.length > 0) return;
+
+    // 이미 선택된 상태라면 선택 해제
+    if (selectedRightId === card.id) {
+      setSelectedRightId(null);
+      return;
+    }
+
+    // 소리 재생
+    playKatakanaAudio(card.char);
+
+    // 만약 왼쪽 히라가나가 이미 선택되어 있다면 짝 검사
+    if (selectedLeftId) {
+      const leftCard = leftCards.find((c) => c.id === selectedLeftId);
+      if (leftCard) {
+        setAttempts((prev) => prev + 1);
+        if (card.pairId === leftCard.pairId) {
+          // 정답!
+          const nextMatched = [...matchedPairIds, card.pairId];
+          setMatchedPairIds(nextMatched);
+          setSelectedLeftId(null);
+          setSelectedRightId(null);
+
+          if (nextMatched.length === DIFFICULTY_CONFIG[difficulty].pairsCount) {
+            setIsCompleted(true);
+          }
+        } else {
+          // 오답!
+          setShakeCardIds([card.id, leftCard.id]);
+          setTimeout(() => {
+            setShakeCardIds([]);
+            setSelectedLeftId(null);
+            setSelectedRightId(null);
+          }, 500);
+        }
+        return;
+      }
+    }
+
+    setSelectedRightId(card.id);
   };
 
   const currentConfig = DIFFICULTY_CONFIG[difficulty];
@@ -165,11 +268,11 @@ export default function KatakanaMatchGame({ fontStyle = 'sans' }: KatakanaMatchG
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-[#3D5A80] animate-pulse" />
               <h3 className="text-base font-black text-[#2D3748]">
-                히라가나 ⇄ 가타카나 짝맞추기 게임
+                히라가나 ⇄ 가타카나 선잇기 매칭
               </h3>
             </div>
             <p className="text-xs text-[#718096] mt-1">
-              카드를 뒤집으며 같은 소리의 히라가나와 가타카나 짝을 맞춥니다.
+              왼쪽의 히라가나와 오른쪽의 같은 소리 가타카나를 터치하여 짝을 연결해보세요.
             </p>
           </div>
 
@@ -198,21 +301,21 @@ export default function KatakanaMatchGame({ fontStyle = 'sans' }: KatakanaMatchG
           </div>
         </div>
 
-        {/* 진행 스코어보드 */}
+        {/* 진행 스코어보드 (가타카나 메인색 #3D5A80 적극 적용) */}
         <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#F2ECE4]">
-          <div className="p-2.5 rounded-2xl bg-[#FAF9F7] text-center">
-            <span className="text-[11px] text-[#718096] font-medium block">찾은 짝</span>
+          <div className="p-2.5 rounded-2xl bg-[#F0F7FF] border border-[#C5D9F2]/50 text-center">
+            <span className="text-[11px] text-[#3D5A80] font-bold block">연결한 짝</span>
             <div className="text-base font-black text-[#3D5A80] mt-0.5">
-              {matches} / {currentConfig.pairsCount}
+              {matchedPairIds.length} / {currentConfig.pairsCount}
             </div>
           </div>
-          <div className="p-2.5 rounded-2xl bg-[#FAF9F7] text-center">
-            <span className="text-[11px] text-[#718096] font-medium block">뒤집은 횟수</span>
+          <div className="p-2.5 rounded-2xl bg-[#FAF9F7] border border-[#EDE8E1] text-center">
+            <span className="text-[11px] text-[#718096] font-medium block">시도 횟수</span>
             <div className="text-base font-black text-[#2D3748] mt-0.5">
-              {moves}회
+              {attempts}회
             </div>
           </div>
-          <div className="p-2.5 rounded-2xl bg-[#FAF9F7] text-center">
+          <div className="p-2.5 rounded-2xl bg-[#FAF9F7] border border-[#EDE8E1] text-center">
             <span className="text-[11px] text-[#718096] font-medium block">소요 시간</span>
             <div className="text-base font-black text-[#3D5A80] mt-0.5">
               {elapsedSeconds}초
@@ -228,15 +331,38 @@ export default function KatakanaMatchGame({ fontStyle = 'sans' }: KatakanaMatchG
             <Trophy className="w-7 h-7" />
           </div>
           <h4 className="text-lg font-black text-[#2D3748]">
-            🎉 미션 완료! 완벽하게 짝을 맞췄어요!
+            🎉 미션 완료! 완벽하게 짝을 연결했어요!
           </h4>
           <p className="text-xs text-[#718096] mt-1.5 max-w-md mx-auto">
-            {elapsedSeconds}초 동안 {moves}번의 시도로 모든 히라가나-가타카나 쌍을 마스터했습니다.
+            {elapsedSeconds}초 동안 {attempts}번의 시도로 모든 히라가나와 가타카나 짝을 완벽히 마스터했습니다.
           </p>
-          <div className="mt-4 flex items-center justify-center gap-2">
+
+          {/* 복습용 정답 단어장 요약 */}
+          <div className="mt-4 p-3 bg-white/80 rounded-2xl border border-[#EDE8E1] max-w-lg mx-auto">
+            <span className="text-[11px] font-bold text-[#3D5A80] block mb-2">
+              📖 오늘 맞춘 글자 발음 확인
+            </span>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {pairs.map((p) => (
+                <div
+                  key={p.id}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F0F7FF] rounded-xl border border-[#C5D9F2] text-xs"
+                >
+                  <span className="font-bold text-[#E07A5F]">{p.hiragana}</span>
+                  <span className="text-[#A0AEC0] text-[10px]">⇄</span>
+                  <span className="font-bold text-[#3D5A80]">{p.katakana}</span>
+                  <span className="text-[11px] text-[#718096] font-medium ml-0.5">
+                    ({p.romaji} [{p.korean}])
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 flex items-center justify-center gap-2">
             <button
               onClick={() => startNewGame(difficulty)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>한 번 더 도전하기</span>
@@ -245,95 +371,204 @@ export default function KatakanaMatchGame({ fontStyle = 'sans' }: KatakanaMatchG
         </div>
       )}
 
-      {/* 카드 매트릭스 그리드 */}
-      <div className={`grid ${currentConfig.gridClass} gap-3 sm:gap-4`}>
-        {cards.map((card) => {
-          const isFlipped = card.isFlipped || card.isMatched;
-          const isHiragana = card.type === 'hiragana';
+      {/* ============================================================== */}
+      {/* 선잇기 플레이 보드 영역 (좌우 2열 및 중앙 SVG 연결선) */}
+      {/* ============================================================== */}
+      <div
+        ref={boardRef}
+        className="relative bg-white rounded-3xl p-4 sm:p-6 border border-[#EDE8E1] shadow-2xs select-none"
+      >
+        {/* SVG 연결선 레이어 */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible">
+          {lines.map((line) => {
+            const dx = Math.abs(line.x2 - line.x1) * 0.45;
+            const pathD = `M ${line.x1} ${line.y1} C ${line.x1 + dx} ${line.y1}, ${line.x2 - dx} ${line.y2}, ${line.x2} ${line.y2}`;
+            return (
+              <g key={line.pairId}>
+                {/* 외곽 부드러운 글로우 */}
+                <path
+                  d={pathD}
+                  fill="none"
+                  stroke="#3D5A80"
+                  strokeWidth="6"
+                  strokeOpacity="0.15"
+                  strokeLinecap="round"
+                />
+                {/* 메인 선 */}
+                <path
+                  d={pathD}
+                  fill="none"
+                  stroke="#3D5A80"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  className="transition-all duration-300"
+                />
+              </g>
+            );
+          })}
+        </svg>
 
-          return (
-            <button
-              key={card.uid}
-              onClick={() => handleCardClick(card)}
-              disabled={isFlipped || isLocked}
-              className={`aspect-square rounded-2xl sm:rounded-3xl p-2 sm:p-3 flex flex-col items-center justify-center relative transition-all duration-300 select-none ${
-                card.isMatched
-                  ? 'bg-[#EBF7EE] border-2 border-[#68D391] shadow-2xs scale-95 opacity-90'
-                  : isFlipped
-                  ? isHiragana
-                    ? 'bg-[#FFF6F1] border-2 border-[#E07A5F] shadow-md ring-2 ring-[#E07A5F]/20'
-                    : 'bg-[#F0F7FF] border-2 border-[#3D5A80] shadow-md ring-2 ring-[#3D5A80]/20'
-                  : 'bg-white border-2 border-[#EDE8E1] hover:border-[#CBD5E0] hover:shadow-xs active:scale-95'
-              }`}
-            >
-              {isFlipped ? (
-                <>
-                  {/* 카드 종류 배지 (히라가나 vs 가타카나) */}
-                  <span
-                    className={`absolute top-2 left-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold leading-none ${
-                      isHiragana
-                        ? 'bg-[#E07A5F]/15 text-[#E07A5F]'
-                        : 'bg-[#3D5A80]/15 text-[#3D5A80]'
+        {/* 컬럼 상단 헤더 */}
+        <div className="grid grid-cols-2 gap-8 sm:gap-14 mb-4">
+          <div className="flex items-center justify-center">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF6F1] border border-[#F4DDD4] text-[#E07A5F] text-[11px] font-bold shadow-2xs">
+              <span>히라가나</span>
+              <span className="text-[10px] text-[#A0AEC0] font-normal">ひらがな</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F0F7FF] border border-[#C5D9F2] text-[#3D5A80] text-[11px] font-bold shadow-2xs">
+              <span>가타카나</span>
+              <span className="text-[10px] text-[#A0AEC0] font-normal">カタカナ</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 좌우 카드 목록 그리드 (높이 완벽 균일화: h-14 sm:h-16) */}
+        <div className="grid grid-cols-2 gap-8 sm:gap-14 relative z-0">
+          {/* 왼쪽 열: 히라가나 카드들 */}
+          <div className="space-y-3">
+            {leftCards.map((card) => {
+              const isMatched = matchedPairIds.includes(card.pairId);
+              const isSelected = selectedLeftId === card.id;
+              const isShaking = shakeCardIds.includes(card.id);
+
+              return (
+                <div key={card.id} className="relative flex items-center">
+                  <button
+                    onClick={() => handleLeftClick(card)}
+                    disabled={isMatched}
+                    className={`w-full h-14 sm:h-16 rounded-2xl flex items-center justify-center transition-all duration-200 relative ${
+                      isShaking
+                        ? 'bg-red-50 border-2 border-red-400 text-red-500 animate-pulse'
+                        : isMatched
+                        ? 'bg-[#F0F7FF] border-2 border-[#3D5A80] text-[#3D5A80] shadow-2xs opacity-90 cursor-default'
+                        : isSelected
+                        ? 'bg-[#FFF6F1] border-2 border-[#E07A5F] text-[#E07A5F] shadow-sm ring-2 ring-[#E07A5F]/20 scale-[1.02]'
+                        : 'bg-white border-2 border-[#EDE8E1] hover:border-[#E07A5F]/60 text-[#2D3748] hover:shadow-xs active:scale-98'
                     }`}
                   >
-                    {isHiragana ? '히라' : '가타'}
-                  </span>
-
-                  {card.isMatched && (
-                    <span className="absolute top-2 right-2 text-[#38A169]">
-                      <CheckCircle2 className="w-4 h-4" />
+                    {/* 카드 본문: 글자만 깔끔하게 노출 (발음기호 제외!) */}
+                    <span
+                      className={`text-2xl sm:text-3xl font-bold tracking-tight transition-transform ${
+                        fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                      }`}
+                      style={{
+                        fontFamily:
+                          fontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif",
+                      }}
+                    >
+                      {card.char}
                     </span>
-                  )}
 
-                  {/* 글자 본문 */}
+                    {/* 일치 완료 체크 뱃지 */}
+                    {isMatched && (
+                      <span className="absolute top-1.5 left-2 text-[#3D5A80]">
+                        <Check className="w-3.5 h-3.5" />
+                      </span>
+                    )}
+                  </button>
+
+                  {/* 오른쪽 앵커 포인트 (선이 연결되는 점) */}
                   <div
-                    className={`text-3xl sm:text-4xl font-bold text-[#2D3748] tracking-tight my-1 transition-all ${
-                      fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
-                    }`}
-                    style={{
-                      fontFamily:
-                        fontStyle === 'serif'
-                          ? "'Noto Serif JP', 'Yu Mincho', serif"
-                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    ref={(el) => {
+                      if (el) leftAnchorsRef.current.set(card.pairId, el);
+                      else leftAnchorsRef.current.delete(card.pairId);
                     }}
+                    className={`absolute -right-2 w-3.5 h-3.5 rounded-full border-2 transition-all duration-200 z-20 pointer-events-none flex items-center justify-center ${
+                      isMatched
+                        ? 'bg-[#3D5A80] border-white ring-2 ring-[#3D5A80]/40'
+                        : isSelected
+                        ? 'bg-[#E07A5F] border-white ring-4 ring-[#E07A5F]/30 scale-125'
+                        : 'bg-[#EDE8E1] border-white'
+                    }`}
                   >
-                    {card.char}
+                    {isMatched && <span className="w-1 h-1 rounded-full bg-white" />}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 오른쪽 열: 가타카나 카드들 */}
+          <div className="space-y-3">
+            {rightCards.map((card) => {
+              const isMatched = matchedPairIds.includes(card.pairId);
+              const isSelected = selectedRightId === card.id;
+              const isShaking = shakeCardIds.includes(card.id);
+
+              return (
+                <div key={card.id} className="relative flex items-center">
+                  {/* 왼쪽 앵커 포인트 (선이 연결되는 점) */}
+                  <div
+                    ref={(el) => {
+                      if (el) rightAnchorsRef.current.set(card.pairId, el);
+                      else rightAnchorsRef.current.delete(card.pairId);
+                    }}
+                    className={`absolute -left-2 w-3.5 h-3.5 rounded-full border-2 transition-all duration-200 z-20 pointer-events-none flex items-center justify-center ${
+                      isMatched
+                        ? 'bg-[#3D5A80] border-white ring-2 ring-[#3D5A80]/40'
+                        : isSelected
+                        ? 'bg-[#3D5A80] border-white ring-4 ring-[#3D5A80]/30 scale-125'
+                        : 'bg-[#EDE8E1] border-white'
+                    }`}
+                  >
+                    {isMatched && <span className="w-1 h-1 rounded-full bg-white" />}
                   </div>
 
-                  {/* 발음 정보 */}
-                  <div className="text-center mt-0.5">
-                    <span className="text-[11px] font-bold text-[#718096]">
-                      {card.romaji}
+                  <button
+                    onClick={() => handleRightClick(card)}
+                    disabled={isMatched}
+                    className={`w-full h-14 sm:h-16 rounded-2xl flex items-center justify-center transition-all duration-200 relative ${
+                      isShaking
+                        ? 'bg-red-50 border-2 border-red-400 text-red-500 animate-pulse'
+                        : isMatched
+                        ? 'bg-[#F0F7FF] border-2 border-[#3D5A80] text-[#3D5A80] shadow-2xs opacity-90 cursor-default'
+                        : isSelected
+                        ? 'bg-[#F0F7FF] border-2 border-[#3D5A80] text-[#3D5A80] shadow-sm ring-2 ring-[#3D5A80]/20 scale-[1.02]'
+                        : 'bg-white border-2 border-[#EDE8E1] hover:border-[#3D5A80]/60 text-[#2D3748] hover:shadow-xs active:scale-98'
+                    }`}
+                  >
+                    {/* 카드 본문: 글자만 깔끔하게 노출 (발음기호 제외!) */}
+                    <span
+                      className={`text-2xl sm:text-3xl font-bold tracking-tight transition-transform ${
+                        fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                      }`}
+                      style={{
+                        fontFamily:
+                          fontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif",
+                      }}
+                    >
+                      {card.char}
                     </span>
-                    <span className="text-[10px] text-[#A0AEC0] ml-1">
-                      [{card.korean}]
-                    </span>
-                  </div>
-                </>
-              ) : (
-                /* 카드 뒷면 디자인 */
-                <div className="flex flex-col items-center justify-center gap-1.5 text-[#CBD5E0]">
-                  <div className="w-8 h-8 rounded-full bg-[#FAF9F7] flex items-center justify-center border border-[#EDE8E1]">
-                    <Sparkles className="w-4 h-4 text-[#A0AEC0]" />
-                  </div>
-                  <span className="text-[10px] font-bold text-[#A0AEC0] tracking-wider uppercase">
-                    ?
-                  </span>
+
+                    {/* 일치 완료 체크 뱃지 */}
+                    {isMatched && (
+                      <span className="absolute top-1.5 right-2 text-[#3D5A80]">
+                        <Check className="w-3.5 h-3.5" />
+                      </span>
+                    )}
+                  </button>
                 </div>
-              )}
-            </button>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* 리셋 버튼 */}
       <div className="flex justify-center pt-2">
         <button
           onClick={() => startNewGame(difficulty)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white border border-[#EDE8E1] hover:bg-[#FAF9F7] text-xs font-bold text-[#718096] hover:text-[#2D3748] transition-all shadow-2xs active:scale-95"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white border border-[#EDE8E1] hover:bg-[#FAF9F7] text-xs font-bold text-[#718096] hover:text-[#3D5A80] hover:border-[#C5D9F2] transition-all shadow-2xs active:scale-95"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          <span>카드 새로 섞기</span>
+          <span>새 문제로 다시 섞기</span>
         </button>
       </div>
     </div>
