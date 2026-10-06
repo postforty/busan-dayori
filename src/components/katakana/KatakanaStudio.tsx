@@ -18,7 +18,8 @@ import {
   ArrowDownRight,
   AlertCircle,
   HelpCircle,
-  Type
+  Type,
+  ArrowLeft
 } from 'lucide-react';
 import {
   KATAKANA_GRID,
@@ -203,79 +204,97 @@ export default function KatakanaStudio({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-xl mx-auto px-4 pt-4 pb-28 min-h-screen space-y-6">
       {/* 1. 상단 안내 헤더 & 히라가나 ⇄ 가타카나 브릿지 배너 */}
-      <div className="bg-gradient-to-r from-[#FFF6F1] via-[#FAF9F7] to-[#F0F7FF] rounded-3xl p-5 border border-[#EDE8E1] shadow-2xs">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#3D5A80] text-white font-black tracking-wider">
-                Lv.0 가타카나
-              </span>
-              <h1 className="text-lg sm:text-xl font-black text-[#2D3748] tracking-tight">
-                가타카나 마스터 스튜디오 (カタカナ)
-              </h1>
-            </div>
-            <p className="text-xs text-[#718096] leading-relaxed">
-              외래어 표기, 카페 메뉴판, 여행지 간판의 필수 문자! 헷갈리는 글자 완벽 비교와 짝맞추기 게임으로 완성해요.
-            </p>
-          </div>
+      <section className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-2xs relative overflow-hidden">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          {/* 뒤로가기 네비게이션 */}
+          <Link
+            href="/roadmap"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#718096] hover:text-[#3D5A80] bg-[#FAF9F7] hover:bg-white px-2.5 py-1.5 rounded-full border border-[#EDE8E1] hover:border-[#CBD5E0] transition-all shadow-2xs whitespace-nowrap shrink-0 active:scale-95"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-[#3D5A80] shrink-0" />
+            <span>
+              로드맵<span className="hidden sm:inline">으로 돌아가기</span>
+            </span>
+          </Link>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {/* 글꼴 전환 토글 */}
+          {/* 우측 유틸리티 & 전환 도구 */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* 전체 글꼴 토글 버튼 */}
             <button
+              type="button"
               onClick={handleToggleFontStyle}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-white border border-[#EDE8E1] hover:border-[#CBD5E0] text-xs font-bold text-[#718096] hover:text-[#2D3748] transition-all shadow-2xs active:scale-95"
-              title="글꼴 변경 (정자체 / 붓글씨체)"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold text-[#4A5568] hover:text-[#2D3748] bg-[#FAF9F7] hover:bg-white border border-[#EDE8E1] hover:border-[#CBD5E0] transition-all shadow-2xs whitespace-nowrap shrink-0 active:scale-95"
+              title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 명조체"
             >
-              <Type className="w-3.5 h-3.5 text-[#3D5A80]" />
+              <Type className="w-3.5 h-3.5 text-[#3D5A80] shrink-0" />
               <span>{fontStyle === 'sans' ? '정자체' : '명조체'}</span>
             </button>
 
-            {/* 히라가나 스튜디오 바로가기 */}
+            {/* 히라가나 스튜디오 이동 링크 */}
             <Link
               href="/hiragana"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-white border border-[#EDE8E1] hover:border-[#E07A5F] text-xs font-bold text-[#E07A5F] transition-all shadow-2xs hover:shadow-xs active:scale-95"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#FAF9F7] hover:bg-[#FFF6F1] text-[#E07A5F] rounded-full text-xs font-bold border border-[#EDE8E1] hover:border-[#FCE4D8] shadow-2xs transition-all whitespace-nowrap shrink-0 active:scale-95"
+              title="히라가나 마스터 스튜디오로 이동"
             >
-              <span>히라가나 복습</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>히라가나</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </Link>
           </div>
         </div>
-      </div>
 
-      {/* 2. 메인 스텝 네비게이션 탭 (소리 탐색 | 도플갱어 비교 | 손글씨 쓰기 | 짝맞추기 게임 | 여행 단어장) */}
-      <div className="flex items-center gap-1 p-1.5 bg-[#FAF9F7] rounded-3xl border border-[#EDE8E1] overflow-x-auto no-scrollbar shadow-inner">
-        {[
-          { id: 'sound', label: '소리 탐색', icon: Volume2 },
-          { id: 'confusing', label: '도플갱어 비교', icon: HelpCircle, badge: '필수' },
-          { id: 'write', label: '획순 쓰기', icon: PenTool },
-          { id: 'match', label: '짝맞추기 게임', icon: Gamepad2, badge: '인기' },
-          { id: 'travel', label: '여행 외래어', icon: BookOpen },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = currentStep === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setCurrentStep(tab.id as KatakanaStudioStep)}
-              className={`flex-1 min-w-[90px] py-2.5 px-2 rounded-2xl text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap relative ${
-                isActive
-                  ? 'bg-white text-[#3D5A80] shadow-2xs scale-100 ring-1 ring-[#3D5A80]/20'
-                  : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/60'
-              }`}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{tab.label}</span>
-              {tab.badge && (
-                <span className="text-[9px] px-1 py-0.2 rounded bg-[#E07A5F] text-white font-bold leading-none">
-                  {tab.badge}
+        {/* 타이틀 및 레벨 뱃지 */}
+        <div className="mb-2">
+          <div className="inline-flex items-center px-2 py-0.5 mb-1.5 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-black text-[10px] border border-[#C5D9F2] tracking-wider">
+            Lv.0 외래어
+          </div>
+          <h1 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug">
+            カタカナ マスター
+            <br />
+            <span className="text-[#3D5A80] text-lg">외래어로 쉽게 익히는 가타카나</span>
+          </h1>
+        </div>
+        <p className="text-xs text-[#718096] leading-relaxed">
+          외래어 표기, 카페 메뉴판, 여행지 간판의 필수 문자! 헷갈리는 글자 완벽 비교와 짝맞추기 게임으로 완성해요.
+        </p>
+
+        {/* 학습 모드 5단계 탭 네비게이션 (헤더 카드 내부 통합) */}
+        <div className="grid grid-cols-5 gap-1 mt-4 pt-3 border-t border-[#EDE8E1]">
+          {[
+            { id: 'sound', label: '소리 탐색', shortLabel: '소리 탐색', icon: Volume2 },
+            { id: 'confusing', label: '도플갱어 비교', shortLabel: '도플갱어', icon: HelpCircle },
+            { id: 'write', label: '획순 쓰기', shortLabel: '획순 쓰기', icon: PenTool },
+            { id: 'match', label: '짝맞추기 게임', shortLabel: '짝맞추기', icon: Gamepad2 },
+            { id: 'travel', label: '여행 외래어', shortLabel: '여행 단어', icon: BookOpen },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = currentStep === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setCurrentStep(tab.id as KatakanaStudioStep)}
+                className={`flex flex-col items-center justify-center py-2 px-0.5 rounded-2xl text-[10px] sm:text-[11px] font-bold transition-all relative group ${
+                  isActive
+                    ? 'bg-[#3D5A80] text-white shadow-xs scale-[1.02]'
+                    : 'bg-[#FAF9F7] text-[#718096] hover:bg-white hover:text-[#2D3748] border border-[#EDE8E1]'
+                }`}
+              >
+                <Icon
+                  className={`w-3.5 h-3.5 mb-0.5 shrink-0 ${
+                    isActive ? 'text-white' : 'text-[#718096] group-hover:text-[#3D5A80]'
+                  }`}
+                />
+                <span className="truncate w-full text-center px-0.5">
+                  <span className="sm:hidden">{tab.shortLabel}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {/* ============================================================== */}
       {/* STEP 1: 소리 탐색 & 가타카나 표 (청음 / 탁음 / 요음 / 외래어 특수음) */}
@@ -285,30 +304,28 @@ export default function KatakanaStudio({
           {/* 가타카나 4단계 레벨업 스위처 */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { id: 'seion', label: '청음 (46자)', desc: '기본 ア~ン', badge: '기본' },
-              { id: 'dakuon', label: '탁음·반탁음 (25자)', desc: 'ガ·ザ·ダ·バ·パ', badge: '탁음' },
-              { id: 'youon', label: '가타카나 요음 (36자)', desc: 'キャ·シュ·チョ', badge: '요음' },
-              { id: 'special', label: '외래어 특수음 (12자)', desc: 'ティ·ファ·フェ', badge: '특수음' },
+              { id: 'seion', label: '청음 46자', desc: '기본 ア~ン', badge: '기본' },
+              { id: 'dakuon', label: '탁음 25자', desc: 'ガ·ザ·ダ·バ·パ', badge: '탁음' },
+              { id: 'youon', label: '요음 36자', desc: 'キャ·シュ·チョ', badge: '요음' },
+              { id: 'special', label: '특수음 12자', desc: 'ティ·ファ·フェ', badge: '특수음' },
             ].map((tab) => {
               const isSelected = category === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleSelectCategory(tab.id as KatakanaCategory)}
-                  className={`p-3 rounded-2xl text-left border transition-all ${
-                    isSelected
+                  className={`p-3 rounded-2xl text-left border transition-all ${isSelected
                       ? 'bg-[#3D5A80] text-white border-[#3D5A80] shadow-sm'
                       : 'bg-white text-[#4A5568] border-[#EDE8E1] hover:border-[#CBD5E0] hover:bg-[#FAF9F7]'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-black">{tab.label}</span>
                     <span
-                      className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
-                        isSelected
+                      className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${isSelected
                           ? 'bg-white/20 text-white'
                           : 'bg-[#F0F4F8] text-[#3D5A80]'
-                      }`}
+                        }`}
                     >
                       {tab.badge}
                     </span>
@@ -326,11 +343,19 @@ export default function KatakanaStudio({
             <div className="flex items-center gap-6">
               {/* 대형 글자 박스 */}
               <div
-                className={`w-28 h-28 rounded-3xl bg-[#F0F7FF] border-2 border-[#3D5A80]/30 flex flex-col items-center justify-center shadow-inner relative ${
-                  fontStyle === 'serif' ? 'font-serif' : 'font-sans'
-                }`}
+                className="w-28 h-28 rounded-3xl bg-[#F0F7FF] border-2 border-[#3D5A80]/30 flex flex-col items-center justify-center shadow-inner relative"
               >
-                <span className="text-5xl font-black text-[#2D3748]">
+                <span
+                  className={`text-5xl font-bold text-[#2D3748] transition-all ${
+                    fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                  }`}
+                  style={{
+                    fontFamily:
+                      fontStyle === 'serif'
+                        ? "'Noto Serif JP', 'Yu Mincho', serif"
+                        : "'Klee One', 'Noto Sans JP', sans-serif"
+                  }}
+                >
                   {selectedChar.char}
                 </span>
                 <span className="text-xs font-bold text-[#3D5A80] mt-1">
@@ -340,7 +365,15 @@ export default function KatakanaStudio({
                 {/* 대응 히라가나 뱃지 */}
                 {selectedChar.matchingHiragana && (
                   <span
-                    className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-[#E07A5F] text-white text-[10px] font-black shadow-2xs"
+                    className={`absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-[#3D5A80] text-white text-[10px] font-black shadow-2xs ${
+                      fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                    }`}
+                    style={{
+                      fontFamily:
+                        fontStyle === 'serif'
+                          ? "'Noto Serif JP', 'Yu Mincho', serif"
+                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    }}
                     title="대응 히라가나"
                   >
                     히라: {selectedChar.matchingHiragana}
@@ -366,7 +399,7 @@ export default function KatakanaStudio({
                 )}
                 {selectedChar.soundTip && (
                   <p className="text-xs text-[#718096] max-w-md">
-                    <span className="font-bold text-[#D97706]">팁: </span>
+                    <span className="font-bold text-[#3D5A80]">팁: </span>
                     {selectedChar.soundTip}
                   </p>
                 )}
@@ -399,13 +432,13 @@ export default function KatakanaStudio({
                 {category === 'seion'
                   ? '가타카나 50음도 (청음 46자)'
                   : category === 'dakuon'
-                  ? '가타카나 탁음·반탁음 (25자)'
-                  : category === 'youon'
-                  ? '가타카나 요음 표 (36자)'
-                  : '가타카나 외래어 특수음 표'}
+                    ? '가타카나 탁음·반탁음 (25자)'
+                    : category === 'youon'
+                      ? '가타카나 요음 표 (36자)'
+                      : '가타카나 외래어 특수음 표'}
               </span>
               <span className="text-[11px] text-[#A0AEC0]">
-                클릭하면 소리와 상세 설명이 표시됩니다
+                터치하면 소리와 발음 팁이 함께 울려요
               </span>
             </div>
 
@@ -418,9 +451,8 @@ export default function KatakanaStudio({
                       {rowItem.name}
                     </span>
                     <div
-                      className={`grid gap-2 ${
-                        category === 'youon' ? 'grid-cols-3' : 'grid-cols-5'
-                      }`}
+                      className={`grid gap-2 ${category === 'youon' ? 'grid-cols-3' : 'grid-cols-5'
+                        }`}
                     >
                       {rowItem.chars.map((charObj, cIdx) => {
                         if (!charObj) {
@@ -442,23 +474,27 @@ export default function KatakanaStudio({
                               setSelectedChar(charObj);
                               handlePlaySound(charObj);
                             }}
-                            className={`aspect-square rounded-2xl p-1.5 flex flex-col items-center justify-center transition-all relative group select-none ${
-                              isSelected
+                            className={`aspect-square rounded-2xl p-1.5 flex flex-col items-center justify-center transition-all relative group select-none ${isSelected
                                 ? 'bg-[#3D5A80] text-white shadow-sm ring-2 ring-[#3D5A80]/30 scale-100'
                                 : 'bg-[#FAF9F7] text-[#2D3748] border border-[#EDE8E1] hover:border-[#3D5A80] hover:bg-white'
-                            } ${isPlaying ? 'ring-4 ring-[#E07A5F]' : ''}`}
+                              } ${isPlaying ? 'ring-4 ring-[#3D5A80]' : ''}`}
                           >
                             <span
-                              className={`text-xl sm:text-2xl font-black ${
-                                fontStyle === 'serif' ? 'font-serif' : 'font-sans'
+                              className={`text-xl sm:text-2xl font-bold transition-all ${
+                                fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
                               }`}
+                              style={{
+                                fontFamily:
+                                  fontStyle === 'serif'
+                                    ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                    : "'Klee One', 'Noto Sans JP', sans-serif"
+                              }}
                             >
                               {charObj.char}
                             </span>
                             <span
-                              className={`text-[10px] font-medium leading-none mt-1 ${
-                                isSelected ? 'text-white/80' : 'text-[#718096]'
-                              }`}
+                              className={`text-[10px] font-medium leading-none mt-1 ${isSelected ? 'text-white/80' : 'text-[#718096]'
+                                }`}
                             >
                               {charObj.romaji}
                             </span>
@@ -487,11 +523,10 @@ export default function KatakanaStudio({
                 <button
                   key={pair.id}
                   onClick={() => setSelectedPair(pair)}
-                  className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border ${
-                    isSelected
-                      ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
+                  className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border ${isSelected
+                      ? 'bg-[#3D5A80] text-white border-[#3D5A80] shadow-sm'
                       : 'bg-white text-[#718096] border-[#EDE8E1] hover:border-[#CBD5E0]'
-                  }`}
+                    }`}
                 >
                   {pair.title}
                 </button>
@@ -503,12 +538,12 @@ export default function KatakanaStudio({
           <div className="bg-white rounded-3xl p-6 border border-[#EDE8E1] shadow-2xs space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-[#E07A5F]" />
+                <AlertCircle className="w-5 h-5 text-[#3D5A80]" />
                 <h3 className="text-base font-black text-[#2D3748]">
                   {selectedPair.title}
                 </h3>
               </div>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold border border-[#C5D9F2]">
                 완벽 구분 비법
               </span>
             </div>
@@ -520,7 +555,17 @@ export default function KatakanaStudio({
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-black text-[#2D3748]">
+                      <span
+                        className={`text-5xl font-bold text-[#2D3748] transition-all ${
+                          fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                        }`}
+                        style={{
+                          fontFamily:
+                            fontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
                         {selectedPair.char1.char}
                       </span>
                       <span className="text-base font-bold text-[#3D5A80]">
@@ -542,7 +587,7 @@ export default function KatakanaStudio({
 
                 <div className="space-y-2 text-xs">
                   <div className="p-3 rounded-2xl bg-white border border-[#EDE8E1]">
-                    <span className="text-[11px] font-bold text-[#E07A5F] block mb-1">
+                    <span className="text-[11px] font-bold text-[#3D5A80] block mb-1">
                       획의 궤적 & 방향
                     </span>
                     <p className="text-[#2D3748] font-medium leading-relaxed">
@@ -561,14 +606,24 @@ export default function KatakanaStudio({
               </div>
 
               {/* 오른쪽 글자 */}
-              <div className="bg-[#FAF9F7] rounded-3xl p-5 border border-[#EDE8E1] space-y-4 hover:border-[#E07A5F] transition-all">
+              <div className="bg-[#FAF9F7] rounded-3xl p-5 border border-[#EDE8E1] space-y-4 hover:border-[#3D5A80] transition-all">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-black text-[#2D3748]">
+                      <span
+                        className={`text-5xl font-bold text-[#2D3748] transition-all ${
+                          fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                        }`}
+                        style={{
+                          fontFamily:
+                            fontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
                         {selectedPair.char2.char}
                       </span>
-                      <span className="text-base font-bold text-[#E07A5F]">
+                      <span className="text-base font-bold text-[#3D5A80]">
                         {selectedPair.char2.romaji}
                       </span>
                       <span className="text-sm text-[#718096]">
@@ -578,7 +633,7 @@ export default function KatakanaStudio({
                   </div>
                   <button
                     onClick={() => playKatakanaAudio(selectedPair.char2.char)}
-                    className="p-2.5 rounded-2xl bg-white border border-[#EDE8E1] text-[#E07A5F] hover:bg-[#FFF6F1] transition-all shadow-2xs active:scale-95"
+                    className="p-2.5 rounded-2xl bg-white border border-[#EDE8E1] text-[#3D5A80] hover:bg-[#F0F7FF] transition-all shadow-2xs active:scale-95"
                     title="소리 듣기"
                   >
                     <Volume2 className="w-4 h-4" />
@@ -587,7 +642,7 @@ export default function KatakanaStudio({
 
                 <div className="space-y-2 text-xs">
                   <div className="p-3 rounded-2xl bg-white border border-[#EDE8E1]">
-                    <span className="text-[11px] font-bold text-[#E07A5F] block mb-1">
+                    <span className="text-[11px] font-bold text-[#3D5A80] block mb-1">
                       획의 궤적 & 방향
                     </span>
                     <p className="text-[#2D3748] font-medium leading-relaxed">
@@ -607,10 +662,10 @@ export default function KatakanaStudio({
             </div>
 
             {/* 핵심 총정리 팁 */}
-            <div className="p-4 rounded-2xl bg-[#FFF6F1] border border-[#FCE4D8] flex items-start gap-2.5">
-              <Sparkles className="w-4 h-4 text-[#E07A5F] shrink-0 mt-0.5" />
-              <p className="text-xs text-[#A84A33] font-medium leading-relaxed">
-                <span className="font-bold text-[#C45B40]">핵심 꿀팁: </span>
+            <div className="p-4 rounded-2xl bg-[#F0F7FF] border border-[#C5D9F2] flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-[#3D5A80] shrink-0 mt-0.5" />
+              <p className="text-xs text-[#2B3E58] font-medium leading-relaxed">
+                <span className="font-bold text-[#3D5A80]">핵심 꿀팁: </span>
                 {selectedPair.tip}
               </p>
             </div>
@@ -628,7 +683,17 @@ export default function KatakanaStudio({
               <div>
                 <h3 className="text-base font-black text-[#2D3748] flex items-center gap-2">
                   <span>캔버스 손글씨 쓰기 연습</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold">
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold ${
+                      fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                    }`}
+                    style={{
+                      fontFamily:
+                        fontStyle === 'serif'
+                          ? "'Noto Serif JP', 'Yu Mincho', serif"
+                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    }}
+                  >
                     {selectedChar.char} ({selectedChar.romaji})
                   </span>
                 </h3>
@@ -667,9 +732,15 @@ export default function KatakanaStudio({
 
                 {/* 점선 가이드 글자 */}
                 <div
-                  className={`absolute inset-0 flex items-center justify-center pointer-events-none select-none text-[200px] sm:text-[240px] font-black text-[#CBD5E0]/40 leading-none ${
-                    fontStyle === 'serif' ? 'font-serif' : 'font-sans'
+                  className={`absolute inset-0 flex items-center justify-center pointer-events-none select-none text-[200px] sm:text-[240px] font-bold text-[#CBD5E0]/40 leading-none ${
+                    fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
                   }`}
+                  style={{
+                    fontFamily:
+                      fontStyle === 'serif'
+                        ? "'Noto Serif JP', 'Yu Mincho', serif"
+                        : "'Klee One', 'Noto Sans JP', sans-serif"
+                  }}
                 >
                   {selectedChar.char}
                 </div>
@@ -710,7 +781,7 @@ export default function KatakanaStudio({
       {/* ============================================================== */}
       {currentStep === 'match' && (
         <div className="animate-in fade-in duration-200">
-          <KatakanaMatchGame />
+          <KatakanaMatchGame fontStyle={fontStyle} />
         </div>
       )}
 
@@ -719,7 +790,7 @@ export default function KatakanaStudio({
       {/* ============================================================== */}
       {currentStep === 'travel' && (
         <div className="animate-in fade-in duration-200">
-          <TravelKatakanaWords />
+          <TravelKatakanaWords fontStyle={fontStyle} />
         </div>
       )}
     </div>

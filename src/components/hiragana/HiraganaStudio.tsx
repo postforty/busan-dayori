@@ -475,57 +475,53 @@ export default function HiraganaStudio({
       {/* 1. 상단 인트로 헤더 */}
       <section className="bg-gradient-to-br from-[#FFF9F2] via-[#FAF0E6] to-[#F5EBE1] rounded-3xl p-5 border border-[#F4DDD4] shadow-xs relative overflow-hidden">
         <div className="flex items-center justify-between gap-2 mb-3">
+          {/* 뒤로가기 네비게이션 */}
           <Link
             href="/roadmap"
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#E07A5F] hover:text-[#C55D42] bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-[#F4DDD4] transition-colors whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#718096] hover:text-[#E07A5F] bg-white/90 hover:bg-white px-2.5 py-1.5 rounded-full border border-[#EDE8E1] hover:border-[#F4DDD4] transition-all shadow-2xs whitespace-nowrap shrink-0 active:scale-95"
           >
-            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+            <ArrowLeft className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
             <span>
               로드맵<span className="hidden sm:inline">으로 돌아가기</span>
             </span>
           </Link>
 
+          {/* 우측 유틸리티 & 전환 도구 */}
           <div className="flex items-center gap-1.5 shrink-0">
             {/* 전체 글꼴 토글 버튼 */}
             <button
               type="button"
               onClick={handleToggleFontStyle}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all border shadow-2xs whitespace-nowrap shrink-0 ${fontStyle === 'serif'
-                ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
-                : 'bg-white/90 hover:bg-white text-[#4A5568] border-[#EDE8E1] font-sans'
-                }`}
-              title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 흘림체(명조)"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold text-[#4A5568] hover:text-[#2D3748] bg-white/90 hover:bg-white border border-[#EDE8E1] hover:border-[#CBD5E0] transition-all shadow-2xs whitespace-nowrap shrink-0 active:scale-95"
+              title="글꼴 변경: 또박또박한 정자체(고딕) ⇄ 붓글씨 느낌 명조체"
             >
-              <Type className="w-3 h-3 text-[#E07A5F] shrink-0" />
-              <span>
-                {fontStyle === 'serif' ? '흘림' : '정자'}
-              </span>
+              <Type className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+              <span>{fontStyle === 'serif' ? '명조체' : '정자체'}</span>
             </button>
 
             {/* 가타카나 스튜디오 이동 링크 */}
             <Link
               href="/katakana"
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-[#F0F7FF] text-[#3D5A80] rounded-full text-[11px] font-bold border border-[#C5D9F2] shadow-2xs transition-all whitespace-nowrap shrink-0 active:scale-95"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white/90 hover:bg-[#F0F7FF] text-[#3D5A80] rounded-full text-xs font-bold border border-[#EDE8E1] hover:border-[#C5D9F2] shadow-2xs transition-all whitespace-nowrap shrink-0 active:scale-95"
               title="가타카나 마스터 스튜디오로 이동"
             >
               <span>가타카나</span>
-              <ArrowRight className="w-3 h-3 shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </Link>
-
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-black border border-amber-300 shadow-2xs whitespace-nowrap shrink-0">
-              <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
-              <span>
-                Lv.0 입문<span className="hidden sm:inline"> 스튜디오</span>
-              </span>
-            </div>
           </div>
         </div>
 
-        <h1 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug mb-1">
-          ひらがな マスター
-          <br />
-          <span className="text-[#E07A5F] text-lg">소리로 듣고 손으로 익히는 히라가나</span>
-        </h1>
+        {/* 타이틀 및 레벨 뱃지 */}
+        <div className="mb-2">
+          <div className="inline-flex items-center px-2 py-0.5 mb-1.5 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-black text-[10px] border border-[#FCE4D8] tracking-wider">
+            Lv.0 입문
+          </div>
+          <h1 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug">
+            ひらがな マスター
+            <br />
+            <span className="text-[#E07A5F] text-lg">소리로 듣고 손으로 익히는 히라가나</span>
+          </h1>
+        </div>
         <p className="text-xs text-[#718096] leading-relaxed">
           일본어의 첫 단추! 50음도 소리 탐색부터 획순 손글씨 연습, 플래시 암기 카드, 실생활 미니 단어 읽기까지 차근차근 마스터해요.
         </p>
@@ -569,61 +565,52 @@ export default function HiraganaStudio({
               })}
             </div>
 
-            {/* 1-2. 히라가나 3단계 레벨업 스위처 (청음 ➔ 탁음 ➔ 요음) */}
+            {/* 1-2. 히라가나 발음 분류 스위처 (청음 ⇄ 탁음 ⇄ 요음) */}
             <div className={`flex items-center p-1 bg-white/70 backdrop-blur-xs rounded-2xl border border-[#F4DDD4] transition-all min-w-0 overflow-hidden ${
               currentStep === 'dialogue' ? 'opacity-40 pointer-events-none' : ''
             }`}>
-              {/* Lv 1: 청음 */}
+              {/* 청음 */}
               <button
                 type="button"
                 onClick={() => handleSelectCategory('seion')}
-                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 ${
+                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[11px] sm:text-xs font-bold sm:font-black transition-all flex items-center justify-center ${
                   category === 'seion' && currentStep !== 'dialogue'
                     ? 'bg-[#E07A5F] text-white shadow-xs'
                     : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
                 }`}
               >
-                <span className={`text-[9px] px-1 py-0.2 rounded font-black shrink-0 ${
-                  category === 'seion' && currentStep !== 'dialogue' ? 'bg-white/25 text-white' : 'bg-stone-200/80 text-[#718096]'
-                }`}>Lv1</span>
                 <span className="truncate min-w-0">
                   <span className="sm:hidden">청음</span>
                   <span className="hidden sm:inline">청음 46자</span>
                 </span>
               </button>
 
-              {/* Lv 2: 탁음/반탁음 */}
+              {/* 탁음/반탁음 */}
               <button
                 type="button"
                 onClick={() => handleSelectCategory('dakuon')}
-                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 ${
+                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[11px] sm:text-xs font-bold sm:font-black transition-all flex items-center justify-center ${
                   category === 'dakuon' && currentStep !== 'dialogue'
                     ? 'bg-[#E07A5F] text-white shadow-xs'
                     : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
                 }`}
               >
-                <span className={`text-[9px] px-1 py-0.2 rounded font-black shrink-0 ${
-                  category === 'dakuon' && currentStep !== 'dialogue' ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-800'
-                }`}>Lv2</span>
                 <span className="truncate min-w-0">
                   <span className="sm:hidden">탁음</span>
                   <span className="hidden sm:inline">탁음 25자</span>
                 </span>
               </button>
 
-              {/* Lv 3: 요음 */}
+              {/* 요음 */}
               <button
                 type="button"
                 onClick={() => handleSelectCategory('youon')}
-                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 ${
+                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[11px] sm:text-xs font-bold sm:font-black transition-all flex items-center justify-center ${
                   category === 'youon' && currentStep !== 'dialogue'
                     ? 'bg-[#E07A5F] text-white shadow-xs'
                     : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
                 }`}
               >
-                <span className={`text-[9px] px-1 py-0.2 rounded font-black shrink-0 ${
-                  category === 'youon' && currentStep !== 'dialogue' ? 'bg-white/25 text-white' : 'bg-rose-100 text-rose-800'
-                }`}>Lv3</span>
                 <span className="truncate min-w-0">
                   <span className="sm:hidden">요음</span>
                   <span className="hidden sm:inline">요음 36자</span>

@@ -35,7 +35,11 @@ const CATEGORY_TABS: { id: CategoryFilter; label: string; icon: React.FC<{ class
   { id: 'travel', label: '교통·호텔', icon: Compass },
 ];
 
-export default function TravelKatakanaWords() {
+interface TravelKatakanaWordsProps {
+  fontStyle?: 'sans' | 'serif';
+}
+
+export default function TravelKatakanaWords({ fontStyle = 'sans' }: TravelKatakanaWordsProps = {}) {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('all');
   const [activeWordId, setActiveWordId] = useState<string | null>(null);
@@ -103,7 +107,7 @@ export default function TravelKatakanaWords() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#E07A5F] animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#3D5A80] animate-pulse" />
               <h3 className="text-base font-black text-[#2D3748]">
                 여행 실전 외래어 단어장 ({KATAKANA_TRAVEL_WORDS.length}선)
               </h3>
@@ -119,7 +123,7 @@ export default function TravelKatakanaWords() {
               onClick={() => setViewMode('grid')}
               className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl font-bold transition-all ${
                 viewMode === 'grid'
-                  ? 'bg-white text-[#E07A5F] shadow-2xs'
+                  ? 'bg-white text-[#3D5A80] shadow-2xs'
                   : 'text-[#718096] hover:text-[#2D3748]'
               }`}
             >
@@ -130,7 +134,7 @@ export default function TravelKatakanaWords() {
               onClick={() => setViewMode('flashcard')}
               className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl font-bold transition-all ${
                 viewMode === 'flashcard'
-                  ? 'bg-white text-[#E07A5F] shadow-2xs'
+                  ? 'bg-white text-[#3D5A80] shadow-2xs'
                   : 'text-[#718096] hover:text-[#2D3748]'
               }`}
             >
@@ -144,14 +148,14 @@ export default function TravelKatakanaWords() {
         <div className="pt-2 border-t border-[#F2ECE4]">
           <div className="flex items-center justify-between text-xs mb-1.5">
             <span className="font-bold text-[#718096]">외래어 정복률</span>
-            <span className="font-black text-[#E07A5F]">
+            <span className="font-black text-[#3D5A80]">
               {memorizedIds.size} / {KATAKANA_TRAVEL_WORDS.length} 단어 (
               {Math.round((memorizedIds.size / KATAKANA_TRAVEL_WORDS.length) * 100)}%)
             </span>
           </div>
           <div className="w-full h-2 rounded-full bg-[#FAF9F7] overflow-hidden border border-[#EDE8E1]">
             <div
-              className="h-full bg-gradient-to-r from-[#E07A5F] to-[#E29578] rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-[#3D5A80] to-[#5B84B1] rounded-full transition-all duration-500"
               style={{
                 width: `${(memorizedIds.size / KATAKANA_TRAVEL_WORDS.length) * 100}%`
               }}
@@ -170,7 +174,7 @@ export default function TravelKatakanaWords() {
                 onClick={() => setSelectedCategory(tab.id)}
                 className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                   isSelected
-                    ? 'bg-[#E07A5F] text-white shadow-2xs'
+                    ? 'bg-[#3D5A80] text-white shadow-2xs'
                     : 'bg-[#FAF9F7] text-[#718096] hover:bg-[#F2ECE4] border border-[#EDE8E1]'
                 }`}
               >
@@ -199,7 +203,7 @@ export default function TravelKatakanaWords() {
                 className={`bg-white rounded-3xl p-4 border transition-all cursor-pointer relative group ${
                   isDone
                     ? 'border-[#C6F6D5] bg-[#F7FCF9]/60'
-                    : 'border-[#EDE8E1] hover:border-[#E07A5F] hover:shadow-xs'
+                    : 'border-[#EDE8E1] hover:border-[#3D5A80] hover:shadow-xs'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -209,7 +213,17 @@ export default function TravelKatakanaWords() {
                     </div>
                     <div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-xl font-black text-[#2D3748] tracking-tight">
+                        <span
+                          className={`text-xl font-bold text-[#2D3748] tracking-tight transition-all ${
+                            fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                          }`}
+                          style={{
+                            fontFamily:
+                              fontStyle === 'serif'
+                                ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                : "'Klee One', 'Noto Sans JP', sans-serif"
+                          }}
+                        >
                           {word.japanese}
                         </span>
                         <button
@@ -217,14 +231,14 @@ export default function TravelKatakanaWords() {
                             e.stopPropagation();
                             playKatakanaAudio(word.japanese);
                           }}
-                          className="p-1 rounded-full text-[#718096] hover:text-[#E07A5F] hover:bg-[#FFF6F1] transition-all"
+                          className="p-1 rounded-full text-[#718096] hover:text-[#3D5A80] hover:bg-[#F0F7FF] transition-all"
                           title="소리 듣기"
                         >
                           <Volume2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs mt-0.5">
-                        <span className="font-bold text-[#E07A5F]">
+                        <span className="font-bold text-[#3D5A80]">
                           {word.koreanMeaning}
                         </span>
                         <span className="text-[11px] text-[#A0AEC0]">
@@ -269,7 +283,7 @@ export default function TravelKatakanaWords() {
             }}
             className={`w-full min-h-[300px] rounded-3xl p-6 border-2 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 relative select-none ${
               isFlipped
-                ? 'bg-[#FFF6F1] border-[#E07A5F] shadow-sm'
+                ? 'bg-[#F0F7FF] border-[#3D5A80] shadow-sm'
                 : 'bg-white border-[#EDE8E1] hover:border-[#CBD5E0] shadow-2xs'
             }`}
           >
@@ -294,7 +308,17 @@ export default function TravelKatakanaWords() {
               /* 카드 앞면 (일본어 단어 + 이모지) */
               <div className="space-y-4">
                 <div className="text-6xl">{currentFlashcard.emoji}</div>
-                <div className="text-4xl sm:text-5xl font-black text-[#2D3748] tracking-tight">
+                <div
+                  className={`text-4xl sm:text-5xl font-bold text-[#2D3748] tracking-tight transition-all ${
+                    fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                  }`}
+                  style={{
+                    fontFamily:
+                      fontStyle === 'serif'
+                        ? "'Noto Serif JP', 'Yu Mincho', serif"
+                        : "'Klee One', 'Noto Sans JP', sans-serif"
+                  }}
+                >
                   {currentFlashcard.japanese}
                 </div>
                 <button
@@ -302,7 +326,7 @@ export default function TravelKatakanaWords() {
                     e.stopPropagation();
                     playKatakanaAudio(currentFlashcard.japanese);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FAF9F7] border border-[#EDE8E1] text-xs font-bold text-[#718096] hover:text-[#E07A5F]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FAF9F7] border border-[#EDE8E1] text-xs font-bold text-[#718096] hover:text-[#3D5A80]"
                 >
                   <Volume2 className="w-4 h-4" />
                   <span>소리 듣기</span>
@@ -314,13 +338,13 @@ export default function TravelKatakanaWords() {
             ) : (
               /* 카드 뒷면 (한국어 뜻 + 여행 팁) */
               <div className="space-y-4">
-                <div className="text-3xl font-black text-[#E07A5F]">
+                <div className="text-3xl font-black text-[#3D5A80]">
                   {currentFlashcard.koreanMeaning}
                 </div>
                 <div className="text-base font-bold text-[#718096]">
                   [{currentFlashcard.koreanPronunciation}]
                 </div>
-                <div className="bg-white/80 rounded-2xl p-3 border border-[#F4DDD4] text-left text-xs text-[#4A5568] leading-relaxed flex items-start gap-2">
+                <div className="bg-white/80 rounded-2xl p-3 border border-[#C5D9F2] text-left text-xs text-[#4A5568] leading-relaxed flex items-start gap-2">
                   <Lightbulb className="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold text-[#2D3748] block mb-0.5">여행 실전 팁</span>
@@ -345,7 +369,7 @@ export default function TravelKatakanaWords() {
                 setIsFlipped(!isFlipped);
                 if (!isFlipped) playKatakanaAudio(currentFlashcard.japanese);
               }}
-              className="flex-1 py-3 rounded-2xl bg-[#FFF6F1] border border-[#FCE4D8] text-xs font-bold text-[#E07A5F] flex items-center justify-center gap-1 shadow-2xs active:scale-95"
+              className="flex-1 py-3 rounded-2xl bg-[#F0F7FF] border border-[#C5D9F2] text-xs font-bold text-[#3D5A80] flex items-center justify-center gap-1 shadow-2xs active:scale-95"
             >
               <RotateCcw className="w-4 h-4" />
               <span>뒤집기</span>

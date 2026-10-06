@@ -23,7 +23,11 @@ const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; pairsCount: number;
   hard: { label: '고급 (8쌍)', pairsCount: 8, gridClass: 'grid-cols-4', badge: '👑 마스터' }
 };
 
-export default function KatakanaMatchGame() {
+interface KatakanaMatchGameProps {
+  fontStyle?: 'sans' | 'serif';
+}
+
+export default function KatakanaMatchGame({ fontStyle = 'sans' }: KatakanaMatchGameProps = {}) {
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [cards, setCards] = useState<CardItem[]>([]);
   const [flippedUids, setFlippedUids] = useState<string[]>([]);
@@ -159,13 +163,13 @@ export default function KatakanaMatchGame() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#E07A5F] animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#3D5A80] animate-pulse" />
               <h3 className="text-base font-black text-[#2D3748]">
                 히라가나 ⇄ 가타카나 짝맞추기 게임
               </h3>
             </div>
             <p className="text-xs text-[#718096] mt-1">
-              카드를 뒤집어 소리가 같은 히라가나와 가타카나의 짝을 찾아보세요!
+              카드를 뒤집으며 같은 소리의 히라가나와 가타카나 짝을 맞춥니다.
             </p>
           </div>
 
@@ -183,7 +187,7 @@ export default function KatakanaMatchGame() {
                   }}
                   className={`text-xs px-3 py-1.5 rounded-xl font-bold transition-all ${
                     isSelected
-                      ? 'bg-white text-[#E07A5F] shadow-2xs scale-100'
+                      ? 'bg-white text-[#3D5A80] shadow-2xs scale-100'
                       : 'text-[#718096] hover:text-[#2D3748]'
                   }`}
                 >
@@ -198,7 +202,7 @@ export default function KatakanaMatchGame() {
         <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#F2ECE4]">
           <div className="p-2.5 rounded-2xl bg-[#FAF9F7] text-center">
             <span className="text-[11px] text-[#718096] font-medium block">찾은 짝</span>
-            <div className="text-base font-black text-[#E07A5F] mt-0.5">
+            <div className="text-base font-black text-[#3D5A80] mt-0.5">
               {matches} / {currentConfig.pairsCount}
             </div>
           </div>
@@ -219,8 +223,8 @@ export default function KatakanaMatchGame() {
 
       {/* 완료 축하 배너 */}
       {isCompleted && (
-        <div className="bg-gradient-to-r from-[#FFF6F1] via-[#FAF0E6] to-[#FFF6F1] border-2 border-[#E07A5F]/30 rounded-3xl p-6 text-center shadow-xs animate-in fade-in zoom-in-95 duration-300">
-          <div className="w-14 h-14 rounded-full bg-[#E07A5F]/15 flex items-center justify-center text-[#E07A5F] mx-auto mb-3 shadow-inner">
+        <div className="bg-gradient-to-r from-[#F0F7FF] via-[#FAF9F7] to-[#F0F7FF] border-2 border-[#3D5A80]/30 rounded-3xl p-6 text-center shadow-xs animate-in fade-in zoom-in-95 duration-300">
+          <div className="w-14 h-14 rounded-full bg-[#3D5A80]/15 flex items-center justify-center text-[#3D5A80] mx-auto mb-3 shadow-inner">
             <Trophy className="w-7 h-7" />
           </div>
           <h4 className="text-lg font-black text-[#2D3748]">
@@ -232,7 +236,7 @@ export default function KatakanaMatchGame() {
           <div className="mt-4 flex items-center justify-center gap-2">
             <button
               onClick={() => startNewGame(difficulty)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#E07A5F] hover:bg-[#C8654B] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white text-xs font-bold transition-all shadow-sm active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>한 번 더 도전하기</span>
@@ -282,7 +286,17 @@ export default function KatakanaMatchGame() {
                   )}
 
                   {/* 글자 본문 */}
-                  <div className="text-3xl sm:text-4xl font-black text-[#2D3748] tracking-tight my-1">
+                  <div
+                    className={`text-3xl sm:text-4xl font-bold text-[#2D3748] tracking-tight my-1 transition-all ${
+                      fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                    }`}
+                    style={{
+                      fontFamily:
+                        fontStyle === 'serif'
+                          ? "'Noto Serif JP', 'Yu Mincho', serif"
+                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    }}
+                  >
                     {card.char}
                   </div>
 

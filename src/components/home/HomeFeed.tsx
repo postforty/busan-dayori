@@ -19,7 +19,8 @@ import {
   Compass,
   ArrowRight,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Languages
 } from 'lucide-react';
 
 interface HomeFeedProps {
@@ -192,7 +193,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
                   <div className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors flex items-center gap-1.5 flex-wrap">
                     <span>히라가나 마스터</span>
                     <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
-                      Lv.0 입문
+                      입문
                     </span>
                   </div>
                   <p className="text-[11px] text-[#A0AEC0] truncate">소리·획순·단어 107자</p>
@@ -210,7 +211,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-[#F0F7FF] border border-[#C5D9F2] flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4 text-[#3D5A80]" />
+                  <Languages className="w-4 h-4 text-[#3D5A80]" />
                 </div>
                 <div className="text-left min-w-0">
                   <div className="text-xs font-black text-[#2D3748] group-hover:text-[#3D5A80] transition-colors flex items-center gap-1.5 flex-wrap">
