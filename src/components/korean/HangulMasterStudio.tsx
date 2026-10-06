@@ -56,7 +56,7 @@ export default function HangulMasterStudio() {
     );
   }, []);
 
-  // --- Step 2: 손글씨 캔버스 쓰기 상태 (히라가나 스튜디오 동등 엔진) ---
+  // --- Step 2: 손글씨 캔버스 쓰기 상태 (히라가나 마스터 동등 엔진) ---
   const [writingTargetType, setWritingTargetType] = useState<'consonant' | 'vowel'>('consonant');
   const [writingConsonant, setWritingConsonant] = useState<HangulConsonant>(HANGUL_CONSONANTS[0]);
   const [writingVowel, setWritingVowel] = useState<HangulVowel>(HANGUL_VOWELS[0]);

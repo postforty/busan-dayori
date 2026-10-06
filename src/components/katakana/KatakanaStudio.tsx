@@ -232,11 +232,11 @@ export default function KatakanaStudio({
               <span>{fontStyle === 'sans' ? '정자체' : '명조체'}</span>
             </button>
 
-            {/* 히라가나 스튜디오 이동 링크 */}
+            {/* 히라가나 마스터 이동 링크 */}
             <Link
               href="/hiragana"
               className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#FAF9F7] hover:bg-[#FFF6F1] text-[#E07A5F] rounded-full text-xs font-bold border border-[#EDE8E1] hover:border-[#FCE4D8] shadow-2xs transition-all whitespace-nowrap shrink-0 active:scale-95"
-              title="히라가나 마스터 스튜디오로 이동"
+              title="히라가나 마스터로 이동"
             >
               <span>히라가나</span>
               <ArrowRight className="w-3.5 h-3.5 shrink-0" />
@@ -523,12 +523,12 @@ export default function KatakanaStudio({
                 <button
                   key={pair.id}
                   onClick={() => setSelectedPair(pair)}
-                  className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border ${isSelected
+                  className={`px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all border shrink-0 ${isSelected
                       ? 'bg-[#3D5A80] text-white border-[#3D5A80] shadow-sm'
                       : 'bg-white text-[#718096] border-[#EDE8E1] hover:border-[#CBD5E0]'
                     }`}
                 >
-                  {pair.title}
+                  {pair.shortTitle || pair.title}
                 </button>
               );
             })}
@@ -536,15 +536,15 @@ export default function KatakanaStudio({
 
           {/* 도플갱어 1:1 대조 보드 */}
           <div className="bg-white rounded-3xl p-6 border border-[#EDE8E1] shadow-2xs space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-[#3D5A80]" />
-                <h3 className="text-base font-black text-[#2D3748]">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <AlertCircle className="w-5 h-5 text-[#3D5A80] shrink-0" />
+                <h3 className="text-base font-black text-[#2D3748] break-keep">
                   {selectedPair.title}
                 </h3>
               </div>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold border border-[#C5D9F2]">
-                완벽 구분 비법
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold border border-[#C5D9F2] shrink-0 whitespace-nowrap">
+                구분 비법
               </span>
             </div>
 

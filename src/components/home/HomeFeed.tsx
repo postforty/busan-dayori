@@ -179,7 +179,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
             </p>
           </div>
 
-          {/* 문자 학습 스튜디오 CTA (히라가나 & 가타카나) */}
+          {/* 문자 학습 CTA (히라가나 & 가타카나) */}
           <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Link
               href="/hiragana"

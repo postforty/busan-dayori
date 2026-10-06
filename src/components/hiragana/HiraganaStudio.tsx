@@ -499,11 +499,11 @@ export default function HiraganaStudio({
               <span>{fontStyle === 'serif' ? '명조체' : '정자체'}</span>
             </button>
 
-            {/* 가타카나 스튜디오 이동 링크 */}
+            {/* 가타카나 마스터 이동 링크 */}
             <Link
               href="/katakana"
               className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white/90 hover:bg-[#F0F7FF] text-[#3D5A80] rounded-full text-xs font-bold border border-[#EDE8E1] hover:border-[#C5D9F2] shadow-2xs transition-all whitespace-nowrap shrink-0 active:scale-95"
-              title="가타카나 마스터 스튜디오로 이동"
+              title="가타카나 마스터로 이동"
             >
               <span>가타카나</span>
               <ArrowRight className="w-3.5 h-3.5 shrink-0" />

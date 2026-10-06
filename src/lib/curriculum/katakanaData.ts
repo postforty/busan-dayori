@@ -25,6 +25,7 @@ export interface KatakanaRow {
 export interface ConfusingKatakanaPair {
   id: string;
   title: string;
+  shortTitle?: string;
   char1: {
     char: string;
     romaji: string;
@@ -405,7 +406,8 @@ export const ALL_KATAKANA_CHARS: KatakanaChar[] = [
 export const CONFUSING_KATAKANA_PAIRS: ConfusingKatakanaPair[] = [
   {
     id: 'shi-vs-tsu',
-    title: '시(シ) vs 츠(ツ) 완벽 구별법',
+    title: '시(シ) vs 츠(ツ)',
+    shortTitle: '시(シ) vs 츠(ツ)',
     char1: {
       char: 'シ',
       romaji: 'shi',
@@ -426,7 +428,8 @@ export const CONFUSING_KATAKANA_PAIRS: ConfusingKatakanaPair[] = [
   },
   {
     id: 'so-vs-n',
-    title: '소(ソ) vs 응(ン) 각도 판별법',
+    title: '소(ソ) vs 응(ン)',
+    shortTitle: '소(ソ) vs 응(ン)',
     char1: {
       char: 'ソ',
       romaji: 'so',
@@ -447,7 +450,8 @@ export const CONFUSING_KATAKANA_PAIRS: ConfusingKatakanaPair[] = [
   },
   {
     id: 'a-vs-ma',
-    title: '아(ア) vs 마(マ) 꺾임 구분',
+    title: '아(ア) vs 마(マ)',
+    shortTitle: '아(ア) vs 마(マ)',
     char1: {
       char: 'ア',
       romaji: 'a',
@@ -468,7 +472,8 @@ export const CONFUSING_KATAKANA_PAIRS: ConfusingKatakanaPair[] = [
   },
   {
     id: 'nu-vs-su',
-    title: '누(ヌ) vs 스(ス) 꼬리 판별',
+    title: '누(ヌ) vs 스(ス)',
+    shortTitle: '누(ヌ) vs 스(ス)',
     char1: {
       char: 'ヌ',
       romaji: 'nu',

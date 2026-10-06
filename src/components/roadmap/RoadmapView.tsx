@@ -122,26 +122,26 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                 <h2 className="text-base font-black text-[#2D3748] mb-1">
                   {lvl.title}
                 </h2>
-                <p className="text-xs font-medium text-[#4A5568] leading-relaxed">
+                <p className="text-xs font-medium text-[#4A5568] leading-relaxed break-keep">
                   {lvl.subTitle}
                 </p>
 
-                <div className="mt-2.5 inline-flex items-center gap-1.5 text-[10px] font-semibold text-[#718096] bg-white/70 px-2.5 py-1 rounded-lg border border-white/60">
-                  <Target className="w-3 h-3 text-[#718096] shrink-0" />
-                  <span>대상:</span>
-                  <span>{lvl.targetAudience}</span>
+                <div className="mt-2.5 flex items-start gap-1.5 text-[10px] font-semibold text-[#718096] bg-white/70 px-2.5 py-1.5 rounded-lg border border-white/60 w-fit max-w-full">
+                  <Target className="w-3.5 h-3.5 text-[#718096] shrink-0 mt-0.5" />
+                  <span className="shrink-0 whitespace-nowrap">대상:</span>
+                  <span className="break-keep leading-relaxed text-[#4A5568]">{lvl.targetAudience}</span>
                 </div>
 
-                {/* Lv.0 전용: 히라가나 & 가타카나 스튜디오 바로가기 배너 */}
+                {/* Lv.0 전용: 히라가나 & 가타카나 바로가기 배너 */}
                 {isStarter && (
                   <div className="mt-3 space-y-2">
                     <div className="p-3 rounded-2xl bg-[#FFF6F1] border border-[#FCE4D8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 min-w-0">
                         <span className="text-[11px] font-black text-[#C45B40] flex items-center gap-1">
-                          <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
-                          히라가나 마스터 스튜디오
+                          <Sparkles className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+                          히라가나 마스터
                         </span>
-                        <p className="text-[11px] text-[#A84A33]">
+                        <p className="text-[11px] text-[#A84A33] break-keep leading-relaxed">
                           50음도 소리 탐색부터 캔버스 손글씨 쓰기, 플래시 암기 카드, 미니 단어 읽기까지
                         </p>
                       </div>
@@ -155,12 +155,12 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                     </div>
 
                     <div className="p-3 rounded-2xl bg-[#F0F7FF] border border-[#C5D9F2] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                      <div className="space-y-0.5">
+                      <div className="space-y-0.5 min-w-0">
                         <span className="text-[11px] font-black text-[#2B3E58] flex items-center gap-1">
-                          <Sparkles className="w-3.5 h-3.5 text-[#3D5A80]" />
-                          가타카나 마스터 스튜디오
+                          <Sparkles className="w-3.5 h-3.5 text-[#3D5A80] shrink-0" />
+                          가타카나 마스터
                         </span>
-                        <p className="text-[11px] text-[#4A6B82]">
+                        <p className="text-[11px] text-[#4A6B82] break-keep leading-relaxed">
                           헷갈리는 글자(シ/ツ, ソ/ン) 집중 비교, 짝맞추기 게임, 여행 실전 외래어 단어장
                         </p>
                       </div>

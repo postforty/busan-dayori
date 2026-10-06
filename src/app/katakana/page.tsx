@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import KatakanaStudio from '@/components/katakana/KatakanaStudio';
 
 export const metadata = {
-  title: '가타카나 마스터 스튜디오 | 釜山だより',
+  title: '가타카나 마스터 | 釜山だより',
   description: '소리 탐색, 도플갱어(シ/ツ, ソ/ン) 집중 비교, 획순 손글씨 쓰기, 히라가나⇄가타카나 짝맞추기 게임, 여행 실전 외래어로 완성하는 가타카나 입문 코스'
 };
 

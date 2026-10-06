@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import HiraganaStudio from '@/components/hiragana/HiraganaStudio';
 
 export const metadata = {
-  title: '히라가나 마스터 스튜디오 | 釜山だより',
+  title: '히라가나 마스터 | 釜山だより',
   description: '소리 탐색, 획순 손글씨 쓰기, 플래시 암기 카드, 실생활 미니 단어, 첫 발화 챌린지로 완성하는 히라가나 입문 코스'
 };
 
