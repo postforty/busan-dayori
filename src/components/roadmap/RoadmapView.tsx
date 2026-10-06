@@ -132,25 +132,46 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                   <span>{lvl.targetAudience}</span>
                 </div>
 
-                {/* Lv.0 전용: 히라가나 인터랙티브 스튜디오 바로가기 배너 */}
+                {/* Lv.0 전용: 히라가나 & 가타카나 스튜디오 바로가기 배너 */}
                 {isStarter && (
-                  <div className="mt-3 p-3 rounded-2xl bg-[#FFF6F1] border border-[#FCE4D8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                    <div className="space-y-0.5">
-                      <span className="text-[11px] font-black text-[#C45B40] flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
-                        히라가나 마스터 스튜디오 오픈!
-                      </span>
-                      <p className="text-[11px] text-[#A84A33]">
-                        50음도 소리 탐색부터 캔버스 손글씨 쓰기, 플래시 암기 카드, 미니 단어 읽기까지
-                      </p>
+                  <div className="mt-3 space-y-2">
+                    <div className="p-3 rounded-2xl bg-[#FFF6F1] border border-[#FCE4D8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                      <div className="space-y-0.5">
+                        <span className="text-[11px] font-black text-[#C45B40] flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
+                          히라가나 마스터 스튜디오
+                        </span>
+                        <p className="text-[11px] text-[#A84A33]">
+                          50음도 소리 탐색부터 캔버스 손글씨 쓰기, 플래시 암기 카드, 미니 단어 읽기까지
+                        </p>
+                      </div>
+                      <Link
+                        href="/hiragana"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-bold transition-all shrink-0 shadow-2xs"
+                      >
+                        <span>히라가나 입장</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
                     </div>
-                    <Link
-                      href="/hiragana"
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-bold transition-all shrink-0 shadow-2xs"
-                    >
-                      <span>스튜디오 입장</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </Link>
+
+                    <div className="p-3 rounded-2xl bg-[#F0F7FF] border border-[#C5D9F2] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                      <div className="space-y-0.5">
+                        <span className="text-[11px] font-black text-[#2B3E58] flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5 text-[#3D5A80]" />
+                          가타카나 마스터 스튜디오
+                        </span>
+                        <p className="text-[11px] text-[#4A6B82]">
+                          헷갈리는 글자(シ/ツ, ソ/ン) 집중 비교, 짝맞추기 게임, 여행 실전 외래어 단어장
+                        </p>
+                      </div>
+                      <Link
+                        href="/katakana"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white text-xs font-bold transition-all shrink-0 shadow-2xs"
+                      >
+                        <span>가타카나 입장</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>

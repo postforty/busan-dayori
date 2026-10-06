@@ -502,6 +502,16 @@ export default function HiraganaStudio({
               </span>
             </button>
 
+            {/* 가타카나 스튜디오 이동 링크 */}
+            <Link
+              href="/katakana"
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-[#F0F7FF] text-[#3D5A80] rounded-full text-[11px] font-bold border border-[#C5D9F2] shadow-2xs transition-all whitespace-nowrap shrink-0 active:scale-95"
+              title="가타카나 마스터 스튜디오로 이동"
+            >
+              <span>가타카나</span>
+              <ArrowRight className="w-3 h-3 shrink-0" />
+            </Link>
+
             <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full text-[11px] font-black border border-amber-300 shadow-2xs whitespace-nowrap shrink-0">
               <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
               <span>

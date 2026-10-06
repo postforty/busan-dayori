@@ -178,11 +178,11 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
             </p>
           </div>
 
-          {/* 히라가나 스튜디오 단일 메인 CTA (제안 A) */}
-          <div className="pt-1">
+          {/* 문자 학습 스튜디오 CTA (히라가나 & 가타카나) */}
+          <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Link
               href="/hiragana"
-              className="flex items-center justify-between gap-2 w-full p-3 rounded-2xl bg-white border border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs transition-all group"
+              className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-white border border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs transition-all group"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
@@ -190,15 +190,40 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
                 </div>
                 <div className="text-left min-w-0">
                   <div className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors flex items-center gap-1.5 flex-wrap">
-                    <span>히라가나 마스터 스튜디오</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
+                    <span>히라가나 마스터</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
                       Lv.0 입문
                     </span>
                   </div>
+                  <p className="text-[11px] text-[#A0AEC0] truncate">소리·획순·단어 107자</p>
                 </div>
               </div>
               <div className="flex items-center gap-0.5 text-xs font-bold text-[#E07A5F] shrink-0">
-                <span>시작하기</span>
+                <span>학습</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </Link>
+
+            <Link
+              href="/katakana"
+              className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-white border border-[#D0E1F9] hover:border-[#3D5A80] shadow-2xs hover:shadow-xs transition-all group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-[#F0F7FF] border border-[#C5D9F2] flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-[#3D5A80]" />
+                </div>
+                <div className="text-left min-w-0">
+                  <div className="text-xs font-black text-[#2D3748] group-hover:text-[#3D5A80] transition-colors flex items-center gap-1.5 flex-wrap">
+                    <span>가타카나 마스터</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold border border-[#C5D9F2]">
+                      외래어
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#A0AEC0] truncate">도플갱어 비교·짝맞추기</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-0.5 text-xs font-bold text-[#3D5A80] shrink-0">
+                <span>학습</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
