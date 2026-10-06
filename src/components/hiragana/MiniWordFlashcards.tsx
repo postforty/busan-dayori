@@ -390,7 +390,8 @@ export default function MiniWordFlashcards({
   // ✨ 외운 단어 복습
   const handleReviewKnown = () => {
     stopJapaneseSpeech();
-    const targetWords = MINI_WORDS.filter((w) => knownWordIds.has(w.id));
+    const baseList = selectedCategory === 'global_all' ? MINI_WORDS : currentBaseWords;
+    const targetWords = baseList.filter((w) => knownWordIds.has(w.id));
     if (targetWords.length === 0) return;
 
     setCardDeck(targetWords);
@@ -402,7 +403,8 @@ export default function MiniWordFlashcards({
   // ⚡ 헷갈린 단어 복습 (누적 헷갈린 단어 전체 또는 현재 덱)
   const handleReviewConfused = () => {
     stopJapaneseSpeech();
-    const targetWords = MINI_WORDS.filter((w) => confusedWordIds.has(w.id));
+    const baseList = selectedCategory === 'global_all' ? MINI_WORDS : currentBaseWords;
+    const targetWords = baseList.filter((w) => confusedWordIds.has(w.id));
     if (targetWords.length === 0) return;
 
     setCardDeck(targetWords);
@@ -425,9 +427,19 @@ export default function MiniWordFlashcards({
   // 세션 재시작 (현재 카테고리 첫 카드부터)
   const handleRestartSession = () => {
     stopJapaneseSpeech();
-    const original = selectedCategory === 'all'
-      ? [...MINI_WORDS]
-      : MINI_WORDS.filter((w) => w.category === selectedCategory);
+    let original: MiniWord[];
+    if (selectedCategory === 'all') {
+      original = currentBaseWords;
+    } else if (selectedCategory === 'global_all') {
+      original = currentBaseWords;
+      setSelectedCategory('all');
+    } else {
+      original = currentBaseWords.filter((w) => w.category === selectedCategory);
+      if (original.length === 0) {
+        original = currentBaseWords;
+        setSelectedCategory('all');
+      }
+    }
     setCardDeck(original);
     setCurrentIndex(0);
     setIsFlipped(false);
@@ -470,7 +482,7 @@ export default function MiniWordFlashcards({
     setKnownWordIds(new Set());
     setConfusedWordIds(new Set());
     setSelectedCategory('all');
-    setCardDeck([...MINI_WORDS]);
+    setCardDeck(currentBaseWords);
     setCurrentIndex(0);
     setIsFlipped(false);
     setIsSessionFinished(false);
@@ -486,10 +498,11 @@ export default function MiniWordFlashcards({
   };
 
   // 모달 대상 단어 목록
+  const baseListForModal = selectedCategory === 'global_all' ? MINI_WORDS : currentBaseWords;
   const modalWords = activeBadgeModal === 'known'
-    ? MINI_WORDS.filter((w) => knownWordIds.has(w.id))
+    ? baseListForModal.filter((w) => knownWordIds.has(w.id))
     : activeBadgeModal === 'confused'
-      ? MINI_WORDS.filter((w) => confusedWordIds.has(w.id))
+      ? baseListForModal.filter((w) => confusedWordIds.has(w.id))
       : [];
 
   // 모달에서 단어 복습 시작
