@@ -7,8 +7,10 @@ export interface HiraganaChar {
   strokeCount: number;
   strokeGuide?: string; // 획순 팁
   soundTip?: string; // 한국인 발음 팁
-  baseChar?: string; // 탁점/반탁점의 원래 청음 글자 (예: が의 baseChar는 か)
-  soundType?: 'seion' | 'dakuon' | 'handakuon'; // 청음, 탁음, 반탁음
+  baseChar?: string; // 탁점/반탁점의 원래 청음 글자 (예: が의 baseChar는 か) 또는 요음의 앞글자 (きゃ의 baseChar는 き)
+  smallChar?: string; // 요음의 작은 글자 (ゃ, ゅ, ょ)
+  separateSound?: string; // 2박자 분리 발음 (예: "き・や [키-야]")
+  soundType?: 'seion' | 'dakuon' | 'handakuon' | 'youon'; // 청음, 탁음, 반탁음, 요음
 }
 
 export interface HiraganaRow {
@@ -23,7 +25,7 @@ export interface MiniWord {
   koreanMeaning: string;
   emoji: string;
   category: string;
-  wordType?: 'seion' | 'dakuon'; // 청음(기본) vs 탁음 단어
+  wordType?: 'seion' | 'dakuon' | 'youon'; // 청음(기본) vs 탁음 vs 요음 단어
 }
 
 export interface ConfusingPair {
@@ -213,10 +215,116 @@ export const ALL_DAKUON_CHARS: HiraganaChar[] = DAKUON_GRID.flatMap((r) =>
   r.chars.filter(Boolean) as HiraganaChar[]
 );
 
-// 전체 히라가나 71자 (청음 46 + 탁음/반탁음 25)
+// 요음(拗音) 36자 (12행 × 3컬럼: ゃ, ゅ, ょ)
+export const YOUON_GRID: HiraganaRow[] = [
+  {
+    name: 'きゃ행 (kya / kyu / kyo)',
+    chars: [
+      { char: 'きゃ', romaji: 'kya', koreanSound: '캬', row: 'きゃ', colIndex: 0, strokeCount: 7, strokeGuide: 'き 4획 ①②③④ ➔ 오른쪽 아래 작은 ゃ 3획 ⑤⑥⑦', soundTip: 'き(키)와 や(야)를 한 박자로 빠르게 연결해 [캬]로 발음합니다.', baseChar: 'き', smallChar: 'ゃ', separateSound: 'き・や (키-야)', soundType: 'youon' },
+      { char: 'きゅ', romaji: 'kyu', koreanSound: '큐', row: 'きゃ', colIndex: 1, strokeCount: 6, strokeGuide: 'き 4획 ①②③④ ➔ 오른쪽 아래 작은 ゅ 2획 ⑤⑥', soundTip: 'き 입모양에서 입술을 모으며 [큐]로 1박자에 소리냅니다.', baseChar: 'き', smallChar: 'ゅ', separateSound: 'き・ゆ (키-유)', soundType: 'youon' },
+      { char: 'きょ', romaji: 'kyo', koreanSound: '쿄', row: 'きゃ', colIndex: 2, strokeCount: 6, strokeGuide: 'き 4획 ①②③④ ➔ 오른쪽 아래 작은 ょ 2획 ⑤⑥', soundTip: '입을 둥글게 모으며 [쿄] 소리를 1박자에 냅니다.', baseChar: 'き', smallChar: 'ょ', separateSound: 'き・よ (키-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'しゃ행 (sha / shu / sho)',
+    chars: [
+      { char: 'しゃ', romaji: 'sha', koreanSound: '샤', row: 'しゃ', colIndex: 0, strokeCount: 4, strokeGuide: 'し 1획 ① ➔ 오른쪽 아래 작은 ゃ 3획 ②③④', soundTip: '한국어 [샤]와 동일하게 입술을 살짝 내밀며 [sha] 소리를 냅니다.', baseChar: 'し', smallChar: 'ゃ', separateSound: 'し・や (시-야)', soundType: 'youon' },
+      { char: 'しゅ', romaji: 'shu', koreanSound: '슈', row: 'しゃ', colIndex: 1, strokeCount: 3, strokeGuide: 'し 1획 ① ➔ 오른쪽 아래 작은 ゅ 2획 ②③', soundTip: '입술을 둥글게 모으며 부드럽게 [슈] 소리를 냅니다.', baseChar: 'し', smallChar: 'ゅ', separateSound: 'し・ゆ (시-유)', soundType: 'youon' },
+      { char: 'しょ', romaji: 'sho', koreanSound: '쇼', row: 'しゃ', colIndex: 2, strokeCount: 3, strokeGuide: 'し 1획 ① ➔ 오른쪽 아래 작은 ょ 2획 ②③', soundTip: '자연스럽게 [쇼] 소리를 냅니다. (사진: しゃしん, 식당: しょくどう)', baseChar: 'し', smallChar: 'ょ', separateSound: 'し・よ (시-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'ちゃ행 (cha / chu / cho)',
+    chars: [
+      { char: 'ちゃ', romaji: 'cha', koreanSound: '차', row: 'ちゃ', colIndex: 0, strokeCount: 5, strokeGuide: 'ち 2획 ①② ➔ 오른쪽 아래 작은 ゃ 3획 ③④⑤', soundTip: '한국어 [차]와 유사하게 혀를 댔다 떼며 [cha] 소리를 냅니다.', baseChar: 'ち', smallChar: 'ゃ', separateSound: 'ち・や (치-야)', soundType: 'youon' },
+      { char: 'ちゅ', romaji: 'chu', koreanSound: '추', row: 'ちゃ', colIndex: 1, strokeCount: 4, strokeGuide: 'ち 2획 ①② ➔ 오른쪽 아래 작은 ゅ 2획 ③④', soundTip: '입술을 모아 [추] 소리를 냅니다.', baseChar: 'ち', smallChar: 'ゅ', separateSound: 'ち・ゆ (치-유)', soundType: 'youon' },
+      { char: 'ちょ', romaji: 'cho', koreanSound: '초', row: 'ちゃ', colIndex: 2, strokeCount: 4, strokeGuide: 'ち 2획 ①② ➔ 오른쪽 아래 작은 ょ 2획 ③④', soundTip: '가볍게 [초] 소리를 냅니다. (잠깐만: ちょっと)', baseChar: 'ち', smallChar: 'ょ', separateSound: 'ち・よ (치-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'にゃ행 (nya / nyu / nyo)',
+    chars: [
+      { char: 'にゃ', romaji: 'nya', koreanSound: '냐', row: 'にゃ', colIndex: 0, strokeCount: 6, strokeGuide: 'に 3획 ①②③ ➔ 오른쪽 아래 작은 ゃ 3획 ④⑤⑥', soundTip: '고양이 울음소리처럼 콧소리를 섞어 [냐] 소리를 냅니다.', baseChar: 'に', smallChar: 'ゃ', separateSound: 'に・や (니-야)', soundType: 'youon' },
+      { char: 'にゅ', romaji: 'nyu', koreanSound: '뉴', row: 'にゃ', colIndex: 1, strokeCount: 5, strokeGuide: 'に 3획 ①②③ ➔ 오른쪽 아래 작은 ゅ 2획 ④⑤', soundTip: '코로 울리며 [뉴] 소리를 냅니다. (우유: ぎゅうにゅう)', baseChar: 'に', smallChar: 'ゅ', separateSound: 'に・ゆ (니-유)', soundType: 'youon' },
+      { char: 'にょ', romaji: 'nyo', koreanSound: '뇨', row: 'にゃ', colIndex: 2, strokeCount: 5, strokeGuide: 'に 3획 ①②③ ➔ 오른쪽 아래 작은 ょ 2획 ④⑤', soundTip: '입을 모으며 [뇨] 소리를 냅니다.', baseChar: 'に', smallChar: 'ょ', separateSound: 'に・よ (니-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'ひゃ행 (hya / hyu / hyo)',
+    chars: [
+      { char: 'ひゃ', romaji: 'hya', koreanSound: '햐', row: 'ひゃ', colIndex: 0, strokeCount: 4, strokeGuide: 'ひ 1획 ① ➔ 오른쪽 아래 작은 ゃ 3획 ②③④', soundTip: '입천장에 입김을 스치며 [햐] 소리를 냅니다. (100: ひゃく)', baseChar: 'ひ', smallChar: 'ゃ', separateSound: 'ひ・や (히-야)', soundType: 'youon' },
+      { char: 'ひゅ', romaji: 'hyu', koreanSound: '휴', row: 'ひゃ', colIndex: 1, strokeCount: 3, strokeGuide: 'ひ 1획 ① ➔ 오른쪽 아래 작은 ゅ 2획 ②③', soundTip: '입술을 모으며 바람을 불듯 [휴] 소리를 냅니다.', baseChar: 'ひ', smallChar: 'ゅ', separateSound: 'ひ・ゆ (히-유)', soundType: 'youon' },
+      { char: 'ひょ', romaji: 'hyo', koreanSound: '효', row: 'ひゃ', colIndex: 2, strokeCount: 3, strokeGuide: 'ひ 1획 ① ➔ 오른쪽 아래 작은 ょ 2획 ②③', soundTip: '입을 오므려 [효] 소리를 냅니다. (표/차트: ひょう)', baseChar: 'ひ', smallChar: 'ょ', separateSound: 'ひ・よ (히-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'みゃ행 (mya / myu / myo)',
+    chars: [
+      { char: 'みゃ', romaji: 'mya', koreanSound: '먀', row: 'みゃ', colIndex: 0, strokeCount: 5, strokeGuide: 'み 2획 ①② ➔ 오른쪽 아래 작은 ゃ 3획 ③④⑤', soundTip: '입술을 닫았다 떼며 [먀] 소리를 냅니다. (맥박: みゃく)', baseChar: 'み', smallChar: 'ゃ', separateSound: 'み・や (미-야)', soundType: 'youon' },
+      { char: 'みゅ', romaji: 'myu', koreanSound: '뮤', row: 'みゃ', colIndex: 1, strokeCount: 4, strokeGuide: 'み 2획 ①② ➔ 오른쪽 아래 작은 ゅ 2획 ③④', soundTip: '입술을 모으며 [뮤] 소리를 냅니다. (뮤직, 뮤지엄)', baseChar: 'み', smallChar: 'ゅ', separateSound: 'み・ゆ (미-유)', soundType: 'youon' },
+      { char: 'みょ', romaji: 'myo', koreanSound: '묘', row: 'みゃ', colIndex: 2, strokeCount: 4, strokeGuide: 'み 2획 ①② ➔ 오른쪽 아래 작은 ょ 2획 ③④', soundTip: '입을 모으며 [묘] 소리를 냅니다. (성씨: みょうじ)', baseChar: 'み', smallChar: 'ょ', separateSound: 'み・よ (미-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'りゃ행 (rya / ryu / ryo)',
+    chars: [
+      { char: 'りゃ', romaji: 'rya', koreanSound: '랴', row: 'りゃ', colIndex: 0, strokeCount: 5, strokeGuide: 'り 2획 ①② ➔ 오른쪽 아래 작은 ゃ 3획 ③④⑤', soundTip: '혀끝을 입천장에 가볍게 튕기며 [랴] 소리를 냅니다.', baseChar: 'り', smallChar: 'ゃ', separateSound: 'り・や (리-야)', soundType: 'youon' },
+      { char: 'りゅ', romaji: 'ryu', koreanSound: '류', row: 'りゃ', colIndex: 1, strokeCount: 4, strokeGuide: 'り 2획 ①② ➔ 오른쪽 아래 작은 ゅ 2획 ③④', soundTip: '혀끝을 튕기며 입술을 모아 [류] 소리를 냅니다. (용: りゅう)', baseChar: 'り', smallChar: 'ゅ', separateSound: 'り・ゆ (리-유)', soundType: 'youon' },
+      { char: 'りょ', romaji: 'ryo', koreanSound: '료', row: 'りゃ', colIndex: 2, strokeCount: 4, strokeGuide: 'り 2획 ①② ➔ 오른쪽 아래 작은 ょ 2획 ③④', soundTip: '부드럽게 [료] 소리를 냅니다. (여행: りょこう, 요리: りょうり)', baseChar: 'り', smallChar: 'ょ', separateSound: 'り・よ (리-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'ぎゃ행 (gya / gyu / gyo - 탁음)',
+    chars: [
+      { char: 'ぎゃ', romaji: 'gya', koreanSound: '갸', row: 'ぎゃ', colIndex: 0, strokeCount: 9, strokeGuide: 'ぎ 6획 ①②③④⑤⑥ ➔ 오른쪽 아래 작은 ゃ 3획 ⑦⑧⑨', soundTip: '목을 울리며 굵직하게 [갸] 소리를 냅니다. (반대: ぎゃく)', baseChar: 'ぎ', smallChar: 'ゃ', separateSound: 'ぎ・や (기-야)', soundType: 'youon' },
+      { char: 'ぎゅ', romaji: 'gyu', koreanSound: '규', row: 'ぎゃ', colIndex: 1, strokeCount: 8, strokeGuide: 'ぎ 6획 ①②③④⑤⑥ ➔ 오른쪽 아래 작은 ゅ 2획 ⑦⑧', soundTip: '목을 울리며 입술을 모아 [규] 소리를 냅니다. (소고기: ぎゅうにく)', baseChar: 'ぎ', smallChar: 'ゅ', separateSound: 'ぎ・ゆ (기-유)', soundType: 'youon' },
+      { char: 'ぎょ', romaji: 'gyo', koreanSound: '교', row: 'ぎゃ', colIndex: 2, strokeCount: 8, strokeGuide: 'ぎ 6획 ①②③④⑤⑥ ➔ 오른쪽 아래 작은 ょ 2획 ⑦⑧', soundTip: '울림을 주며 [교] 소리를 냅니다. (교자/만두: ぎょうざ)', baseChar: 'ぎ', smallChar: 'ょ', separateSound: 'ぎ・よ (기-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'じゃ행 (ja / ju / jo - 탁음)',
+    chars: [
+      { char: 'じゃ', romaji: 'ja', koreanSound: '자', row: 'じゃ', colIndex: 0, strokeCount: 6, strokeGuide: 'じ 3획 ①②③ ➔ 오른쪽 아래 작은 ゃ 3획 ④⑤⑥', soundTip: '한국어 [자]보다 부드럽게 [ja] 소리를 냅니다. (실례합니다: おじゃまします)', baseChar: 'じ', smallChar: 'ゃ', separateSound: 'じ・や (지-야)', soundType: 'youon' },
+      { char: 'じゅ', romaji: 'ju', koreanSound: '주', row: 'じゃ', colIndex: 1, strokeCount: 5, strokeGuide: 'じ 3획 ①②③ ➔ 오른쪽 아래 작은 ゅ 2획 ④⑤', soundTip: '부드럽게 [ju] 소리를 냅니다. (숫자 10: じゅう, 주소: じゅうしょ)', baseChar: 'じ', smallChar: 'ゅ', separateSound: 'じ・ゆ (지-유)', soundType: 'youon' },
+      { char: 'じょ', romaji: 'jo', koreanSound: '조', row: 'じゃ', colIndex: 2, strokeCount: 5, strokeGuide: 'じ 3획 ①②③ ➔ 오른쪽 아래 작은 ょ 2획 ④⑤', soundTip: '부드럽게 [jo] 소리를 냅니다. (능숙함: じょうず)', baseChar: 'じ', smallChar: 'ょ', separateSound: 'じ・よ (지-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'ぢゃ행 (ja / ju / jo - だ행 탁음)',
+    chars: [
+      { char: 'ぢゃ', romaji: 'ja', koreanSound: '자', row: 'ぢゃ', colIndex: 0, strokeCount: 7, strokeGuide: 'ぢ 4획 ①②③④ ➔ 오른쪽 아래 작은 ゃ 3획 ⑤⑥⑦', soundTip: '현대 일본어에서는 じゃ(ja)와 발음이 100% 동일합니다.', baseChar: 'ぢ', smallChar: 'ゃ', separateSound: 'ぢ・や (지-야)', soundType: 'youon' },
+      { char: 'ぢゅ', romaji: 'ju', koreanSound: '주', row: 'ぢゃ', colIndex: 1, strokeCount: 6, strokeGuide: 'ぢ 4획 ①②③④ ➔ 오른쪽 아래 작은 ゅ 2획 ⑤⑥', soundTip: '현대 일본어에서는 じゅ(ju)와 발음이 100% 동일합니다.', baseChar: 'ぢ', smallChar: 'ゅ', separateSound: 'ぢ・ゆ (지-유)', soundType: 'youon' },
+      { char: 'ぢょ', romaji: 'jo', koreanSound: '조', row: 'ぢゃ', colIndex: 2, strokeCount: 6, strokeGuide: 'ぢ 4획 ①②③④ ➔ 오른쪽 아래 작은 ょ 2획 ⑤⑥', soundTip: '현대 일본어에서는 じょ(jo)와 발음이 100% 동일합니다.', baseChar: 'ぢ', smallChar: 'ょ', separateSound: 'ぢ・よ (지-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'びゃ행 (bya / byu / byo - 탁음)',
+    chars: [
+      { char: 'びゃ', romaji: 'bya', koreanSound: '뱌', row: 'びゃ', colIndex: 0, strokeCount: 6, strokeGuide: 'び 3획 ①②③ ➔ 오른쪽 아래 작은 ゃ 3획 ④⑤⑥', soundTip: '입술을 붙였다 떼며 울리는 [뱌] 소리를 냅니다. (300: さんびゃく)', baseChar: 'び', smallChar: 'ゃ', separateSound: 'び・や (비-야)', soundType: 'youon' },
+      { char: 'びゅ', romaji: 'byu', koreanSound: '뷰', row: 'びゃ', colIndex: 1, strokeCount: 5, strokeGuide: 'び 3획 ①②③ ➔ 오른쪽 아래 작은 ゅ 2획 ④⑤', soundTip: '입술을 모으며 [뷰] 소리를 냅니다.', baseChar: 'び', smallChar: 'ゅ', separateSound: 'び・ゆ (비-유)', soundType: 'youon' },
+      { char: 'びょ', romaji: 'byo', koreanSound: '뵤', row: 'びゃ', colIndex: 2, strokeCount: 5, strokeGuide: 'び 3획 ①②③ ➔ 오른쪽 아래 작은 ょ 2획 ④⑤', soundTip: '울림을 주며 [뵤] 소리를 냅니다. (병원: びょういん)', baseChar: 'び', smallChar: 'ょ', separateSound: 'び・よ (비-요)', soundType: 'youon' },
+    ]
+  },
+  {
+    name: 'ぴゃ행 (pya / pyu / pyo - 반탁음)',
+    chars: [
+      { char: 'ぴゃ', romaji: 'pya', koreanSound: '퍄', row: 'ぴゃ', colIndex: 0, strokeCount: 5, strokeGuide: 'ぴ 2획 ①② ➔ 오른쪽 아래 작은 ゃ 3획 ③④⑤', soundTip: '양 입술을 터뜨리며 강하게 [퍄] 소리를 냅니다. (600: ろっぴゃく)', baseChar: 'ぴ', smallChar: 'ゃ', separateSound: 'ぴ・や (피-야)', soundType: 'youon' },
+      { char: 'ぴゅ', romaji: 'pyu', koreanSound: '퓨', row: 'ぴゃ', colIndex: 1, strokeCount: 4, strokeGuide: 'ぴ 2획 ①② ➔ 오른쪽 아래 작은 ゅ 2획 ③④', soundTip: '입술을 튕기며 [퓨] 소리를 냅니다.', baseChar: 'ぴ', smallChar: 'ゅ', separateSound: 'ぴ・ゆ (피-유)', soundType: 'youon' },
+      { char: 'ぴょ', romaji: 'pyo', koreanSound: '표', row: 'ぴゃ', colIndex: 2, strokeCount: 4, strokeGuide: 'ぴ 2획 ①② ➔ 오른쪽 아래 작은 ょ 2획 ③④', soundTip: '귀엽게 톡 튀기듯 [표] 소리를 냅니다. (깡충깡충: ぴょんぴょん)', baseChar: 'ぴ', smallChar: 'ょ', separateSound: 'ぴ・よ (피-요)', soundType: 'youon' },
+    ]
+  }
+];
+
+// 요음 36자 목록
+export const ALL_YOUON_CHARS: HiraganaChar[] = YOUON_GRID.flatMap((r) =>
+  r.chars.filter(Boolean) as HiraganaChar[]
+);
+
+// 전체 히라가나 107자 (청음 46 + 탁음/반탁음 25 + 요음 36)
 export const COMBINED_HIRAGANA_CHARS: HiraganaChar[] = [
   ...ALL_SEION_CHARS,
-  ...ALL_DAKUON_CHARS
+  ...ALL_DAKUON_CHARS,
+  ...ALL_YOUON_CHARS
 ];
 
 export interface DakuonTransformRule {
@@ -280,6 +388,46 @@ export const DAKUON_TRANSFORM_RULES: DakuonTransformRule[] = [
     changeFormula: 'H ➔ P (반탁음)',
     examplePair: { seion: 'は', dakuon: 'ぱ', seionSound: 'ha', dakuonSound: 'pa' },
     description: 'は행에 작은 동그라미(゜)가 붙어 팡 터지는 귀여운 P 소리로 바뀝니다.'
+  }
+];
+
+export interface YouonTransformRule {
+  id: string;
+  name: string;
+  smallChar: string; // ゃ, ゅ, ょ
+  vowelSound: string; // a, u, o
+  changeFormula: string;
+  examplePair: { base: string; small: string; youon: string; separateSound: string; youonSound: string };
+  description: string;
+}
+
+export const YOUON_TRANSFORM_RULES: YouonTransformRule[] = [
+  {
+    id: 'ya-rule',
+    name: '작은 ゃ (-ya)',
+    smallChar: 'ゃ',
+    vowelSound: 'a',
+    changeFormula: 'i단 + ゃ ➔ [ya]',
+    examplePair: { base: 'き', small: 'ゃ', youon: 'きゃ', separateSound: 'ki・ya (키-야)', youonSound: 'kya (캬)' },
+    description: '앞 글자의 자음에 [ya] 모음이 합쳐져 1박자로 소리 납니다. (예: き+ゃ ➔ きゃ 캬)'
+  },
+  {
+    id: 'yu-rule',
+    name: '작은 ゅ (-yu)',
+    smallChar: 'ゅ',
+    vowelSound: 'u',
+    changeFormula: 'i단 + ゅ ➔ [yu]',
+    examplePair: { base: 'き', small: 'ゅ', youon: 'きゅ', separateSound: 'ki・yu (키-유)', youonSound: 'kyu (큐)' },
+    description: '앞 글자의 자음에 [yu] 모음이 합쳐져 입술을 모으며 1박자로 발음합니다. (예: き+ゅ ➔ きゅ 큐)'
+  },
+  {
+    id: 'yo-rule',
+    name: '작은 ょ (-yo)',
+    smallChar: 'ょ',
+    vowelSound: 'o',
+    changeFormula: 'i단 + ょ ➔ [yo]',
+    examplePair: { base: 'き', small: 'ょ', youon: 'きょ', separateSound: 'ki・yo (키-요)', youonSound: 'kyo (쿄)' },
+    description: '앞 글자의 자음에 [yo] 모음이 합쳐져 입을 둥글게 모으며 1박자로 발음합니다. (예: き+ょ ➔ きょ 쿄)'
   }
 ];
 
@@ -348,7 +496,7 @@ export const MINI_WORDS: MiniWord[] = [
   { id: 'mw-d4', japanese: 'かぜ', romaji: 'ka-ze', koreanMeaning: '바람 / 감기', emoji: '🍃', category: '자연 (탁음)', wordType: 'dakuon' },
   { id: 'mw-d5', japanese: 'かばん', romaji: 'ka-ba-n', koreanMeaning: '가방', emoji: '🎒', category: '물건 (탁음)', wordType: 'dakuon' },
   { id: 'mw-d6', japanese: 'かぎ', romaji: 'ka-gi', koreanMeaning: '열쇠', emoji: '🔑', category: '물건 (탁음)', wordType: 'dakuon' },
-  { id: 'mw-d7', japanese: 'パン', romaji: 'pa-n', koreanMeaning: '빵 (반탁음 ぱ)', emoji: '🍞', category: '음식 (탁음)', wordType: 'dakuon' },
+  { id: 'mw-d7', japanese: 'きっぷ', romaji: 'ki-p-pu', koreanMeaning: '표 / 승차권 (반탁음 ぷ)', emoji: '🎫', category: '여행 (탁음)', wordType: 'dakuon' },
   { id: 'mw-d8', japanese: 'てんぷら', romaji: 'te-n-pu-ra', koreanMeaning: '튀김 (반탁음 ぷ)', emoji: '🍤', category: '음식 (탁음)', wordType: 'dakuon' },
   { id: 'mw-d9', japanese: 'えんぴつ', romaji: 'e-n-pi-tsu', koreanMeaning: '연필 (반탁음 ぴ)', emoji: '✏️', category: '물건 (탁음)', wordType: 'dakuon' },
   { id: 'mw-d10', japanese: 'さんぽ', romaji: 'sa-n-po', koreanMeaning: '산책 (반탁음 ぽ)', emoji: '🚶', category: '일상 (탁음)', wordType: 'dakuon' },
@@ -357,13 +505,77 @@ export const MINI_WORDS: MiniWord[] = [
   { id: 'mw-d13', japanese: 'かぞく', romaji: 'ka-zo-ku', koreanMeaning: '가족 (탁음 ぞ)', emoji: '👨‍👩‍👧', category: '일상 (탁음)', wordType: 'dakuon' },
   { id: 'mw-d14', japanese: 'ひだり', romaji: 'hi-da-ri', koreanMeaning: '왼쪽 (탁음 だ)', emoji: '⬅️', category: '일상 (탁음)', wordType: 'dakuon' },
   { id: 'mw-d15', japanese: 'みぎ', romaji: 'mi-gi', koreanMeaning: '오른쪽 (탁음 ぎ)', emoji: '➡️', category: '일상 (탁음)', wordType: 'dakuon' },
+
+  // --- 요음 실생활 단어 (36개 전수 매칭) ---
+  // きゃ행 (3개)
+  { id: 'mw-y1', japanese: 'きゃべつ', romaji: 'kya-be-tsu', koreanMeaning: '양배추 (きゃ)', emoji: '🥬', category: '음식 (요음)', wordType: 'youon' },
+  { id: 'mw-y2', japanese: 'きゅうり', romaji: 'kyu-u-ri', koreanMeaning: '오이 (きゅ)', emoji: '🥒', category: '음식 (요음)', wordType: 'youon' },
+  { id: 'mw-y3', japanese: 'きょう', romaji: 'kyo-u', koreanMeaning: '오늘 (きょ)', emoji: '📅', category: '시간 (요음)', wordType: 'youon' },
+
+  // しゃ행 (3개)
+  { id: 'mw-y4', japanese: 'しゃしん', romaji: 'sha-shi-n', koreanMeaning: '사진 (しゃ)', emoji: '📷', category: '물건 (요음)', wordType: 'youon' },
+  { id: 'mw-y5', japanese: 'しゅみ', romaji: 'shu-mi', koreanMeaning: '취미 (しゅ)', emoji: '🎨', category: '일상 (요음)', wordType: 'youon' },
+  { id: 'mw-y6', japanese: 'しょくどう', romaji: 'sho-ku-do-u', koreanMeaning: '식당 (しょ)', emoji: '🍽️', category: '장소 (요음)', wordType: 'youon' },
+
+  // ちゃ행 (3개)
+  { id: 'mw-y7', japanese: 'おちゃ', romaji: 'o-cha', koreanMeaning: '차 / 녹차 (ちゃ)', emoji: '🍵', category: '음식 (요음)', wordType: 'youon' },
+  { id: 'mw-y8', japanese: 'ちゅうしゃ', romaji: 'chu-u-sha', koreanMeaning: '주사 (ちゅ)', emoji: '💉', category: '일상 (요음)', wordType: 'youon' },
+  { id: 'mw-y9', japanese: 'ちょっと', romaji: 'cho-t-to', koreanMeaning: '잠깐만 / 조금 (ちょ)', emoji: '🤏', category: '표현 (요음)', wordType: 'youon' },
+
+  // にゃ행 (3개)
+  { id: 'mw-y10', japanese: 'にゃんこ', romaji: 'nya-n-ko', koreanMeaning: '야옹이 / 고양이 (にゃ)', emoji: '🐱', category: '동물 (요음)', wordType: 'youon' },
+  { id: 'mw-y11', japanese: 'ぎゅうにゅう', romaji: 'gyu-u-nyu-u', koreanMeaning: '우유 (にゅ)', emoji: '🥛', category: '음식 (요음)', wordType: 'youon' },
+  { id: 'mw-y12', japanese: 'にょきにょき', romaji: 'nyo-ki-nyo-ki', koreanMeaning: '쑥쑥 자람 (にょ)', emoji: '🌱', category: '자연 (요음)', wordType: 'youon' },
+
+  // ひゃ행 (3개)
+  { id: 'mw-y13', japanese: 'ひゃく', romaji: 'hya-ku', koreanMeaning: '백 / 100 (ひゃ)', emoji: '💯', category: '숫자 (요음)', wordType: 'youon' },
+  { id: 'mw-y14', japanese: 'ひゅうひゅう', romaji: 'hyu-u-hyu-u', koreanMeaning: '쌩쌩 바람 소리 (ひゅ)', emoji: '🌬️', category: '자연 (요음)', wordType: 'youon' },
+  { id: 'mw-y15', japanese: 'ひょう', romaji: 'hyo-u', koreanMeaning: '표 / 차트 (ひょ)', emoji: '📊', category: '물건 (요음)', wordType: 'youon' },
+
+  // みゃ행 (3개)
+  { id: 'mw-y16', japanese: 'みゃく', romaji: 'mya-ku', koreanMeaning: '맥박 / 맥 (みゃ)', emoji: '💓', category: '일상 (요음)', wordType: 'youon' },
+  { id: 'mw-y17', japanese: 'みゅーじあむ', romaji: 'myu-u-ji-a-mu', koreanMeaning: '박물관 (みゅ)', emoji: '🏛️', category: '장소 (요음)', wordType: 'youon' },
+  { id: 'mw-y18', japanese: 'みょうじ', romaji: 'myo-u-ji', koreanMeaning: '성씨 / 성 (みょ)', emoji: '🏷️', category: '일상 (요음)', wordType: 'youon' },
+
+  // りゃ행 (3개)
+  { id: 'mw-y19', japanese: 'りゃくご', romaji: 'rya-ku-go', koreanMeaning: '줄임말 / 약어 (りゃ)', emoji: '✂️', category: '표현 (요음)', wordType: 'youon' },
+  { id: 'mw-y20', japanese: 'りゅう', romaji: 'ryu-u', koreanMeaning: '용 (Dragon) (りゅ)', emoji: '🐉', category: '자연 (요음)', wordType: 'youon' },
+  { id: 'mw-y21', japanese: 'りょこう', romaji: 'ryo-ko-u', koreanMeaning: '여행 (りょ)', emoji: '✈️', category: '여행 (요음)', wordType: 'youon' },
+
+  // ぎゃ행 (3개)
+  { id: 'mw-y22', japanese: 'ぎゃく', romaji: 'gya-ku', koreanMeaning: '반대 / 역 (ぎゃ)', emoji: '🔄', category: '일상 (요음)', wordType: 'youon' },
+  { id: 'mw-y23', japanese: 'ぎゅうにく', romaji: 'gyu-u-ni-ku', koreanMeaning: '소고기 (ぎゅ)', emoji: '🥩', category: '음식 (요음)', wordType: 'youon' },
+  { id: 'mw-y24', japanese: 'ぎょうざ', romaji: 'gyo-u-za', koreanMeaning: '교자 / 만두 (ぎょ)', emoji: '🥟', category: '음식 (요음)', wordType: 'youon' },
+
+  // じゃ행 (3개)
+  { id: 'mw-y25', japanese: 'じゃがいも', romaji: 'ja-ga-i-mo', koreanMeaning: '감자 (じゃ)', emoji: '🥔', category: '음식 (요음)', wordType: 'youon' },
+  { id: 'mw-y26', japanese: 'じゅう', romaji: 'ju-u', koreanMeaning: '숫자 10 (じゅ)', emoji: '🔟', category: '숫자 (요음)', wordType: 'youon' },
+  { id: 'mw-y27', japanese: 'じょうず', romaji: 'jo-u-zu', koreanMeaning: '능숙함 / 잘함 (じょ)', emoji: '👍', category: '표현 (요음)', wordType: 'youon' },
+
+  // ぢゃ행 (3개)
+  { id: 'mw-y28', japanese: 'はなぢゃ', romaji: 'ha-na-ja', koreanMeaning: '코피야 (ぢゃ: じゃ와 동음)', emoji: '🩸', category: '일상 (요음)', wordType: 'youon' },
+  { id: 'mw-y29', japanese: 'ちぢゅく', romaji: 'chi-ju-ku', koreanMeaning: '줄어들다 (ぢゅ: じゅ와 동음)', emoji: '📉', category: '일상 (요음)', wordType: 'youon' },
+  { id: 'mw-y30', japanese: 'もみぢょ', romaji: 'mo-mi-jo', koreanMeaning: '단풍잎 (ぢょ: じょ와 동음)', emoji: '🍁', category: '자연 (요음)', wordType: 'youon' },
+
+  // びゃ행 (3개)
+  { id: 'mw-y31', japanese: 'さんびゃく', romaji: 'sa-n-bya-ku', koreanMeaning: '삼백 / 300 (びゃ)', emoji: '💯', category: '숫자 (요음)', wordType: 'youon' },
+  { id: 'mw-y32', japanese: 'びゅうびゅう', romaji: 'byu-u-byu-u', koreanMeaning: '쌩쌩 거센 바람 (びゅ)', emoji: '💨', category: '자연 (요음)', wordType: 'youon' },
+  { id: 'mw-y33', japanese: 'びょういん', romaji: 'byo-u-i-n', koreanMeaning: '병원 (びょ)', emoji: '🏥', category: '장소 (요음)', wordType: 'youon' },
+
+  // ぴゃ행 (3개)
+  { id: 'mw-y34', japanese: 'ろっぴゃく', romaji: 'ro-p-pya-ku', koreanMeaning: '육백 / 600 (ぴゃ)', emoji: '💯', category: '숫자 (요음)', wordType: 'youon' },
+  { id: 'mw-y35', japanese: 'ぴゅうぴゅう', romaji: 'pyu-u-pyu-u', koreanMeaning: '휘이익 바람 (ぴゅ)', emoji: '🌪️', category: '자연 (요음)', wordType: 'youon' },
+  { id: 'mw-y36', japanese: 'ぴょんぴょん', romaji: 'pyo-n-pyo-n', koreanMeaning: '깡충깡충 토끼 (ぴょ)', emoji: '🐇', category: '동물 (요음)', wordType: 'youon' },
 ];
 
 // 청음 기본 단어 목록 (40개)
-export const SEION_MINI_WORDS: MiniWord[] = MINI_WORDS.filter((w) => w.wordType !== 'dakuon');
+export const SEION_MINI_WORDS: MiniWord[] = MINI_WORDS.filter((w) => w.wordType !== 'dakuon' && w.wordType !== 'youon');
 
 // 탁음·반탁음 단어 목록 (15개)
 export const DAKUON_MINI_WORDS: MiniWord[] = MINI_WORDS.filter((w) => w.wordType === 'dakuon');
+
+// 요음 실생활 단어 목록 (36개)
+export const YOUON_MINI_WORDS: MiniWord[] = MINI_WORDS.filter((w) => w.wordType === 'youon');
 
 // 도플갱어 (헷갈리는 글자) 대조 훈련 데이터
 export const CONFUSING_PAIRS: ConfusingPair[] = [
@@ -444,5 +656,23 @@ export const FIRST_DIALOGUE_LIST: FirstDialogueItem[] = [
     koreanPronunciation: '도코데스카?',
     koreanMeaning: '어디인가요?',
     tip: '탁음 ど(do)로 시작하는 필수 여행 회화! 역(えき)이나 화장실(トイレ) 뒤에 붙여 말해보세요.'
+  },
+  {
+    id: 'fd-6',
+    situation: '카페나 식당에서 따뜻한 차를 주문할 때',
+    japanese: 'おちゃ、ください！',
+    romaji: 'o-cha ku-da-sa-i',
+    koreanPronunciation: '오차, 쿠다사이!',
+    koreanMeaning: '차(녹차) 주세요!',
+    tip: '요음 ちゃ(cha)가 들어간 대표 필수 표현! 식당에서 물(みず) 대신 차(おちゃ)를 요청할 때도 써보세요.'
+  },
+  {
+    id: 'fd-7',
+    situation: '관광 명소나 식당에서 사진 촬영을 정중히 요청할 때',
+    japanese: 'しゃしん、いいですか？',
+    romaji: 'sha-shi-n i-i-de-su-ka',
+    koreanPronunciation: '샤신, 이이데스카?',
+    koreanMeaning: '사진 찍어도 될까요?',
+    tip: '요음 しゃ(sha)가 들어간 여행 황금 표현! 카메라나 스마트폰을 살짝 가리키며 말하면 찰떡같이 통해요.'
   }
 ];

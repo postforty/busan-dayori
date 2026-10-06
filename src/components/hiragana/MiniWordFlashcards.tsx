@@ -5,6 +5,7 @@ import {
   MINI_WORDS,
   SEION_MINI_WORDS,
   DAKUON_MINI_WORDS,
+  YOUON_MINI_WORDS,
   MiniWord
 } from '@/lib/curriculum/hiraganaData';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
@@ -42,7 +43,7 @@ interface MiniWordFlashcardsProps {
   onCompleteToNextStep?: () => void;
   fontStyle?: 'sans' | 'serif';
   onToggleFontStyle?: () => void;
-  category?: 'seion' | 'dakuon';
+  category?: 'seion' | 'dakuon' | 'youon';
 }
 
 export default function MiniWordFlashcards({
@@ -51,8 +52,8 @@ export default function MiniWordFlashcards({
   onToggleFontStyle,
   category = 'seion'
 }: MiniWordFlashcardsProps) {
-  // 현재 카테고리에 맞는 기본 단어 목록 (청음 40개 vs 탁음 15개)
-  const currentBaseWords = category === 'dakuon' ? DAKUON_MINI_WORDS : SEION_MINI_WORDS;
+  // 현재 카테고리에 맞는 기본 단어 목록 (청음 40개 vs 탁음 15개 vs 요음 36개)
+  const currentBaseWords = category === 'youon' ? YOUON_MINI_WORDS : category === 'dakuon' ? DAKUON_MINI_WORDS : SEION_MINI_WORDS;
 
   // 카테고리 칩 목록 (메모이제이션으로 렌더마다 새 배열 참조가 생성되어 무한 루프 발생하는 현상 방지)
   const categoryList = useMemo(() => [
@@ -138,7 +139,9 @@ export default function MiniWordFlashcards({
   const [isLoaded, setIsLoaded] = useState(false);
 
   // 카테고리별 독립된 스토리지 키 사용
-  const storageKey = category === 'dakuon'
+  const storageKey = category === 'youon'
+    ? 'mini_words_study_progress_youon'
+    : category === 'dakuon'
     ? 'mini_words_study_progress_dakuon'
     : 'mini_words_study_progress_seion';
 
@@ -176,9 +179,11 @@ export default function MiniWordFlashcards({
             .map((id) => wordMap.get(id))
             .filter((w): w is MiniWord => Boolean(w));
 
-          const isMatching = category === 'dakuon'
+          const isMatching = category === 'youon'
+            ? validWords.every((w) => w.wordType === 'youon')
+            : category === 'dakuon'
             ? validWords.every((w) => w.wordType === 'dakuon')
-            : validWords.every((w) => w.wordType !== 'dakuon');
+            : validWords.every((w) => w.wordType !== 'dakuon' && w.wordType !== 'youon');
 
           if (isMatching && validWords.length > 0) {
             restoredDeck = validWords;
@@ -223,7 +228,7 @@ export default function MiniWordFlashcards({
   useEffect(() => {
     if (prevCategoryRef.current !== category) {
       prevCategoryRef.current = category;
-      const newBase = category === 'dakuon' ? DAKUON_MINI_WORDS : SEION_MINI_WORDS;
+      const newBase = category === 'youon' ? YOUON_MINI_WORDS : category === 'dakuon' ? DAKUON_MINI_WORDS : SEION_MINI_WORDS;
       setSelectedCategory('all');
       setCardDeck(newBase);
       setCurrentIndex(0);
@@ -673,8 +678,12 @@ export default function MiniWordFlashcards({
           {categoryList.map((cat) => {
             const isSelected = selectedCategory === cat;
             const label = cat === 'all'
-              ? (category === 'dakuon' ? `탁음 전체 (${currentBaseWords.length})` : `기본 전체 (${currentBaseWords.length})`)
-              : cat.replace(' (탁음)', '');
+              ? (category === 'youon'
+                  ? `요음 전체 (${currentBaseWords.length})`
+                  : category === 'dakuon'
+                  ? `탁음 전체 (${currentBaseWords.length})`
+                  : `기본 전체 (${currentBaseWords.length})`)
+              : cat.replace(' (탁음)', '').replace(' (요음)', '');
             return (
               <button
                 key={cat}

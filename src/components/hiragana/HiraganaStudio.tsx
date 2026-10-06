@@ -5,13 +5,17 @@ import Link from 'next/link';
 import {
   HIRAGANA_GRID,
   DAKUON_GRID,
+  YOUON_GRID,
   ALL_SEION_CHARS,
   ALL_DAKUON_CHARS,
+  ALL_YOUON_CHARS,
   COMBINED_HIRAGANA_CHARS,
   DAKUON_TRANSFORM_RULES,
+  YOUON_TRANSFORM_RULES,
   MINI_WORDS,
   SEION_MINI_WORDS,
   DAKUON_MINI_WORDS,
+  YOUON_MINI_WORDS,
   CONFUSING_PAIRS,
   FIRST_DIALOGUE_LIST,
   HiraganaChar,
@@ -44,7 +48,7 @@ import HiraganaFlashcards from './HiraganaFlashcards';
 import MiniWordFlashcards from './MiniWordFlashcards';
 
 type StudioStep = 'sound' | 'write' | 'cards' | 'words' | 'dialogue';
-export type CharCategory = 'seion' | 'dakuon';
+export type CharCategory = 'seion' | 'dakuon' | 'youon';
 
 const ALL_HIRAGANA_CHARS: HiraganaChar[] = ALL_SEION_CHARS;
 
@@ -90,41 +94,47 @@ export default function HiraganaStudio({
   }, []);
 
   // 현재 카테고리에 따른 그리드 및 글자 목록
-  const currentGrid = category === 'seion' ? HIRAGANA_GRID : DAKUON_GRID;
-  const currentChars = category === 'seion' ? ALL_SEION_CHARS : ALL_DAKUON_CHARS;
+  const currentGrid = category === 'seion' ? HIRAGANA_GRID : category === 'dakuon' ? DAKUON_GRID : YOUON_GRID;
+  const currentChars = category === 'seion' ? ALL_SEION_CHARS : category === 'dakuon' ? ALL_DAKUON_CHARS : ALL_YOUON_CHARS;
 
   // --- Step 1: 소리 탐색 상태 ---
   const [selectedChar, setSelectedChar] = useState<HiraganaChar>(() => {
-    const all = [...ALL_SEION_CHARS, ...ALL_DAKUON_CHARS];
+    const all = [...ALL_SEION_CHARS, ...ALL_DAKUON_CHARS, ...ALL_YOUON_CHARS];
     const found = all.find((c) => c.char === initialChar);
     if (found) return found;
-    return initialCategory === 'dakuon' ? ALL_DAKUON_CHARS[0] : ALL_SEION_CHARS[0];
+    if (initialCategory === 'youon') return ALL_YOUON_CHARS[0];
+    if (initialCategory === 'dakuon') return ALL_DAKUON_CHARS[0];
+    return ALL_SEION_CHARS[0];
   });
   const [playingChar, setPlayingChar] = useState<string | null>(null);
 
-  // 카테고리(청음 ⇄ 탁음) 전환 핸들러
+  // 카테고리(청음 ⇄ 탁음 ⇄ 요음) 전환 핸들러
   const handleSelectCategory = useCallback((newCat: CharCategory) => {
     setCategory(newCat);
     if (newCat === 'seion') {
       const match = ALL_SEION_CHARS.find((c) => c.char === selectedChar.char);
       if (!match) setSelectedChar(ALL_SEION_CHARS[0]);
       setSelectedWord(SEION_MINI_WORDS[0]);
-    } else {
+    } else if (newCat === 'dakuon') {
       const match = ALL_DAKUON_CHARS.find((c) => c.char === selectedChar.char);
       if (!match) setSelectedChar(ALL_DAKUON_CHARS[0]);
       setSelectedWord(DAKUON_MINI_WORDS[0]);
+    } else {
+      const match = ALL_YOUON_CHARS.find((c) => c.char === selectedChar.char);
+      if (!match) setSelectedChar(ALL_YOUON_CHARS[0]);
+      setSelectedWord(YOUON_MINI_WORDS[0]);
     }
   }, [selectedChar.char]);
 
-  // 청음 ⇄ 탁음 연속 비교 재생 핸들러 (A ➔ B)
-  const handlePlayCompareSound = useCallback((baseCharText: string, dakuonCharText: string) => {
+  // 소리 비교 연속 재생 핸들러 (A ➔ B)
+  const handlePlayCompareSound = useCallback((firstSoundText: string, secondSoundText: string) => {
     stopJapaneseSpeech();
-    setPlayingChar(baseCharText);
-    speakJapanese(baseCharText, 0.85, undefined, () => {
+    setPlayingChar(firstSoundText);
+    speakJapanese(firstSoundText, 0.85, undefined, () => {
       setPlayingChar(null);
       setTimeout(() => {
-        setPlayingChar(dakuonCharText);
-        speakJapanese(dakuonCharText, 0.85, undefined, () => {
+        setPlayingChar(secondSoundText);
+        speakJapanese(secondSoundText, 0.85, undefined, () => {
           setPlayingChar(null);
         });
       }, 350);
@@ -549,57 +559,64 @@ export default function HiraganaStudio({
               })}
             </div>
 
-            {/* 1-2. 기본 50음도 ⇄ 탁음·반탁음 모드 스위처 (좌측 4개 탭에만 종속) */}
+            {/* 1-2. 히라가나 3단계 레벨업 스위처 (청음 ➔ 탁음 ➔ 요음) */}
             <div className={`flex items-center p-1 bg-white/70 backdrop-blur-xs rounded-2xl border border-[#F4DDD4] transition-all min-w-0 overflow-hidden ${
               currentStep === 'dialogue' ? 'opacity-40 pointer-events-none' : ''
             }`}>
+              {/* Lv 1: 청음 */}
               <button
                 type="button"
                 onClick={() => handleSelectCategory('seion')}
-                className={`flex-1 min-w-0 py-1.5 px-1.5 sm:px-2.5 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 ${
+                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 ${
                   category === 'seion' && currentStep !== 'dialogue'
                     ? 'bg-[#E07A5F] text-white shadow-xs'
                     : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
                 }`}
               >
-                <Flower2 className={`w-3.5 h-3.5 shrink-0 ${category === 'seion' && currentStep !== 'dialogue' ? 'text-white' : 'text-[#E07A5F]'}`} />
+                <span className={`text-[9px] px-1 py-0.2 rounded font-black shrink-0 ${
+                  category === 'seion' && currentStep !== 'dialogue' ? 'bg-white/25 text-white' : 'bg-stone-200/80 text-[#718096]'
+                }`}>Lv1</span>
                 <span className="truncate min-w-0">
-                  <span className="sm:hidden">50음도</span>
-                  <span className="hidden sm:inline">기본 50음도</span>
-                </span>
-                <span
-                  className={`text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
-                    category === 'seion' && currentStep !== 'dialogue'
-                      ? 'bg-white/20 text-white'
-                      : 'bg-stone-200/60 text-[#718096]'
-                  }`}
-                >
-                  46자
+                  <span className="sm:hidden">청음</span>
+                  <span className="hidden sm:inline">청음 46자</span>
                 </span>
               </button>
 
+              {/* Lv 2: 탁음/반탁음 */}
               <button
                 type="button"
                 onClick={() => handleSelectCategory('dakuon')}
-                className={`flex-1 min-w-0 py-1.5 px-1.5 sm:px-2.5 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 sm:gap-1.5 ${
+                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 ${
                   category === 'dakuon' && currentStep !== 'dialogue'
                     ? 'bg-[#E07A5F] text-white shadow-xs'
                     : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
                 }`}
               >
-                <Sparkles className={`w-3.5 h-3.5 shrink-0 ${category === 'dakuon' && currentStep !== 'dialogue' ? 'text-amber-200' : 'text-amber-500'}`} />
+                <span className={`text-[9px] px-1 py-0.2 rounded font-black shrink-0 ${
+                  category === 'dakuon' && currentStep !== 'dialogue' ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-800'
+                }`}>Lv2</span>
                 <span className="truncate min-w-0">
                   <span className="sm:hidden">탁음</span>
-                  <span className="hidden sm:inline">탁음 · 반탁음</span>
+                  <span className="hidden sm:inline">탁음 25자</span>
                 </span>
-                <span
-                  className={`text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-full font-bold shrink-0 ${
-                    category === 'dakuon' && currentStep !== 'dialogue'
-                      ? 'bg-white/20 text-white'
-                      : 'bg-amber-100 text-amber-800'
-                  }`}
-                >
-                  25자
+              </button>
+
+              {/* Lv 3: 요음 */}
+              <button
+                type="button"
+                onClick={() => handleSelectCategory('youon')}
+                className={`flex-1 min-w-0 py-1.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-black transition-all flex items-center justify-center gap-1 ${
+                  category === 'youon' && currentStep !== 'dialogue'
+                    ? 'bg-[#E07A5F] text-white shadow-xs'
+                    : 'text-[#718096] hover:text-[#2D3748] hover:bg-white/50'
+                }`}
+              >
+                <span className={`text-[9px] px-1 py-0.2 rounded font-black shrink-0 ${
+                  category === 'youon' && currentStep !== 'dialogue' ? 'bg-white/25 text-white' : 'bg-rose-100 text-rose-800'
+                }`}>Lv3</span>
+                <span className="truncate min-w-0">
+                  <span className="sm:hidden">요음</span>
+                  <span className="hidden sm:inline">요음 36자</span>
                 </span>
               </button>
             </div>
@@ -655,9 +672,9 @@ export default function HiraganaStudio({
                   <Volume2 className="w-4 h-4" />
                 </div>
                 <h2 className="text-sm font-black text-[#2D3748] flex items-center gap-1.5 truncate">
-                  <span>{category === 'seion' ? '五十音図' : '濁音・半濁音'}</span>
+                  <span>{category === 'seion' ? '五十音図' : category === 'dakuon' ? '濁音・半濁音' : '拗音 (ようおん)'}</span>
                   <span className="text-xs font-semibold text-[#A0AEC0]">
-                    {category === 'seion' ? '(기본 50음도)' : '(탁음·반탁음 25자)'}
+                    {category === 'seion' ? '(기본 50음도)' : category === 'dakuon' ? '(탁음·반탁음 25자)' : '(요음 36자)'}
                   </span>
                 </h2>
               </div>
@@ -724,13 +741,59 @@ export default function HiraganaStudio({
               </div>
             )}
 
-            {/* 글자 그리드 표 (청음 or 탁음) */}
+            {/* 요음 모드일 때 요음 결합 공식 요약 배너 */}
+            {category === 'youon' && (
+              <div className="bg-gradient-to-r from-rose-50 to-[#FFF9F2] rounded-2xl p-3 border border-rose-200/80 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-rose-900 min-w-0">
+                    <Sparkles className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                    <span className="truncate whitespace-nowrap break-keep">
+                      <span className="sm:hidden">요음 결합 공식 (1박자)</span>
+                      <span className="hidden sm:inline">い단 글자 + 작은 ゃ·ゅ·ょ ➔ 1박자 결합 공식</span>
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-rose-700 font-medium shrink-0 whitespace-nowrap">
+                    1박자 모라 발음
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                  {YOUON_TRANSFORM_RULES.map((rule) => {
+                    const isRuleActive = selectedChar.smallChar === rule.smallChar;
+                    return (
+                      <div
+                        key={rule.id}
+                        className={`p-2 rounded-xl border text-center transition-all ${isRuleActive
+                          ? 'bg-white border-[#E07A5F] shadow-xs ring-1 ring-[#E07A5F]'
+                          : 'bg-white/80 border-rose-200/60'
+                          }`}
+                      >
+                        <div className="text-[11px] font-black text-[#2D3748]">
+                          {rule.changeFormula}
+                        </div>
+                        <div className="text-[10px] text-[#718096] flex items-center justify-center gap-1 mt-0.5">
+                          <span>{rule.examplePair.base}</span>
+                          <span className="text-rose-500 font-bold">{rule.examplePair.small}</span>
+                          <span>➔</span>
+                          <span className="font-bold text-[#E07A5F]">{rule.examplePair.youon}</span>
+                          <span className="text-[9px] text-[#A0AEC0]">({rule.examplePair.youonSound})</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 글자 그리드 표 (청음, 탁음, 요음) */}
             <div className="space-y-2">
               {/* 열 헤더 (단) */}
               <div className="flex items-center gap-2">
                 <span className="w-14 shrink-0" aria-hidden="true" />
-                <div className="grid grid-cols-5 gap-1.5 flex-1">
-                  {['あ단 (a)', 'い단 (i)', 'う단 (u)', 'え단 (e)', 'お단 (o)'].map((dan) => (
+                <div className={`grid ${category === 'youon' ? 'grid-cols-3' : 'grid-cols-5'} gap-1.5 flex-1`}>
+                  {(category === 'youon'
+                    ? ['ゃ (ya) 컬럼', 'ゅ (yu) 컬럼', 'ょ (yo) 컬럼']
+                    : ['あ단 (a)', 'い단 (i)', 'う단 (u)', 'え단 (e)', 'お단 (o)']
+                  ).map((dan) => (
                     <span
                       key={dan}
                       className="text-center text-[10px] sm:text-[11px] font-extrabold text-[#A0AEC0]"
@@ -747,7 +810,7 @@ export default function HiraganaStudio({
                     {row.name.split(' ')[0]}
                   </span>
 
-                  <div className="grid grid-cols-5 gap-1.5 flex-1">
+                  <div className={`grid ${category === 'youon' ? 'grid-cols-3' : 'grid-cols-5'} gap-1.5 flex-1`}>
                     {row.chars.map((charItem, idx) => {
                       if (!charItem) {
                         return (
@@ -775,7 +838,7 @@ export default function HiraganaStudio({
                             }`}
                         >
                           <span
-                            className={`text-lg font-bold leading-none transition-all ${isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
+                            className={`${category === 'youon' ? 'text-base sm:text-lg' : 'text-lg'} font-bold leading-none transition-all ${isSelected ? 'text-[#E07A5F]' : 'text-[#2D3748]'
                               } ${fontStyle === 'serif'
                                 ? 'font-jp-mincho'
                                 : 'font-jp-gothic'
@@ -861,7 +924,7 @@ export default function HiraganaStudio({
               </button>
             </div>
 
-            {/* 탁음인 경우: 청음 ⇄ 탁음 A/B 소리 대조 카드 */}
+            {/* 탁음 및 요음인 경우: 소리 대조 카드 */}
             {selectedChar.baseChar && (
               <div className="p-3.5 rounded-2xl bg-white border border-[#F4DDD4] shadow-xs space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-bold text-[#2D3748]">
@@ -870,35 +933,46 @@ export default function HiraganaStudio({
                     <span>소리 변화 귀로 대조하기</span>
                   </span>
                   <span className="text-[10px] text-[#A0AEC0]">
-                    {selectedChar.soundType === 'handakuon' ? '맑은 소리 ➔ 팡 터지는 소리' : '맑은 소리 ➔ 목 울리는 소리'}
+                    {selectedChar.soundType === 'youon'
+                      ? '2박자(키-야) ➔ 1박자(캬) 리듬 비교'
+                      : selectedChar.soundType === 'handakuon'
+                        ? '맑은 소리 ➔ 팡 터지는 소리'
+                        : '맑은 소리 ➔ 목 울리는 소리'}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between gap-2 p-2.5 bg-[#FAF0E6]/50 rounded-xl border border-[#F4DDD4]/60">
-                  {/* 청음 (원래 글자) */}
+                  {/* 원래 소리 (탁음의 baseChar 또는 요음의 분리 소리) */}
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-2xl font-bold text-[#4A5568] ${fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}`}
                     >
-                      {selectedChar.baseChar}
+                      {selectedChar.soundType === 'youon' ? `${selectedChar.baseChar}+${selectedChar.smallChar}` : selectedChar.baseChar}
                     </span>
                     <button
                       type="button"
                       onClick={() => {
                         stopJapaneseSpeech();
-                        setPlayingChar(selectedChar.baseChar!);
-                        speakJapanese(selectedChar.baseChar!, 0.85, undefined, () => setPlayingChar(null));
+                        const soundToPlay = selectedChar.soundType === 'youon'
+                          ? `${selectedChar.baseChar}`
+                          : selectedChar.baseChar!;
+                        setPlayingChar(soundToPlay);
+                        speakJapanese(soundToPlay, 0.85, undefined, () => setPlayingChar(null));
                       }}
                       className="px-2 py-1 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-[11px] font-bold text-[#4A5568] transition-colors flex items-center gap-1 shadow-2xs"
                     >
                       <Volume2 className="w-3 h-3 text-[#718096]" />
-                      <span>{selectedChar.baseChar} (청음)</span>
+                      <span>
+                        {selectedChar.soundType === 'youon'
+                          ? (selectedChar.separateSound || `${selectedChar.baseChar}・${selectedChar.smallChar}`)
+                          : `${selectedChar.baseChar} (청음)`}
+                      </span>
                     </button>
                   </div>
 
                   <span className="text-sm font-black text-[#E07A5F]">➔</span>
 
-                  {/* 탁음 (현재 글자) */}
+                  {/* 결합 소리 (탁음 또는 요음) */}
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-2xl font-bold text-[#E07A5F] ${fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'}`}
@@ -911,7 +985,15 @@ export default function HiraganaStudio({
                       className="px-2 py-1 rounded-lg bg-[#E07A5F] hover:bg-[#C55D42] text-white text-[11px] font-bold transition-colors flex items-center gap-1 shadow-2xs"
                     >
                       <Volume2 className="w-3 h-3" />
-                      <span>{selectedChar.char} ({selectedChar.soundType === 'handakuon' ? '반탁음' : '탁음'})</span>
+                      <span>
+                        {selectedChar.char} (
+                        {selectedChar.soundType === 'youon'
+                          ? '요음 1박자'
+                          : selectedChar.soundType === 'handakuon'
+                            ? '반탁음'
+                            : '탁음'}
+                        )
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -923,7 +1005,11 @@ export default function HiraganaStudio({
                   className="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300 transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>&apos;{selectedChar.baseChar}&apos; ➔ &apos;{selectedChar.char}&apos; 소리 차이 연달아 듣기</span>
+                  <span>
+                    {selectedChar.soundType === 'youon'
+                      ? `'${selectedChar.baseChar}' ➔ '${selectedChar.char}' 1박자 결합 리듬 연달아 듣기`
+                      : `'${selectedChar.baseChar}' ➔ '${selectedChar.char}' 소리 차이 연달아 듣기`}
+                  </span>
                 </button>
               </div>
             )}
@@ -992,7 +1078,7 @@ export default function HiraganaStudio({
 
             {/* 빠른 글자 선택 칩 헤더 & 수집 진행 현황 */}
             <div className="flex items-center justify-between text-xs font-bold text-[#718096] pt-1">
-              <span>{category === 'seion' ? '50음도 글자 목록' : '탁음·반탁음 글자 목록'}</span>
+              <span>{category === 'seion' ? '50음도 글자 목록' : category === 'dakuon' ? '탁음·반탁음 글자 목록' : '요음 36자 목록'}</span>
               <span className="text-[11px] font-bold text-[#E07A5F] bg-[#FAF0E6] px-2.5 py-0.5 rounded-full border border-[#F4DDD4]">
                 완료 {completedChars.filter((c) => currentChars.some((cc) => cc.char === c)).length} / {currentChars.length}
               </span>
@@ -1055,22 +1141,60 @@ export default function HiraganaStudio({
                 <div className="absolute h-full w-[1px] bg-stone-200/60" />
               </div>
 
-              {/* 배경 연한 가이드 텍스트 */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                <span
-                  className={`text-[160px] font-bold text-stone-200 leading-none ${fontStyle === 'serif'
-                    ? 'font-jp-mincho'
-                    : 'font-jp-gothic'
-                    }`}
-                  style={{
-                    fontFamily:
-                      fontStyle === 'serif'
-                        ? "'Noto Serif JP', 'Yu Mincho', serif"
-                        : "'Klee One', 'Noto Sans JP', sans-serif"
-                  }}
-                >
-                  {selectedChar.char}
-                </span>
+              {/* 배경 연한 가이드 텍스트 (요음인 경우 2칸 분할 비율 가이드) */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none px-4">
+                {selectedChar.soundType === 'youon' && selectedChar.baseChar && selectedChar.smallChar ? (
+                  <div className="flex items-baseline justify-center gap-1 w-full">
+                    {/* 앞 글자 (큰 글자 1.0) */}
+                    <div className="flex-1 flex flex-col items-center justify-center">
+                      <span
+                        className={`text-[115px] font-bold text-stone-200 leading-none ${fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                          }`}
+                        style={{
+                          fontFamily:
+                            fontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
+                        {selectedChar.baseChar}
+                      </span>
+                      <span className="text-[9px] font-extrabold text-[#A0AEC0] mt-1">큰 글자 (1.0)</span>
+                    </div>
+
+                    {/* 작은 ゃ/ゅ/ょ (작은 글자 0.7) */}
+                    <div className="w-[95px] flex flex-col items-center justify-center translate-y-3">
+                      <span
+                        className={`text-[72px] font-bold text-stone-300 leading-none ${fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                          }`}
+                        style={{
+                          fontFamily:
+                            fontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
+                        {selectedChar.smallChar}
+                      </span>
+                      <span className="text-[9px] font-extrabold text-[#E07A5F] mt-1">작은 글자 (0.7)</span>
+                    </div>
+                  </div>
+                ) : (
+                  <span
+                    className={`text-[160px] font-bold text-stone-200 leading-none ${fontStyle === 'serif'
+                      ? 'font-jp-mincho'
+                      : 'font-jp-gothic'
+                      }`}
+                    style={{
+                      fontFamily:
+                        fontStyle === 'serif'
+                          ? "'Noto Serif JP', 'Yu Mincho', serif"
+                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    }}
+                  >
+                    {selectedChar.char}
+                  </span>
+                )}
               </div>
 
               {/* 획순 팁 및 완료 배지 */}
@@ -1347,13 +1471,19 @@ export default function HiraganaStudio({
 
           {/* 2) 단어 도감 모드 */}
           {wordsViewMode === 'grid' && (() => {
-            const displayedWords = category === 'dakuon' ? DAKUON_MINI_WORDS : SEION_MINI_WORDS;
+            const displayedWords = category === 'youon'
+              ? YOUON_MINI_WORDS
+              : category === 'dakuon'
+              ? DAKUON_MINI_WORDS
+              : SEION_MINI_WORDS;
             return (
               <div className="space-y-4">
                 <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#718096]">
-                      {category === 'dakuon'
+                      {category === 'youon'
+                        ? `요음 실생활 단어 목록 (${displayedWords.length})`
+                        : category === 'dakuon'
                         ? `탁음·반탁음 단어 목록 (${displayedWords.length})`
                         : `기본 단어 목록 (${displayedWords.length})`}
                     </span>

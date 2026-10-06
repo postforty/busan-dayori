@@ -4,8 +4,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   HIRAGANA_GRID,
   DAKUON_GRID,
+  YOUON_GRID,
   ALL_SEION_CHARS,
   ALL_DAKUON_CHARS,
+  ALL_YOUON_CHARS,
   COMBINED_HIRAGANA_CHARS,
   CONFUSING_PAIRS,
   HiraganaChar
@@ -53,8 +55,8 @@ const CONFUSING_HIRAGANA_CHARS = ALL_HIRAGANA_CHARS.filter((c) =>
 // 로컬 스토리지 키 및 저장 구조
 const STORAGE_KEY = 'hiragana_flashcards_study_progress';
 
-// 필터 옵션 (기본 46자, 탁음 25자, 전체 71자, 헷갈리는 글자, 행별, 오답)
-export type FilterCategory = 'all' | 'seion' | 'dakuon' | 'confusing' | 'row' | 'wrong';
+// 필터 옵션 (기본 46자, 탁음 25자, 요음 36자, 전체 107자, 헷갈리는 글자, 행별, 오답)
+export type FilterCategory = 'all' | 'seion' | 'dakuon' | 'youon' | 'confusing' | 'row' | 'wrong';
 
 interface HiraganaStudyProgress {
   knownChars: string[];
@@ -71,7 +73,7 @@ interface HiraganaFlashcardsProps {
   onCompleteToNextStep?: () => void;
   fontStyle?: 'sans' | 'serif';
   onToggleFontStyle?: () => void;
-  category?: 'seion' | 'dakuon';
+  category?: 'seion' | 'dakuon' | 'youon';
 }
 
 export default function HiraganaFlashcards({
@@ -80,14 +82,16 @@ export default function HiraganaFlashcards({
   onToggleFontStyle,
   category = 'seion'
 }: HiraganaFlashcardsProps) {
-  // 카테고리별 독립된 스토리지 키 사용 (청음/탁음 간 덱 및 인덱스 꼬임 원천 방지)
-  const storageKey = category === 'dakuon'
+  // 카테고리별 독립된 스토리지 키 사용 (청음/탁음/요음 간 덱 및 인덱스 꼬임 원천 방지)
+  const storageKey = category === 'youon'
+    ? 'hiragana_flashcards_progress_youon'
+    : category === 'dakuon'
     ? 'hiragana_flashcards_progress_dakuon'
     : 'hiragana_flashcards_progress_seion';
 
   // --- 상태 관리 ---
-  const defaultFilter: FilterCategory = category === 'dakuon' ? 'dakuon' : 'seion';
-  const defaultRow = category === 'dakuon' ? 'が' : 'あ';
+  const defaultFilter: FilterCategory = category === 'youon' ? 'youon' : category === 'dakuon' ? 'dakuon' : 'seion';
+  const defaultRow = category === 'youon' ? 'きゃ' : category === 'dakuon' ? 'が' : 'あ';
 
   const [filterType, setFilterType] = useState<FilterCategory>(defaultFilter);
   const [selectedRow, setSelectedRow] = useState<string>(defaultRow);
@@ -134,22 +138,26 @@ export default function HiraganaFlashcards({
         result = [...ALL_SEION_CHARS];
       } else if (type === 'dakuon') {
         result = [...ALL_DAKUON_CHARS];
+      } else if (type === 'youon') {
+        result = [...ALL_YOUON_CHARS];
       } else if (type === 'confusing') {
         result = [...CONFUSING_HIRAGANA_CHARS];
       } else if (type === 'row') {
-        const foundRow = [...HIRAGANA_GRID, ...DAKUON_GRID].find((r) => r.name.startsWith(rowName));
+        const foundRow = [...HIRAGANA_GRID, ...DAKUON_GRID, ...YOUON_GRID].find((r) => r.name.startsWith(rowName));
         result = foundRow ? (foundRow.chars.filter(Boolean) as HiraganaChar[]) : [];
       } else if (type === 'wrong' && wrongIds) {
         result = COMBINED_HIRAGANA_CHARS.filter((c) => wrongIds.has(c.char));
       }
-      return result.length > 0 ? result : (type === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS]);
+      return result.length > 0
+        ? result
+        : (category === 'youon' ? [...ALL_YOUON_CHARS] : type === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS]);
     },
-    []
+    [category]
   );
 
-  // 카드 목록 및 진행 상태 (초기값: 카테고리에 맞는 25자/46자)
+  // 카드 목록 및 진행 상태 (초기값: 카테고리에 맞는 36자/25자/46자)
   const [cardDeck, setCardDeck] = useState<HiraganaChar[]>(() =>
-    category === 'dakuon' ? ALL_DAKUON_CHARS : ALL_SEION_CHARS
+    category === 'youon' ? ALL_YOUON_CHARS : category === 'dakuon' ? ALL_DAKUON_CHARS : ALL_SEION_CHARS
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -189,13 +197,24 @@ export default function HiraganaFlashcards({
           setConfusedCharIds(new Set(parsed.confusedChars));
         }
 
-        // 상위 카테고리(청음 vs 탁음)에 부합하는 필터 및 행 복원
-        let fType: FilterCategory = category === 'dakuon' ? 'dakuon' : 'seion';
-        let sRow = category === 'dakuon' ? 'が' : 'あ';
+        // 상위 카테고리(청음 vs 탁음 vs 요음)에 부합하는 필터 및 행 복원
+        let fType: FilterCategory = category === 'youon' ? 'youon' : category === 'dakuon' ? 'dakuon' : 'seion';
+        let sRow = category === 'youon' ? 'きゃ' : category === 'dakuon' ? 'が' : 'あ';
 
         if (parsed.filterType) {
           const selRow = parsed.selectedRow;
-          if (category === 'dakuon') {
+          if (category === 'youon') {
+            if (
+              parsed.filterType === 'youon' ||
+              (parsed.filterType === 'row' && selRow && YOUON_GRID.some((r) => r.name.startsWith(selRow))) ||
+              parsed.filterType === 'wrong'
+            ) {
+              fType = parsed.filterType;
+              if (selRow && YOUON_GRID.some((r) => r.name.startsWith(selRow))) {
+                sRow = selRow;
+              }
+            }
+          } else if (category === 'dakuon') {
             if (
               parsed.filterType === 'dakuon' ||
               (parsed.filterType === 'row' && selRow && DAKUON_GRID.some((r) => r.name.startsWith(selRow))) ||
@@ -231,7 +250,9 @@ export default function HiraganaFlashcards({
             .map((char) => charMap.get(char))
             .filter((c): c is HiraganaChar => Boolean(c));
 
-          const isMatching = category === 'dakuon'
+          const isMatching = category === 'youon'
+            ? validChars.every((c) => ALL_YOUON_CHARS.some((yc) => yc.char === c.char))
+            : category === 'dakuon'
             ? validChars.every((c) => ALL_DAKUON_CHARS.some((dc) => dc.char === c.char))
             : validChars.every((c) => ALL_SEION_CHARS.some((sc) => sc.char === c.char));
 
@@ -245,7 +266,7 @@ export default function HiraganaFlashcards({
         }
         const finalDeck = restoredDeck.length > 0
           ? restoredDeck
-          : (category === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS]);
+          : (category === 'youon' ? [...ALL_YOUON_CHARS] : category === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS]);
         setCardDeck(finalDeck);
 
         // 현재 카드 인덱스 복원 (안전 범위 검사)
@@ -262,7 +283,7 @@ export default function HiraganaFlashcards({
         }
       } else {
         // 저장된 데이터가 없는 경우 카테고리에 맞는 기본 덱으로 초기화
-        const initialDeck = category === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS];
+        const initialDeck = category === 'youon' ? [...ALL_YOUON_CHARS] : category === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS];
         setFilterType(defaultFilter);
         setSelectedRow(defaultRow);
         setCardDeck(initialDeck);
@@ -280,8 +301,8 @@ export default function HiraganaFlashcards({
   useEffect(() => {
     if (prevCategoryRef.current !== category) {
       prevCategoryRef.current = category;
-      const newFilter: FilterCategory = category === 'dakuon' ? 'dakuon' : 'seion';
-      const newRow = category === 'dakuon' ? 'が' : 'あ';
+      const newFilter: FilterCategory = category === 'youon' ? 'youon' : category === 'dakuon' ? 'dakuon' : 'seion';
+      const newRow = category === 'youon' ? 'きゃ' : category === 'dakuon' ? 'が' : 'あ';
       setFilterType(newFilter);
       setSelectedRow(newRow);
       const newDeck = prepareDeck(newFilter, newRow, confusedCharIds);
@@ -771,7 +792,52 @@ export default function HiraganaFlashcards({
 
         {/* 범위 선택 탭 필터 */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 pb-0.5">
-          {category === 'dakuon' ? (
+          {category === 'youon' ? (
+            <>
+              {/* 요음 모드 우선 탭 */}
+              <button
+                type="button"
+                onClick={() => handleFilterChange('youon')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border flex items-center gap-1 ${filterType === 'youon'
+                  ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs'
+                  : 'bg-rose-50 text-rose-900 border-rose-200 hover:bg-rose-100/60'
+                  }`}
+              >
+                <Sparkles className="w-3 h-3 text-rose-500" />
+                <span>요음 36자 전체</span>
+              </button>
+
+              {/* 요음 행들 */}
+              {YOUON_GRID.map((row) => {
+                const rowChar = row.chars[0]?.char || '';
+                const isSelected = filterType === 'row' && selectedRow === rowChar;
+                return (
+                  <button
+                    key={row.name}
+                    type="button"
+                    onClick={() => handleFilterChange('row', rowChar)}
+                    className={`px-2.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${isSelected
+                      ? 'bg-rose-600 text-white border-rose-600 shadow-2xs'
+                      : 'bg-rose-50/60 text-rose-900 border-rose-200/70 hover:bg-rose-100/60'
+                      }`}
+                  >
+                    {row.name.split(' ')[0]}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => handleFilterChange('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all border ${filterType === 'all'
+                  ? 'bg-[#2D3748] text-white border-[#2D3748] shadow-2xs'
+                  : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
+                  }`}
+              >
+                전체 107자
+              </button>
+            </>
+          ) : category === 'dakuon' ? (
             <>
               {/* 탁음 모드 우선 탭 */}
               <button
@@ -813,7 +879,7 @@ export default function HiraganaFlashcards({
                   : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-[#FAF9F7]'
                   }`}
               >
-                전체 71자
+                전체 107자
               </button>
             </>
           ) : (
