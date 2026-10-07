@@ -1566,12 +1566,12 @@ export default function HiraganaStudio({
       {currentStep === 'dialogue' && (
         <section className="space-y-4">
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <h2 className="text-sm font-bold text-[#2D3748]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="min-w-0">
+                <h2 className="text-sm font-bold text-[#2D3748] break-keep">
                   내 입으로 직접 읽는 첫인사
                 </h2>
-                <p className="text-xs text-[#718096]">
+                <p className="text-xs text-[#718096] break-keep mt-0.5">
                   배운 히라가나를 연결하여 생존 표현을 소리 내어 말해보세요.
                 </p>
               </div>
@@ -1580,7 +1580,7 @@ export default function HiraganaStudio({
               <button
                 type="button"
                 onClick={() => setShowKoreanPronunciation((prev) => !prev)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 whitespace-nowrap ${showKoreanPronunciation
+                className={`self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 whitespace-nowrap ${showKoreanPronunciation
                   ? 'bg-stone-100 text-[#4A5568] border-[#EDE8E1]'
                   : 'bg-amber-50 text-amber-800 border-amber-300'
                   }`}
