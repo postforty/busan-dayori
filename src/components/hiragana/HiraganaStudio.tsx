@@ -1043,14 +1043,9 @@ export default function HiraganaStudio({
         <section className="space-y-4">
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
             <div className="flex items-center justify-between gap-2.5">
-              <div className="min-w-0">
-                <h2 className="text-sm font-bold text-[#2D3748]">
-                  손글씨 캔버스 쓰기 연습
-                </h2>
-                <p className="text-xs text-[#718096] truncate">
-                  가이드 글자 위로 손가락이나 마우스로 직접 획을 그어보세요.
-                </p>
-              </div>
+              <h2 className="text-sm font-bold text-[#2D3748] min-w-0">
+                손글씨 캔버스 쓰기 연습
+              </h2>
 
               <div className="flex items-center gap-1.5 shrink-0">
                 <button

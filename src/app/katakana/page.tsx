@@ -16,7 +16,7 @@ interface KatakanaPageProps {
 
 export default async function KatakanaPage({ searchParams }: KatakanaPageProps) {
   const resolvedParams = await searchParams;
-  const initialStep = (resolvedParams.step as 'sound' | 'confusing' | 'write' | 'match' | 'travel') || 'sound';
+  const initialStep = (resolvedParams.step as 'sound' | 'cards' | 'confusing' | 'write' | 'match' | 'travel') || 'sound';
   const initialCategory = (
     resolvedParams.type === 'special'
       ? 'special'

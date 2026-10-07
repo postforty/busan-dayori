@@ -36,9 +36,10 @@ import {
 } from '@/lib/curriculum/katakanaData';
 import KatakanaMatchGame from '@/components/katakana/KatakanaMatchGame';
 import TravelKatakanaWords from '@/components/katakana/TravelKatakanaWords';
+import KatakanaFlashcards from '@/components/katakana/KatakanaFlashcards';
 
 export type KatakanaCategory = 'seion' | 'dakuon' | 'youon' | 'special';
-export type KatakanaStudioStep = 'sound' | 'confusing' | 'write' | 'match' | 'travel';
+export type KatakanaStudioStep = 'sound' | 'cards' | 'confusing' | 'write' | 'match' | 'travel';
 
 interface KatakanaStudioProps {
   initialStep?: KatakanaStudioStep;
@@ -497,10 +498,11 @@ export default function KatakanaStudio({
           외래어 표기, 카페 메뉴판, 여행지 간판의 필수 문자! 헷갈리는 글자 완벽 비교와 짝맞추기 게임으로 완성해요.
         </p>
 
-        {/* 학습 모드 5단계 탭 네비게이션 (헤더 카드 내부 통합) */}
-        <div className="grid grid-cols-5 gap-1 mt-4 pt-3 border-t border-[#EDE8E1]">
+        {/* 학습 모드 6단계 탭 네비게이션 (헤더 카드 내부 통합) */}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 mt-4 pt-3 border-t border-[#EDE8E1]">
           {[
             { id: 'sound', label: '소리 탐색', shortLabel: '소리 탐색', icon: Volume2 },
+            { id: 'cards', label: '암기 카드', shortLabel: '암기 카드', icon: Sparkles },
             { id: 'confusing', label: '도플갱어 비교', shortLabel: '도플갱어', icon: HelpCircle },
             { id: 'write', label: '획순 쓰기', shortLabel: '획순 쓰기', icon: PenTool },
             { id: 'match', label: '짝맞추기 게임', shortLabel: '짝맞추기', icon: Gamepad2 },
@@ -644,7 +646,7 @@ export default function KatakanaStudio({
               </div>
             </div>
 
-            {/* 발음 듣기 & 획순 쓰기 바로가기 */}
+            {/* 발음 듣기 & 암기 카드 & 획순 쓰기 바로가기 */}
             <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={() => handlePlaySound(selectedChar)}
@@ -654,8 +656,15 @@ export default function KatakanaStudio({
                 <span>발음 듣기</span>
               </button>
               <button
+                onClick={() => setCurrentStep('cards')}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#EBF3FB] hover:bg-[#DCEBFA] text-[#3D5A80] font-bold text-xs border border-[#C5D9F2] transition-all active:scale-95"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>암기 카드로 학습</span>
+              </button>
+              <button
                 onClick={() => setCurrentStep('write')}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#F0F7FF] hover:bg-[#E2EFFF] text-[#3D5A80] font-bold text-xs border border-[#C5D9F2] transition-all active:scale-95"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#FAF9F7] hover:bg-white text-[#718096] hover:text-[#2D3748] font-bold text-xs border border-[#EDE8E1] transition-all active:scale-95"
               >
                 <PenTool className="w-3.5 h-3.5" />
                 <span>직접 써보기</span>
@@ -749,7 +758,19 @@ export default function KatakanaStudio({
       )}
 
       {/* ============================================================== */}
-      {/* STEP 2: 도플갱어 집중 비교 훈련 (シ vs ツ, ソ vs ン 등) */}
+      {/* STEP 2: 암기 카드 (가타카나 ⇄ 히라가나 Mnemonic 연계 브릿지 플래시카드) */}
+      {/* ============================================================== */}
+      {currentStep === 'cards' && (
+        <KatakanaFlashcards
+          category={category}
+          fontStyle={fontStyle}
+          onToggleFontStyle={handleToggleFontStyle}
+          onCompleteToNextStep={() => setCurrentStep('confusing')}
+        />
+      )}
+
+      {/* ============================================================== */}
+      {/* STEP 3: 도플갱어 집중 비교 훈련 (シ vs ツ, ソ vs ン 등) */}
       {/* ============================================================== */}
       {currentStep === 'confusing' && (
         <div className="space-y-6 animate-in fade-in duration-200">
@@ -918,14 +939,9 @@ export default function KatakanaStudio({
         <section className="space-y-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
             <div className="flex items-center justify-between gap-2.5">
-              <div className="min-w-0">
-                <h2 className="text-sm font-bold text-[#2D3748]">
-                  손글씨 캔버스 쓰기 연습
-                </h2>
-                <p className="text-xs text-[#718096] truncate">
-                  가이드 글자 위로 손가락이나 마우스로 직접 획을 그어보세요.
-                </p>
-              </div>
+              <h2 className="text-sm font-bold text-[#2D3748] min-w-0">
+                손글씨 캔버스 쓰기 연습
+              </h2>
 
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
