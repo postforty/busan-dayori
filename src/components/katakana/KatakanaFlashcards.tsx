@@ -24,12 +24,9 @@ import {
   ChevronLeft,
   ChevronRight,
   HelpCircle,
-  X,
   Type,
   Layers,
-  ArrowRight,
-  Check,
-  Zap
+  ArrowRight
 } from 'lucide-react';
 import HiraganaMnemonicSvg from '@/components/hiragana/HiraganaMnemonicSvg';
 import { MNEMONIC_DATA } from '@/components/hiragana/mnemonics/types';
@@ -313,21 +310,33 @@ export default function KatakanaFlashcards({
         handleFlip();
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        handleNext();
+        if (isFlipped) {
+          handleMarkKnown();
+        } else {
+          handleNext();
+        }
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        handlePrev();
+        if (isFlipped) {
+          handleMarkConfused();
+        } else {
+          handlePrev();
+        }
       } else if (e.key === '1' || e.key === 'x' || e.key === 'X') {
-        e.preventDefault();
-        handleMarkConfused();
+        if (isFlipped) {
+          e.preventDefault();
+          handleMarkConfused();
+        }
       } else if (e.key === '2' || e.key === 'c' || e.key === 'C') {
-        e.preventDefault();
-        handleMarkKnown();
+        if (isFlipped) {
+          e.preventDefault();
+          handleMarkKnown();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleFlip, handleNext, handlePrev, handleMarkConfused, handleMarkKnown]);
+  }, [handleFlip, handleNext, handlePrev, handleMarkConfused, handleMarkKnown, isFlipped]);
 
   // 포인터 터치 드래그 스와이프 제어
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -361,8 +370,6 @@ export default function KatakanaFlashcards({
     dragStartRef.current = null;
   };
 
-  const isCurrentKnown = currentCard ? knownChars.has(currentCard.char) : false;
-  const isCurrentConfused = currentCard ? confusedChars.has(currentCard.char) : false;
   const progressPercent = cardDeck.length > 0 ? Math.round(((currentIndex + 1) / cardDeck.length) * 100) : 0;
 
   return (
@@ -581,11 +588,6 @@ export default function KatakanaFlashcards({
                       <span className="px-2.5 py-0.5 rounded-full bg-[#F0F4F8] text-[#3D5A80] text-[10px] font-bold">
                         {currentCard.row} • {currentCard.strokeCount}획
                       </span>
-                      {currentCard.matchingHiragana && (
-                        <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200">
-                          연상 그림 힌트 있음 🎨
-                        </span>
-                      )}
                     </div>
 
                     {/* 중앙 메인 가타카나 글자 */}
@@ -605,11 +607,8 @@ export default function KatakanaFlashcards({
                       </span>
                     </div>
 
-                    {/* 하단 안내 */}
-                    <div className="text-[11px] font-medium text-[#A0AEC0] flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 text-[#3D5A80]" />
-                      <span>카드를 탭하거나 스페이스바로 뒷면 확인</span>
-                    </div>
+                    {/* 하단 여백 균형 유지 */}
+                    <div className="h-5" aria-hidden="true" />
                   </div>
 
                   {/* ==============================================================
@@ -735,54 +734,66 @@ export default function KatakanaFlashcards({
               </div>
             </div>
 
-            {/* 3. 하단 액션 버튼 (이전 / 헷갈려요 / 외웠어요 / 다음) */}
-            <div className="grid grid-cols-4 gap-2 pt-1">
-              <button
-                type="button"
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
-                className="flex items-center justify-center gap-1 py-3 px-2 rounded-2xl bg-[#FAF9F7] hover:bg-white text-[#718096] hover:text-[#2D3748] border border-[#EDE8E1] font-bold text-xs transition-all disabled:opacity-40 disabled:pointer-events-none active:scale-95 shadow-2xs"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">이전</span>
-              </button>
+            {/* 3. 하단 액션 버튼 컨트롤러 */}
+            <div className="space-y-2 pt-1">
+              {isFlipped ? (
+                /* 카드가 뒤집혔을 때: 헷갈려요 vs 외웠어요 평가 버튼 */
+                <div className="grid grid-cols-2 gap-2.5 animate-fadeIn">
+                  <button
+                    type="button"
+                    onClick={handleMarkConfused}
+                    disabled={isSliding}
+                    className="py-3 px-4 rounded-2xl bg-white hover:bg-[#FAF9F7] text-[#4A5568] border-2 border-[#EDE8E1] text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-95 shadow-2xs whitespace-nowrap"
+                    title="단축키: 1 또는 ←"
+                  >
+                    <RotateCcw className="w-4 h-4 text-[#718096]" />
+                    <span>헷갈려요</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={handleMarkConfused}
-                className={`flex items-center justify-center gap-1 py-3 px-2 rounded-2xl font-bold text-xs transition-all border active:scale-95 shadow-2xs ${
-                  isCurrentConfused
-                    ? 'bg-rose-500 text-white border-rose-500'
-                    : 'bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200'
-                }`}
-                title="단축키: 1"
-              >
-                <X className="w-4 h-4" />
-                <span>헷갈려요</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={handleMarkKnown}
+                    disabled={isSliding}
+                    className="py-3 px-4 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-95 shadow-xs whitespace-nowrap"
+                    title="단축키: 2 또는 →"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>외웠어요!</span>
+                  </button>
+                </div>
+              ) : (
+                /* 카드가 뒤집히기 전: 탭하여 뒤집기 안내 또는 단순 이전/다음 */
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={currentIndex === 0 || isSliding}
+                    className="p-3 rounded-2xl bg-white border border-[#EDE8E1] text-[#718096] hover:bg-[#FAF9F7] disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs whitespace-nowrap"
+                    title="이전 카드 (←)"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
 
-              <button
-                type="button"
-                onClick={handleMarkKnown}
-                className={`flex items-center justify-center gap-1 py-3 px-2 rounded-2xl font-bold text-xs transition-all border active:scale-95 shadow-2xs ${
-                  isCurrentKnown
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
-                }`}
-                title="단축키: 2"
-              >
-                <Check className="w-4 h-4" />
-                <span>외웠어요</span>
-              </button>
+                  <button
+                    type="button"
+                    onClick={handleFlip}
+                    className="flex-1 py-3 px-4 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.99] whitespace-nowrap"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>정답 확인하기 (탭)</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={handleNext}
-                className="flex items-center justify-center gap-1 py-3 px-2 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white font-bold text-xs transition-all active:scale-95 shadow-2xs"
-              >
-                <span className="hidden sm:inline">다음</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={isSliding}
+                    className="p-3 rounded-2xl bg-white border border-[#EDE8E1] text-[#718096] hover:bg-[#FAF9F7] disabled:opacity-30 disabled:pointer-events-none transition-all shadow-2xs whitespace-nowrap"
+                    title={currentIndex === cardDeck.length - 1 ? '학습 완료 및 결과 보기' : '다음 카드 (→)'}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )
