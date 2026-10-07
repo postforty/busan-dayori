@@ -188,7 +188,7 @@ export default function TravelKatakanaWords({ fontStyle = 'sans' }: TravelKataka
 
       {/* 1. 단어 도감 그리드 뷰 */}
       {viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredWords.map((word) => {
             const isDone = memorizedIds.has(word.id);
             const isOpened = activeWordId === word.id;
@@ -200,21 +200,21 @@ export default function TravelKatakanaWords({ fontStyle = 'sans' }: TravelKataka
                   playKatakanaAudio(word.japanese);
                   setActiveWordId(isOpened ? null : word.id);
                 }}
-                className={`bg-white rounded-3xl p-4 border transition-all cursor-pointer relative group ${
+                className={`bg-white rounded-3xl p-4 border transition-all cursor-pointer relative group flex flex-col justify-between ${
                   isDone
                     ? 'border-[#C6F6D5] bg-[#F7FCF9]/60'
                     : 'border-[#EDE8E1] hover:border-[#3D5A80] hover:shadow-xs'
                 }`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <div className="text-3xl shrink-0 p-1.5 bg-[#FAF9F7] rounded-2xl border border-[#EDE8E1]">
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                    <div className="text-2xl sm:text-3xl shrink-0 p-2 bg-[#FAF9F7] rounded-2xl border border-[#EDE8E1] leading-none">
                       {word.emoji}
                     </div>
-                    <div>
-                      <div className="flex items-baseline gap-1.5">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
                         <span
-                          className={`text-xl font-bold text-[#2D3748] tracking-tight transition-all ${
+                          className={`text-xl font-bold text-[#2D3748] tracking-tight whitespace-nowrap transition-all ${
                             fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
                           }`}
                           style={{
@@ -231,17 +231,17 @@ export default function TravelKatakanaWords({ fontStyle = 'sans' }: TravelKataka
                             e.stopPropagation();
                             playKatakanaAudio(word.japanese);
                           }}
-                          className="p-1 rounded-full text-[#718096] hover:text-[#3D5A80] hover:bg-[#F0F7FF] transition-all"
+                          className="p-1 rounded-full text-[#718096] hover:text-[#3D5A80] hover:bg-[#F0F7FF] transition-all shrink-0"
                           title="소리 듣기"
                         >
                           <Volume2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs mt-0.5">
-                        <span className="font-bold text-[#3D5A80]">
+                      <div className="flex items-center gap-1.5 text-xs mt-1">
+                        <span className="font-bold text-[#3D5A80] whitespace-nowrap">
                           {word.koreanMeaning}
                         </span>
-                        <span className="text-[11px] text-[#A0AEC0]">
+                        <span className="text-[11px] text-[#A0AEC0] whitespace-nowrap">
                           [{word.koreanPronunciation}]
                         </span>
                       </div>
@@ -263,9 +263,9 @@ export default function TravelKatakanaWords({ fontStyle = 'sans' }: TravelKataka
                 </div>
 
                 {/* 여행 꿀팁 영역 */}
-                <div className="mt-3 pt-3 border-t border-[#F2ECE4] text-[11px] text-[#718096] leading-relaxed flex items-start gap-1.5">
+                <div className="mt-3 pt-2.5 border-t border-[#F2ECE4] text-[11px] text-[#718096] leading-relaxed flex items-start gap-1.5">
                   <Lightbulb className="w-3.5 h-3.5 text-[#D97706] shrink-0 mt-0.5" />
-                  <span>{word.travelTip}</span>
+                  <span className="break-keep">{word.travelTip}</span>
                 </div>
               </div>
             );
