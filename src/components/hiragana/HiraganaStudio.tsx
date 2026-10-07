@@ -28,7 +28,6 @@ import {
   Pencil,
   RotateCcw,
   Sparkles,
-  CheckCircle,
   ArrowRight,
   ArrowLeft,
   BookOpen,
@@ -170,7 +169,6 @@ export default function HiraganaStudio({
   // --- Step 4: 첫 발화 상태 ---
   const [showKoreanPronunciation, setShowKoreanPronunciation] = useState(false);
   const [playingDialogueId, setPlayingDialogueId] = useState<string | null>(null);
-  const [completedDialogueIds, setCompletedDialogueIds] = useState<string[]>([]);
 
   // 정확도 피드백 토스트 표시 헬퍼
   const showAccuracyFeedback = useCallback((message: string) => {
@@ -213,9 +211,6 @@ export default function HiraganaStudio({
       undefined,
       () => {
         setPlayingDialogueId(null);
-        setCompletedDialogueIds((prev) =>
-          prev.includes(item.id) ? prev : [...prev, item.id]
-        );
       }
     );
   }, []);
@@ -1608,7 +1603,6 @@ export default function HiraganaStudio({
             <div className="space-y-3">
               {FIRST_DIALOGUE_LIST.map((item, idx) => {
                 const isPlaying = playingDialogueId === item.id;
-                const isCompleted = completedDialogueIds.includes(item.id);
 
                 return (
                   <div
@@ -1619,13 +1613,6 @@ export default function HiraganaStudio({
                       <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-stone-100 text-[#718096]">
                         상황 {idx + 1}: {item.situation}
                       </span>
-
-                      {isCompleted && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#E07A5F]">
-                          <CheckCircle className="w-3.5 h-3.5" />
-                          <span>발화 완료!</span>
-                        </span>
-                      )}
                     </div>
 
                     {/* 일본어 텍스트 및 발음 */}
