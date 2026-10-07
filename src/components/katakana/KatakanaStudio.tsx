@@ -649,58 +649,58 @@ export default function KatakanaStudio({
             {/* 발음 듣기 & 암기 카드 & 획순 쓰기 바로가기 */}
             <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto">
               <button
+                type="button"
                 onClick={() => handlePlaySound(selectedChar)}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white font-bold text-xs shadow-sm hover:shadow transition-all active:scale-95"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white font-bold text-xs shadow-sm hover:shadow transition-all active:scale-95 whitespace-nowrap"
               >
-                <Volume2 className="w-4 h-4" />
-                <span>발음 듣기</span>
+                <Volume2 className="w-4 h-4 shrink-0" />
+                <span>발음</span>
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentStep('cards')}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#EBF3FB] hover:bg-[#DCEBFA] text-[#3D5A80] font-bold text-xs border border-[#C5D9F2] transition-all active:scale-95"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-2xl bg-[#EBF3FB] hover:bg-[#DCEBFA] text-[#3D5A80] font-bold text-xs border border-[#C5D9F2] transition-all active:scale-95 whitespace-nowrap"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>암기 카드로 학습</span>
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span>암기 카드</span>
               </button>
               <button
+                type="button"
                 onClick={() => setCurrentStep('write')}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#FAF9F7] hover:bg-white text-[#718096] hover:text-[#2D3748] font-bold text-xs border border-[#EDE8E1] transition-all active:scale-95"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-2xl bg-[#FAF9F7] hover:bg-white text-[#718096] hover:text-[#2D3748] font-bold text-xs border border-[#EDE8E1] transition-all active:scale-95 whitespace-nowrap"
               >
-                <PenTool className="w-3.5 h-3.5" />
-                <span>직접 써보기</span>
+                <PenTool className="w-3.5 h-3.5 shrink-0" />
+                <span>써보기</span>
               </button>
             </div>
           </div>
 
           {/* 그리드 표 렌더링 */}
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-2xs space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-[#2D3748]">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs sm:text-sm font-black text-[#2D3748] whitespace-nowrap">
                 {category === 'seion'
-                  ? '가타카나 50음도 (청음 46자)'
+                  ? '가타카나 50음도'
                   : category === 'dakuon'
-                    ? '가타카나 탁음·반탁음 (25자)'
+                    ? '가타카나 탁음·반탁음'
                     : category === 'youon'
-                      ? '가타카나 요음 표 (36자)'
-                      : '가타카나 외래어 특수음 표'}
+                      ? '가타카나 요음'
+                      : '외래어 특수음'}
               </span>
-              <span className="text-[11px] text-[#A0AEC0]">
+              <span className="text-[11px] text-[#A0AEC0] font-medium whitespace-nowrap hidden sm:inline">
                 터치하면 소리와 발음 팁이 함께 울려요
               </span>
             </div>
 
-            <div className="space-y-3">
-              {currentGrid.map((rowItem, rIdx) => {
-                const colCount = category === 'youon' ? 3 : rowItem.chars.length;
-                return (
+            {category === 'special' ? (
+              /* 특수음: 비정형 외래어 블록형 레이아웃 */
+              <div className="space-y-3">
+                {currentGrid.map((rowItem, rIdx) => (
                   <div key={rIdx} className="space-y-1">
                     <span className="text-[11px] font-bold text-[#718096] block pl-1">
                       {rowItem.name}
                     </span>
-                    <div
-                      className={`grid gap-2 ${category === 'youon' ? 'grid-cols-3' : 'grid-cols-5'
-                        }`}
-                    >
+                    <div className="grid gap-2 grid-cols-3 sm:grid-cols-5">
                       {rowItem.chars.map((charObj, cIdx) => {
                         if (!charObj) {
                           return (
@@ -727,7 +727,7 @@ export default function KatakanaStudio({
                               } ${isPlaying ? 'ring-4 ring-[#3D5A80]' : ''}`}
                           >
                             <span
-                              className={`text-xl sm:text-2xl font-bold transition-all ${
+                              className={`text-lg sm:text-xl font-bold transition-all ${
                                 fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
                               }`}
                               style={{
@@ -740,7 +740,7 @@ export default function KatakanaStudio({
                               {charObj.char}
                             </span>
                             <span
-                              className={`text-[10px] font-medium leading-none mt-1 ${isSelected ? 'text-white/80' : 'text-[#718096]'
+                              className={`text-[9px] sm:text-[10px] font-medium leading-none mt-1 ${isSelected ? 'text-white/80' : 'text-[#718096]'
                                 }`}
                             >
                               {charObj.romaji}
@@ -750,9 +750,88 @@ export default function KatakanaStudio({
                       })}
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            ) : (
+              /* 청음, 탁음, 요음: 히라가나와 동일한 정통 행/열 매트릭스 테이블 구조 */
+              <div className="space-y-2">
+                {/* 열 헤더 (단) */}
+                <div className="flex items-center gap-2">
+                  <span className="w-12 sm:w-14 shrink-0" aria-hidden="true" />
+                  <div className={`grid ${category === 'youon' ? 'grid-cols-3' : 'grid-cols-5'} gap-1.5 flex-1`}>
+                    {(category === 'youon'
+                      ? ['ャ (ya) 컬럼', 'ュ (yu) 컬럼', 'ョ (yo) 컬럼']
+                      : ['ア단 (a)', 'イ단 (i)', 'ウ단 (u)', 'エ단 (e)', 'オ단 (o)']
+                    ).map((dan) => (
+                      <span
+                        key={dan}
+                        className="text-center text-[10px] sm:text-[11px] font-extrabold text-[#A0AEC0]"
+                      >
+                        {dan}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {currentGrid.map((rowItem, rIdx) => (
+                  <div key={rIdx} className="flex items-center gap-2">
+                    <span className="w-12 sm:w-14 text-[11px] font-extrabold text-[#A0AEC0] shrink-0 text-right pr-1">
+                      {rowItem.name.split(' ')[0]}
+                    </span>
+
+                    <div className={`grid ${category === 'youon' ? 'grid-cols-3' : 'grid-cols-5'} gap-1.5 flex-1`}>
+                      {rowItem.chars.map((charObj, cIdx) => {
+                        if (!charObj) {
+                          return (
+                            <div
+                              key={cIdx}
+                              className="aspect-square rounded-2xl bg-[#FAF9F7]/60 border border-dashed border-[#EDE8E1]"
+                            />
+                          );
+                        }
+
+                        const isSelected = selectedChar.char === charObj.char;
+                        const isPlaying = playingChar === charObj.char;
+
+                        return (
+                          <button
+                            key={cIdx}
+                            onClick={() => {
+                              setSelectedChar(charObj);
+                              handlePlaySound(charObj);
+                            }}
+                            className={`aspect-square rounded-2xl p-1 sm:p-1.5 flex flex-col items-center justify-center transition-all relative group select-none ${isSelected
+                                ? 'bg-[#3D5A80] text-white shadow-sm ring-2 ring-[#3D5A80]/30 scale-100 z-10'
+                                : 'bg-[#FAF9F7] text-[#2D3748] border border-[#EDE8E1] hover:border-[#3D5A80] hover:bg-white'
+                              } ${isPlaying ? 'ring-4 ring-[#3D5A80]' : ''}`}
+                          >
+                            <span
+                              className={`${category === 'youon' ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'} font-bold transition-all ${
+                                fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                              }`}
+                              style={{
+                                fontFamily:
+                                  fontStyle === 'serif'
+                                    ? "'Noto Serif JP', 'Yu Mincho', serif"
+                                    : "'Klee One', 'Noto Sans JP', sans-serif"
+                              }}
+                            >
+                              {charObj.char}
+                            </span>
+                            <span
+                              className={`text-[9px] sm:text-[10px] font-medium leading-none mt-0.5 sm:mt-1 ${isSelected ? 'text-white/80' : 'text-[#718096]'
+                                }`}
+                            >
+                              {charObj.romaji}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
