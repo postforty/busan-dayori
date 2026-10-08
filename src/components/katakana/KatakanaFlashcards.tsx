@@ -28,8 +28,8 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
-import HiraganaMnemonicSvg from '@/components/hiragana/HiraganaMnemonicSvg';
-import { MNEMONIC_DATA } from '@/components/hiragana/mnemonics/types';
+import KatakanaMnemonicSvg from '@/components/katakana/KatakanaMnemonicSvg';
+import { KATAKANA_MNEMONIC_DATA } from '@/components/katakana/mnemonics/types';
 
 // 도플갱어 (헷갈리는 글자) 추출
 const CONFUSING_CHAR_SET = new Set<string>();
@@ -146,12 +146,13 @@ export default function KatakanaFlashcards({
 
   // 슬라이드 애니메이션 제어
   const [isSliding, setIsSliding] = useState(false);
-  const [slideDir, setSlideDir] = useState<'left' | 'right'>('right');
+  const [slideDir, setSlideDir] = useState<'left' | 'right' | 'none'>('none');
 
   // 드래그 제스처
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const didSwipeRef = useRef(false);
 
   // 현재 카드
   const currentCard = cardDeck[currentIndex] || cardDeck[0];
@@ -206,41 +207,37 @@ export default function KatakanaFlashcards({
     }
   }, [currentIndex, autoSpeech, isSessionFinished, currentCard, playCurrentSound]);
 
-  // 카드 전환 애니메이션 헬퍼
-  const triggerSlide = useCallback(
-    (dir: 'left' | 'right', callback: () => void) => {
-      setSlideDir(dir);
-      setIsSliding(true);
-      setTimeout(() => {
-        setIsFlipped(false);
-        callback();
-        setSlideDir(dir === 'right' ? 'left' : 'right');
-        setTimeout(() => {
-          setIsSliding(false);
-        }, 150);
-      }, 150);
-    },
-    []
-  );
-
-  // 다음 카드
+  // 다음 카드로 이동 (캐로우셀 슬라이드 - 히라가나 카드와 동일하게 다음 카드의 글자가 표시됨)
   const handleNext = useCallback(() => {
+    if (isSliding) return;
     if (currentIndex >= cardDeck.length - 1) {
       setIsSessionFinished(true);
       return;
     }
-    triggerSlide('left', () => {
-      setCurrentIndex((prev) => prev + 1);
-    });
-  }, [currentIndex, cardDeck.length, triggerSlide]);
 
-  // 이전 카드
+    setSlideDir('left');
+    setIsSliding(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => prev + 1);
+      setIsFlipped(false); // ★ 스와이프 시 다음 카드의 글자(앞면) 노출!
+      setIsSliding(false);
+      setSlideDir('none');
+    }, 320);
+  }, [currentIndex, cardDeck.length, isSliding]);
+
+  // 이전 카드로 이동 (캐로우셀 슬라이드 - 히라가나 카드와 동일하게 이전 카드의 글자가 표시됨)
   const handlePrev = useCallback(() => {
-    if (currentIndex <= 0) return;
-    triggerSlide('right', () => {
-      setCurrentIndex((prev) => prev - 1);
-    });
-  }, [currentIndex, triggerSlide]);
+    if (currentIndex > 0 && !isSliding) {
+      setSlideDir('right');
+      setIsSliding(true);
+      setTimeout(() => {
+        setCurrentIndex((prev) => prev - 1);
+        setIsFlipped(false); // ★ 스와이프 시 이전 카드의 글자(앞면) 노출!
+        setIsSliding(false);
+        setSlideDir('none');
+      }, 320);
+    }
+  }, [currentIndex, isSliding]);
 
   // 카드 뒤집기
   const handleFlip = useCallback(() => {
@@ -338,36 +335,86 @@ export default function KatakanaFlashcards({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleFlip, handleNext, handlePrev, handleMarkConfused, handleMarkKnown, isFlipped]);
 
-  // 포인터 터치 드래그 스와이프 제어
-  const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true);
+  // 포인터 터치 드래그 스와이프 제어 (히라가나 카드 스와이프 구현과 일치)
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // 내부 버튼 클릭 시 제스처 무시
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (isSliding) return;
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // 일부 브라우저 예외 무시
+    }
+
     dragStartRef.current = { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    didSwipeRef.current = false;
   };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging || !dragStartRef.current) return;
+
     const deltaX = e.clientX - dragStartRef.current.x;
-    setDragOffset(deltaX);
+    const deltaY = e.clientY - dragStartRef.current.y;
+
+    // 수평 이동 거리가 수직 이동보다 클 때 카드가 좌우로 반응
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      const dampened = Math.max(-140, Math.min(140, deltaX * 0.85));
+      setDragOffset(dampened);
+    }
   };
 
-  const handlePointerUp = () => {
-    if (!isDragging) return;
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartRef.current) return;
+
+    const deltaX = e.clientX - dragStartRef.current.x;
+    const deltaY = e.clientY - dragStartRef.current.y;
+
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
+    }
+
+    dragStartRef.current = null;
     setIsDragging(false);
-    if (Math.abs(dragOffset) > 70) {
-      if (dragOffset < 0) {
+    setDragOffset(0);
+
+    // 수평 이동 거리가 35px 이상이고 수직보다 크면 스와이프 판정 (다음/이전 카드의 앞면 글자 노출)
+    if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      didSwipeRef.current = true;
+      if (deltaX < 0) {
         handleNext();
       } else {
         handlePrev();
       }
     }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
+    }
+    setIsDragging(false);
     setDragOffset(0);
     dragStartRef.current = null;
   };
 
-  const handlePointerCancel = () => {
-    setIsDragging(false);
-    setDragOffset(0);
-    dragStartRef.current = null;
+  // 카드 클릭/탭 핸들러 (스와이프 시 뒤집힘 방지)
+  const handleCardClick = () => {
+    if (didSwipeRef.current) {
+      didSwipeRef.current = false;
+      return;
+    }
+    handleFlip();
   };
 
   const progressPercent = cardDeck.length > 0 ? Math.round(((currentIndex + 1) / cardDeck.length) * 100) : 0;
@@ -546,7 +593,7 @@ export default function KatakanaFlashcards({
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onPointerCancel={handlePointerCancel}
-              onClick={handleFlip}
+              onClick={handleCardClick}
             >
               {/* 캐로우셀 슬라이드 & 드래그 모션 래퍼 */}
               <div
@@ -615,7 +662,7 @@ export default function KatakanaFlashcards({
                       뒷면 (Back Card - 정답 및 히라가나 Mnemonic 연계 브릿지)
                   ============================================================== */}
                   <div
-                    className="absolute inset-0 w-full h-full bg-gradient-to-b from-[#F8FAFD] via-white to-[#F0F4F8] rounded-3xl p-5 sm:p-7 border-2 border-[#3D5A80]/40 shadow-2xs flex flex-col justify-between items-center text-center overflow-y-auto no-scrollbar"
+                    className="absolute inset-0 w-full h-full bg-gradient-to-b from-[#F8FAFD] via-white to-[#F0F4F8] rounded-3xl p-5 sm:p-7 border-2 border-[#3D5A80]/40 shadow-2xs flex flex-col justify-between items-center text-center touch-pan-y"
                     style={{
                       backfaceVisibility: 'hidden',
                       WebkitBackfaceVisibility: 'hidden',
@@ -645,33 +692,18 @@ export default function KatakanaFlashcards({
                       </button>
                     </div>
 
-                    {/* 중앙 정답 및 연상 그림 */}
+                    {/* 중앙 정답 상세 정보 */}
                     <div className="my-auto py-2 flex flex-col items-center gap-2 max-w-sm w-full">
-                      {/* 가타카나 ⇄ 히라가나 1:1 브릿지 배지 */}
-                      {currentCard.matchingHiragana && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#CBD5E0] shadow-2xs text-xs font-bold">
-                          <span className="text-[#3D5A80]">
-                            가타카나 <strong className="text-base text-[#2D3748]">{currentCard.char}</strong>
-                          </span>
-                          <span className="text-[#A0AEC0]">⇄</span>
-                          <span className="text-[#E07A5F]">
-                            히라가나 <strong className="text-base text-[#E07A5F]">{currentCard.matchingHiragana}</strong>
-                          </span>
-                        </div>
-                      )}
-
-                      {/* 50음도 연상 기억법(Visual Mnemonic) 그림 카드 조합 렌더링 */}
-                      {currentCard.matchingHiragana && MNEMONIC_DATA[currentCard.matchingHiragana] ? (
-                        <div className="transform scale-95 sm:scale-100 origin-center">
-                          <HiraganaMnemonicSvg
-                            char={currentCard.matchingHiragana}
-                            koreanSound={currentCard.koreanSound}
-                            romaji={currentCard.romaji}
-                            fontStyle={currentFontStyle}
-                          />
-                        </div>
+                      {/* 가타카나 전용 연상 기억법(Visual Mnemonic) 그림 카드 렌더링 */}
+                      {KATAKANA_MNEMONIC_DATA[currentCard.char] ? (
+                        <KatakanaMnemonicSvg
+                          char={currentCard.char}
+                          koreanSound={currentCard.koreanSound}
+                          romaji={currentCard.romaji}
+                          fontStyle={currentFontStyle}
+                        />
                       ) : (
-                        <div className="flex flex-col items-center gap-2 py-4">
+                        <>
                           <div className="flex items-baseline gap-3">
                             <span
                               className={`text-5xl font-bold text-[#2D3748] ${
@@ -700,35 +732,28 @@ export default function KatakanaFlashcards({
                               </span>
                             </div>
                           )}
-                        </div>
-                      )}
 
-                      {/* 획순 및 발음 팁 */}
-                      {(currentCard.strokeGuide || currentCard.soundTip) && (
-                        <div className="text-[11px] text-[#718096] bg-white/80 rounded-xl px-3 py-1.5 border border-[#EDE8E1] w-full text-center">
-                          {currentCard.strokeGuide && (
-                            <p>
-                              <strong className="text-[#3D5A80]">획순:</strong> {currentCard.strokeGuide}
-                            </p>
+                          {/* 획순 및 발음 팁 (그림 카드가 없는 글자에만 표시) */}
+                          {(currentCard.strokeGuide || currentCard.soundTip) && (
+                            <div className="text-[11px] text-[#718096] bg-white/80 rounded-xl px-3 py-1.5 border border-[#EDE8E1] w-full text-center">
+                              {currentCard.strokeGuide && (
+                                <p>
+                                  <strong className="text-[#3D5A80]">획순:</strong> {currentCard.strokeGuide}
+                                </p>
+                              )}
+                              {currentCard.soundTip && (
+                                <p className="mt-0.5">
+                                  <strong className="text-[#3D5A80]">팁:</strong> {currentCard.soundTip}
+                                </p>
+                              )}
+                            </div>
                           )}
-                          {currentCard.soundTip && (
-                            <p className="mt-0.5">
-                              <strong className="text-[#3D5A80]">팁:</strong> {currentCard.soundTip}
-                            </p>
-                          )}
-                        </div>
+                        </>
                       )}
                     </div>
 
-                    {/* 하단 독음 확인 */}
-                    <div className="w-full flex items-center justify-between text-xs text-[#718096] pt-1 shrink-0">
-                      <span className="text-xs font-black text-[#3D5A80]">
-                        발음: [{currentCard.koreanSound}] ({currentCard.romaji})
-                      </span>
-                      <span className="text-[10px] text-[#A0AEC0]">
-                        터치하면 앞면으로 회전
-                      </span>
-                    </div>
+                    {/* 하단 여백 균형 유지 */}
+                    <div className="h-6" aria-hidden="true" />
                   </div>
                 </div>
               </div>
