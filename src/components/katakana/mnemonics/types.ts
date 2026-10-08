@@ -22,8 +22,8 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
 
   // カ행
   カ: { char: 'カ', word: '카메라', highlightIndex: 0, romaji: 'ka', reuseNote: '히라가나 か에서 점(・)만 빠진 동일 형태', tip: '카메라 셔터 버튼과 사각 프레임' },
-  キ: { char: 'キ', word: '키 (열쇠)', highlightIndex: 0, romaji: 'ki', reuseNote: '히라가나 き의 상단과 동일한 황금 열쇠', tip: '열쇠(Key)의 2개 톱니와 곧은 축' },
-  ク: { char: 'ク', word: '쿠키', highlightIndex: 0, romaji: 'ku', tip: '한 입 베어 문 각진 7자 쿠키 조각' },
+  キ: { char: 'キ', word: '키 (열쇠)', highlightIndex: 0, romaji: 'ki', reuseNote: '히라가나 き와 마찬가지로 찬란한 황금 열쇠', tip: '상단 손잡이와 2개의 톱니 날을 지닌 황금 열쇠(Key)' },
+  ク: { char: 'ク', word: '쿠폰', highlightIndex: 0, romaji: 'ku', tip: '가위로 각진 점선을 싹둑 오려내는 할인 쿠폰(Coupon)' },
   ケ: { char: 'ケ', word: '케이크', highlightIndex: 0, romaji: 'ke', tip: '케이크를 자르는 각진 나이프 라인' },
   コ: { char: 'コ', word: '코너', highlightIndex: 0, romaji: 'ko', tip: '직각으로 꺾인 길모퉁이 코너(Corner)' },
 

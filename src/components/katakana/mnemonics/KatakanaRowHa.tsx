@@ -105,34 +105,194 @@ export default function KatakanaRowHa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ヘ') {
-    // ヘ: 헤엄 (★ 히라가나 へ와 100% 동일한 형태! 물살을 가르며 헤엄치는 수영선수 도안 100% 재활용)
+    // ヘ: 헤엄 (★ 히라가나 へ와 100% 동일한 형태! 물살을 가르며 헤엄치는 사랑스럽고 디테일한 수영선수 도안 100% 재활용)
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* 1. 배경 시원한 수영장/바다 물결 */}
         {/* 깊은 물속 레이어 */}
-        <path d="M 0 114 C 40 108 80 118 120 112 C 160 106 185 116 200 112 L 200 160 L 0 160 Z" fill="#E0F2FE" />
-        <path d="M 0 114 C 40 108 80 118 120 112 C 160 106 185 116 200 112" stroke="#0284C7" strokeWidth="2.5" />
-        <path d="M 12 136 C 36 132 64 138 90 134" stroke="#38BDF8" strokeWidth="1.8" strokeLinecap="round" strokeDasharray="8 5" />
-
-        {/* 수영 선수 몸통과 수영복 */}
-        <path d="M 48 106 C 50 96 62 92 78 92 C 88 92 98 96 100 104 C 100 110 92 116 80 116 C 64 116 52 112 48 106 Z" fill="#FED7AA" stroke="#EA580C" strokeWidth="1.5" />
-        <path d="M 48 106 C 50 97 60 94 68 94 C 72 98 74 108 72 114 C 60 116 52 112 48 106 Z" fill="#2563EB" stroke="#1D4ED8" strokeWidth="1.6" />
-
-        {/* 수영모 & 수경 */}
-        <circle cx="106" cy="82" r="14" fill="#0284C7" stroke="#0369A1" strokeWidth="1.6" />
-        <ellipse cx="108" cy="82" rx="4.5" ry="3.5" fill="#38BDF8" stroke="#0284C7" strokeWidth="1.4" />
-
-        {/* 하이 엘보 팔 스트로크 (글자 ヘ의 산 모양 ^ 궤적과 1:1 완벽 일치!) */}
         <path
-          d="M 74 94 C 80 84 92 72 102 62 C 105 59 109 60 111 64 C 122 76 138 92 154 104 C 157 106 156 109 152 110 C 142 104 128 88 116 78 C 110 74 106 74 102 80 C 92 90 84 98 80 102 Z"
+          d="M 0 114 C 40 108 80 118 120 112 C 160 106 185 116 200 112 L 200 160 L 0 160 Z"
+          fill="#E0F2FE"
+        />
+        <path
+          d="M 0 126 C 45 122 90 130 140 124 C 170 120 188 126 200 124 L 200 160 L 0 160 Z"
+          fill="#BAE6FD"
+          opacity="0.45"
+        />
+        {/* 수면 메인 웨이브 라인 */}
+        <path
+          d="M 0 114 C 40 108 80 118 120 112 C 160 106 185 116 200 112"
+          stroke="#0284C7"
+          strokeWidth="2.5"
+        />
+        {/* 잔잔한 물결 무늬선 */}
+        <path
+          d="M 12 136 C 36 132 64 138 90 134"
+          stroke="#38BDF8"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeDasharray="8 5"
+        />
+        <path
+          d="M 110 138 C 138 134 168 140 192 135"
+          stroke="#38BDF8"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeDasharray="10 5"
+        />
+
+        {/* 2. 물속으로 뻗은 반대쪽 앞팔 (물속 글라이딩) */}
+        <path
+          d="M 92 104 C 108 108 124 112 140 115 C 144 116 146 119 142 121 C 128 122 110 118 94 114 Z"
+          fill="#FED7AA"
+          opacity="0.7"
+          stroke="#EA580C"
+          strokeWidth="1"
+        />
+
+        {/* 3. 하체 & 다리 & 발차기 (Flutter Kick - 역동적인 수영 전신 표현!) */}
+        {/* 물속 아래쪽 다리 */}
+        <path
+          d="M 54 108 C 44 112 36 118 28 122 C 26 123 27 125 29 125 C 38 122 46 116 56 112 Z"
+          fill="#FED7AA"
+          opacity="0.8"
+          stroke="#EA580C"
+          strokeWidth="1.2"
+        />
+        {/* 물 위쪽 다리 (발끝으로 물을 튕기는 자세) */}
+        <path
+          d="M 52 104 C 42 102 34 100 24 98 C 22 97 21 100 23 102 C 30 106 40 108 50 108 Z"
+          fill="#FED7AA"
+          stroke="#EA580C"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        {/* 뒤쪽 발차기 물보라 거품과 튀는 물방울 */}
+        <path
+          d="M 22 96 C 14 92 8 98 12 104 C 16 108 26 106 28 100 Z"
+          fill="#FFFFFF"
+          stroke="#38BDF8"
+          strokeWidth="1.2"
+        />
+        <circle cx="14" cy="90" r="2.2" fill="#38BDF8" />
+        <circle cx="20" cy="85" r="1.6" fill="#60A5FA" />
+        <circle cx="8" cy="98" r="1.8" fill="#BAE6FD" />
+
+        {/* 4. 상체 몸통 & 스포티 수영복 (수면에 안정감 있게 뜬 전신 자세) */}
+        {/* 몸통 베이스 (등~허리~엉덩이) */}
+        <path
+          d="M 48 106 
+             C 50 96 62 92 78 92 
+             C 88 92 98 96 100 104 
+             C 100 110 92 116 80 116 
+             C 64 116 52 112 48 106 Z"
+          fill="#FED7AA"
+          stroke="#EA580C"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        {/* 파란색 스포티 수영복 (Trunks) */}
+        <path
+          d="M 48 106 
+             C 50 97 60 94 68 94 
+             C 72 98 74 108 72 114 
+             C 60 116 52 112 48 106 Z"
+          fill="#2563EB"
+          stroke="#1D4ED8"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        {/* 수영복 화이트 레이싱 스트라이프 */}
+        <path d="M 54 100 C 58 104 60 110 60 114" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+
+        {/* 5. 머리 & 수영모 & 고글 & 숨 내쉬는 귀여운 표정 */}
+        {/* 얼굴 옆모습 (어깨 바로 앞 자연스러운 두상) */}
+        <path
+          d="M 88 88 
+             C 88 76 96 70 106 72 
+             C 114 74 118 82 116 90 
+             C 114 96 106 100 96 98 
+             C 90 96 88 92 88 88 Z"
+          fill="#FED7AA"
+          stroke="#EA580C"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        {/* 마린 블루 수영모 (Swim Cap) */}
+        <path
+          d="M 88 86 
+             C 87 74 95 68 106 70 
+             C 115 72 117 78 116 84 
+             C 108 78 98 78 88 86 Z"
+          fill="#0284C7"
+          stroke="#0369A1"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        {/* 수영모 화이트 라인 */}
+        <path d="M 94 72 C 102 71 108 74 112 79" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
+
+        {/* 수경 (Goggles) */}
+        <path d="M 90 82 C 96 80 102 80 106 82" stroke="#0F172A" strokeWidth="1.4" strokeLinecap="round" />
+        <ellipse cx="108" cy="82" rx="4.5" ry="3.5" fill="#38BDF8" stroke="#0284C7" strokeWidth="1.4" />
+        <ellipse cx="109" cy="81" rx="1.5" ry="1" fill="#FFFFFF" opacity="0.9" />
+
+        {/* 표정 디테일: 방긋 웃는 눈 & 볼터치 & 숨을 "파-" 내쉬는 입 */}
+        <path d="M 102 87 Q 105 84 108 87" stroke="#1E293B" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+        <ellipse cx="104" cy="92" rx="3" ry="1.8" fill="#FDA4AF" />
+        <ellipse cx="113" cy="92" rx="2" ry="2.2" fill="#EA580C" />
+        {/* 숨 내쉴 때 퐁퐁 나오는 귀여운 물방울 */}
+        <circle cx="120" cy="89" r="1.6" fill="#FFFFFF" stroke="#38BDF8" strokeWidth="0.8" />
+        <circle cx="126" cy="85" r="2.2" fill="#FFFFFF" stroke="#38BDF8" strokeWidth="0.8" />
+
+        {/* 6. 글자 'ヘ'의 완벽한 궤적: 하이 엘보 리커버리 오른팔 (스트로크) */}
+        {/* 어깨(74,94) -> 팔꿈치(105,62) -> 물을 베며 뻗은 손끝(154,106) */}
+        <path
+          d="M 74 94 
+             C 80 84 92 72 102 62 
+             C 105 59 109 60 111 64 
+             C 122 76 138 92 154 104 
+             C 157 106 156 109 152 110 
+             C 142 104 128 88 116 78 
+             C 110 74 106 74 102 80 
+             C 92 90 84 98 80 102 
+             C 76 102 72 98 74 94 Z"
           fill="#FED7AA"
           stroke="#EA580C"
           strokeWidth="1.8"
+          strokeLinejoin="round"
         />
+        {/* 팔꿈치 꼭대기 하이라이트 광택 */}
+        <ellipse cx="106" cy="63" rx="2.5" ry="1.6" fill="#FFFFFF" opacity="0.85" />
 
-        {/* 물보라 방울들 */}
+        {/* 7. 팔꿈치 위로 튀는 상쾌한 물방울 */}
         <circle cx="105" cy="48" r="2.4" fill="#38BDF8" />
         <circle cx="114" cy="44" r="1.8" fill="#60A5FA" />
+        <circle cx="96" cy="52" r="1.6" fill="#BAE6FD" />
+
+        {/* 8. 손끝이 물에 닿는 곳의 하얀 거품 파도 & 물보라 */}
+        <path
+          d="M 150 106 C 156 100 164 102 168 110 C 160 112 152 110 150 106 Z"
+          fill="#FFFFFF"
+          stroke="#38BDF8"
+          strokeWidth="1.3"
+        />
         <circle cx="164" cy="98" r="2" fill="#38BDF8" />
+        <circle cx="172" cy="103" r="1.5" fill="#60A5FA" />
+        <circle cx="158" cy="95" r="1.8" fill="#BAE6FD" />
+
+        {/* 9. 시원한 속도감을 더해주는 물살 스피드 라인 */}
+        <path
+          d="M 148 118 C 164 116 182 120 196 118"
+          stroke="#0284C7"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
 
         {/* 글자 'ヘ' 오버레이 */}
         <KatakanaCharOverlay char="ヘ" fontFamily={fontFamily} x="108" y="116" />
