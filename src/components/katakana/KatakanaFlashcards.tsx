@@ -5,7 +5,6 @@ import {
   KATAKANA_GRID,
   KATAKANA_DAKUON_GRID,
   KATAKANA_YOUON_GRID,
-  KATAKANA_SPECIAL_GRID,
   ALL_KATAKANA_SEION_CHARS,
   ALL_KATAKANA_DAKUON_CHARS,
   ALL_KATAKANA_YOUON_CHARS,
@@ -23,10 +22,10 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  HelpCircle,
   Type,
-  Layers,
-  ArrowRight
+  ArrowRight,
+  BookOpen,
+  Zap
 } from 'lucide-react';
 import KatakanaMnemonicSvg from '@/components/katakana/KatakanaMnemonicSvg';
 import { KATAKANA_MNEMONIC_DATA } from '@/components/katakana/mnemonics/types';
@@ -142,6 +141,7 @@ export default function KatakanaFlashcards({
   const [knownChars, setKnownChars] = useState<Set<string>>(new Set());
   const [confusedChars, setConfusedChars] = useState<Set<string>>(new Set());
   const [isSessionFinished, setIsSessionFinished] = useState(false);
+  const [reviewListTab, setReviewListTab] = useState<'confused' | 'skipped'>('confused');
   const [isPlayingSound, setIsPlayingSound] = useState(false);
 
   // 슬라이드 애니메이션 제어
@@ -203,7 +203,10 @@ export default function KatakanaFlashcards({
   // 카드 변경 시 자동 발음 재생 (뒤집혀 있거나 자동재생 활성화된 경우)
   useEffect(() => {
     if (autoSpeech && currentCard && !isSessionFinished) {
-      playCurrentSound();
+      const timer = setTimeout(() => {
+        playCurrentSound();
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, [currentIndex, autoSpeech, isSessionFinished, currentCard, playCurrentSound]);
 
@@ -261,6 +264,62 @@ export default function KatakanaFlashcards({
     setIsFlipped(false);
     setIsSessionFinished(false);
   }, [filterType, confusedChars, prepareDeck]);
+
+  // 글자 분류 계산 (현재 덱 기준)
+  const knownCharsList = cardDeck.filter((c) => knownChars.has(c.char));
+  const confusedCharsList = cardDeck.filter((c) => confusedChars.has(c.char));
+  const unreviewedCharsList = cardDeck.filter(
+    (c) => !knownChars.has(c.char) && !confusedChars.has(c.char)
+  );
+
+  // ✨ 외운 글자 복습
+  const handleReviewKnown = useCallback(() => {
+    const knownDeck = cardDeck.filter((c) => knownChars.has(c.char));
+    if (knownDeck.length === 0) return;
+
+    setCardDeck(knownDeck);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsSessionFinished(false);
+  }, [cardDeck, knownChars]);
+
+  // ⚡ 헷갈린 글자 복습
+  const handleReviewConfused = useCallback(() => {
+    const wrongDeck = ALL_KATAKANA_CHARS.filter((c) => confusedChars.has(c.char));
+    if (wrongDeck.length === 0) return;
+
+    setFilterType('wrong');
+    setCardDeck(wrongDeck);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsSessionFinished(false);
+  }, [confusedChars]);
+
+  // 📖 건너뛴 글자 복습
+  const handleReviewSkipped = useCallback(() => {
+    if (unreviewedCharsList.length === 0) return;
+
+    setCardDeck(unreviewedCharsList);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsSessionFinished(false);
+  }, [unreviewedCharsList]);
+
+  // 전체 학습 기록 초기화
+  const handleResetProgress = useCallback(() => {
+    setKnownChars(new Set());
+    setConfusedChars(new Set());
+    try {
+      localStorage.removeItem(storageKey);
+    } catch {
+      // 무시
+    }
+    const deck = prepareDeck(filterType);
+    setCardDeck(deck);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setIsSessionFinished(false);
+  }, [filterType, prepareDeck, storageKey]);
 
   // 외웠어요 체크
   const handleMarkKnown = useCallback(() => {
@@ -417,7 +476,7 @@ export default function KatakanaFlashcards({
     handleFlip();
   };
 
-  const progressPercent = cardDeck.length > 0 ? Math.round(((currentIndex + 1) / cardDeck.length) * 100) : 0;
+  const progressPercent = cardDeck.length > 0 ? Math.round(((currentIndex + (isSessionFinished ? 1 : 0)) / cardDeck.length) * 100) : 0;
 
   return (
     <div className="w-full space-y-5 animate-in fade-in duration-200">
@@ -460,7 +519,7 @@ export default function KatakanaFlashcards({
           <div className="flex-1 max-w-xs">
             <div className="flex items-center justify-between text-xs font-bold mb-1">
               <span className="text-[#3D5A80]">
-                {currentIndex + 1} / {cardDeck.length}
+                {isSessionFinished ? cardDeck.length : currentIndex + 1} / {cardDeck.length}
               </span>
               <span className="text-[#A0AEC0]">{progressPercent}%</span>
             </div>
@@ -523,62 +582,244 @@ export default function KatakanaFlashcards({
         </div>
       </div>
 
-      {/* 2. 메인 플래시카드 영역 (또는 완료 축하 화면) */}
+      {/* 2. 세션 완료 화면 vs 플래시 카드 화면 */}
       {isSessionFinished ? (
-        <div className="bg-white rounded-3xl p-8 border border-[#EDE8E1] shadow-2xs text-center space-y-6 animate-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 rounded-full bg-[#EBF3FB] text-[#3D5A80] flex items-center justify-center mx-auto shadow-inner">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EDE8E1] shadow-xs text-center space-y-6 animate-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#EBF3FB] to-[#F0F7FF] text-[#3D5A80] flex items-center justify-center mx-auto shadow-inner border border-[#C5D9F2]">
             <Sparkles className="w-8 h-8" />
           </div>
-          <div>
+
+          <div className="space-y-1.5">
             <h3 className="text-xl font-black text-[#2D3748]">
               가타카나 카드 학습 완료! 🎉
             </h3>
-            <p className="text-sm text-[#718096] mt-1">
-              총 {cardDeck.length}장의 카드를 모두 확인하셨습니다.
+            <p className="text-xs text-[#718096]">
+              선택한 카드를 모두 학습했습니다. 상태별 카드를 누르면 바로 집중 복습을 진행합니다.
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-6 py-2">
-            <div className="text-center">
-              <span className="text-2xl font-black text-emerald-600">
-                {knownChars.size}
-              </span>
-              <p className="text-xs text-[#A0AEC0] font-bold">외운 글자</p>
+          {/* 3분할 스코어 카드 겸 복습 트리거 버튼 (외움 / 헷갈림 / 건너뜀) - DESIGN.md 웜톤 팔레트 적용 */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-2.5 max-w-md mx-auto">
+            {/* 1. 외운 글자 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewKnown}
+              disabled={knownCharsList.length === 0}
+              className={`p-2.5 sm:p-3 bg-[#FAF0E6] rounded-2xl border border-[#F4DDD4] text-center transition-all group flex flex-col items-center justify-between min-h-[104px] ${
+                knownCharsList.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#E8C5B8] active:scale-95'
+              }`}
+              title={knownCharsList.length > 0 ? `외운 글자 ${knownCharsList.length}자 복습하기` : '외운 글자가 없습니다'}
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-[11px] font-bold text-[#E07A5F] w-full">
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                <span className="whitespace-nowrap tracking-tight">외운 글자</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#E07A5F] my-0.5 whitespace-nowrap">
+                {knownCharsList.length} <span className="text-xs font-semibold">자</span>
+              </p>
+              {knownCharsList.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#E07A5F] opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0] whitespace-nowrap">0자</span>
+              )}
+            </button>
+
+            {/* 2. 헷갈린 글자 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewConfused}
+              disabled={confusedCharsList.length === 0}
+              className={`p-2.5 sm:p-3 bg-[#F7EBE5] rounded-2xl border border-[#ECCDC2] text-center transition-all group flex flex-col items-center justify-between min-h-[104px] ${
+                confusedCharsList.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#DFB0A1] active:scale-95'
+              }`}
+              title={confusedCharsList.length > 0 ? `헷갈린 글자 ${confusedCharsList.length}자 복습하기` : '헷갈린 글자가 없습니다'}
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-[11px] font-bold text-[#C45B40] w-full">
+                <Zap className="w-3.5 h-3.5 shrink-0" />
+                <span className="whitespace-nowrap tracking-tight">헷갈린 글자</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#C45B40] my-0.5 whitespace-nowrap">
+                {confusedCharsList.length} <span className="text-xs font-semibold">자</span>
+              </p>
+              {confusedCharsList.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#C45B40] opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0] whitespace-nowrap">0자</span>
+              )}
+            </button>
+
+            {/* 3. 건너뛴 글자 복습 카드 */}
+            <button
+              type="button"
+              onClick={handleReviewSkipped}
+              disabled={unreviewedCharsList.length === 0}
+              className={`p-2.5 sm:p-3 bg-[#F8F6F2] rounded-2xl border border-[#EDE8E1] text-center transition-all group flex flex-col items-center justify-between min-h-[104px] ${
+                unreviewedCharsList.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 hover:border-[#D6D0C7] active:scale-95'
+              }`}
+              title={unreviewedCharsList.length > 0 ? `건너뛴 글자 ${unreviewedCharsList.length}자 복습하기` : '건너뛴 글자가 없습니다'}
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1 text-[11px] font-bold text-[#718096] w-full">
+                <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                <span className="whitespace-nowrap tracking-tight">건너뛴 글자</span>
+              </div>
+              <p className="text-xl sm:text-2xl font-black text-[#2D3748] my-0.5 whitespace-nowrap">
+                {unreviewedCharsList.length} <span className="text-xs font-semibold">자</span>
+              </p>
+              {unreviewedCharsList.length > 0 ? (
+                <span className="inline-flex items-center justify-center gap-0.5 text-[10px] font-bold text-[#718096] opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  복습하기 ›
+                </span>
+              ) : (
+                <span className="text-[10px] text-[#A0AEC0] whitespace-nowrap">0자</span>
+              )}
+            </button>
+          </div>
+
+          {/* 3색 복합 진행 바 (DESIGN.md 웜톤 팔레트) */}
+          <div className="max-w-md mx-auto space-y-1.5">
+            <div className="w-full bg-[#EDE8E1] rounded-full h-2 overflow-hidden flex">
+              <div
+                className="bg-[#E07A5F] h-full transition-all duration-300"
+                style={{ width: `${cardDeck.length > 0 ? (knownCharsList.length / cardDeck.length) * 100 : 0}%` }}
+                title={`외운 글자: ${knownCharsList.length}자`}
+              />
+              <div
+                className="bg-[#C45B40] h-full transition-all duration-300"
+                style={{ width: `${cardDeck.length > 0 ? (confusedCharsList.length / cardDeck.length) * 100 : 0}%` }}
+                title={`헷갈린 글자: ${confusedCharsList.length}자`}
+              />
+              <div
+                className="bg-[#D6D0C7] h-full transition-all duration-300"
+                style={{ width: `${cardDeck.length > 0 ? (unreviewedCharsList.length / cardDeck.length) * 100 : 0}%` }}
+                title={`건너뛴 글자: ${unreviewedCharsList.length}자`}
+              />
             </div>
-            <div className="w-px h-8 bg-stone-200" />
-            <div className="text-center">
-              <span className="text-2xl font-black text-rose-500">
-                {confusedChars.size}
+            <div className="flex justify-between text-[10px] text-[#718096] px-1 font-semibold">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-[#E07A5F] inline-block" /> 외움 {cardDeck.length > 0 ? Math.round((knownCharsList.length / cardDeck.length) * 100) : 0}%
               </span>
-              <p className="text-xs text-[#A0AEC0] font-bold">헷갈리는 글자</p>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-[#C45B40] inline-block" /> 헷갈림 {cardDeck.length > 0 ? Math.round((confusedCharsList.length / cardDeck.length) * 100) : 0}%
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-[#D6D0C7] inline-block" /> 건너뜀 {cardDeck.length > 0 ? Math.round((unreviewedCharsList.length / cardDeck.length) * 100) : 0}%
+              </span>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            {confusedChars.size > 0 && (
+          {/* 복습 대상 글자 리스트 (탭 전환) */}
+          {(confusedCharsList.length > 0 || unreviewedCharsList.length > 0) && (
+            <div className="text-left bg-[#FBF9F5] rounded-2xl p-4 border border-[#EDE8E1] space-y-3 max-w-md mx-auto">
+              <div className="flex items-center justify-between border-b border-[#EDE8E1] pb-2">
+                <span className="text-xs font-black text-[#2D3748]">
+                  복습 대상 글자
+                </span>
+                <div className="flex items-center gap-1">
+                  {confusedCharsList.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setReviewListTab('confused')}
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all border cursor-pointer ${
+                        reviewListTab === 'confused'
+                          ? 'bg-[#F7EBE5] text-[#C45B40] border-[#ECCDC2]'
+                          : 'bg-white text-[#718096] border-[#EDE8E1]'
+                      }`}
+                    >
+                      헷갈림 ({confusedCharsList.length})
+                    </button>
+                  )}
+                  {unreviewedCharsList.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setReviewListTab('skipped')}
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all border cursor-pointer ${
+                        reviewListTab === 'skipped'
+                          ? 'bg-[#F8F6F2] text-[#2D3748] border-[#D6D0C7]'
+                          : 'bg-white text-[#718096] border-[#EDE8E1]'
+                      }`}
+                    >
+                      건너뜀 ({unreviewedCharsList.length})
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto pr-1">
+                {((reviewListTab === 'confused' && confusedCharsList.length > 0)
+                  ? confusedCharsList
+                  : (unreviewedCharsList.length > 0 ? unreviewedCharsList : confusedCharsList)
+                ).map((item) => (
+                  <button
+                    key={item.char}
+                    type="button"
+                    onClick={() => playKatakanaAudio(item.char)}
+                    className="px-2.5 py-2 bg-white hover:bg-[#FAF9F7] active:scale-98 rounded-xl border border-[#EDE8E1] hover:border-[#C5D9F2] flex items-center justify-between gap-1 transition-all shadow-2xs group text-left cursor-pointer"
+                    title={`클릭하여 '${item.char}' 발음 듣기`}
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className={`text-sm font-black text-[#2D3748] ${
+                          currentFontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                        }`}
+                      >
+                        {item.char}
+                      </span>
+                      <span className="text-[10px] text-[#718096] truncate font-medium">
+                        {item.koreanSound}
+                      </span>
+                    </div>
+                    <Volume2 className="w-3.5 h-3.5 shrink-0 text-[#CBD5E1] group-hover:text-[#3D5A80] group-hover:scale-110 transition-all" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 하단 액션 버튼 그룹 */}
+          <div className="flex flex-col gap-2 pt-2 max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
               <button
                 type="button"
-                onClick={() => handleFilterChange('wrong')}
-                className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-sm transition-all active:scale-95"
+                onClick={handleRestart}
+                className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-[#2D3748] text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-98 cursor-pointer"
               >
-                헷갈린 글자만 다시 복습하기 ({confusedChars.size}자)
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>처음부터 다시 학습</span>
               </button>
-            )}
-            <button
-              type="button"
-              onClick={handleRestart}
-              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white font-bold text-xs shadow-sm transition-all active:scale-95"
-            >
-              처음부터 다시 보기
-            </button>
-            {onCompleteToNextStep && (
-              <button
-                type="button"
-                onClick={onCompleteToNextStep}
-                className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#FAF9F7] hover:bg-white text-[#2D3748] border border-[#EDE8E1] font-bold text-xs transition-all active:scale-95"
-              >
-                다음 학습 단계로
-              </button>
+
+              {onCompleteToNextStep && (
+                <button
+                  type="button"
+                  onClick={onCompleteToNextStep}
+                  className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-[#3D5A80] hover:bg-[#2B3E58] text-white text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-1.5 active:scale-98 cursor-pointer"
+                >
+                  <span>다음 학습 단계로</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* 기록 초기화 옵션 */}
+            {(knownChars.size > 0 || confusedChars.size > 0) && (
+              <div className="pt-1 text-center">
+                <button
+                  type="button"
+                  onClick={handleResetProgress}
+                  className="text-[11px] font-semibold text-[#A0AEC0] hover:text-[#E07A5F] underline underline-offset-4 transition-colors cursor-pointer"
+                >
+                  학습 기록 전체 초기화
+                </button>
+              </div>
             )}
           </div>
         </div>
