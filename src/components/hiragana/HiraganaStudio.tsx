@@ -732,9 +732,9 @@ export default function HiraganaStudio({
 
             {/* 요음 모드일 때 요음 결합 공식 요약 배너 */}
             {category === 'youon' && (
-              <div className="bg-gradient-to-r from-rose-50 to-[#FFF9F2] rounded-2xl p-3.5 border border-rose-200/80 space-y-2.5">
-                <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-rose-900 min-w-0">
-                  <Sparkles className="w-4 h-4 text-rose-600 shrink-0" />
+              <div className="bg-gradient-to-r from-[#FAF0E6] to-[#FFF9F2] rounded-2xl p-3 border border-[#F4DDD4] space-y-2">
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#C45B40] min-w-0">
+                  <Lightbulb className="w-4 h-4 text-[#E07A5F] shrink-0" />
                   <span className="truncate whitespace-nowrap break-keep">
                     <span className="sm:hidden">요음 결합 공식</span>
                     <span className="hidden sm:inline">い단 글자 + 작은 ゃ·ゅ·ょ 결합 공식</span>
@@ -746,20 +746,20 @@ export default function HiraganaStudio({
                     return (
                       <div
                         key={rule.id}
-                        className={`py-2.5 px-3 rounded-2xl border text-center transition-all ${isRuleActive
-                          ? 'bg-white border-[#E07A5F] shadow-xs ring-1.5 ring-[#E07A5F]'
-                          : 'bg-white/80 border-rose-200/70 hover:bg-white'
+                        className={`py-2 px-3 rounded-xl border text-center transition-all ${isRuleActive
+                          ? 'bg-white border-[#E07A5F] shadow-xs'
+                          : 'bg-white border-[#EDE8E1] hover:border-[#F4DDD4]'
                           }`}
                       >
-                        <div className="text-sm sm:text-base font-black text-[#2D3748] tracking-tight">
+                        <div className="text-sm font-black text-[#2D3748] tracking-tight">
                           {rule.changeFormula}
                         </div>
-                        <div className="text-xs sm:text-sm text-[#718096] flex items-center justify-center gap-1.5 mt-1 font-medium">
+                        <div className="text-xs sm:text-sm text-[#718096] flex items-center justify-center gap-1.5 mt-0.5 font-medium">
                           <span className="text-sm sm:text-base font-bold text-[#2D3748] font-jp-gothic">{rule.examplePair.base}</span>
-                          <span className="text-sm sm:text-base text-rose-500 font-bold font-jp-gothic">{rule.examplePair.small}</span>
+                          <span className="text-xs font-bold text-[#E07A5F]">+</span>
+                          <span className="text-sm sm:text-base text-[#E07A5F] font-bold font-jp-gothic">{rule.examplePair.small}</span>
                           <span className="text-[#A0AEC0] text-xs">➔</span>
-                          <span className="text-sm sm:text-base font-black text-[#E07A5F] font-jp-gothic">{rule.examplePair.youon}</span>
-                          <span className="text-xs sm:text-[13px] text-[#718096] font-semibold">({rule.examplePair.youonSound})</span>
+                          <span className="text-xs sm:text-sm font-bold text-[#C45B40]">{rule.examplePair.youonSound}</span>
                         </div>
                       </div>
                     );

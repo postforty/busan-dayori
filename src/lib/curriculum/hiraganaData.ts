@@ -407,7 +407,7 @@ export const YOUON_TRANSFORM_RULES: YouonTransformRule[] = [
     name: '작은 ゃ (-ya)',
     smallChar: 'ゃ',
     vowelSound: 'a',
-    changeFormula: 'i단 + ゃ ➔ [ya]',
+    changeFormula: 'い단 + ゃ ➔ [ya]',
     examplePair: { base: 'き', small: 'ゃ', youon: 'きゃ', separateSound: 'ki・ya (키-야)', youonSound: 'kya (캬)' },
     description: '앞 글자의 자음에 [ya] 모음이 합쳐져 1박자로 소리 납니다. (예: き+ゃ ➔ きゃ 캬)'
   },
@@ -416,7 +416,7 @@ export const YOUON_TRANSFORM_RULES: YouonTransformRule[] = [
     name: '작은 ゅ (-yu)',
     smallChar: 'ゅ',
     vowelSound: 'u',
-    changeFormula: 'i단 + ゅ ➔ [yu]',
+    changeFormula: 'い단 + ゅ ➔ [yu]',
     examplePair: { base: 'き', small: 'ゅ', youon: 'きゅ', separateSound: 'ki・yu (키-유)', youonSound: 'kyu (큐)' },
     description: '앞 글자의 자음에 [yu] 모음이 합쳐져 입술을 모으며 1박자로 발음합니다. (예: き+ゅ ➔ きゅ 큐)'
   },
@@ -425,7 +425,7 @@ export const YOUON_TRANSFORM_RULES: YouonTransformRule[] = [
     name: '작은 ょ (-yo)',
     smallChar: 'ょ',
     vowelSound: 'o',
-    changeFormula: 'i단 + ょ ➔ [yo]',
+    changeFormula: 'い단 + ょ ➔ [yo]',
     examplePair: { base: 'き', small: 'ょ', youon: 'きょ', separateSound: 'ki・yo (키-요)', youonSound: 'kyo (쿄)' },
     description: '앞 글자의 자음에 [yo] 모음이 합쳐져 입을 둥글게 모으며 1박자로 발음합니다. (예: き+ょ ➔ きょ 쿄)'
   }
