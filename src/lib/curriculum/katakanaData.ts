@@ -95,17 +95,17 @@ export const KATAKANA_GRID: KatakanaRow[] = [
       { char: 'カ', romaji: 'ka', koreanSound: '카', row: 'カ', colIndex: 0, strokeCount: 2, strokeGuide: '꺾임선 ① ➔ 삐침선 ② (점 없음)', soundTip: '히라가나 か에서 오른쪽 점이 빠진 모양입니다.', matchingHiragana: 'か' },
       { char: 'キ', romaji: 'ki', koreanSound: '키', row: 'カ', colIndex: 1, strokeCount: 3, strokeGuide: '가로선 2개 ①, ② ➔ 대각선 세로 ③', soundTip: '히라가나 き의 윗부분과 동일합니다.', matchingHiragana: 'き' },
       { char: 'ク', romaji: 'ku', koreanSound: '쿠', row: 'カ', colIndex: 2, strokeCount: 2, strokeGuide: '짧은 삐침 ① ➔ 꺾임선 ②', soundTip: '숫자 7과 비슷하게 꺾어 내려씁니다.', matchingHiragana: 'く' },
-      { char: 'ケ', romaji: 'ke', koreanSound: '케', row: 'カ', colIndex: 3, strokeCount: 3, strokeGuide: '왼쪽 삐침 ① ➔ 가로선 ② ➔ 긴 세로 삐침 ③', soundTip: '대나무 죽(竹)의 절반 모양과 흡사합니다.', matchingHiragana: 'け' },
-      { char: 'コ', romaji: 'ko', koreanSound: '코', row: 'カ', colIndex: 4, strokeCount: 2, strokeGuide: '상단 꺾임 ① ➔ 하단 가로선 ②', soundTip: '디귿(ㄷ)을 뒤집은 형태로 각지게 씁니다.', matchingHiragana: 'こ' },
+      { char: 'ケ', romaji: 'ke', koreanSound: '케', row: 'カ', colIndex: 3, strokeCount: 3, strokeGuide: '왼쪽 삐침 ① ➔ 가로선 ② ➔ 긴 세로 삐침 ③', soundTip: '알파벳 대문자 K(케이)를 오른쪽으로 살짝 기울인 모양입니다.', matchingHiragana: 'け' },
+      { char: 'コ', romaji: 'ko', koreanSound: '코', row: 'カ', colIndex: 4, strokeCount: 2, strokeGuide: '상단 꺾임 ① ➔ 하단 가로선 ②', soundTip: '따뜻한 코코아 머그잔의 각진 손잡이처럼 디귿(ㄷ)을 뒤집은 형태로 씁니다.', matchingHiragana: 'こ' },
     ]
   },
   {
     name: 'サ행 (sa)',
     chars: [
-      { char: 'サ', romaji: 'sa', koreanSound: '사', row: 'サ', colIndex: 0, strokeCount: 3, strokeGuide: '가로선 ① ➔ 왼쪽 세로 ② ➔ 오른쪽 세로 삐침 ③', soundTip: '풀 초(艹) 머리 모양과 유사합니다.', matchingHiragana: 'さ' },
+      { char: 'サ', romaji: 'sa', koreanSound: '사', row: 'サ', colIndex: 0, strokeCount: 3, strokeGuide: '가로선 ① ➔ 왼쪽 세로 ② ➔ 오른쪽 세로 삐침 ③', soundTip: '벽에 기댄 사다리의 가로 발판과 두 기둥 다리(풀 초 艹 머리) 모양입니다.', matchingHiragana: 'さ' },
       { char: 'シ', romaji: 'shi', koreanSound: '시', row: 'サ', colIndex: 1, strokeCount: 3, strokeGuide: '위 점 ① ➔ 아래 점 ② ➔ 아래에서 위로 치켜올리기 ③', soundTip: '★밑에서 위로 삐치는 획! 점들이 세로로 나란히 눕습니다.', matchingHiragana: 'し' },
       { char: 'ス', romaji: 'su', koreanSound: '스', row: 'サ', colIndex: 2, strokeCount: 2, strokeGuide: '가로 꺾임선 ① ➔ 뚫고 나오는 삐침 ②', soundTip: '숫자 7 밑으로 획이 살짝 삐쳐 나옵니다.', matchingHiragana: 'す' },
-      { char: 'セ', romaji: 'se', koreanSound: '세', row: 'サ', colIndex: 3, strokeCount: 2, strokeGuide: '가로 꺾임선 ① ➔ 세로 가로선 ②', soundTip: '히라가나 せ와 매우 비슷한 직사각형 형태입니다.', matchingHiragana: 'せ' },
+      { char: 'セ', romaji: 'se', koreanSound: '세', row: 'サ', colIndex: 3, strokeCount: 2, strokeGuide: '가로 꺾임선 ① ➔ 세로 가로선 ②', soundTip: '핸들바와 L자 프레임, 안장 기둥이 달린 세발자전거 모양입니다.', matchingHiragana: 'せ' },
       { char: 'ソ', romaji: 'so', koreanSound: '소', row: 'サ', colIndex: 4, strokeCount: 2, strokeGuide: '짧은 빗금 점 ① ➔ 위에서 아래로 삐침 ②', soundTip: '★위에서 아래로 긁어내리는 획! 각도가 가파릅니다.', matchingHiragana: 'そ' },
     ]
   },
@@ -113,27 +113,27 @@ export const KATAKANA_GRID: KatakanaRow[] = [
     name: 'タ행 (ta)',
     chars: [
       { char: 'タ', romaji: 'ta', koreanSound: '타', row: 'タ', colIndex: 0, strokeCount: 3, strokeGuide: '짧은 삐침 ① ➔ 꺾임선 ② ➔ 안쪽 점 ③', soundTip: '저녁 석(夕) 모양과 거의 일치합니다.', matchingHiragana: 'た' },
-      { char: 'チ', romaji: 'chi', koreanSound: '치', row: 'タ', colIndex: 1, strokeCount: 3, strokeGuide: '짧은 삐침 ① ➔ 가로선 ② ➔ 둥근 세로 곡선 ③', soundTip: '천 천(千)과 비슷하며 [치]로 발음합니다.', matchingHiragana: 'ち' },
-      { char: 'ツ', romaji: 'tsu', koreanSound: '츠', row: 'タ', colIndex: 2, strokeCount: 3, strokeGuide: '왼쪽 점 ① ➔ 오른쪽 점 ② ➔ 위에서 아래로 미끄러지듯 삐침 ③', soundTip: '★위에서 아래로 내리꽂는 획! 점들이 가로로 배치됩니다.', matchingHiragana: 'つ' },
-      { char: 'テ', romaji: 'te', koreanSound: '테', row: 'タ', colIndex: 3, strokeCount: 3, strokeGuide: '상단 짧은 가로 ① ➔ 가로선 ② ➔ 둥근 삐침 ③', soundTip: '히라가나 て의 골격과 거의 동일합니다.', matchingHiragana: 'て' },
-      { char: 'ト', romaji: 'to', koreanSound: '토', row: 'タ', colIndex: 4, strokeCount: 2, strokeGuide: '곧은 세로선 ① ➔ 오른쪽 대각선 점 ②', soundTip: '점복(卜) 모양으로 단순명료합니다.', matchingHiragana: 'と' },
+      { char: 'チ', romaji: 'chi', koreanSound: '치', row: 'タ', colIndex: 1, strokeCount: 3, strokeGuide: '짧은 삐침 ① ➔ 가로선 ② ➔ 둥근 세로 곡선 ③', soundTip: '치어리더가 양손에 폼폼을 들고(2획), 하이킥 점프를 뛰는 모습(3획)을 연상해 보세요.', matchingHiragana: 'ち' },
+      { char: 'ツ', romaji: 'tsu', koreanSound: '츠', row: 'タ', colIndex: 2, strokeCount: 3, strokeGuide: '왼쪽 점 ① ➔ 오른쪽 점 ② ➔ 위에서 아래로 미끄러지듯 삐침 ③', soundTip: '단정한 셔츠 칼라의 단추 2개와 아래로 떨어지는 앞섶 라인을 연상해 보세요.', matchingHiragana: 'つ' },
+      { char: 'テ', romaji: 'te', koreanSound: '테', row: 'タ', colIndex: 3, strokeCount: 3, strokeGuide: '상단 짧은 가로 ① ➔ 가로선 ② ➔ 둥근 삐침 ③', soundTip: '테이프 디스펜서의 톱니 커터(1획), 팽팽한 테이프(2획), 둥글게 풀려나오는 롤(3획)을 연상해 보세요.', matchingHiragana: 'て' },
+      { char: 'ト', romaji: 'to', koreanSound: '토', row: 'タ', colIndex: 4, strokeCount: 2, strokeGuide: '곧은 세로선 ① ➔ 오른쪽 대각선 점 ②', soundTip: '우뚝 선 가스 토치 본체(1획)와 우측 사선으로 뻗은 화구 파이프 & 불꽃(2획)을 연상해 보세요.', matchingHiragana: 'と' },
     ]
   },
   {
     name: 'ナ행 (na)',
     chars: [
-      { char: 'ナ', romaji: 'na', koreanSound: '나', row: 'ナ', colIndex: 0, strokeCount: 2, strokeGuide: '가로선 ① ➔ 왼쪽 세로 삐침 ②', soundTip: '열 십(十)에서 세로가 왼쪽으로 휘어진 모습입니다.', matchingHiragana: 'な' },
-      { char: 'ニ', romaji: 'ni', koreanSound: '니', row: 'ナ', colIndex: 1, strokeCount: 2, strokeGuide: '상단 짧은 가로 ① ➔ 하단 긴 가로 ②', soundTip: '두 이(二) 모양과 100% 동일합니다.', matchingHiragana: 'に' },
-      { char: 'ヌ', romaji: 'nu', koreanSound: '누', row: 'ナ', colIndex: 2, strokeCount: 2, strokeGuide: '꺾임선 ① ➔ 오른쪽 점 삐침 ②', soundTip: '또 우(又) 모양으로 스(ス)와 혼동하지 않도록 유의합니다.', matchingHiragana: 'ぬ' },
-      { char: 'ネ', romaji: 'ne', koreanSound: '네', row: 'ナ', colIndex: 3, strokeCount: 4, strokeGuide: '상단 점 ① ➔ 세로선 ② ➔ 가로 삐침 ③ ➔ 빗금 점 ④', soundTip: '보일 시(示) 변의 형태를 띱니다.', matchingHiragana: 'ね' },
+      { char: 'ナ', romaji: 'na', koreanSound: '나', row: 'ナ', colIndex: 0, strokeCount: 2, strokeGuide: '가로선 ① ➔ 왼쪽 세로 삐침 ②', soundTip: '가로로 쥔 나이프 손잡이(1획)와 아래로 촥 베어 내리는 날렵한 칼날(2획)을 연상해 보세요.', matchingHiragana: 'な' },
+      { char: 'ニ', romaji: 'ni', koreanSound: '니', row: 'ナ', colIndex: 1, strokeCount: 2, strokeGuide: '상단 짧은 가로 ① ➔ 하단 긴 가로 ②', soundTip: '위로 힘차게 헤엄쳐 올라가는 주황색 니모(흰동가리)의 머리와 배에 새겨진 하얀 가로 줄무늬 2개(ニ)를 연상해 보세요.', matchingHiragana: 'に' },
+      { char: 'ヌ', romaji: 'nu', koreanSound: '누', row: 'ナ', colIndex: 2, strokeCount: 2, strokeGuide: '가로 꺾임선 ① ➔ 교차 삐침선 ②', soundTip: '가로 젓가락(1획 가로)과 반대쪽 젓가락(2획)으로 건져 올린 꼬불꼬불한 누들(Noodles) 면발을 연상해 보세요.', matchingHiragana: 'ぬ' },
+      { char: 'ネ', romaji: 'ne', koreanSound: '네', row: 'ナ', colIndex: 3, strokeCount: 4, strokeGuide: '상단 점 ① ➔ 꺾임선 ② ➔ 곧은 세로선 ③ ➔ 우하향 빗금 점 ④', soundTip: '테니스 네트 상공에 뜬 공(1획), 상단 밴드(2획), 중앙 센터 스트랩(3획)의 단정한 네트(Net)를 연상해 보세요.', matchingHiragana: 'ね' },
       { char: 'ノ', romaji: 'no', koreanSound: '노', row: 'ナ', colIndex: 4, strokeCount: 1, strokeGuide: '우상단에서 좌하단으로 부드러운 삐침 ①', soundTip: '빗금 하나로 가장 쓰기 쉬운 글자입니다.', matchingHiragana: 'の' },
     ]
   },
   {
     name: 'ハ행 (ha)',
     chars: [
-      { char: 'ハ', romaji: 'ha', koreanSound: '하', row: 'ハ', colIndex: 0, strokeCount: 2, strokeGuide: '왼쪽 삐침 ① ➔ 오른쪽 삐침 ②', soundTip: '여덟 팔(八) 모양과 동일합니다.', matchingHiragana: 'は' },
-      { char: 'ヒ', romaji: 'hi', koreanSound: '히', row: 'ハ', colIndex: 1, strokeCount: 2, strokeGuide: '가로선 ① ➔ 꺾어 올린 뒤 세로선 ②', soundTip: '비수 비(匕) 모양과 비슷합니다.', matchingHiragana: 'ひ' },
+      { char: 'ハ', romaji: 'ha', koreanSound: '하', row: 'ハ', colIndex: 0, strokeCount: 2, strokeGuide: '왼쪽 삐침 ① ➔ 오른쪽 삐침 ②', soundTip: '하와이 해변에 시원하게 八자로 뻗은 두 그루의 쌍둥이 야자수(ハ)를 연상해 보세요.', matchingHiragana: 'は' },
+      { char: 'ヒ', romaji: 'hi', koreanSound: '히', row: 'ハ', colIndex: 1, strokeCount: 2, strokeGuide: '가로선 ① ➔ 꺾어 올린 뒤 세로선 ②', soundTip: '붉게 달아오른 상단 석영 열선(1획)과 왼쪽 기둥 및 바닥 프레임(2획)의 클래식 2단 전기 히터(Heater)를 연상해 보세요.', matchingHiragana: 'ひ' },
       { char: 'フ', romaji: 'fu', koreanSound: '후', row: 'ハ', colIndex: 2, strokeCount: 1, strokeGuide: '가로 꺾임선 하나로 완성 ①', soundTip: '히라가나 ふ와 달리 획 하나로 각지게 씁니다.', matchingHiragana: 'ふ' },
       { char: 'ヘ', romaji: 'he', koreanSound: '헤', row: 'ハ', colIndex: 3, strokeCount: 1, strokeGuide: '산 모양으로 꺾어 내림 ①', soundTip: '히라가나 へ와 형태가 똑같습니다.', matchingHiragana: 'へ' },
       { char: 'ホ', romaji: 'ho', koreanSound: '호', row: 'ハ', colIndex: 4, strokeCount: 4, strokeGuide: '가로선 ① ➔ 세로선 ② ➔ 좌우 점 ③, ④', soundTip: '나무 목(木) 모양과 매우 유사합니다.', matchingHiragana: 'ほ' },
@@ -422,7 +422,7 @@ export const CONFUSING_KATAKANA_PAIRS: ConfusingKatakanaPair[] = [
       korean: '츠',
       feature: '위에서 아래로 팍! 내리꽂는 획',
       strokeDirection: '우상단 ➔ 좌하단 (↙ 방향 내리꽂음)',
-      mnemonic: '두 점이 가로로 서 있고, 마지막 획이 하늘에서 땅으로 "츠(침) 뱉듯" 내리꽂힙니다.'
+      mnemonic: '단정한 셔츠 칼라의 단추 2개와 아래로 떨어지는 앞섶 라인처럼, 위에서 아래로(↙) 내리꽂힙니다.'
     },
     tip: '시(シ)는 히라가나 し처럼 둥글게 치켜올리고, 츠(ツ)는 히라가나 つ처럼 위에서부터 시작해 내리끕니다.'
   },
@@ -436,7 +436,7 @@ export const CONFUSING_KATAKANA_PAIRS: ConfusingKatakanaPair[] = [
       korean: '소',
       feature: '위에서 아래로 가파르게 내리꽂음',
       strokeDirection: '우상단 ➔ 좌하단 (가파른 빗금 ↙)',
-      mnemonic: '첫 번째 점이 꼿꼿이 서 있고, 긴 획이 위에서 아래로 "소나기처럼" 내립니다.'
+      mnemonic: '첫 번째 점이 꼿꼿이 서 있고, 긴 획이 황소의 날렵한 "소뿔"처럼 뻗어 있습니다.'
     },
     char2: {
       char: 'ン',

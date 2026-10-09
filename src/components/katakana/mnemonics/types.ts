@@ -16,41 +16,39 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   // ア행
   ア: { char: 'ア', word: '아이스크림', highlightIndex: 0, romaji: 'a', tip: '아이스크림 콘의 뾰족한 각 모서리' },
   イ: { char: 'イ', word: '이젤', highlightIndex: 0, romaji: 'i', tip: '화가의 이젤(Easel) 다리와 붓' },
-  ウ: { char: 'ウ', word: '우주선', highlightIndex: 0, romaji: 'u', tip: '우주선 상단 안테나와 지붕' },
+  ウ: { char: 'ウ', word: '우산', highlightIndex: 0, romaji: 'u', reuseNote: '히라가나 う(접힌 우산)에 이어 활짝 펼쳐진 각진 우산', tip: '비 올 때 활짝 펼친 각진 우산 꼭지와 지붕선' },
   エ: { char: 'エ', word: '에ㄹ리베이터', highlightIndex: 0, romaji: 'e', tip: '에ㄹ리베이터 문 / 건축 H빔' },
   オ: { char: 'オ', word: '오토바이', highlightIndex: 0, romaji: 'o', tip: '오토바이 라이더의 핸들과 발' },
 
   // カ행
   カ: { char: 'カ', word: '카메라', highlightIndex: 0, romaji: 'ka', reuseNote: '히라가나 か에서 점(・)만 빠진 동일 형태', tip: '카메라 셔터 버튼과 사각 프레임' },
-  キ: { char: 'キ', word: '키 (열쇠)', highlightIndex: 0, romaji: 'ki', reuseNote: '히라가나 き와 마찬가지로 찬란한 황금 열쇠', tip: '상단 손잡이와 2개의 톱니 날을 지닌 황금 열쇠(Key)' },
-  ク: { char: 'ク', word: '쿠폰', highlightIndex: 0, romaji: 'ku', tip: '가위로 각진 점선을 싹둑 오려내는 할인 쿠폰(Coupon)' },
-  ケ: { char: 'ケ', word: '케이크', highlightIndex: 0, romaji: 'ke', tip: '케이크를 자르는 각진 나이프 라인' },
-  コ: { char: 'コ', word: '코너', highlightIndex: 0, romaji: 'ko', tip: '직각으로 꺾인 길모퉁이 코너(Corner)' },
+  キ: { char: 'キ', word: '키 (열쇠)', highlightIndex: 0, romaji: 'ki', reuseNote: '히라가나 き와 마찬가지로 찬란한 황금 열쇠', tip: '하단 손잡이와 2개의 톱니 날을 지닌 황금 열쇠(Key)' },
+  ク: { char: 'ク', word: '쿠폰', highlightIndex: 0, romaji: 'ku', tip: '글자 획을 따라 우상향으로 비스듬히 놓인 할인 쿠폰(Coupon)' },
+  ケ: { char: 'ケ', word: '케이 (K)', highlightIndex: 0, romaji: 'ke', tip: '오른쪽으로 살짝 기울인 알파벳 K(케이)' },
+  コ: { char: 'コ', word: '코코아', highlightIndex: 0, romaji: 'ko', tip: '따뜻한 코코아 머그잔의 각진 손잡이' },
 
   // サ행
-  サ: { char: 'サ', word: '선인장(사보텐)', highlightIndex: 4, romaji: 'sa', tip: '사막의 십자 선인장(사보텐) 가지' },
-  シ: { char: 'シ', word: '시원한 파도', highlightIndex: 0, romaji: 'shi', tip: '★ 아래에서 위로 치솟는 시원한 파도 (윙크)' },
-  ス: { char: 'ス', word: '스케이트', highlightIndex: 0, romaji: 'su', tip: '빙판을 지치는 스케이트 날의 꺾임' },
-  セ: { char: 'セ', word: '세면대', highlightIndex: 0, romaji: 'se', reuseNote: '히라가나 せ가 직선화된 동일 형태', tip: '세면대 수도꼭지와 물받이 수조' },
-  ソ: { char: 'ソ', word: '소나기', highlightIndex: 0, romaji: 'so', tip: '★ 하늘에서 아래로 내리꽂히는 소나기 줄기' },
+  サ: { char: 'サ', word: '사다리', highlightIndex: 0, romaji: 'sa', tip: '나무 사다리의 가로 발판(중앙)과 두 기둥 다리' },
+  シ: { char: 'シ', word: '시(씨)익', highlightIndex: 0, romaji: 'shi', tip: '동그란 얼굴 속 두 눈과 씨익 올라간 입꼬리' },
+  ス: { char: 'ス', word: '스탠드', highlightIndex: 0, romaji: 'su', tip: '책상 위 조명 스탠드의 꺾인 갓과 삼각 지지대 다리' },
+  セ: { char: 'セ', word: '세발자전거', highlightIndex: 0, romaji: 'se', tip: '핸들바와 L자 프레임, 안장 기둥으로 달리는 세발자전거' },
+  ソ: { char: 'ソ', word: '소뿔', highlightIndex: 0, romaji: 'so', tip: '황소의 양쪽 뿔(왼쪽 작은 뿔과 오른쪽으로 길게 뻗은 뿔)' },
 
   // タ행
-  タ: { char: 'タ', word: '타조', highlightIndex: 0, romaji: 'ta', tip: '타조의 쫑긋한 머리와 쭉 뻗은 다리' },
-  チ: { char: 'チ', word: '치어리더', highlightIndex: 0, romaji: 'chi', tip: '치어리더가 손을 들고 폼폼을 쥔 모습' },
-  ツ: { char: 'ツ', word: '츠나미(침)', highlightIndex: 0, romaji: 'tsu', tip: '★ 위에서 아래로 츠(투!) 침 뱉듯 내리꽂히는 물방울' },
-  テ: { char: 'テ', word: '테이블', highlightIndex: 0, romaji: 'te', tip: '테이블(Table) 상판과 중앙 받침대' },
-  ト: { char: 'ト', word: '토템폴', highlightIndex: 0, romaji: 'to', tip: '곧게 솟은 기둥에 가지가 뻗은 토템폴' },
-
+  タ: { char: 'タ', word: '타조', highlightIndex: 0, romaji: 'ta', tip: '타조의 앞으로 숙인 목(1획), 둥근 등과 깃털(2획), 땅을 박차는 다리(3획)' },
+  チ: { char: 'チ', word: '치어리더', highlightIndex: 0, romaji: 'chi', tip: '치어리더가 양손에 폼폼(수술)을 들고(2획), 하이킥 점프를 뛰는 모습(3획)' },
+  ツ: { char: 'ツ', word: '셔츠', highlightIndex: 1, romaji: 'tsu', tip: '단정한 셔츠 칼라의 단추 2개(1, 2획)와 비스듬히 떨어지는 앞섶 라인(3획)' },
+  ト: { char: 'ト', word: '토치', highlightIndex: 0, romaji: 'to', tip: '수직 가스 실린더(1획)와 우측 사선으로 뻗은 화구 파이프 & 불꽃(2획)' },
   // ナ행
-  ナ: { char: 'ナ', word: '나이프', highlightIndex: 0, romaji: 'na', tip: '손잡이와 비스듬한 날을 지닌 나이프(Knife)' },
-  ニ: { char: 'ニ', word: '니트', highlightIndex: 0, romaji: 'ni', reuseNote: '히라가나 に의 오른쪽 두 가로선과 동일', tip: '니트(Knit) 스웨터의 두 줄 스트라이프' },
-  ヌ: { char: 'ヌ', word: '누들', highlightIndex: 0, romaji: 'nu', tip: '젓가락으로 건져 올린 누들(Noodles) 면발' },
-  ネ: { char: 'ネ', word: '넥타이', highlightIndex: 0, romaji: 'ne', tip: '셔츠 깃에 단정하게 맨 넥타이(Necktie)' },
+  ナ: { char: 'ナ', word: '나이프', highlightIndex: 0, romaji: 'na', tip: '가로 손잡이(1획)와 아래로 날렵하게 뻗어 베어 내리는 칼날(2획)의 나이프(Knife)' },
+  ニ: { char: 'ニ', word: '니모', highlightIndex: 0, romaji: 'ni', tip: '위로 헤엄쳐 올라가는 니모(흰동가리)의 머리와 배에 새겨진 하얀 가로 줄무늬 2개' },
+  ヌ: { char: 'ヌ', word: '누들', highlightIndex: 0, romaji: 'nu', tip: '가로 젓가락(1획 가로)과 반대쪽 젓가락(2획)으로 건져 올린 꼬불꼬불한 누들(Noodles) 면발' },
+  ネ: { char: 'ネ', word: '네트', highlightIndex: 0, romaji: 'ne', tip: '테니스 네트 상공의 공(1획), 상단 밴드(2획), 중앙 센터 스트랩(3획)' },
   ノ: { char: 'ノ', word: '노 (슬래시)', highlightIndex: 0, romaji: 'no', tip: '배를 젓는 노(Oar)의 날렵한 삐침선' },
 
   // ハ행
-  ハ: { char: 'ハ', word: '하하하 (웃음)', highlightIndex: 0, romaji: 'ha', tip: '하하하 웃을 때 팔자(八)로 올라간 눈썹/수염' },
-  ヒ: { char: 'ヒ', word: '히어로', highlightIndex: 0, romaji: 'hi', tip: '망토를 두르고 서 있는 히어로(Hero)' },
+  ハ: { char: 'ハ', word: '하와이', highlightIndex: 0, romaji: 'ha', tip: '하와이 해변에 시원하게 八자로 뻗은 쌍둥이 야자수' },
+  ヒ: { char: 'ヒ', word: '히터', highlightIndex: 0, romaji: 'hi', tip: '상단 붉은 석영 열선(1획)과 왼쪽 기둥·하단 받침대(2획)의 2단 전기 히터(Heater)' },
   フ: { char: 'フ', word: '후크', highlightIndex: 0, romaji: 'fu', tip: '갈고리 모양의 후크(Hook) 선장 손' },
   ヘ: { char: 'ヘ', word: '헤엄', highlightIndex: 0, romaji: 'he', reuseNote: '히라가나 へ와 100% 동일한 형태', tip: '물살을 가르며 하이 엘보로 헤엄치는 팔' },
   ホ: { char: 'ホ', word: '호롱불', highlightIndex: 0, romaji: 'ho', tip: '스탠드 기둥과 양옆 받침대가 있는 호롱불' },

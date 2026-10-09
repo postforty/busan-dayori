@@ -25,15 +25,15 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'キ') {
-    // キ: 키 / 열쇠 (상단 황금 손잡이 링, 2단 톱니 날, 곧은 축으로 구성된 완벽한 황금 열쇠)
+    // キ: 키 / 열쇠 (하단 황금 손잡이 링, 2단 톱니 날, 곧은 축으로 구성된 완벽한 황금 열쇠)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* 배경 앤틱 에스커천 (열쇠 구멍 장식 플레이트) */}
         <rect
-          x="54"
-          y="20"
-          width="104"
-          height="124"
+          x="52"
+          y="16"
+          width="106"
+          height="140"
           rx="22"
           fill="#FFFDF5"
           stroke="#FDE68A"
@@ -43,40 +43,64 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
         />
         {/* 클래식 열쇠 구멍(Keyhole) 깊이감 있는 음영 */}
         <path
-          d="M 106 50 C 95 50 87 58 87 68 C 87 74 91 80 95 84 L 91 116 C 91 121 95 125 106 125 C 117 125 121 121 121 116 L 117 84 C 121 80 125 74 125 68 C 125 58 117 50 106 50 Z"
+          d="M 104 46 C 94 46 86 54 86 64 C 86 70 90 75 94 79 L 91 106 C 91 110 95 114 104 114 C 113 114 117 110 117 106 L 114 79 C 118 75 122 70 122 64 C 122 54 114 46 104 46 Z"
           fill="#FEF3C7"
           stroke="#FCD34D"
           strokeWidth="1.5"
         />
-        <circle cx="106" cy="68" r="9" fill="#FDE68A" opacity="0.6" />
+        <circle cx="104" cy="64" r="8" fill="#FDE68A" opacity="0.6" />
 
-        {/* 열쇠 상단 앤틱 황금 손잡이 헤드 (Bow - 삼엽문 트레포일 디자인) */}
-        <g id="key-head">
-          {/* 손잡이 최상단 작은 걸이용 고리 */}
-          <circle cx="112" cy="7" r="5" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1.5" />
-          <circle cx="112" cy="7" r="2.2" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1.2" />
-
-          {/* 앤틱 삼엽문 헤드 외곽 루프들 */}
-          {/* 좌측 루프 */}
-          <circle cx="100" cy="21" r="8" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1.8" />
-          <circle cx="100" cy="21" r="4" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1.2" />
-          {/* 우측 루프 */}
-          <circle cx="124" cy="21" r="8" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1.8" />
-          <circle cx="124" cy="21" r="4" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1.2" />
-          {/* 중앙 메인 링 */}
-          <circle cx="112" cy="21" r="12" fill="#FDE047" stroke="#CA8A04" strokeWidth="2" />
-          <circle cx="112" cy="21" r="6" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1.5" />
-          {/* 손잡이 하단 연결 칼라 (글자 세로획 시작점으로 매끄럽게 연결) */}
-          <rect x="106" y="32" width="12" height="5" rx="1.5" fill="#FACC15" stroke="#CA8A04" strokeWidth="1.5" />
+        {/* 열쇠 상단 끝단 팁 크라운 & 볼 (Tip) */}
+        <g id="key-tip">
+          {/* 팁 베이스 칼라 */}
+          <rect
+            x="95"
+            y="30"
+            width="10"
+            height="4"
+            rx="1.5"
+            fill="#FACC15"
+            stroke="#CA8A04"
+            strokeWidth="1.4"
+          />
+          {/* 상단 팁 볼 */}
+          <circle cx="100" cy="27" r="4.5" fill="#FACC15" stroke="#CA8A04" strokeWidth="1.8" />
+          <circle cx="98.5" cy="25.5" r="1.4" fill="#FFFFFF" />
         </g>
 
-        {/* 열쇠 중앙 기둥 자루 (글자 キ의 세로 비스듬한 기둥과 정확히 일치) */}
-        <line x1="112" y1="36" x2="98" y2="134" stroke="#CA8A04" strokeWidth="6" strokeLinecap="round" />
-        <line x1="112" y1="37" x2="98" y2="133" stroke="#FEF08A" strokeWidth="2.8" strokeLinecap="round" />
+        {/* 열쇠 중앙 기둥 자루 (상단 팁에서 하단 손잡이까지 キ의 세로획 매칭 - 기울기 반대 방향) */}
+        <line x1="100" y1="32" x2="110" y2="121" stroke="#CA8A04" strokeWidth="6" strokeLinecap="round" />
+        <line x1="100" y1="33" x2="110" y2="120" stroke="#FEF08A" strokeWidth="2.8" strokeLinecap="round" />
 
-        {/* 하단 끝단 팁 볼 (Tip) */}
-        <circle cx="98" cy="136" r="5" fill="#FACC15" stroke="#CA8A04" strokeWidth="1.8" />
-        <circle cx="96.5" cy="134.5" r="1.5" fill="#FFFFFF" />
+        {/* 열쇠 하단 앤틱 황금 손잡이 헤드 (Bow - 삼엽문 트레포일 디자인) */}
+        <g id="key-head">
+          {/* 손잡이 상단 연결 칼라 (글자 세로획 끝부분과 매끄럽게 연결) */}
+          <rect
+            x="103"
+            y="120"
+            width="14"
+            height="5"
+            rx="1.5"
+            fill="#FACC15"
+            stroke="#CA8A04"
+            strokeWidth="1.5"
+          />
+
+          {/* 앤틱 삼엽문 헤드 루프들 */}
+          {/* 좌측 루프 */}
+          <circle cx="100" cy="136" r="8" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1.8" />
+          <circle cx="100" cy="136" r="4" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1.2" />
+          {/* 우측 루프 */}
+          <circle cx="124" cy="136" r="8" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1.8" />
+          <circle cx="124" cy="136" r="4" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1.2" />
+          {/* 중앙 메인 링 */}
+          <circle cx="112" cy="136" r="12" fill="#FDE047" stroke="#CA8A04" strokeWidth="2" />
+          <circle cx="112" cy="136" r="6" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1.5" />
+
+          {/* 손잡이 최하단 팁 볼 */}
+          <circle cx="112" cy="150" r="4" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1.4" />
+          <circle cx="112" cy="150" r="1.8" fill="#FFFDF5" stroke="#CA8A04" strokeWidth="1" />
+        </g>
 
         {/* 1단 상단 톱니 날 (글자 キ의 첫 번째 가로 획 매칭) */}
         <g id="key-bit-top">
@@ -111,9 +135,10 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
           <circle cx="156" cy="44" r="1.6" fill="#FFFFFF" />
         </g>
         <g id="sparkle-2">
-          <path d="M 68 34 L 69 29 L 70 34 L 75 35 L 70 36 L 69 41 L 68 36 L 63 35 Z" fill="#FACC15" />
+          <path d="M 66 36 L 67 31 L 68 36 L 73 37 L 68 38 L 67 43 L 66 38 L 61 37 Z" fill="#FACC15" />
         </g>
-        <circle cx="156" cy="98" r="2.2" fill="#FACC15" />
+        <circle cx="154" cy="112" r="2.2" fill="#FACC15" />
+        <circle cx="56" cy="120" r="1.8" fill="#FACC15" />
 
         {/* 글자 'キ' 오버레이 */}
         <KatakanaCharOverlay char="キ" fontFamily={fontFamily} x="106" y="118" />
@@ -122,92 +147,107 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ク') {
-    // ク: 쿠폰 (COUPON - 가위 ✂️로 점선을 따라 각지게 싹둑 오려내는 할인 쿠폰 티켓)
+    // ク: 쿠폰 (COUPON - 글자 ク의 획에 맞춰 우상향 각도로 비스듬히 놓인 할인 쿠폰 티켓)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 바닥 부드러운 그림자 */}
-        <ellipse cx="102" cy="144" rx="72" ry="8" fill="#F1F5F9" />
+        {/* 바닥 부드러운 원근 그림자 */}
+        <ellipse cx="102" cy="144" rx="68" ry="7.5" fill="#F1F5F9" />
 
-        {/* 쿠폰 티켓 본체 프레임 (양옆에 반원 펀칭 홈이 있는 클래식 쿠폰) */}
-        <path
-          d="M 38 34 
-             L 166 34 
-             C 172 34 176 38 176 44 
-             L 176 72 
-             C 168 72 162 76 162 82 
-             C 162 88 168 92 176 92 
-             L 176 122 
-             C 176 128 172 132 166 132 
-             L 38 132 
-             C 32 132 28 128 28 122 
-             L 28 92 
-             C 36 92 42 88 42 82 
-             C 42 76 36 72 28 72 
-             L 28 44 
-             C 28 38 32 34 38 34 Z"
-          fill="#FFF7ED"
-          stroke="#F97316"
-          strokeWidth="2.2"
-          strokeLinejoin="round"
-        />
+        {/* 우상향으로 비스듬히 기울어진 쿠폰 티켓 본체 그룹 (글자 ク의 우상향 획과 완벽 조화) */}
+        <g id="coupon-ticket-body" transform="rotate(-13, 101, 82)">
+          {/* 티켓 은은한 드롭 섀도우 */}
+          <path
+            d="M 44 48 L 158 48 C 164 48 168 52 168 58 L 168 78 C 161 78 156 82 156 87 C 156 92 161 96 168 96 L 168 116 C 168 122 164 126 158 126 L 44 126 C 38 126 34 122 34 116 L 34 96 C 41 96 46 92 46 87 C 46 82 41 78 34 78 L 34 58 C 34 52 38 48 44 48 Z"
+            fill="#FDBA74"
+            opacity="0.25"
+          />
 
-        {/* 내부 점선 장식 테두리 */}
-        <path
-          d="M 44 40 L 160 40 L 160 126 L 44 126 Z"
-          stroke="#FDBA74"
-          strokeWidth="1.2"
-          strokeDasharray="4 3"
-        />
+          {/* 쿠폰 티켓 본체 프레임 (양옆 반원 펀칭 홈이 있는 클래식 티켓) */}
+          <path
+            d="M 44 44 
+               L 158 44 
+               C 164 44 168 48 168 54 
+               L 168 74 
+               C 161 74 156 78 156 83 
+               C 156 88 161 92 168 92 
+               L 168 112 
+               C 168 118 164 122 158 122 
+               L 44 122 
+               C 38 122 34 118 34 112 
+               L 34 92 
+               C 41 92 46 88 46 83 
+               C 46 78 41 74 34 74 
+               L 34 54 
+               C 34 48 38 44 44 44 Z"
+            fill="#FFF7ED"
+            stroke="#F97316"
+            strokeWidth="2.2"
+            strokeLinejoin="round"
+          />
 
-        {/* 상단 쿠폰 타이틀 헤더 */}
-        <g id="coupon-header">
-          <rect x="48" y="44" width="56" height="14" rx="3" fill="#FFEDD5" />
-          <text x="76" y="54" fill="#C2410C" fontSize="8.5" fontWeight="900" textAnchor="middle" letterSpacing="0.8px">
-            COUPON
-          </text>
-          {/* 우측 50% OFF 뱃지 */}
-          <rect x="126" y="43" width="32" height="15" rx="3.5" fill="#EA580C" />
-          <text x="142" y="54" fill="#FFFFFF" fontSize="8.5" fontWeight="900" textAnchor="middle">
-            50%
-          </text>
+          {/* 내부 점선 장식 테두리 */}
+          <rect
+            x="40"
+            y="50"
+            width="122"
+            height="66"
+            rx="4"
+            stroke="#FDBA74"
+            strokeWidth="1.2"
+            strokeDasharray="4 3"
+            fill="none"
+          />
+
+          {/* 상단 쿠폰 타이틀 헤더 */}
+          <g id="coupon-header">
+            <rect x="46" y="55" width="52" height="13" rx="3" fill="#FFEDD5" />
+            <text x="72" y="64.5" fill="#C2410C" fontSize="8" fontWeight="900" textAnchor="middle" letterSpacing="0.8px">
+              COUPON
+            </text>
+            {/* 우측 50% OFF 뱃지 */}
+            <rect x="120" y="54" width="36" height="15" rx="3.5" fill="#EA580C" />
+            <text x="138" y="64.5" fill="#FFFFFF" fontSize="8" fontWeight="900" textAnchor="middle">
+              50% OFF
+            </text>
+          </g>
+
+          {/* 하단 바코드 & 쿠폰 코드 */}
+          <g id="coupon-barcode">
+            <line x1="46" y1="106" x2="46" y2="116" stroke="#9A3412" strokeWidth="1.8" />
+            <line x1="50" y1="106" x2="50" y2="116" stroke="#9A3412" strokeWidth="1" />
+            <line x1="53" y1="106" x2="53" y2="116" stroke="#9A3412" strokeWidth="2.4" />
+            <line x1="58" y1="106" x2="58" y2="116" stroke="#9A3412" strokeWidth="1.2" />
+            <line x1="62" y1="106" x2="62" y2="116" stroke="#9A3412" strokeWidth="2" />
+            <line x1="66" y1="106" x2="66" y2="116" stroke="#9A3412" strokeWidth="1" />
+            <line x1="70" y1="106" x2="70" y2="116" stroke="#9A3412" strokeWidth="2.2" />
+            <text x="78" y="114" fill="#EA580C" fontSize="7.2" fontWeight="bold">
+              ★ KU-777 ★
+            </text>
+          </g>
         </g>
 
-        {/* 하단 바코드 & 쿠폰 코드 */}
-        <g id="coupon-barcode">
-          <line x1="48" y1="114" x2="48" y2="124" stroke="#9A3412" strokeWidth="1.8" />
-          <line x1="52" y1="114" x2="52" y2="124" stroke="#9A3412" strokeWidth="1" />
-          <line x1="55" y1="114" x2="55" y2="124" stroke="#9A3412" strokeWidth="2.5" />
-          <line x1="60" y1="114" x2="60" y2="124" stroke="#9A3412" strokeWidth="1.2" />
-          <line x1="64" y1="114" x2="64" y2="124" stroke="#9A3412" strokeWidth="2" />
-          <line x1="68" y1="114" x2="68" y2="124" stroke="#9A3412" strokeWidth="1" />
-          <line x1="72" y1="114" x2="72" y2="124" stroke="#9A3412" strokeWidth="2.2" />
-          <text x="82" y="122" fill="#EA580C" fontSize="7.5" fontWeight="bold">
-            ★ KU-777 ★
-          </text>
-        </g>
-
-        {/* 글자 ク 모양의 각진 절취선 배경 섀도우 / 티켓 조각 */}
+        {/* 글자 ク 모양의 각진 절취선 배경 섀도우 (글자의 우상향 획 궤적 매칭) */}
         <path
-          d="M 74 54 L 140 56 C 144 76 136 102 88 130 C 96 104 100 80 74 54 Z"
+          d="M 76 56 L 132 44 C 138 68 130 98 84 128 C 96 100 98 76 76 56 Z"
           fill="#FED7AA"
-          opacity="0.5"
+          opacity="0.45"
         />
 
         {/* ク 모양을 따르는 또렷한 오렌지 절취 점선들 (Perforations) */}
         {/* 1획 삐침 절취선 */}
         <line
           x1="98"
-          y1="50"
+          y1="40"
           x2="74"
-          y2="82"
+          y2="80"
           stroke="#EA580C"
-          strokeWidth="2.4"
+          strokeWidth="2.5"
           strokeDasharray="4 3"
           strokeLinecap="round"
         />
-        {/* 2획 가로 & 우하향 곡선 절취선 */}
+        {/* 2획 우상향 가로 & 곡선 절취선 (우상향 가로선과 아래로 뻗는 곡선) */}
         <path
-          d="M 74 62 L 136 62 C 140 84 132 108 84 130"
+          d="M 76 56 L 130 44 C 136 68 128 98 84 128"
           stroke="#EA580C"
           strokeWidth="2.8"
           strokeDasharray="5 3.5"
@@ -215,8 +255,8 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
           strokeLinejoin="round"
         />
 
-        {/* 오려내는 가위 (Scissors ✂️) 아이콘 */}
-        <g id="scissors" transform="translate(142, 54) rotate(-25)">
+        {/* 오려내는 가위 (Scissors ✂️) 아이콘 - 우상단 꺾임점에 세련되게 배치 */}
+        <g id="scissors" transform="translate(136, 40) rotate(-35)">
           {/* 가위 날 1 */}
           <line x1="0" y1="2" x2="16" y2="-4" stroke="#64748B" strokeWidth="2" strokeLinecap="round" />
           {/* 가위 날 2 */}
@@ -229,10 +269,6 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
           <ellipse cx="-4" cy="-5" rx="4" ry="3" fill="#FED7AA" stroke="#EA580C" strokeWidth="1.5" />
         </g>
 
-        {/* 반짝임 별빛 (Sparkles) */}
-        <path d="M 154 84 L 155 80 L 156 84 L 160 85 L 156 86 L 155 90 L 154 86 L 150 85 Z" fill="#F97316" />
-        <circle cx="134" cy="116" r="1.5" fill="#F97316" />
-
         {/* 글자 'ク' 오버레이 */}
         <KatakanaCharOverlay char="ク" fontFamily={fontFamily} x="106" y="118" />
       </svg>
@@ -240,30 +276,100 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ケ') {
-    // ケ: 케이크 (칼로 자른 각진 조각 케이크와 생크림 딸기)
+    // ケ: 케이 / 알파벳 K (정확한 알파벳 대문자 K를 그린 후 오른쪽으로 살짝 기울여 ケ와 매칭)
+    const kPath = `
+      M 74 48
+      C 74 45 76 43 80 43
+      L 92 43
+      C 96 43 98 45 98 48
+      L 98 76
+      L 124 47
+      C 127 44 131 44 134 47
+      L 141 54
+      C 144 57 144 61 141 64
+      L 112 92
+      L 142 121
+      C 145 124 145 128 142 131
+      L 134 139
+      C 131 142 127 142 124 139
+      L 98 108
+      L 98 131
+      C 98 134 96 136 92 136
+      L 80 136
+      C 76 136 74 134 74 131
+      Z
+    `;
+
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 접시 베이스 */}
-        <ellipse cx="106" cy="136" rx="54" ry="8" fill="#F1F5F9" stroke="#CBD5E1" strokeWidth="1.5" />
+        <defs>
+          <linearGradient id="kBlockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#F0F9FF" />
+            <stop offset="100%" stopColor="#BAE6FD" />
+          </linearGradient>
+        </defs>
 
-        {/* 조각 케이크 옆면/단면 (글자 ケ의 긴 세로선과 가로 나이프 궤적) */}
-        <path
-          d="M 72 48 L 144 80 L 144 124 L 72 96 Z"
-          fill="#FFFBEB"
-          stroke="#F59E0B"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-        {/* 케이크 윗면 */}
-        <path d="M 72 48 L 110 36 L 144 80 Z" fill="#FEE2E2" stroke="#F87171" strokeWidth="2" />
+        {/* 바닥 그림자 (기우뚱 기울어진 블록의 원근 그림자) */}
+        <ellipse cx="106" cy="144" rx="60" ry="7.5" fill="#F1F5F9" />
+        <ellipse cx="102" cy="143" rx="42" ry="5" fill="#E2E8F0" opacity="0.6" />
 
-        {/* 상단 딸기 */}
-        <circle cx="106" cy="40" r="7" fill="#EF4444" />
-        <path d="M 103 33 L 106 30 L 109 33 Z" fill="#16A34A" />
+        {/* 틸트 회전 가이드 궤적 (K가 오른쪽으로 기우뚱 기울어졌음을 직관적으로 보여주는 점선 호와 화살표) */}
+        <g id="tilt-guide" opacity="0.8">
+          {/* 원래 똑바로 서 있던 K의 은은한 고스트 실루엣 (점선) */}
+          <path
+            d={kPath}
+            fill="none"
+            stroke="#CBD5E1"
+            strokeWidth="1.6"
+            strokeDasharray="4 3"
+            opacity="0.6"
+          />
 
-        {/* 자르는 나이프 실루엣 (글자 ケ의 왼쪽 삐침과 가로선 매칭) */}
-        <line x1="60" y1="36" x2="82" y2="84" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round" />
-        <line x1="74" y1="62" x2="148" y2="62" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" />
+          {/* 시계방향 회전 가이드 호 (Curve Arrow ↷) */}
+          <path d="M 86 33 C 95 28 105 29 112 34" stroke="#0284C7" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+          <path d="M 110 30 L 114 36 L 107 36 Z" fill="#0284C7" />
+
+          {/* 상단 틸트 뱃지 태그 */}
+          <rect x="20" y="16" width="54" height="17" rx="4" fill="#F0F9FF" stroke="#7DD3FC" strokeWidth="1.2" />
+          <text x="47" y="27.5" fill="#0369A1" fontSize="8" fontWeight="800" textAnchor="middle" letterSpacing="0.4px">
+            K ↷ TILT
+          </text>
+        </g>
+
+        {/* 오른쪽으로 살짝 기울인(17°) 정확한 알파벳 K 입체 블록 (눈/얼굴 없이 순수 그래픽) */}
+        <g id="tilted-letter-k" transform="rotate(17, 106, 90)">
+          {/* 3D 깊이감 입체 그림자 면 */}
+          <path
+            d={kPath}
+            transform="translate(4, 4.5)"
+            fill="#0284C7"
+            opacity="0.22"
+          />
+
+          {/* 정통 알파벳 K 메인 블록 바디 */}
+          <path
+            d={kPath}
+            fill="url(#kBlockGrad)"
+            stroke="#0284C7"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+
+          {/* 깔끔한 모서리 광택 하이라이트 (기둥 & 상/하단 날개) */}
+          <line x1="79" y1="50" x2="79" y2="129" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" opacity="0.9" />
+          <line x1="104" y1="71" x2="132" y2="52" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+          <line x1="117" y1="96" x2="135" y2="116" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
+        </g>
+
+        {/* 아기자기한 데코: 스파클 반짝임 */}
+        <g id="sparkles">
+          {/* 우상단 황금 스파클 */}
+          <path d="M 160 46 L 162 38 L 164 46 L 172 48 L 164 50 L 162 58 L 160 50 L 152 48 Z" fill="#F59E0B" />
+          <circle cx="162" cy="48" r="1.6" fill="#FFFFFF" />
+          {/* 좌하단 스카이블루 미니 스타 */}
+          <circle cx="48" cy="118" r="2.2" fill="#38BDF8" />
+          <circle cx="164" cy="112" r="1.8" fill="#F59E0B" />
+        </g>
 
         {/* 글자 'ケ' 오버레이 */}
         <KatakanaCharOverlay char="ケ" fontFamily={fontFamily} x="106" y="118" />
@@ -272,22 +378,116 @@ export default function KatakanaRowKa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'コ') {
-    // コ: 코너 (직각으로 꺾인 도로 모퉁이 코너와 코너 표지판)
+    // コ: 코코아 (따뜻한 코코아 머그잔의 각진 직각 손잡이와 달콤한 마시멜로)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 직각 코너 도로 블록 (글자 コ의 ㄷ자 형태 실루엣) */}
+        <defs>
+          {/* 머그잔 본체 세라믹 그라데이션 (따뜻한 피치/크림 톤) */}
+          <linearGradient id="cocoaMugGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFEDD5" />
+            <stop offset="100%" stopColor="#FDBA74" />
+          </linearGradient>
+
+          {/* 직각 손잡이 그라데이션 */}
+          <linearGradient id="cocoaHandleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FED7AA" />
+            <stop offset="100%" stopColor="#FB923C" />
+          </linearGradient>
+
+          {/* 진한 핫 코코아 초콜릿 음료 그라데이션 */}
+          <linearGradient id="cocoaLiquidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#78350F" />
+            <stop offset="100%" stopColor="#451A03" />
+          </linearGradient>
+        </defs>
+
+        {/* 바닥 원근 그림자 */}
+        <ellipse cx="88" cy="144" rx="66" ry="7.5" fill="#F1F5F9" />
+        <ellipse cx="52" cy="143" rx="32" ry="5" fill="#E2E8F0" opacity="0.65" />
+
+        {/* 원목 머그 컵받침(Saucer/Coaster) */}
+        <ellipse cx="52" cy="135" rx="34" ry="7" fill="#FDE68A" stroke="#D97706" strokeWidth="1.5" />
+        <ellipse cx="52" cy="135" rx="27" ry="4.5" fill="none" stroke="#F59E0B" strokeWidth="1" strokeDasharray="3 2" />
+
+        {/* 각진 직각 세라믹 손잡이 본체 (글자 コ의 획과 1:1 완벽 일치) */}
         <path
-          d="M 62 48 L 144 48 L 144 80 L 102 80 L 102 108 L 144 108 L 144 136 L 62 136 Z"
-          fill="#F1F5F9"
-          stroke="#475569"
-          strokeWidth="2.5"
+          d="M 72 40 L 142 40 Q 148 40 148 46 L 148 122 Q 148 128 142 128 L 72 128 L 72 110 L 124 110 Q 128 110 128 106 L 128 62 Q 128 58 124 58 L 72 58 Z"
+          fill="url(#cocoaHandleGrad)"
+          stroke="#C2410C"
+          strokeWidth="2.2"
           strokeLinejoin="round"
         />
-        {/* 노란색 중앙선 코너 회전 궤적 */}
-        <path d="M 76 64 L 128 64 L 128 122 L 76 122" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" strokeDasharray="8 5" />
 
-        {/* 코너 회전 알림 화살표 깃발 */}
-        <path d="M 148 44 L 162 54 L 148 64 Z" fill="#3B82F6" />
+        {/* 손잡이 모서리 세라믹 광택 하이라이트 (Glossy White) */}
+        <path
+          d="M 76 45 L 142 45 Q 144 45 144 47 L 144 122"
+          stroke="#FFFFFF"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          opacity="0.85"
+          fill="none"
+        />
+        <line x1="76" y1="123" x2="140" y2="123" stroke="#FED7AA" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
+
+        {/* 머그컵 본통 (원통형 세라믹 바디) */}
+        <path
+          d="M 27 44 L 31 126 C 31 131 38 134 52 134 C 66 134 73 131 73 126 L 77 44 Z"
+          fill="url(#cocoaMugGrad)"
+          stroke="#C2410C"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        />
+
+        {/* 컵 전면 세로 하이라이트 빛반사 */}
+        <path d="M 33 54 L 36 120" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" opacity="0.75" />
+
+        {/* 컵 전면 빈티지 라벨 뱃지 (COCOA) */}
+        <g id="cocoa-label">
+          <rect x="36" y="74" width="32" height="17" rx="3.5" fill="#FFFBEB" stroke="#EA580C" strokeWidth="1.2" />
+          <text x="52" y="85.5" fill="#9A3412" fontSize="7.2" fontWeight="900" textAnchor="middle" letterSpacing="0.4px">
+            COCOA
+          </text>
+          {/* 미니 초코 하트 포인트 */}
+          <path
+            d="M 52 89 C 50.8 87.5 49 88.5 50.2 90.2 L 52 92 L 53.8 90.2 C 55 88.5 53.2 87.5 52 89 Z"
+            fill="#EA580C"
+          />
+        </g>
+
+        {/* 컵 윗면 림(Rim) & 내부 진한 핫코코아 음료 */}
+        <ellipse cx="52" cy="44" rx="25" ry="7.5" fill="#FFEDD5" stroke="#C2410C" strokeWidth="2.2" />
+        <ellipse cx="52" cy="45" rx="22" ry="6" fill="url(#cocoaLiquidGrad)" />
+
+        {/* 퐁당 빠진 통통한 마시멜로 2개 */}
+        {/* 마시멜로 1 (좌측) */}
+        <g id="marshmallow-1">
+          <rect x="38" y="38" width="13" height="10" rx="3.5" fill="#FFFFFF" stroke="#D97706" strokeWidth="1.2" />
+          {/* 톡톡 뿌려진 코코아 파우더 가루 */}
+          <circle cx="42" cy="42" r="0.8" fill="#78350F" />
+          <circle cx="46" cy="41" r="0.8" fill="#78350F" />
+          <circle cx="44" cy="45" r="0.7" fill="#78350F" />
+        </g>
+
+        {/* 마시멜로 2 (우측) */}
+        <g id="marshmallow-2">
+          <rect x="54" y="40" width="12" height="9" rx="3" fill="#FFFBEB" stroke="#D97706" strokeWidth="1.2" />
+          <circle cx="58" cy="43" r="0.8" fill="#78350F" />
+          <circle cx="62" cy="45" r="0.7" fill="#78350F" />
+        </g>
+
+        {/* 모락모락 피어오르는 따뜻한 김 (Warm Steam) */}
+        <path d="M 44 32 C 41 24 47 20 44 14" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.85" />
+        <path d="M 58 34 C 55 26 61 22 58 16" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.85" />
+
+        {/* 아기자기한 데코: 따스한 반짝임 스파클 */}
+        <g id="sparkles">
+          {/* 우상단 황금 스파클 */}
+          <path d="M 166 40 L 168 32 L 170 40 L 178 42 L 170 44 L 168 52 L 166 44 L 158 42 Z" fill="#F59E0B" />
+          <circle cx="168" cy="42" r="1.5" fill="#FFFFFF" />
+          {/* 주변 미니 반짝임 */}
+          <circle cx="20" cy="118" r="2" fill="#F59E0B" />
+          <circle cx="166" cy="112" r="1.8" fill="#F97316" />
+        </g>
 
         {/* 글자 'コ' 오버레이 */}
         <KatakanaCharOverlay char="コ" fontFamily={fontFamily} x="106" y="118" />

@@ -56,31 +56,48 @@ export default function KatakanaRowA({ char, fontFamily }: KatakanaMnemonicSvgCh
   }
 
   if (char === 'ウ') {
-    // ウ: 우주선 (우주선 상단 안테나 점과 돔 캡슐 본체)
+    // ウ: 우산 (활짝 펼쳐진 각진 우산 꼭지와 돔 지붕, J자 손잡이)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 별빛 우주 배경 미니 포인트 */}
-        <circle cx="48" cy="36" r="1.5" fill="#93C5FD" />
-        <circle cx="160" cy="42" r="2" fill="#FDE047" />
+        {/* 하늘에서 떨어지는 경쾌한 빗방울 포인트 */}
+        <ellipse cx="36" cy="46" rx="2" ry="4" fill="#60A5FA" opacity="0.65" transform="rotate(-15 36 46)" />
+        <ellipse cx="172" cy="50" rx="2" ry="4" fill="#60A5FA" opacity="0.65" transform="rotate(-15 172 50)" />
+        <ellipse cx="44" cy="120" rx="1.8" ry="3.5" fill="#93C5FD" opacity="0.55" transform="rotate(-10 44 120)" />
+        <ellipse cx="164" cy="116" rx="2" ry="4" fill="#93C5FD" opacity="0.55" transform="rotate(-10 164 116)" />
 
-        {/* 상단 안테나 (글자 점 획과 일치) */}
-        <line x1="106" y1="20" x2="106" y2="38" stroke="#0284C7" strokeWidth="3" strokeLinecap="round" />
-        <circle cx="106" cy="18" r="4" fill="#38BDF8" />
+        {/* 우산 꼭대기 팁/꼭지 (글자 점 획과 일치) */}
+        <line x1="106" y1="16" x2="106" y2="34" stroke="#3D5A80" strokeWidth="3" strokeLinecap="round" />
+        <circle cx="106" cy="15" r="3.5" fill="#3D5A80" />
+        <ellipse cx="106" cy="34" rx="6" ry="2.5" fill="#64748B" />
 
-        {/* 우주선 돔 본체 (글자 ウ의 갓머리 지붕선과 매칭) */}
+        {/* 우산 돔 캐노피 천 (글자 ウ의 갓머리 지붕선과 매칭) */}
         <path
-          d="M 64 68 C 64 48 148 48 148 68 L 142 126 C 142 134 70 134 70 126 Z"
-          fill="#EFF6FF"
-          stroke="#2563EB"
-          strokeWidth="2.5"
+          d="M 52 84 C 58 44 106 34 106 34 C 106 34 154 44 160 84 C 144 78 126 80 106 76 C 86 80 68 78 52 84 Z"
+          fill="#EBF3FB"
+          stroke="#3D5A80"
+          strokeWidth="2.4"
           strokeLinejoin="round"
         />
-        {/* 조종석 원형 창문 */}
-        <circle cx="106" cy="80" r="15" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="1.8" />
-        <ellipse cx="103" cy="76" rx="4" ry="2" fill="#FFFFFF" />
 
-        {/* 하단 추진 불꽃 */}
-        <path d="M 88 134 L 106 152 L 124 134 Z" fill="#F97316" />
+        {/* 우산 살대 라인 */}
+        <path d="M 106 34 Q 80 56 52 84" stroke="#93C5FD" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="106" y1="34" x2="106" y2="76" stroke="#93C5FD" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M 106 34 Q 132 56 160 84" stroke="#93C5FD" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M 106 34 Q 93 54 80 81" stroke="#BFDBFE" strokeWidth="1.2" strokeDasharray="3 2" />
+        <path d="M 106 34 Q 119 54 132 81" stroke="#BFDBFE" strokeWidth="1.2" strokeDasharray="3 2" />
+
+        {/* 우산대 샤프트 */}
+        <line x1="106" y1="76" x2="106" y2="128" stroke="#475569" strokeWidth="2.8" strokeLinecap="round" />
+
+        {/* 우산 J자 곡선 손잡이 (글자 ウ의 삐침 곡선 흐름과 조화) */}
+        <path
+          d="M 106 126 C 106 142 86 144 78 134 C 70 124 80 114 88 116"
+          stroke="#3D5A80"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="88" cy="116" r="2.5" fill="#F59E0B" />
 
         {/* 글자 'ウ' 오버레이 */}
         <KatakanaCharOverlay char="ウ" fontFamily={fontFamily} x="106" y="118" />
