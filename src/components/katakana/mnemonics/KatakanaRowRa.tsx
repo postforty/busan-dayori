@@ -4,28 +4,165 @@ import KatakanaCharOverlay from './KatakanaCharOverlay';
 
 export default function KatakanaRowRa({ char, fontFamily }: KatakanaMnemonicSvgChildProps) {
   if (char === 'ラ') {
-    // ラ: 라디오 (휴대용 레트로 라디오 본체와 꺾여 뻗은 금속 안테나)
+    // ラ: 라멘 (빨간 젓가락 두 짝으로 듬뿍 건져 올린 탱글탱글한 라멘 면발!)
+    // ⚠️ 1획 상단 가로: 위쪽 빨간 젓가락 (면을 집은 젓가락 상단)
+    //    2획 가로선: 아래쪽 빨간 젓가락 (면을 받친 젓가락 하단)
+    //    2획 곡선 삐침: 젓가락 사이에서 라멘 그릇으로 주르륵 흘러내리는 쫄깃한 라멘 면발 다발
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 라디오 상단 꺾인 안테나 (글자 ラ 1획 및 상단 프레임) */}
-        <line x1="126" y1="24" x2="80" y2="52" stroke="#475569" strokeWidth="4" strokeLinecap="round" />
-        <circle cx="126" cy="24" r="3.5" fill="#EF4444" />
-        {/* 안테나 전파 이펙트 */}
-        <path d="M 134 16 C 142 22 142 28 134 34" stroke="#38BDF8" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+        <defs>
+          {/* 빨간 옻칠 젓가락 1 (상단) 그라디언트 */}
+          <linearGradient id="ra-chopstick-top" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#991B1B" />
+            <stop offset="25%" stopColor="#DC2626" />
+            <stop offset="65%" stopColor="#EF4444" />
+            <stop offset="100%" stopColor="#B91C1C" />
+          </linearGradient>
 
-        {/* 라디오 본체 바디 (글자 ラ의 하단 꺾임과 곡선 실루엣) */}
-        <rect x="52" y="58" width="108" height="78" rx="14" fill="#F8FAFC" stroke="#475569" strokeWidth="2.5" />
+          {/* 빨간 옻칠 젓가락 2 (하단) 그라디언트 */}
+          <linearGradient id="ra-chopstick-bottom" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#7F1D1D" />
+            <stop offset="25%" stopColor="#DC2626" />
+            <stop offset="65%" stopColor="#F87171" />
+            <stop offset="100%" stopColor="#B91C1C" />
+          </linearGradient>
 
-        {/* 대형 스피커 그릴 원 */}
-        <circle cx="86" cy="98" r="24" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="2" />
-        <circle cx="86" cy="98" r="14" stroke="#CBD5E1" strokeWidth="1.5" />
-        <circle cx="86" cy="98" r="4" fill="#64748B" />
+          {/* 젓가락 손잡이 고급 골드 링 그라디언트 */}
+          <linearGradient id="ra-gold-band" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="50%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#B45309" />
+          </linearGradient>
 
-        {/* 주파수 튜닝 다이얼 창 */}
-        <rect x="122" y="74" width="28" height="14" rx="3" fill="#FEF08A" stroke="#CA8A04" strokeWidth="1.2" />
-        <circle cx="136" cy="108" r="8" fill="#64748B" />
+          {/* 쫄깃한 라면 면발 메인 그라디언트 */}
+          <linearGradient id="ra-noodle-main" x1="50%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="40%" stopColor="#FBBF24" />
+            <stop offset="80%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#D97706" />
+          </linearGradient>
 
-        {/* 글자 'ラ' 오버레이 */}
+          {/* 뜨끈하고 진한 라면 육수 그라디언트 */}
+          <radialGradient id="ra-broth-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FEF3C7" />
+            <stop offset="45%" stopColor="#FDE68A" />
+            <stop offset="85%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#B45309" />
+          </radialGradient>
+
+          {/* 일본 전통 라멘 사기그릇 그라디언트 (딥 네이비) */}
+          <linearGradient id="ra-bowl-body" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#1E3A8A" />
+            <stop offset="50%" stopColor="#1E293B" />
+            <stop offset="100%" stopColor="#0F172A" />
+          </linearGradient>
+
+          {/* 반숙 달걀 노른자 그라디언트 */}
+          <radialGradient id="ra-egg-yolk" cx="40%" cy="40%" r="60%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="50%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#EA580C" />
+          </radialGradient>
+        </defs>
+
+        {/* 1. 배경 온기 & 모락모락 김 (Steam Curls) */}
+        <g id="steam-curls" opacity="0.6">
+          <path d="M 86 36 Q 80 22 88 10" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" fill="none" strokeDasharray="3 3" />
+          <path d="M 124 32 Q 132 18 126 8" stroke="#E2E8F0" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+          <path d="M 106 24 Q 100 12 108 4" stroke="#CBD5E1" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.7" />
+        </g>
+
+        {/* 2. 하단 라면 그릇 & 육수 & 맛있는 고명 */}
+        <g id="ramen-bowl">
+          {/* 테이블 그림자 */}
+          <ellipse cx="106" cy="154" rx="66" ry="6" fill="#E2E8F0" />
+
+          {/* 도자기 라면 그릇 몸체 */}
+          <path d="M 44 130 C 46 153 72 158 106 158 C 140 158 166 153 168 130 Z" fill="url(#ra-bowl-body)" stroke="#0F172A" strokeWidth="1.6" />
+          {/* 그릇 받침 굽 */}
+          <path d="M 86 157 L 86 160 C 94 161 118 161 126 160 L 126 157 Z" fill="#0F172A" />
+          {/* 그릇 외곽 전통 골드 장식 라인 */}
+          <path d="M 48 135 C 68 147 144 147 164 135" stroke="url(#ra-gold-band)" strokeWidth="1.2" opacity="0.8" fill="none" />
+
+          {/* 진한 라면 육수 수면 */}
+          <ellipse cx="106" cy="130" rx="59" ry="14" fill="url(#ra-broth-glow)" stroke="#B45309" strokeWidth="1.2" />
+
+          {/* 고명 1: 바삭한 김 (Nori) */}
+          <path d="M 52 116 L 66 106 L 74 128 L 60 132 Z" fill="#1E293B" stroke="#0F172A" strokeWidth="1" />
+
+          {/* 고명 2: 반숙 아지타마고 (달걀 반쪽) */}
+          <g transform="rotate(-12 138 130)">
+            <ellipse cx="138" cy="130" rx="14" ry="10" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1" />
+            <ellipse cx="137" cy="130" rx="8" ry="6.2" fill="url(#ra-egg-yolk)" />
+            <circle cx="135" cy="128" r="2" fill="#FFFFFF" opacity="0.8" />
+          </g>
+
+          {/* 고명 3: 나루토마키 (소용돌이 어묵) */}
+          <g transform="rotate(8 74 132)">
+            <ellipse cx="74" cy="132" rx="11" ry="8" fill="#FFFFFF" stroke="#FECDD3" strokeWidth="1.2" />
+            <path d="M 74 132 C 76 129 79 131 78 134 C 76 136 71 135 71 131 C 71 127 78 126 80 130" fill="none" stroke="#F43F5E" strokeWidth="1.6" strokeLinecap="round" />
+          </g>
+
+          {/* 고명 4: 송송 썬 대파 (Scallions) */}
+          <ellipse cx="94" cy="134" rx="3.5" ry="2" fill="#22C55E" stroke="#15803D" strokeWidth="0.8" transform="rotate(20 94 134)" />
+          <ellipse cx="116" cy="136" rx="4" ry="2.2" fill="#4ADE80" stroke="#15803D" strokeWidth="0.8" transform="rotate(-30 116 136)" />
+          <ellipse cx="104" cy="140" rx="3.2" ry="1.8" fill="#22C55E" stroke="#15803D" strokeWidth="0.8" />
+        </g>
+
+        {/* 3. ★ 쫄깃한 라면 면발 다발 (글자 ラ 2획의 우하단 곡선 궤적과 1:1 완벽 일치) ★ */}
+        <g id="noodle-strands">
+          {/* 면발 다발 베이스 음영 실루엣 */}
+          <path
+            d="M 126 68 Q 128 88 116 104 Q 99 120 74 128 L 84 132 Q 107 122 124 104 Q 134 88 132 68 Z"
+            fill="url(#ra-noodle-main)"
+            stroke="#D97706"
+            strokeWidth="1"
+          />
+
+          {/* 메인 면발 가닥 1 (라 2획 곡선 중심축) */}
+          <path d="M 129 68 Q 127 88 113 105 Q 97 121 75 128" stroke="#F59E0B" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+          <path d="M 129 68 Q 127 88 113 105 Q 97 121 75 128" stroke="#FEF08A" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+          {/* 메인 면발 가닥 2 (바깥쪽 볼륨) */}
+          <path d="M 133 71 Q 131 90 118 107 Q 103 122 82 130" stroke="#D97706" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+          <path d="M 133 71 Q 131 90 118 107 Q 103 122 82 130" stroke="#FDE68A" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+          {/* 메인 면발 가닥 3 (안쪽 찰랑임) */}
+          <path d="M 124 70 Q 122 87 109 103 Q 94 118 70 126" stroke="#F59E0B" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+
+          {/* 젓가락 위로 말려 올라간 탱글탱글한 면발 고리 */}
+          <path d="M 118 64 Q 126 59 132 65 Q 136 73 131 82" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+          {/* 국물 윤기 방울 (Glisten drops) */}
+          <circle cx="106" cy="116" r="2" fill="#FDE047" />
+          <circle cx="114" cy="98" r="1.6" fill="#FBBF24" />
+          <circle cx="88" cy="126" r="1.5" fill="#FEF08A" />
+        </g>
+
+        {/* 4. ★ 빨간 옻칠 젓가락 한 쌍 (Chopsticks) - 글자 ラ 1획 및 2획 가로선과 정밀 일치! ★ */}
+        <g id="chopsticks">
+          {/* 윗쪽 젓가락 (글자 ラ 1획 가로선 매칭) */}
+          <g id="chopstick-top">
+            <path d="M 52 46 L 152 38 L 151 34 L 52 41 Z" fill="url(#ra-chopstick-top)" stroke="#991B1B" strokeWidth="1" />
+            <ellipse cx="52" cy="43.5" rx="2" ry="2.5" fill="#991B1B" />
+            {/* 젓가락 광택 하이라이트 */}
+            <path d="M 58 43 L 148 36" stroke="#FCA5A5" strokeWidth="1.2" strokeLinecap="round" opacity="0.85" />
+            {/* 손잡이 골드 링 장식 */}
+            <rect x="64" y="40.5" width="6" height="5" rx="1" fill="url(#ra-gold-band)" stroke="#B45309" strokeWidth="0.6" transform="rotate(-4.5 64 40.5)" />
+          </g>
+
+          {/* 아랫쪽 젓가락 (글자 ラ 2획 가로선 매칭) */}
+          <g id="chopstick-bottom">
+            <path d="M 50 71 L 154 67 L 153 63 L 50 66 Z" fill="url(#ra-chopstick-bottom)" stroke="#991B1B" strokeWidth="1" />
+            <ellipse cx="50" cy="68.5" rx="2" ry="2.5" fill="#991B1B" />
+            {/* 젓가락 광택 하이라이트 */}
+            <path d="M 56 68.5 L 150 65" stroke="#FCA5A5" strokeWidth="1.2" strokeLinecap="round" opacity="0.85" />
+            {/* 손잡이 골드 링 장식 */}
+            <rect x="62" y="66" width="6" height="5" rx="1" fill="url(#ra-gold-band)" stroke="#B45309" strokeWidth="0.6" transform="rotate(-2.2 62 66)" />
+          </g>
+        </g>
+
+        {/* 5. 글자 'ラ' 오버레이 (정중앙 투영) */}
         <KatakanaCharOverlay char="ラ" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );

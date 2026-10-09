@@ -67,7 +67,7 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   ヨ: { char: 'ヨ', word: '요트', highlightIndex: 0, romaji: 'yo', tip: '요트(Yacht) 돛대 기둥과 3단 가로 돛(세일) 프레임' },
 
   // ラ행
-  ラ: { char: 'ラ', word: '라디오', highlightIndex: 0, romaji: 'ra', tip: '라디오(Radio) 본체와 꺾인 금속 안테나' },
+  ラ: { char: 'ラ', word: '라멘', highlightIndex: 0, romaji: 'ra', tip: '빨간 젓가락 두 짝(1획·2획 가로)으로 건져 올린 맛있는 라멘 면발(2획 곡선)' },
   リ: { char: 'リ', word: '리본', highlightIndex: 0, romaji: 'ri', reuseNote: '히라가나 り와 95% 동일한 형태', tip: '양쪽으로 살랑살랑 내려오는 예쁜 리본 끝' },
   ル: { char: 'ル', word: '루비', highlightIndex: 0, romaji: 'ru', tip: '루비(Ruby) 보석을 받치는 두 갈래 다리' },
   レ: { char: 'レ', word: '레몬', highlightIndex: 0, romaji: 're', tip: '초승달 모양으로 꺾인 상큼한 레몬 조각' },
