@@ -32,40 +32,152 @@ export default function KatakanaRowRa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'リ') {
-    // リ: 리본 (★ 히라가나 り와 95% 동일한 형태! 살랑살랑 내려오는 예쁜 리본 도안 100% 재활용)
+    // リ: 리본 (★ 히라가나 り와 동일한 선물상자+나비리본 도안 재사용)
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 중앙 리본 매듭 */}
-        <circle cx="106" cy="46" r="10" fill="#F43F5E" stroke="#BE123C" strokeWidth="2" />
-        <ellipse cx="103" cy="43" rx="3.5" ry="2" fill="#FFFFFF" opacity="0.8" />
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          {/* 실크 리본 메인 그라디언트 */}
+          <linearGradient id="ri-ribbon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FDA4AF" />
+            <stop offset="35%" stopColor="#FB7185" />
+            <stop offset="70%" stopColor="#F43F5E" />
+            <stop offset="100%" stopColor="#E11D48" />
+          </linearGradient>
 
-        {/* 양옆 풍성한 리본 날개 루프 */}
-        <path d="M 98 44 C 64 24 50 56 96 52 Z" fill="#FDA4AF" stroke="#E11D48" strokeWidth="1.8" />
-        <path d="M 114 44 C 148 24 162 56 116 52 Z" fill="#FDA4AF" stroke="#E11D48" strokeWidth="1.8" />
+          {/* 리본 루프 광택 그라디언트 */}
+          <linearGradient id="ri-ribbon-loop" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FECDD3" />
+            <stop offset="30%" stopColor="#FB7185" />
+            <stop offset="100%" stopColor="#E11D48" />
+          </linearGradient>
 
-        {/* 아래로 길게 내려오는 두 갈래 리본 꼬리 (글자 リ의 좌우 두 세로획과 1:1 일치!) */}
-        {/* 왼쪽 짧은 리본 꼬리 (글자 1획) */}
-        <path
-          d="M 88 52 C 86 78 84 94 76 108 L 86 106 C 94 94 96 76 96 52 Z"
-          fill="#FB7185"
-          stroke="#E11D48"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
-        {/* 오른쪽 길게 늘어진 리본 꼬리 (글자 2획) */}
-        <path
-          d="M 118 52 C 122 78 126 112 136 138 L 146 136 C 136 108 130 76 126 52 Z"
-          fill="#FB7185"
-          stroke="#E11D48"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
+          {/* 매듭 코어 그라디언트 */}
+          <linearGradient id="ri-ribbon-knot" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FB7185" />
+            <stop offset="60%" stopColor="#E11D48" />
+            <stop offset="100%" stopColor="#BE123C" />
+          </linearGradient>
 
-        {/* 반짝임 별빛 */}
-        <path d="M 152 40 L 154 34 L 156 40 L 162 42 L 156 44 L 154 50 L 152 44 L 146 42 Z" fill="#FDE047" />
+          {/* 리본 음영 그라디언트 */}
+          <linearGradient id="ri-ribbon-shadow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#881337" />
+            <stop offset="100%" stopColor="#BE123C" />
+          </linearGradient>
+
+          {/* 선물 상자 본체 그라디언트 */}
+          <linearGradient id="ri-box-body" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFF5F5" />
+            <stop offset="100%" stopColor="#FFE4E6" />
+          </linearGradient>
+
+          {/* 선물 상자 뚜껑 그라디언트 */}
+          <linearGradient id="ri-box-lid" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="100%" stopColor="#FFF1F2" />
+          </linearGradient>
+
+          {/* 골드 펄 띠 그라디언트 */}
+          <linearGradient id="ri-gold-band" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="50%" stopColor="#FDE047" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
+
+          {/* 골드 스파클 그라디언트 */}
+          <linearGradient id="ri-sparkle" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFBEB" />
+            <stop offset="40%" stopColor="#FDE047" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 선물 상자 */}
+        <rect x="36" y="56" width="128" height="96" rx="8" fill="url(#ri-box-body)" stroke="#FECDD3" strokeWidth="1.4" />
+        <rect x="100" y="56" width="16" height="96" fill="url(#ri-gold-band)" opacity="0.85" />
+        <line x1="102" y1="56" x2="102" y2="152" stroke="#F59E0B" strokeDasharray="3 2" strokeWidth="0.8" />
+        <line x1="114" y1="56" x2="114" y2="152" stroke="#F59E0B" strokeDasharray="3 2" strokeWidth="0.8" />
+        <rect x="36" y="56" width="128" height="5" fill="#E11D48" opacity="0.1" />
+        <rect x="28" y="38" width="144" height="18" rx="5" fill="url(#ri-box-lid)" stroke="#FDA4AF" strokeWidth="1.6" />
+        <rect x="28" y="44" width="144" height="6" fill="url(#ri-gold-band)" opacity="0.85" />
+        <rect x="100" y="38" width="16" height="18" fill="url(#ri-gold-band)" opacity="0.95" />
+
+        {/* 2. 선물 태그 */}
+        <g id="gift-tag">
+          <path d="M 116 42 Q 136 44 144 54" stroke="#D97706" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="2 1.5" />
+          <rect x="136" y="52" width="22" height="15" rx="3" fill="#FFF1F2" stroke="#F43F5E" strokeWidth="1.2" transform="rotate(16 136 52)" />
+          <circle cx="140" cy="56" r="1.3" fill="#FDA4AF" />
+          <path d="M 148 60 C 146 58 144 60 148 64 C 152 60 150 58 148 60 Z" fill="#E11D48" />
+        </g>
+
+        {/* 3. 리본 꼬리 (り 1획, 2획 매칭) */}
+        <g id="left-streamer">
+          <path
+            d="M 80 44 L 80 78 C 80 84 76 88 72 88 L 81 83 L 90 92 C 91 88 94 82 94 76 L 94 44 Z"
+            fill="url(#ri-ribbon-grad)"
+            stroke="#BE123C"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          <path d="M 86 46 L 86 78 C 86 82 84 84 81 83" stroke="#FFF1F2" strokeWidth="1.6" strokeLinecap="round" opacity="0.9" />
+          <path d="M 80 72 C 84 74 88 74 94 71" stroke="#E11D48" strokeWidth="1" strokeLinecap="round" opacity="0.7" />
+        </g>
+        <g id="right-streamer">
+          <path
+            d="M 118 45 C 128 52 134 70 134 92 C 134 116 124 130 108 138 L 104 129 L 95 127 C 110 120 117 106 117 88 C 117 70 113 55 106 45 Z"
+            fill="url(#ri-ribbon-grad)"
+            stroke="#BE123C"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+          <path d="M 124 49 C 126 70 126 92 122 112 C 119 122 113 126 104 129" stroke="#FFF1F2" strokeWidth="2" strokeLinecap="round" opacity="0.9" />
+          <path d="M 118 78 C 123 80 128 80 133 79" stroke="#9F1239" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+          <path d="M 115 102 C 119 104 123 104 127 103" stroke="#9F1239" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+        </g>
+
+        {/* 4. 나비 리본 매듭 */}
+        <g id="ribbon-bow">
+          <path
+            d="M 103 36 C 94 16 58 14 44 26 C 32 36 36 50 60 52 C 80 54 98 44 103 39 Z"
+            fill="url(#ri-ribbon-loop)"
+            stroke="#BE123C"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          <ellipse cx="60" cy="36" rx="9.5" ry="6.5" fill="url(#ri-ribbon-shadow)" transform="rotate(-12 60 36)" />
+          <path d="M 46 26 C 60 18 82 22 95 32" stroke="#FFF1F2" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 94 38 C 82 41 72 44 64 47" stroke="#BE123C" strokeWidth="1.2" strokeLinecap="round" />
+          <path
+            d="M 113 36 C 122 16 158 14 172 26 C 184 36 180 50 156 52 C 136 54 118 44 113 39 Z"
+            fill="url(#ri-ribbon-loop)"
+            stroke="#BE123C"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          <ellipse cx="156" cy="36" rx="9.5" ry="6.5" fill="url(#ri-ribbon-shadow)" transform="rotate(12 156 36)" />
+          <path d="M 170 26 C 156 18 134 22 121 32" stroke="#FFF1F2" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 122 38 C 134 41 144 44 152 47" stroke="#BE123C" strokeWidth="1.2" strokeLinecap="round" />
+          <rect x="99" y="28" width="18" height="20" rx="5" fill="url(#ri-ribbon-knot)" stroke="#881337" strokeWidth="1.8" />
+          <path d="M 104 29 C 103 36 103 42 104 47" stroke="#FFF1F2" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M 112 29 C 113 36 113 42 112 47" stroke="#9F1239" strokeWidth="1.4" strokeLinecap="round" />
+        </g>
+
+        {/* 5. 반짝이 스파클 */}
+        <g id="sparkles">
+          <path d="M 52 74 L 54 66 L 56 74 L 64 76 L 56 78 L 54 86 L 52 78 L 44 76 Z" fill="url(#ri-sparkle)" />
+          <path d="M 40 92 L 41.5 88 L 43 92 L 47 93.5 L 43 95 L 41.5 99 L 40 95 L 36 93.5 Z" fill="#FDE047" />
+          <path d="M 160 114 L 161.5 109 L 163 114 L 168 115.5 L 163 117 L 161.5 122 L 160 117 L 155 115.5 Z" fill="url(#ri-sparkle)" />
+          <circle cx="68" cy="64" r="1.5" fill="#FDE047" />
+          <circle cx="152" cy="100" r="1.5" fill="#FDE047" />
+          <circle cx="168" cy="128" r="1.2" fill="#FDE047" />
+        </g>
 
         {/* 글자 'リ' 오버레이 */}
-        <KatakanaCharOverlay char="リ" fontFamily={fontFamily} x="106" y="118" />
+        <KatakanaCharOverlay char="リ" fontFamily={fontFamily} x="108" y="118" />
       </svg>
     );
   }

@@ -64,7 +64,7 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   // ヤ행
   ヤ: { char: 'ヤ', word: '야구', highlightIndex: 0, romaji: 'ya', reuseNote: '히라가나 や가 각지게 직선화된 동일 형태', tip: '타자의 호쾌한 스윙 궤적(1획)과 홈플레이트로 내리꽂히는 원목 야구 배트(2획)' },
   ユ: { char: 'ユ', word: '유턴', highlightIndex: 0, romaji: 'yu', tip: '도로의 직각 유턴(U-Turn) 회전 화살표' },
-  ヨ: { char: 'ヨ', word: '요트', highlightIndex: 0, romaji: 'yo', tip: '요트(Yacht) 돛대의 3단 가로 프레임' },
+  ヨ: { char: 'ヨ', word: '요트', highlightIndex: 0, romaji: 'yo', tip: '요트(Yacht) 돛대 기둥과 3단 가로 돛(세일) 프레임' },
 
   // ラ행
   ラ: { char: 'ラ', word: '라디오', highlightIndex: 0, romaji: 'ra', tip: '라디오(Radio) 본체와 꺾인 금속 안테나' },

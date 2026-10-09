@@ -223,32 +223,49 @@ export default function KatakanaRowYa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ユ') {
-    // ユ: 유턴 (도로 위의 각진 U-Turn 회전 화살표와 유턴 표지판)
+    // ユ: 유턴 (하단 차선에서 진입하여 우측 코너를 돌아 상단 좌측으로 빠져나가는 직관적인 일체형 U-Turn 화살표)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 아스팔트 도로 노면 */}
-        <rect x="36" y="34" width="128" height="110" rx="12" fill="#334155" stroke="#1E293B" strokeWidth="2" />
+        {/* 아스팔트 도로 노면 본체 */}
+        <rect x="26" y="24" width="148" height="122" rx="16" fill="#1E293B" stroke="#0F172A" strokeWidth="2.5" />
 
-        {/* 흰색 노면 차선 표시 */}
-        <line x1="100" y1="38" x2="100" y2="140" stroke="#F8FAFC" strokeWidth="3" strokeDasharray="8 6" />
+        {/* 도로 외곽 황색 안전선 (상단/하단 갓길) */}
+        <line x1="32" y1="32" x2="168" y2="32" stroke="#F59E0B" strokeWidth="2" opacity="0.4" />
+        <line x1="32" y1="138" x2="168" y2="138" stroke="#F59E0B" strokeWidth="2" opacity="0.4" />
 
-        {/* 도로 바닥 각진 유턴 화살표 (글자 ユ의 꺾임과 하단 수평 라인) */}
+        {/* 상/하행 차선 분리 중앙 노면 점선 (유턴 회전 구역 앞까지) */}
+        <line x1="34" y1="84" x2="108" y2="84" stroke="#F8FAFC" strokeWidth="3.5" strokeDasharray="9 6" />
+
+        {/* ★ 일체형 대형 노면 유턴 화살표 본체 (하단 진입 → 우측 회전 → 상단 좌측 출구) ★ */}
         <path
-          d="M 80 54 L 80 114 L 140 114"
+          d="M 52 114 L 134 114 L 134 54 L 66 54"
           stroke="#FACC15"
-          strokeWidth="8"
+          strokeWidth="15"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        {/* 유턴 화살표 머리 팁 */}
-        <polygon points="144,114 130,104 130,124" fill="#FACC15" />
 
-        {/* 유턴 가로 보조선 (글자 ユ 상단) */}
-        <line x1="80" y1="54" x2="134" y2="54" stroke="#FACC15" strokeWidth="7" strokeLinecap="round" />
+        {/* 유턴 화살표 중앙 도로 질감 유도 점선 */}
+        <path
+          d="M 54 114 L 134 114 L 134 54 L 68 54"
+          stroke="#FFFFFF"
+          strokeWidth="2.2"
+          strokeDasharray="6 4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.9"
+        />
 
-        {/* 도로 유턴 표지판 아이콘 */}
-        <circle cx="152" cy="46" r="14" fill="#2563EB" stroke="#FFFFFF" strokeWidth="2" />
-        <path d="M 148 40 L 148 50 L 156 50" stroke="#FFFFFF" strokeWidth="2" fill="none" strokeLinecap="round" />
+        {/* ★ 상단 좌측 출구 대형 유턴 화살표 머리 (Arrowhead: ← 방향) ★ */}
+        <polygon
+          points="44,54 70,38 70,70"
+          fill="#FACC15"
+          stroke="#EAB308"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        {/* 화살표 헤드 하이라이트 입체선 */}
+        <polygon points="48,54 68,41 68,67" fill="#FDE047" opacity="0.6" />
 
         {/* 글자 'ユ' 오버레이 */}
         <KatakanaCharOverlay char="ユ" fontFamily={fontFamily} x="106" y="118" />
@@ -257,31 +274,248 @@ export default function KatakanaRowYa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ヨ') {
-    // ヨ: 요트 (파도를 가르는 요트의 돛대와 3단 수평 프레임)
+    // ヨ: 요트 (푸른 바다를 가르는 요트의 돛대와 바람을 안은 3단 세일 형태)
+    // ⚠️ 메인 기둥 (Mast): 높이 솟은 요트 중심 돛대(x=127)
+    //    3단 돛(Sail): 글자 ヨ 모양과 1:1 일치하는 3단 입체 세일 날개
+    //      - 1단 상단 돛: 1획 가로선과 일치 (y=52)
+    //      - 2단 중단 돛: 2획 중간선과 일치 (y=85)
+    //      - 3단 하단 돛 & 붐대: 3획 하단선과 일치 (y=118)
+    //    선체(Hull): 물살을 가르며 하얀 물보라를 일으키는 유선형 레이싱 요트 바디
     return (
-      <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 시원한 바다 파도 */}
-        <path d="M 10 134 C 40 130 80 136 120 132 C 160 128 190 132 200 130 L 200 160 L 0 160 Z" fill="#E0F2FE" />
-        <path d="M 10 134 C 40 130 80 136 120 132 C 160 128 190 132 200 130" stroke="#0284C7" strokeWidth="2.5" />
+      <svg
+        viewBox="0 0 200 160"
+        className="w-full h-full select-none"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          {/* 바다 그라디언트 (청량하고 깊은 코발트 블루) */}
+          <linearGradient id="katakana-yo-sea" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#0284C7" />
+            <stop offset="35%" stopColor="#0369A1" />
+            <stop offset="100%" stopColor="#0C4A6E" />
+          </linearGradient>
 
-        {/* 요트 선체 바디 (Hull) */}
-        <path d="M 48 132 L 158 132 L 144 144 L 62 144 Z" fill="#FFFFFF" stroke="#0369A1" strokeWidth="2" />
+          {/* 파도 포말 및 수면 하이라이트 */}
+          <linearGradient id="katakana-yo-wave" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#BAE6FD" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.8" />
+          </linearGradient>
 
-        {/* 세로 메인 돛대 기둥 (글자 ヨ 오른쪽 세로선) */}
-        <line x1="134" y1="36" x2="134" y2="134" stroke="#475569" strokeWidth="6" strokeLinecap="round" />
+          {/* 화이트 요트 선체(Hull) 펄 그라디언트 */}
+          <linearGradient id="katakana-yo-hull" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="55%" stopColor="#F8FAFC" />
+            <stop offset="85%" stopColor="#E2E8F0" />
+            <stop offset="100%" stopColor="#CBD5E1" />
+          </linearGradient>
 
-        {/* 삼각 메인 세일 돛 (하얀 돛) */}
-        <path d="M 130 44 L 72 120 L 130 120 Z" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" />
+          {/* 메인 3단 세일(주 돛) 입체 쉐이딩 그라디언트 */}
+          <linearGradient id="katakana-yo-sail" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="60%" stopColor="#F0F9FF" />
+            <stop offset="100%" stopColor="#BAE6FD" />
+          </linearGradient>
 
-        {/* 요트 3단 수평 붐대 프레임 (글자 ヨ의 3개 가로 획) */}
-        <line x1="72" y1="52" x2="134" y2="52" stroke="#0284C7" strokeWidth="6" strokeLinecap="round" />
-        <line x1="84" y1="86" x2="134" y2="86" stroke="#0284C7" strokeWidth="6" strokeLinecap="round" />
-        <line x1="68" y1="120" x2="134" y2="120" stroke="#0284C7" strokeWidth="6" strokeLinecap="round" />
+          {/* 알루미늄 마스트(돛대) 메탈 그라디언트 */}
+          <linearGradient id="katakana-yo-mast" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#F1F5F9" />
+            <stop offset="45%" stopColor="#94A3B8" />
+            <stop offset="100%" stopColor="#475569" />
+          </linearGradient>
+        </defs>
 
-        {/* 펄럭이는 돛대 꼭대기 깃발 */}
-        <polygon points="134,36 150,42 134,48" fill="#EF4444" />
+        {/* 1. 배경 하늘 & 갈매기 & 청량한 바닷바람 */}
+        {/* 하늘 뭉게구름 */}
+        <path
+          d="M 14 26 Q 24 20 34 26 Q 44 22 54 26 L 14 26 Z"
+          fill="#F0F9FF"
+          opacity="0.85"
+        />
+        {/* 날아가는 갈매기 실루엣 */}
+        <path
+          d="M 28 18 C 32 14 36 15 39 19 C 42 15 46 14 50 18"
+          stroke="#0284C7"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 166 16 C 170 12 173 13 176 17 C 179 13 182 12 186 16"
+          stroke="#0284C7"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.75"
+        />
+        {/* 청량한 바닷바람 스트림 라인 */}
+        <path
+          d="M 18 42 C 34 38 58 44 74 40"
+          stroke="#38BDF8"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.45"
+          strokeDasharray="5 3"
+        />
+        <path
+          d="M 12 70 C 26 66 48 72 64 68"
+          stroke="#38BDF8"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.35"
+          strokeDasharray="4 3"
+        />
 
-        {/* 글자 'ヨ' 오버레이 */}
+        {/* 2. 시원하고 깊은 바다와 출렁이는 파도 수면 */}
+        {/* 메인 딥블루 바다 수면 */}
+        <path
+          d="M 0 128 C 35 122 75 132 115 125 C 150 119 180 128 200 124 L 200 160 L 0 160 Z"
+          fill="url(#katakana-yo-sea)"
+        />
+        {/* 파도 크레스트 포말 라인 */}
+        <path
+          d="M 0 134 C 40 128 85 138 125 131 C 160 125 185 132 200 130"
+          stroke="url(#katakana-yo-wave)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        {/* 하단 잔잔한 물결 텍스처 */}
+        <path
+          d="M 15 146 C 45 142 80 148 115 144 C 145 140 175 146 195 143"
+          stroke="#38BDF8"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.5"
+        />
+
+        {/* 3. ★ 대형 ヨ 형태의 3단 펄럭이는 메인 돛 (Enlarged 3-Tier Mainsail Canvas) ★ */}
+        {/* 바람을 가득 머금고 왼쪽으로 큼직하고 시원하게 뻗은 3단 입체 세일 */}
+        <path
+          d="M 127 38
+             C 106 36 78 40 54 46
+             C 48 48 48 54 54 56
+             C 74 62 98 65 114 68
+             C 96 72 68 76 44 80
+             C 38 82 38 88 44 90
+             C 68 95 96 98 114 102
+             C 98 106 74 110 50 114
+             C 44 116 44 121 50 122
+             L 127 122 Z"
+          fill="url(#katakana-yo-sail)"
+          stroke="#0284C7"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        />
+
+        {/* 돛 내부 은은한 바람결 음영선 */}
+        <path d="M 127 44 C 100 44 76 48 58 52" stroke="#BAE6FD" strokeWidth="1.6" fill="none" opacity="0.75" />
+        <path d="M 114 74 C 90 77 66 81 48 85" stroke="#BAE6FD" strokeWidth="1.6" fill="none" opacity="0.75" />
+        <path d="M 114 107 C 92 111 72 115 54 120" stroke="#BAE6FD" strokeWidth="1.6" fill="none" opacity="0.75" />
+
+        {/* 3단 대형 팽팽한 배튼 살대 라인 */}
+        {/* 1단 상단 배튼 (y=52) */}
+        <line
+          x1="54"
+          y1="52"
+          x2="127"
+          y2="52"
+          stroke="#38BDF8"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+        />
+        <circle cx="54" cy="52" r="2.5" fill="#0284C7" />
+
+        {/* 2단 중단 배튼 (y=85) */}
+        <line
+          x1="44"
+          y1="85"
+          x2="127"
+          y2="85"
+          stroke="#38BDF8"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+        />
+        <circle cx="44" cy="85" r="2.5" fill="#0284C7" />
+
+        {/* 3단 하단 메인 붐대 라인 (y=121) */}
+        <line
+          x1="50"
+          y1="121"
+          x2="127"
+          y2="121"
+          stroke="#0369A1"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <circle cx="50" cy="121" r="3" fill="#0284C7" stroke="#FFFFFF" strokeWidth="1" />
+
+        {/* 4. ★ 세로 메인 돛대 (Mast) ★ */}
+        <line
+          x1="127"
+          y1="32"
+          x2="127"
+          y2="124"
+          stroke="url(#katakana-yo-mast)"
+          strokeWidth="4.5"
+          strokeLinecap="round"
+        />
+        {/* 단정하고 심플한 실버 마스트 캡 */}
+        <circle cx="127" cy="32" r="2.5" fill="#E2E8F0" stroke="#475569" strokeWidth="1" />
+        {/* 돛대 하단 마스트 스텝 고정 소켓 */}
+        <rect x="124" y="122" width="6" height="4" rx="1" fill="#334155" />
+
+        {/* 5. 날렵한 유선형 레이싱 요트 선체 (Sleek Hull) */}
+        {/* 요트 선체 본체 */}
+        <path
+          d="M 38 125 C 64 126 140 126 162 127 L 152 143 C 132 145 74 145 54 141 Z"
+          fill="url(#katakana-yo-hull)"
+          stroke="#0369A1"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        {/* 선체 측면 마린 블루 레이싱 스트라이프 데칼 */}
+        <path
+          d="M 44 131 C 70 132 136 132 158 133"
+          stroke="#0284C7"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 48 135 C 72 136 132 136 155 137"
+          stroke="#38BDF8"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+        />
+
+        {/* 갑판 콕핏 캐빈 및 틴티드 창문 */}
+        <polygon
+          points="102,125 106,120 140,120 144,125"
+          fill="#F8FAFC"
+          stroke="#64748B"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        <rect
+          x="110"
+          y="121"
+          width="24"
+          height="3"
+          rx="1"
+          fill="#0284C7"
+          opacity="0.8"
+        />
+
+        {/* 뱃머리(선수) 물보라 & 물방울 (Bow wave splash) */}
+        <path
+          d="M 34 126 C 40 121 44 128 50 125"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <circle cx="32" cy="122" r="1.8" fill="#BAE6FD" />
+        <circle cx="28" cy="126" r="1.2" fill="#FFFFFF" />
+        <circle cx="36" cy="119" r="1.4" fill="#38BDF8" />
+
+        {/* 6. 글자 'ヨ' 오버레이 */}
         <KatakanaCharOverlay char="ヨ" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );
