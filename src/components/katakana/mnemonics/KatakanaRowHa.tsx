@@ -594,32 +594,203 @@ export default function KatakanaRowHa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ホ') {
-    // ホ: 호롱불 (기둥과 갓, 따스한 불꽃이 피어오르는 전통 호롱불)
+    // ホ: 호박 (할로윈 호박 잭오랜턴: 모자 챙 1획, 고깔 기둥 2획, 좌우 리본 3·4획)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 바닥 그림자 */}
-        <ellipse cx="106" cy="144" rx="48" ry="6" fill="#FEF3C7" />
+        <defs>
+          {/* 신비로운 할로윈 밤하늘 배경 그라디언트 */}
+          <linearGradient id="hoNightSkyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#1E1B4B" />
+            <stop offset="50%" stopColor="#2E1065" />
+            <stop offset="100%" stopColor="#3B0764" />
+          </linearGradient>
 
-        {/* 따스한 호롱불 불빛 후광 */}
-        <circle cx="106" cy="42" r="24" fill="#FEF08A" opacity="0.6" />
-        {/* 피어오르는 붉은 불꽃 */}
-        <path d="M 106 28 C 100 36 102 46 106 50 C 110 46 112 36 106 28 Z" fill="#EF4444" stroke="#DC2626" strokeWidth="1.5" />
-        <circle cx="106" cy="42" r="3.5" fill="#FBBF24" />
+          {/* 따뜻한 보름달 후광 그라디언트 */}
+          <radialGradient id="hoMoonGlowGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FEF08A" stopOpacity="0.9" />
+            <stop offset="45%" stopColor="#FDE047" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#FACC15" stopOpacity="0" />
+          </radialGradient>
 
-        {/* 호롱불 상단 가로 받침 갓 (글자 ホ 1획) */}
-        <rect x="62" y="52" width="88" height="10" rx="5" fill="#78350F" stroke="#451A03" strokeWidth="1.8" />
+          {/* 호박 본체 풍성한 오렌지 볼륨 그라디언트 */}
+          <linearGradient id="hoPumpkinBaseGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FDBA74" />
+            <stop offset="35%" stopColor="#FB923C" />
+            <stop offset="80%" stopColor="#EA580C" />
+            <stop offset="100%" stopColor="#C2410C" />
+          </linearGradient>
 
-        {/* 호롱불 중앙 기둥 (글자 ホ 2획 세로 기둥) */}
-        <rect x="98" y="52" width="16" height="88" rx="4" fill="#92400E" stroke="#451A03" strokeWidth="2" />
+          {/* 호박 측면 볼륨 음영 그라디언트 */}
+          <linearGradient id="hoPumpkinSideGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FB923C" />
+            <stop offset="60%" stopColor="#EA580C" />
+            <stop offset="100%" stopColor="#9A3412" />
+          </linearGradient>
 
-        {/* 양옆 받침 다리 날개 (글자 ホ의 좌우 3, 4획) */}
-        <line x1="84" y1="84" x2="68" y2="128" stroke="#B45309" strokeWidth="5.5" strokeLinecap="round" />
-        <line x1="128" y1="84" x2="144" y2="128" stroke="#B45309" strokeWidth="5.5" strokeLinecap="round" />
+          {/* 잭오랜턴 내부에서 타오르는 황금빛 촛불 발광 그라디언트 */}
+          <linearGradient id="hoJackGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
 
-        {/* 기둥 밑둥 받침대 */}
-        <ellipse cx="106" cy="140" rx="36" ry="6" fill="#78350F" stroke="#451A03" strokeWidth="1.5" />
+          {/* 마녀 모자 다크 네이비/차콜 그라디언트 */}
+          <linearGradient id="hoHatGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#475569" />
+            <stop offset="40%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#1E293B" />
+          </linearGradient>
 
-        {/* 글자 'ホ' 오버레이 */}
+          {/* 모자 리본 벨트 바이올렛 그라디언트 */}
+          <linearGradient id="hoRibbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#A855F7" />
+            <stop offset="50%" stopColor="#C084FC" />
+            <stop offset="100%" stopColor="#9333EA" />
+          </linearGradient>
+
+          {/* 금빛 버클 그라디언트 */}
+          <linearGradient id="hoGoldBuckleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="50%" stopColor="#FACC15" />
+            <stop offset="100%" stopColor="#CA8A04" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 배경: 신비로운 할로윈 밤하늘 카드 베이스 */}
+        <rect width="200" height="160" rx="16" fill="url(#hoNightSkyGrad)" />
+
+        {/* 은은한 보름달 달빛 후광 */}
+        <circle cx="106" cy="38" r="46" fill="url(#hoMoonGlowGrad)" />
+
+        {/* 밤하늘의 금빛 별과 스파클 (✨) */}
+        <path d="M 28 32 L 30 26 L 32 32 L 38 34 L 32 36 L 30 42 L 28 36 L 22 34 Z" fill="#FDE047" opacity="0.8" />
+        <path d="M 174 28 L 175.5 23 L 177 28 L 182 29.5 L 177 31 L 175.5 36 L 174 31 L 169 29.5 Z" fill="#FDE047" opacity="0.85" />
+        <circle cx="38" cy="56" r="1.4" fill="#FDE047" opacity="0.6" />
+        <circle cx="166" cy="52" r="1.5" fill="#E9D5FF" opacity="0.7" />
+        <circle cx="20" cy="78" r="1.2" fill="#FEF08A" opacity="0.5" />
+
+        {/* 밤하늘을 나는 귀여운 실루엣 미니 박쥐 */}
+        <path d="M 32 20 C 35 18 38 21 40 18 C 42 21 45 18 48 20 C 44 23 42 22 40 24 C 38 22 36 23 32 20 Z" fill="#475569" opacity="0.55" />
+        <path d="M 160 16 C 162 14.5 164 16.5 166 14.5 C 168 16.5 170 14.5 172 16 C 169 18 168 17.5 166 19 C 164 17.5 163 18 160 16 Z" fill="#475569" opacity="0.5" />
+
+        {/* 2. 호박 바닥 부드러운 밤 그림자 */}
+        <ellipse cx="106" cy="146" rx="54" ry="8" fill="#0F172A" opacity="0.65" />
+
+        {/* 3. 탐스럽고 통통한 할로윈 호박 (Jack-o'-lantern) 본체 */}
+        {/* 호박 바깥쪽 좌우 덩어리 */}
+        <ellipse cx="72" cy="104" rx="24" ry="32" fill="url(#hoPumpkinSideGrad)" stroke="#7C2D12" strokeWidth="1.2" />
+        <ellipse cx="140" cy="104" rx="24" ry="32" fill="url(#hoPumpkinSideGrad)" stroke="#7C2D12" strokeWidth="1.2" />
+
+        {/* 호박 중간 좌우 덩어리 */}
+        <ellipse cx="88" cy="103" rx="25" ry="34" fill="url(#hoPumpkinBaseGrad)" stroke="#7C2D12" strokeWidth="1.2" />
+        <ellipse cx="124" cy="103" rx="25" ry="34" fill="url(#hoPumpkinBaseGrad)" stroke="#7C2D12" strokeWidth="1.2" />
+
+        {/* 호박 중앙 메인 덩어리 */}
+        <ellipse cx="106" cy="102" rx="27" ry="35" fill="url(#hoPumpkinBaseGrad)" stroke="#7C2D12" strokeWidth="1.4" />
+
+        {/* 호박 표면 입체 하이라이트 */}
+        <path d="M 96 74 C 92 88 92 116 97 128" stroke="#FDBA74" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+        <path d="M 116 74 C 120 88 120 116 115 128" stroke="#FDBA74" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+
+        {/* 4. 내부 촛불로 환하게 빛나는 잭오랜턴 얼굴 표정 */}
+        {/* 익살스럽고 호쾌한 지그재그 입 */}
+        <path
+          d="M 86 118 
+             L 92 114 L 98 118 L 104 114 L 110 118 L 116 114 L 122 118 L 126 122 
+             L 118 126 L 112 122 L 106 126 L 100 122 L 94 126 L 86 122 Z"
+          fill="url(#hoJackGlowGrad)"
+          stroke="#7C2D12"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+
+        {/* 작은 역삼각형 코 */}
+        <polygon points="106,98 101,106 111,106" fill="url(#hoJackGlowGrad)" stroke="#7C2D12" strokeWidth="1" />
+
+        {/* [3·4획 보조 매칭] 내부에서 반짝이는 할로윈 삼각형 눈 2개 */}
+        {/* 왼쪽 눈 */}
+        <polygon points="82,88 94,94 82,98" fill="url(#hoJackGlowGrad)" stroke="#7C2D12" strokeWidth="1" />
+        {/* 오른쪽 눈 */}
+        <polygon points="130,88 118,94 130,98" fill="url(#hoJackGlowGrad)" stroke="#7C2D12" strokeWidth="1" />
+
+        {/* 5. [★ 3획 & 4획 매칭: 좌우 리본 스트리머] 모자에서 양옆으로 뻗어 내리는 바이올렛 리본 */}
+        {/* 3획 매칭: 왼쪽 아래로 시원하게 휘날리는 리본 끈 */}
+        <path
+          d="M 100 60 C 94 76 86 98 68 126"
+          stroke="url(#hoRibbonGrad)"
+          strokeWidth="6.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 100 60 C 94 76 86 98 68 126"
+          stroke="#581C87"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeDasharray="2.5 2.5"
+          opacity="0.8"
+        />
+        {/* 3획 하단 리본 끝단 금빛 방울 장식 */}
+        <circle cx="67" cy="127" r="3" fill="url(#hoGoldBuckleGrad)" stroke="#78350F" strokeWidth="0.8" />
+
+        {/* 4획 매칭: 오른쪽 아래로 경쾌하게 떨어지는 리본 날개 */}
+        <path
+          d="M 112 60 C 118 76 128 98 140 124"
+          stroke="url(#hoRibbonGrad)"
+          strokeWidth="6.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 112 60 C 118 76 128 98 140 124"
+          stroke="#581C87"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeDasharray="2.5 2.5"
+          opacity="0.8"
+        />
+        {/* 4획 하단 리본 끝단 금빛 방울 장식 */}
+        <circle cx="141" cy="125" r="3" fill="url(#hoGoldBuckleGrad)" stroke="#78350F" strokeWidth="0.8" />
+
+        {/* 6. [★ 2획 상단 매칭: 세로 기둥] 마녀 모자의 뾰족한 고깔 Cone */}
+        <path
+          d="M 88 54 C 94 40 102 26 106 20 C 108 26 118 40 124 54 Z"
+          fill="url(#hoHatGrad)"
+          stroke="#0F172A"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        {/* 모자 고깔 끝 뾰족한 위트 포인트 & 반짝이는 금빛 별 */}
+        <circle cx="106" cy="20" r="3.2" fill="url(#hoGoldBuckleGrad)" stroke="#78350F" strokeWidth="0.8" />
+
+        {/* 7. [★ 1획 매칭: 가로선] 마녀 모자의 넓은 가로 챙 Hat Brim */}
+        <path
+          d="M 58 56 Q 106 48 154 56 Q 106 65 58 56 Z"
+          fill="url(#hoHatGrad)"
+          stroke="#0F172A"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+
+        {/* 모자 챙 위의 바이올렛 가로 리본 밴드 */}
+        <path
+          d="M 64 55 Q 106 49 148 55 Q 106 59 64 55 Z"
+          fill="url(#hoRibbonGrad)"
+          stroke="#581C87"
+          strokeWidth="0.8"
+        />
+
+        {/* 모자 챙 중앙의 번쩍이는 황금 버클 */}
+        <rect
+          x="100"
+          y="50.5"
+          width="12"
+          height="8.5"
+          rx="2"
+          fill="url(#hoGoldBuckleGrad)"
+          stroke="#78350F"
+          strokeWidth="1.2"
+        />
+        <rect x="103" y="52.5" width="6" height="4.5" rx="1" fill="#1E293B" />
+
+        {/* 8. 글자 'ホ' 오버레이 (마녀 모자 챙·고깔과 리본 날개 위에 완벽하게 일치) */}
         <KatakanaCharOverlay char="ホ" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );

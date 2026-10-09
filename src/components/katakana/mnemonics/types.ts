@@ -52,7 +52,7 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   ヒ: { char: 'ヒ', word: '히터', highlightIndex: 0, romaji: 'hi', tip: '상단 붉은 석영 열선(1획)과 왼쪽 기둥·하단 받침대(2획)의 2단 전기 히터(Heater)' },
   フ: { char: 'フ', word: '후크', highlightIndex: 0, romaji: 'fu', tip: '갈고리 모양의 후크(Hook) 선장 손' },
   ヘ: { char: 'ヘ', word: '헤엄', highlightIndex: 0, romaji: 'he', reuseNote: '히라가나 へ와 100% 동일한 형태', tip: '물살을 가르며 하이 엘보로 헤엄치는 팔' },
-  ホ: { char: 'ホ', word: '호롱불', highlightIndex: 0, romaji: 'ho', tip: '스탠드 기둥과 양옆 받침대가 있는 호롱불' },
+  ホ: { char: 'ホ', word: '호박', highlightIndex: 0, romaji: 'ho', tip: '할로윈 호박(잭오랜턴)의 모자 챙(1획)과 고깔 기둥(2획), 양옆 리본과 눈(3·4획)' },
 
   // マ행
   マ: { char: 'マ', word: '마이크', highlightIndex: 0, romaji: 'ma', tip: '스탠드에 비스듬히 꽂힌 마이크(Microphone)' },

@@ -136,7 +136,7 @@ export const KATAKANA_GRID: KatakanaRow[] = [
       { char: 'ヒ', romaji: 'hi', koreanSound: '히', row: 'ハ', colIndex: 1, strokeCount: 2, strokeGuide: '가로선 ① ➔ 꺾어 올린 뒤 세로선 ②', soundTip: '붉게 달아오른 상단 석영 열선(1획)과 왼쪽 기둥 및 바닥 프레임(2획)의 클래식 2단 전기 히터(Heater)를 연상해 보세요.', matchingHiragana: 'ひ' },
       { char: 'フ', romaji: 'fu', koreanSound: '후', row: 'ハ', colIndex: 2, strokeCount: 1, strokeGuide: '가로 꺾임선 하나로 완성 ①', soundTip: '히라가나 ふ와 달리 획 하나로 각지게 씁니다.', matchingHiragana: 'ふ' },
       { char: 'ヘ', romaji: 'he', koreanSound: '헤', row: 'ハ', colIndex: 3, strokeCount: 1, strokeGuide: '산 모양으로 꺾어 내림 ①', soundTip: '히라가나 へ와 형태가 똑같습니다.', matchingHiragana: 'へ' },
-      { char: 'ホ', romaji: 'ho', koreanSound: '호', row: 'ハ', colIndex: 4, strokeCount: 4, strokeGuide: '가로선 ① ➔ 세로선 ② ➔ 좌우 점 ③, ④', soundTip: '나무 목(木) 모양과 매우 유사합니다.', matchingHiragana: 'ほ' },
+      { char: 'ホ', romaji: 'ho', koreanSound: '호', row: 'ハ', colIndex: 4, strokeCount: 4, strokeGuide: '가로선 ① ➔ 세로선 ② ➔ 좌우 점 ③, ④', soundTip: '할로윈 호박(Jack-o\'-lantern) 머리 위의 모자 챙(1획)과 고깔 기둥(2획), 양옆 리본과 눈(3·4획)을 연상해 보세요.', matchingHiragana: 'ほ' },
     ]
   },
   {
