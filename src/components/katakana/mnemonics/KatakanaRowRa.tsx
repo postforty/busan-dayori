@@ -320,31 +320,223 @@ export default function KatakanaRowRa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ル') {
-    // ル: 루비 (영롱한 붉은 루비 보석을 양쪽에서 받치는 두 갈래 다리 프레임)
+    // ル: 루돌프 (신나게 눈밭을 내달리는 빨간 코 루돌프의 앞다리 1획과 힘차게 차는 뒷다리 2획!)
+    // ⚠️ 1획 왼쪽 삐침: 앞으로 시원하게 뻗은 루돌프의 날렵한 앞다리 (발굽)
+    //    2획 수직-곡선 치켜올림: 껑충 뛰어오르며 뒤로 힘차게 발길질하는 탄력 있는 뒷다리 (발굽)
+    //    상단: 영롱하게 빛나는 루돌프의 상징적인 '빨간 코' & 멋진 뿔 & 방울 목걸이
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 영롱하게 빛나는 루비 보석 상단 */}
-        <polygon points="106,32 136,46 128,72 84,72 76,46" fill="#EF4444" stroke="#B91C1C" strokeWidth="2" />
-        <polygon points="106,32 128,72 84,72" fill="#F87171" opacity="0.6" />
-        <circle cx="106" cy="46" r="3" fill="#FFFFFF" opacity="0.8" />
+        <defs>
+          {/* 루돌프 사슴 몸체 웜 브라운 그라디언트 */}
+          <linearGradient id="ru-fur-main" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#F59E0B" />
+            <stop offset="35%" stopColor="#D97706" />
+            <stop offset="85%" stopColor="#B45309" />
+            <stop offset="100%" stopColor="#92400E" />
+          </linearGradient>
 
-        {/* 루비 보석을 받쳐 올린 황금빛 두 갈래 다리 스탠드 (글자 ル 형태) */}
-        {/* 왼쪽 다리 (글자 1획) */}
-        <line x1="84" y1="72" x2="68" y2="136" stroke="#CA8A04" strokeWidth="6" strokeLinecap="round" />
-        {/* 오른쪽 곡선 굽은 다리 (글자 2획) */}
-        <path
-          d="M 126 72 L 126 120 C 126 136 138 136 148 126"
-          stroke="#CA8A04"
-          strokeWidth="6"
-          strokeLinecap="round"
-          fill="none"
-        />
+          {/* 루돌프 엉덩이 & 뒷다리 하이라이트 그라디언트 */}
+          <linearGradient id="ru-fur-hind" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FBBF24" />
+            <stop offset="50%" stopColor="#D97706" />
+            <stop offset="100%" stopColor="#92400E" />
+          </linearGradient>
 
-        {/* 보석 광채 스파크 */}
-        <path d="M 68 40 L 70 34 L 72 40 L 78 42 L 72 44 L 70 50 L 68 44 L 62 42 Z" fill="#FDE047" />
-        <path d="M 148 38 L 150 32 L 152 38 L 158 40 L 152 42 L 150 48 L 148 42 L 142 40 Z" fill="#FDE047" />
+          {/* 앞다리 뻗음 그라디언트 */}
+          <linearGradient id="ru-fur-front" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FBBF24" />
+            <stop offset="60%" stopColor="#D97706" />
+            <stop offset="100%" stopColor="#B45309" />
+          </linearGradient>
 
-        {/* 글자 'ル' 오버레이 */}
+          {/* 반짝이는 빨간 코 광채 그라디언트 */}
+          <radialGradient id="ru-nose-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#EF4444" stopOpacity="0.85" />
+            <stop offset="45%" stopColor="#F87171" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#FCA5A5" stopOpacity="0" />
+          </radialGradient>
+
+          <radialGradient id="ru-nose-core" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FECDD3" />
+            <stop offset="25%" stopColor="#F43F5E" />
+            <stop offset="75%" stopColor="#E11D48" />
+            <stop offset="100%" stopColor="#9F1239" />
+          </radialGradient>
+
+          {/* 루돌프 뿔 (Antlers) 그라디언트 */}
+          <linearGradient id="ru-antler" x1="0%" y1="100%" x2="50%" y2="0%">
+            <stop offset="0%" stopColor="#92400E" />
+            <stop offset="60%" stopColor="#B45309" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </linearGradient>
+
+          {/* 크리스마스 골드 방울 (Bell) 그라디언트 */}
+          <radialGradient id="ru-gold-bell" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="50%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#B45309" />
+          </radialGradient>
+
+          {/* 부드러운 눈밭 (Snow Drift) 그라디언트 */}
+          <linearGradient id="ru-snow" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#F1F5F9" />
+            <stop offset="60%" stopColor="#E2E8F0" />
+            <stop offset="100%" stopColor="#CBD5E1" />
+          </linearGradient>
+        </defs>
+
+        {/* 1. 배경 눈밭 & 눈송이 & 달리는 속도감 바람선 */}
+        <g id="snow-background">
+          {/* 눈 덮인 언덕 베이스 */}
+          <path d="M 0 145 C 50 138 120 144 200 138 L 200 160 L 0 160 Z" fill="url(#ru-snow)" opacity="0.95" />
+          <path d="M 0 148 C 65 142 140 148 200 142 L 200 160 L 0 160 Z" fill="#E2E8F0" opacity="0.6" />
+
+          {/* 달리는 바람선 (Motion Swishes) */}
+          <path d="M 24 64 C 40 60 52 64 62 62" stroke="#CBD5E1" strokeWidth="1.6" strokeLinecap="round" strokeDasharray="3 3" opacity="0.7" />
+          <path d="M 18 84 C 32 80 44 83 54 81" stroke="#93C5FD" strokeWidth="1.4" strokeLinecap="round" opacity="0.6" />
+          <path d="M 152 74 C 168 70 182 74 192 72" stroke="#CBD5E1" strokeWidth="1.8" strokeLinecap="round" opacity="0.7" />
+
+          {/* 흩날리는 반짝이 눈송이 */}
+          <circle cx="36" cy="42" r="2.5" fill="#FFFFFF" opacity="0.9" />
+          <circle cx="48" cy="108" r="1.8" fill="#BAE6FD" opacity="0.8" />
+          <circle cx="168" cy="48" r="2.2" fill="#FFFFFF" opacity="0.9" />
+          <circle cx="178" cy="116" r="1.6" fill="#BAE6FD" opacity="0.8" />
+          <circle cx="96" cy="18" r="1.5" fill="#FFFFFF" opacity="0.9" />
+          {/* 별빛 스파클 */}
+          <path d="M 166 32 L 167.5 27 L 169 32 L 174 33.5 L 169 35 L 167.5 40 L 166 35 L 161 33.5 Z" fill="#FDE047" opacity="0.85" />
+        </g>
+
+        {/* 2. 루돌프 몸체 & 등 & 꼬리 (글자 상단 획들을 자연스럽게 이어주는 허리/등선) */}
+        <g id="reindeer-body">
+          {/* 등 허리선 (어깨에서 엉덩이로 이어지는 활모양 척추) */}
+          <path
+            d="M 76 52 C 84 46 96 44 106 44 C 112 44 116 48 116 54 C 114 62 102 65 92 64 C 82 63 76 58 76 52 Z"
+            fill="url(#ru-fur-main)"
+          />
+          {/* 배 밑 부드러운 크림색 털 */}
+          <path d="M 82 56 C 88 52 98 52 104 54 C 100 60 90 62 82 56 Z" fill="#FEF3C7" opacity="0.85" />
+
+          {/* 쫑긋 세운 앙증맞은 사슴 꼬리 */}
+          <path d="M 112 44 C 118 40 124 42 122 47 C 120 50 114 49 112 47 Z" fill="#B45309" />
+          <path d="M 114 45 C 118 42 122 43 120 47 Z" fill="#FFFBEB" />
+        </g>
+
+        {/* 3. ★ 글자 ル 1획 매칭: 힘차게 앞으로 뻗은 루돌프의 앞다리 & 발굽 ★ */}
+        <g id="front-leg">
+          {/* 허벅지/어깨 볼륨 */}
+          <path
+            d="M 74 48 C 82 50 84 62 80 72 C 76 84 72 96 66 110 C 62 118 56 126 50 130 C 47 131 46 128 48 125 C 54 116 62 102 68 88 C 72 76 72 62 70 52 Z"
+            fill="url(#ru-fur-front)"
+          />
+          {/* 1획 중심선 강조 라인 (글자 획 경로 보조) */}
+          <path d="M 78 48 Q 72 86 51 128" stroke="#CA8A04" strokeWidth="4.5" strokeLinecap="round" opacity="0.35" />
+          <path d="M 78 48 Q 72 86 51 128" stroke="#FEF08A" strokeWidth="1.8" strokeLinecap="round" opacity="0.6" />
+
+          {/* 앞발 발굽 (Dark Hoof at 50, 128) */}
+          <path d="M 47 125 L 53 131 L 49 133 L 44 128 Z" fill="#1E293B" />
+          {/* 눈 튀김 효과 (발굽 아래) */}
+          <circle cx="43" cy="132" r="2" fill="#E0F2FE" />
+          <circle cx="39" cy="130" r="1.4" fill="#BAE6FD" />
+        </g>
+
+        {/* 4. ★ 글자 ル 2획 매칭: 껑충 뛰어오르며 뒤로 힘차게 발길질하는 뒷다리 & 발굽 ★ */}
+        <g id="hind-leg">
+          {/* 튼튼한 엉덩이 & 뒷다리 관절 (위에서 곧게 내려오다 아래에서 우상단으로 솟구침) */}
+          <path
+            d="M 104 42 C 112 44 114 56 112 70 C 110 88 110 106 114 116 C 118 126 130 128 140 114 C 146 104 150 94 150 86 C 148 84 144 87 142 92 C 138 102 132 114 124 118 C 116 118 112 110 106 98 C 102 84 102 66 102 46 Z"
+            fill="url(#ru-fur-hind)"
+          />
+          {/* 2획 중심선 강조 라인 (글자 획 경로 보조: x=105 수직 하강 -> 바닥 둥글림 -> x=146 우상단 삐침) */}
+          <path
+            d="M 105 42 L 106 96 C 107 114 116 124 128 124 C 137 122 144 110 148 86"
+            stroke="#CA8A04"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+            opacity="0.35"
+          />
+          <path
+            d="M 105 42 L 106 96 C 107 114 116 124 128 124 C 137 122 144 110 148 86"
+            stroke="#FEF08A"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+            opacity="0.6"
+          />
+
+          {/* 치켜올라간 뒷발 발굽 (Kicking Dark Hoof at 148, 86) */}
+          <path d="M 146 84 L 152 87 L 150 93 L 143 89 Z" fill="#1E293B" />
+          {/* 뒷발 발길질 광포 효과 / 파티클 */}
+          <circle cx="156" cy="85" r="2.2" fill="#FDE047" opacity="0.8" />
+          <circle cx="160" cy="91" r="1.5" fill="#FEF08A" opacity="0.7" />
+        </g>
+
+        {/* 5. 루돌프 목 & 크리스마스 방울 목걸이 */}
+        <g id="reindeer-neck-collar">
+          {/* 목선 */}
+          <path d="M 76 52 C 73 44 68 38 65 34 C 61 36 60 42 66 50 C 70 54 74 54 76 52 Z" fill="#D97706" />
+
+          {/* 초록색 크리스마스 목줄 리본 */}
+          <path d="M 66 45 C 72 49 76 50 78 48" stroke="#15803D" strokeWidth="4" strokeLinecap="round" fill="none" />
+          <path d="M 66 45 C 72 49 76 50 78 48" stroke="#22C55E" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+          {/* 딸랑딸랑 황금 방울 */}
+          <circle cx="71" cy="51" r="4.5" fill="url(#ru-gold-bell)" stroke="#78350F" strokeWidth="0.8" />
+          <circle cx="69.5" cy="49.5" r="1.3" fill="#FFFFFF" opacity="0.9" />
+          <line x1="68" y1="52.5" x2="74" y2="52.5" stroke="#78350F" strokeWidth="0.8" />
+          <circle cx="71" cy="53" r="0.8" fill="#78350F" />
+        </g>
+
+        {/* 6. 루돌프 귀여운 얼굴 & 사슴 뿔 (Antlers) */}
+        <g id="reindeer-head">
+          {/* 사슴 머리 얼굴형 */}
+          <path
+            d="M 52 36 C 49 34 50 30 55 28 C 61 26 66 28 68 33 C 70 38 65 42 58 40 C 54 39 52 38 52 36 Z"
+            fill="url(#ru-fur-main)"
+          />
+
+          {/* 쫑긋한 사슴 귀 */}
+          <path d="M 67 29 C 73 23 76 25 74 30 C 72 32 68 31 67 29 Z" fill="#B45309" />
+          <path d="M 68 28 C 72 24 74 26 73 29 Z" fill="#FEF3C7" />
+
+          {/* 멋진 사슴 뿔 (Antlers) - 양쪽 가지치기 */}
+          {/* 뒤쪽 뿔 */}
+          <path d="M 62 26 C 60 18 56 12 52 8" stroke="url(#ru-antler)" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+          <path d="M 58 17 C 53 16 50 19 48 20" stroke="url(#ru-antler)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+          {/* 앞쪽 뿔 */}
+          <path d="M 65 25 C 67 17 71 10 77 6" stroke="url(#ru-antler)" strokeWidth="3" strokeLinecap="round" fill="none" />
+          <path d="M 68 18 C 73 17 76 19 79 17" stroke="url(#ru-antler)" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+          <path d="M 70 12 C 74 10 76 7 78 5" stroke="url(#ru-antler)" strokeWidth="2" strokeLinecap="round" fill="none" />
+
+          {/* 반짝이는 초롱초롱한 눈 */}
+          <ellipse cx="60" cy="33" rx="2.5" ry="3" fill="#1C1917" />
+          <circle cx="59.2" cy="32" r="1" fill="#FFFFFF" />
+          <circle cx="61" cy="34" r="0.5" fill="#FFFFFF" />
+
+          {/* 볼 터치 */}
+          <ellipse cx="61" cy="37" rx="3.5" ry="2" fill="#F43F5E" opacity="0.35" />
+        </g>
+
+        {/* 7. ★ 대망의 눈부신 빨간 코 (Rudolph's Glowing Red Nose) ★ */}
+        <g id="glowing-red-nose">
+          {/* 코 주변 붉은빛 확산 오라 (Glow Halo) */}
+          <circle cx="49" cy="36" r="14" fill="url(#ru-nose-glow)" />
+
+          {/* 빨간 코 본체 */}
+          <circle cx="49" cy="36" r="5.5" fill="url(#ru-nose-core)" stroke="#9F1239" strokeWidth="0.8" />
+
+          {/* 영롱한 하이라이트 광택 */}
+          <ellipse cx="47.2" cy="34.2" rx="2" ry="1.4" fill="#FFFFFF" opacity="0.9" />
+          <circle cx="51" cy="38" r="0.8" fill="#FFFFFF" opacity="0.6" />
+
+          {/* 코에서 뿜어져 나오는 십자 스파클 (Magic Star) */}
+          <path d="M 41 36 L 43 34 L 45 36 L 43 38 Z" fill="#FDE047" opacity="0.9" />
+          <path d="M 49 26 L 50 23 L 51 26 L 54 27 L 51 28 L 50 31 L 49 28 L 46 27 Z" fill="#FEF08A" opacity="0.85" />
+        </g>
+
+        {/* 8. 글자 'ル' 오버레이 (정중앙 투영: 루돌프의 앞다리 1획과 뒷다리 2획과 완벽 조화!) */}
         <KatakanaCharOverlay char="ル" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );
