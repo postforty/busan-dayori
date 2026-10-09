@@ -59,10 +59,10 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   ミ: { char: 'ミ', word: '미사일', highlightIndex: 0, romaji: 'mi', tip: '나란히 날아가는 3발의 미사일(Missile)' },
   ム: { char: 'ム', word: '무술', highlightIndex: 0, romaji: 'mu', tip: '오른쪽을 향해 오른팔을 굽혀 뻗고(1획), 왼팔로 날렵하게 찌르는(2획) 무술가' },
   メ: { char: 'メ', word: '메모 (X체크)', highlightIndex: 0, romaji: 'me', tip: '메모지에 크게 쓱 그은 X체크(メ) 표시' },
-  モ: { char: 'モ', word: '모기', highlightIndex: 0, romaji: 'mo', reuseNote: '히라가나 も가 직선화된 동일 형태', tip: '모기의 펼쳐진 날개(1·2획)와 콕 찌른 침·오른쪽으로 빵빵해진 배(3획)' },
+  モ: { char: 'モ', word: '모기', highlightIndex: 0, romaji: 'mo', reuseNote: '히라가나 も가 직선화된 동일 형태', tip: '모기의 펼쳐진 날개(1·2획)와 콕 찌른 침·오른쪽으로 날렵하게 뻗은 배(3획)' },
 
   // ヤ행
-  ヤ: { char: 'ヤ', word: '야구', highlightIndex: 0, romaji: 'ya', reuseNote: '히라가나 や가 각지게 직선화된 동일 형태', tip: '홈플레이트에 비스듬히 세운 야구 배트' },
+  ヤ: { char: 'ヤ', word: '야구', highlightIndex: 0, romaji: 'ya', reuseNote: '히라가나 や가 각지게 직선화된 동일 형태', tip: '타자의 호쾌한 스윙 궤적(1획)과 홈플레이트로 내리꽂히는 원목 야구 배트(2획)' },
   ユ: { char: 'ユ', word: '유턴', highlightIndex: 0, romaji: 'yu', tip: '도로의 직각 유턴(U-Turn) 회전 화살표' },
   ヨ: { char: 'ヨ', word: '요트', highlightIndex: 0, romaji: 'yo', tip: '요트(Yacht) 돛대의 3단 가로 프레임' },
 

@@ -405,8 +405,8 @@ export default function KatakanaRowMa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'モ') {
-    // モ: 모기 ("모~~" 하고 날아와 뾰족한 침을 콕 찌르고 오른쪽으로 배가 빵빵해진 귀여운 모기!)
-    // ⚠️ 1획은 상단 투명 날개 쌍, 2획은 하단 날개 쌍 및 중간 다리, 3획은 아래로 콕 찌른 날렵한 침 & 오른쪽으로 뻗은 빵빵한 줄무늬 배와 1:1 완벽 일치!
+    // モ: 모기 (날렵한 두 날개와 주둥이 침, 슬림한 몸통의 귀여운 모기)
+    // ⚠️ 1획은 상단 투명 날개 쌍, 2획은 하단 날개 쌍 및 중간 다리, 3획은 아래로 곧게 뻗은 침 & 오른쪽으로 슬림하게 이어진 배와 1:1 일치
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -416,30 +416,11 @@ export default function KatakanaRowMa({ char, fontFamily }: KatakanaMnemonicSvgC
             <stop offset="60%" stopColor="#E0F2FE" stopOpacity="0.75" />
             <stop offset="100%" stopColor="#BAE6FD" stopOpacity="0.85" />
           </linearGradient>
-          {/* 피를 꿀꺽 마셔 붉게 차오른 배 그라디언트 */}
-          <linearGradient id="kataMoBellyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#475569" />
-            <stop offset="50%" stopColor="#BE123C" />
-            <stop offset="100%" stopColor="#F43F5E" />
-          </linearGradient>
         </defs>
 
-        {/* 1. 배경 은은한 하늘빛 원 & 앵앵 비행 궤적 */}
+        {/* 1. 배경 은은한 하늘빛 원 */}
         <circle cx="100" cy="80" r="68" fill="#F0F9FF" />
         <circle cx="100" cy="80" r="50" fill="#E0F2FE" opacity="0.6" />
-
-        {/* 모기가 빙글빙글 날아온 비행 궤적 점선 루프 */}
-        <path
-          d="M 22 38 C 14 20 36 14 46 26 C 52 36 66 32 78 24 C 84 20 92 23 96 25"
-          stroke="#94A3B8"
-          strokeWidth="1.3"
-          strokeDasharray="3 4"
-          strokeLinecap="round"
-        />
-
-        {/* "모~♪" 앵앵거리는 미니 음표 */}
-        <path d="M 36 22 L 36 15 C 36 13 41 12 43 14" stroke="#0284C7" strokeWidth="1.4" strokeLinecap="round" />
-        <ellipse cx="34" cy="22" rx="2.5" ry="1.8" fill="#0284C7" />
 
         {/* 2. 글자 'モ' 1획 (상단 가로): 모기 메인 상단 날개 쌍 (Upper Wings, y=50~60) */}
         {/* 좌측 상단 날개 */}
@@ -505,57 +486,26 @@ export default function KatakanaRowMa({ char, fontFamily }: KatakanaMnemonicSvgC
         <path d="M 102 78 C 86 86 72 96 64 112" stroke="#334155" strokeWidth="1.4" strokeLinecap="round" fill="none" />
         <path d="M 110 78 C 126 86 140 96 150 110" stroke="#334155" strokeWidth="1.4" strokeLinecap="round" fill="none" />
 
-        {/* 4. 피부 표면 라인 & 콕 물린 자리 연출 */}
-        <path d="M 52 125 C 76 122 136 122 160 126" stroke="#FDBA74" strokeWidth="2.5" strokeLinecap="round" />
+        {/* 4. 글자 'モ' 3획 세로선: 모기의 얇고 날렵한 주둥이 침 (글자 하단 밖으로 삐져나오지 않도록 정돈) */}
+        <path d="M 106 76 L 106 110" stroke="#1E293B" strokeWidth="2.8" strokeLinecap="round" />
 
-        {/* 물린 자리 붉은 스팟 & 핏방울 하트 */}
-        <circle cx="106" cy="125" r="4.2" fill="#F43F5E" opacity="0.85" />
-        <circle cx="106" cy="125" r="2" fill="#BE123C" />
-
-        {/* 따끔! 번쩍이는 노란색 별빛 스파크 */}
+        {/* 5. 글자 'モ' 3획 꺾임 및 오른쪽 수평선: 날렵하고 깔끔한 슬림 배 (Abdomen) */}
         <path
-          d="M 96 122 L 98 117 L 100 122 L 105 124 L 100 126 L 98 131 L 96 126 L 91 124 Z"
-          fill="#F59E0B"
-        />
-        <path
-          d="M 114 118 L 115.5 114 L 117 118 L 121 119.5 L 117 121 L 115.5 125 L 114 121 L 110 119.5 Z"
-          fill="#FDE047"
-        />
-
-        {/* 5. 글자 'モ' 3획 세로선: 모기의 길고 날렵한 빨대 침 (Stinger / Proboscis) */}
-        <path d="M 106 76 L 106 122" stroke="#0F172A" strokeWidth="3.2" strokeLinecap="round" />
-        <line x1="106" y1="116" x2="106" y2="124" stroke="#DC2626" strokeWidth="2.2" strokeLinecap="round" />
-
-        {/* 6. 글자 'モ' 3획 꺾임 및 오른쪽 수평선: 피를 마셔 빵빵해진 통통한 줄무늬 배 (Abdomen) */}
-        {/* 통통한 배 실루엣 (오른쪽으로 길고 둥글게 뻗어나간 형태) */}
-        <path
-          d="M 106 80
-             C 106 98 110 116 122 118
-             C 134 119 146 116 148 106
-             C 148 95 134 92 120 88
-             C 113 86 109 82 106 80 Z"
-          fill="url(#kataMoBellyGrad)"
-          stroke="#0F172A"
-          strokeWidth="1.8"
+          d="M 106 84
+             C 107 94 110 104 118 106
+             C 126 107 134 105 135 101
+             C 135 97 127 94 117 90
+             C 111 88 108 85 106 84 Z"
+          fill="#475569"
+          stroke="#1E293B"
+          strokeWidth="1.4"
           strokeLinejoin="round"
         />
+        {/* 슬림한 배의 은은한 마디선 디테일 */}
+        <path d="M 113 91 C 114 96 114 101 113 105" stroke="#64748B" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M 121 93 C 122 97 122 101 120 105" stroke="#64748B" strokeWidth="1.1" strokeLinecap="round" />
 
-        {/* 꿀꺽 마신 피로 빵빵하게 붉어진 배 끝 하이라이트 */}
-        <path
-          d="M 124 117 C 134 118 145 115 147 106 C 147 98 136 94 125 93 C 123 102 122 110 124 117 Z"
-          fill="#F43F5E"
-          opacity="0.85"
-        />
-
-        {/* 배 마디마디 선명한 차콜 줄무늬 (Abdomen Bands) */}
-        <path d="M 112 87 C 114 94 115 103 113 113" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M 122 91 C 124 98 125 106 123 115" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M 132 94 C 135 100 135 106 133 112" stroke="#1E293B" strokeWidth="1.8" strokeLinecap="round" />
-
-        {/* 배 광택 반사광 타원 */}
-        <ellipse cx="138" cy="103" rx="2" ry="4" fill="#FFFFFF" opacity="0.6" transform="rotate(25 138 103)" />
-
-        {/* 7. 모기 머리 & 사랑스러운 만화 표정 (Head & Face, y=24~38) */}
+        {/* 6. 모기 머리 & 사랑스러운 만화 표정 (Head & Face, y=24~38) */}
         {/* 둥근 머리 본체 */}
         <circle cx="106" cy="33" r="10.5" fill="#475569" stroke="#0F172A" strokeWidth="1.6" />
 
