@@ -757,31 +757,71 @@ export default function KatakanaRowRa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ロ') {
-    // ロ: 로봇 (네모반듯한 사각 얼굴을 지닌 귀여운 깡통 로봇 머리)
+    // ロ: 로봇 (글자 'ロ'를 튼튼한 사각 몸통으로 하고, 중앙에 에너지 코어와 상단에 귀여운 얼굴을 지닌 꼬마 로봇)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 로봇 정수리 안테나 */}
-        <line x1="106" y1="20" x2="106" y2="38" stroke="#64748B" strokeWidth="4" strokeLinecap="round" />
-        <circle cx="106" cy="18" r="5" fill="#EF4444" />
+        {/* 바닥 그림자 */}
+        <ellipse cx="106" cy="153" rx="46" ry="4.5" fill="#CBD5E1" opacity="0.6" />
 
-        {/* 네모반듯한 로봇 사각 얼굴 본체 (글자 ロ와 100% 일치하는 사각형) */}
-        <rect x="54" y="40" width="104" height="96" rx="10" fill="#F1F5F9" stroke="#334155" strokeWidth="3" />
+        {/* 로봇 다리 (2개) */}
+        <rect x="82" y="116" width="14" height="24" rx="3" fill="#64748B" stroke="#334155" strokeWidth="2" />
+        <line x1="82" y1="124" x2="96" y2="124" stroke="#475569" strokeWidth="1.5" />
+        <line x1="82" y1="132" x2="96" y2="132" stroke="#475569" strokeWidth="1.5" />
+        <path d="M 74 145 C 74 140 100 140 100 145 L 100 149 L 74 149 Z" fill="#334155" />
 
-        {/* 양쪽 귀 볼트 나사 */}
-        <rect x="44" y="76" width="10" height="24" rx="3" fill="#94A3B8" stroke="#475569" strokeWidth="1.5" />
-        <rect x="158" y="76" width="10" height="24" rx="3" fill="#94A3B8" stroke="#475569" strokeWidth="1.5" />
+        <rect x="116" y="116" width="14" height="24" rx="3" fill="#64748B" stroke="#334155" strokeWidth="2" />
+        <line x1="116" y1="124" x2="130" y2="124" stroke="#475569" strokeWidth="1.5" />
+        <line x1="116" y1="132" x2="130" y2="132" stroke="#475569" strokeWidth="1.5" />
+        <path d="M 112 145 C 112 140 138 140 138 145 L 138 149 L 112 149 Z" fill="#334155" />
 
-        {/* 동그란 두 눈 & LED 점멸 */}
-        <circle cx="82" cy="74" r="12" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2" />
-        <circle cx="82" cy="74" r="5" fill="#1D4ED8" />
-        <circle cx="130" cy="74" r="12" fill="#DBEAFE" stroke="#3B82F6" strokeWidth="2" />
-        <circle cx="130" cy="74" r="5" fill="#1D4ED8" />
+        {/* 양쪽 팔 & 집게 손 (왼쪽 차렷, 오른쪽 인사) */}
+        {/* 왼팔 */}
+        <circle cx="64" cy="62" r="5" fill="#94A3B8" stroke="#334155" strokeWidth="2" />
+        <path d="M 62 64 L 46 76 L 46 94" stroke="#64748B" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d="M 38 94 C 36 102 54 102 52 94" stroke="#334155" strokeWidth="3" fill="none" strokeLinecap="round" />
 
-        {/* 귀여운 격자 입 */}
-        <rect x="86" y="104" width="40" height="12" rx="3" fill="#334155" />
-        <line x1="96" y1="104" x2="96" y2="116" stroke="#64748B" strokeWidth="1.5" />
-        <line x1="106" y1="104" x2="106" y2="116" stroke="#64748B" strokeWidth="1.5" />
-        <line x1="116" y1="104" x2="116" y2="116" stroke="#64748B" strokeWidth="1.5" />
+        {/* 오른팔 (손인사 포즈) */}
+        <circle cx="148" cy="62" r="5" fill="#94A3B8" stroke="#334155" strokeWidth="2" />
+        <path d="M 150 64 L 166 60 L 170 42" stroke="#64748B" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d="M 163 40 C 161 32 177 30 177 38" stroke="#334155" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d="M 180 30 C 183 33 184 37 182 41" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+        {/* 로봇 목 */}
+        <rect x="100" y="38" width="12" height="12" rx="2" fill="#64748B" stroke="#334155" strokeWidth="2" />
+        <line x1="100" y1="42" x2="112" y2="42" stroke="#475569" strokeWidth="1.5" />
+        <line x1="100" y1="46" x2="112" y2="46" stroke="#475569" strokeWidth="1.5" />
+
+        {/* 로봇 머리 & 얼굴 */}
+        <line x1="106" y1="12" x2="106" y2="18" stroke="#64748B" strokeWidth="3" strokeLinecap="round" />
+        <circle cx="106" cy="10" r="4" fill="#EF4444" />
+        <circle cx="104.5" cy="8.5" r="1.2" fill="#FFFFFF" />
+
+        <rect x="84" y="18" width="44" height="24" rx="6" fill="#F1F5F9" stroke="#334155" strokeWidth="2.5" />
+        <rect x="79" y="24" width="5" height="12" rx="1.5" fill="#94A3B8" stroke="#475569" strokeWidth="1" />
+        <rect x="128" y="24" width="5" height="12" rx="1.5" fill="#94A3B8" stroke="#475569" strokeWidth="1" />
+
+        {/* 귀여운 LED 눈 & 미소 입 */}
+        <circle cx="96" cy="28" r="3.5" fill="#38BDF8" stroke="#0284C7" strokeWidth="1" />
+        <circle cx="97" cy="27" r="1" fill="#FFFFFF" />
+        <circle cx="116" cy="28" r="3.5" fill="#38BDF8" stroke="#0284C7" strokeWidth="1" />
+        <circle cx="117" cy="27" r="1" fill="#FFFFFF" />
+        <path d="M 102 35 Q 106 38 110 35" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+        {/* 로봇 사각 몸통 베이스 (글자 ロ와 일치하는 형태) */}
+        <rect x="66" y="46" width="80" height="72" rx="8" fill="#F8FAFC" stroke="#334155" strokeWidth="3" />
+        <circle cx="72" cy="52" r="1.8" fill="#94A3B8" />
+        <circle cx="140" cy="52" r="1.8" fill="#94A3B8" />
+        <circle cx="72" cy="112" r="1.8" fill="#94A3B8" />
+        <circle cx="140" cy="112" r="1.8" fill="#94A3B8" />
+
+        {/* 몸통 중앙 내부 (글자 ロ의 가운데 빈 공간에 위치하는 에너지 코어 및 콘솔) */}
+        <rect x="88" y="66" width="36" height="32" rx="4" fill="#0F172A" />
+        <circle cx="106" cy="78" r="7.5" fill="#0284C7" opacity="0.4" />
+        <circle cx="106" cy="78" r="5" fill="#38BDF8" stroke="#BAE6FD" strokeWidth="1.2" />
+        <circle cx="104.5" cy="76.5" r="1.5" fill="#FFFFFF" />
+        <circle cx="95" cy="91" r="2" fill="#EF4444" />
+        <circle cx="106" cy="91" r="2" fill="#EAB308" />
+        <circle cx="117" cy="91" r="2" fill="#10B981" />
 
         {/* 글자 'ロ' 오버레이 */}
         <KatakanaCharOverlay char="ロ" fontFamily={fontFamily} x="106" y="118" />
