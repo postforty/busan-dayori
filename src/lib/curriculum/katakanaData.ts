@@ -444,7 +444,7 @@ export const CONFUSING_KATAKANA_PAIRS: ConfusingKatakanaPair[] = [
       korean: '응(받침)',
       feature: '아래에서 위로 완만하게 퍼올림',
       strokeDirection: '좌하단 ➔ 우상단 (완만한 빗금 ↗)',
-      mnemonic: '첫 번째 점이 옆으로 눕고, 긴 획이 바닥에서 위로 "응차!" 하고 퍼올려집니다.'
+      mnemonic: '첫 번째 점이 옆으로 눕고, 긴 획이 힘찬 "응원" 깃발처럼 바닥에서 위로 치켜올려집니다.'
     },
     tip: '소(ソ)는 츠(ツ)와 친구(위에서 아래), 응(ン)은 시(シ)와 친구(아래에서 위)입니다!'
   },

@@ -183,39 +183,139 @@ export default function KatakanaRowWa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ン') {
-    // ン: 응차! (★ 핵심: 바닥에서 위로 번쩍 "응차!" 하고 힘차게 들어 올리는 궤적!)
+    // ン: 응원 (★ 핵심: 승리의 머리띠를 두른 응원단장[1획 점], 아래에서 우상단으로 힘차게 치켜든 응원 깃발[2획 삐침])
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 지면 그림자 */}
-        <ellipse cx="106" cy="142" rx="54" ry="7" fill="#E2E8F0" />
+        <defs>
+          {/* 응원 깃발 시원한 블루 그라디언트 */}
+          <linearGradient id="cheerFlagGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#38BDF8" />
+            <stop offset="50%" stopColor="#0284C7" />
+            <stop offset="100%" stopColor="#0369A1" />
+          </linearGradient>
 
-        {/* 바닥에서 위로 치켜올려지는 힘찬 에너지 궤적 (글자 ン의 긴 획 - 아래에서 위로 솟구침) */}
-        <path
-          d="M 58 138 C 72 130 98 106 142 52 C 146 46 154 50 152 56 C 142 78 118 116 78 142 Z"
-          fill="#F59E0B"
-          stroke="#D97706"
-          strokeWidth="2.5"
-        />
+          {/* 깃대 메탈릭 골드 그라디언트 */}
+          <linearGradient id="flagPoleGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#F59E0B" />
+            <stop offset="45%" stopColor="#FDE047" />
+            <stop offset="100%" stopColor="#D97706" />
+          </linearGradient>
 
-        {/* 첫 번째 점: 힘을 주기 위해 바닥을 딛고 웅크린 점 (글자 ン 1획) */}
-        <line x1="68" y1="78" x2="88" y2="98" stroke="#D97706" strokeWidth="6.5" strokeLinecap="round" />
+          {/* 치어리더 유니폼 그라디언트 */}
+          <linearGradient id="cheerUniformGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="100%" stopColor="#BAE6FD" />
+          </linearGradient>
+        </defs>
 
-        {/* 번쩍 들어 올린 황금빛 역기/바벨 (또는 보물상자) */}
-        <g id="lifted-weight">
-          <circle cx="146" cy="48" r="10" fill="#EF4444" stroke="#DC2626" strokeWidth="1.5" />
-          <circle cx="146" cy="48" r="4" fill="#FFFFFF" opacity="0.6" />
+        {/* 1. 지면 그림자 */}
+        <ellipse cx="106" cy="144" rx="58" ry="6.5" fill="#F1F5F9" />
+        <ellipse cx="80" cy="144" rx="26" ry="4" fill="#E2E8F0" opacity="0.7" />
+
+        {/* 2. 응원단장 하체 및 유니폼 몸통 (좌하단에서 2획 깃대를 든든하게 받침) */}
+        <g id="cheer-body">
+          {/* 운동화 & 다리 */}
+          <line x1="68" y1="130" x2="68" y2="142" stroke="#64748B" strokeWidth="2.8" strokeLinecap="round" />
+          <line x1="78" y1="130" x2="78" y2="142" stroke="#64748B" strokeWidth="2.8" strokeLinecap="round" />
+          <ellipse cx="66" cy="142" rx="5" ry="2.8" fill="#EF4444" />
+          <ellipse cx="80" cy="142" rx="5" ry="2.8" fill="#EF4444" />
+
+          {/* 파란색 스포티 반바지 */}
+          <path d="M 62 118 L 84 118 L 82 130 L 64 130 Z" fill="#0369A1" />
+
+          {/* 유니폼 상의 */}
+          <path
+            d="M 60 92 L 56 118 L 86 118 L 82 92 Z"
+            fill="url(#cheerUniformGrad)"
+            stroke="#38BDF8"
+            strokeWidth="1.8"
+            strokeLinejoin="round"
+          />
+          {/* 유니폼 브이넥 포인트 */}
+          <path d="M 67 92 L 71 99 L 75 92" stroke="#0284C7" strokeWidth="1.6" fill="none" />
+
+          {/* 깃대를 꽉 쥔 두 손 */}
+          <circle cx="76" cy="116" r="4.5" fill="#FED7AA" stroke="#EA580C" strokeWidth="1.2" />
+          <circle cx="82" cy="112" r="4.5" fill="#FED7AA" stroke="#EA580C" strokeWidth="1.2" />
         </g>
 
-        {/* 파워 에너지 이펙트 (번쩍!) */}
-        <path d="M 160 36 L 166 40 L 160 44 L 164 50" stroke="#F59E0B" strokeWidth="2" fill="none" strokeLinecap="round" />
+        {/* 3. [1획과 매칭] 힘차게 "와아~!" 외치는 응원단장 얼굴 & 승리의 빨간 머리띠 */}
+        <g id="cheer-head-and-headband">
+          {/* 둥근 얼굴 베이스 (글자 1획 왼쪽 뒤에서 자연스럽게 결합) */}
+          <circle cx="72" cy="66" r="17" fill="#FFF7ED" stroke="#78716C" strokeWidth="1.6" />
 
-        {/* ★ 방향성 안내 배지 (아래 ➔ 위) */}
-        <g id="direction-hint" transform="translate(142, 94)">
-          <rect x="0" y="0" width="46" height="18" rx="9" fill="#D97706" />
-          <text x="23" y="13" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="bold">▲ 아래➔위</text>
+          {/* 승리의 빨간 응원 머리띠 (글자 1획 각도와 자연스러운 호응) */}
+          <path d="M 57 60 Q 72 54 87 60" stroke="#EF4444" strokeWidth="4.2" strokeLinecap="round" />
+          {/* 뒤로 펄럭이는 머리띠 매듭 꼬리 */}
+          <path d="M 57 60 C 48 62 44 70 46 76" stroke="#EF4444" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+          <path d="M 56 61 C 46 66 45 74 49 80" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" fill="none" />
+
+          {/* 초롱초롱한 눈 & 눈썹 */}
+          <path d="M 64 62 Q 68 59 71 62" stroke="#78716C" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+          <circle cx="68" cy="67" r="2.2" fill="#1C1917" />
+          <circle cx="67.2" cy="66.2" r="0.8" fill="#FFFFFF" />
+
+          {/* 발그레 핑크 볼터치 */}
+          <ellipse cx="66" cy="72" rx="3.5" ry="2.2" fill="#FDA4AF" />
+
+          {/* "와아~!" 크게 응원 구호를 외치는 입 */}
+          <ellipse cx="78" cy="71" rx="3.5" ry="4.5" fill="#F43F5E" />
+          <ellipse cx="78" cy="73" rx="2" ry="1.5" fill="#FFFFFF" opacity="0.6" />
+
+          {/* 입 앞 작은 소리 울림파 */}
+          <path d="M 86 68 C 88 66 89 64 88 62" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+          <path d="M 90 71 C 93 69 94 65 92 61" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" fill="none" />
         </g>
 
-        {/* 글자 'ン' 오버레이 */}
+        {/* 4. [2획과 매칭] 바닥에서 우상단으로 힘차게 치켜든 응원 깃대 & 대형 응원 깃발 */}
+        <g id="cheer-flag-and-pole">
+          {/* 힘차게 솟구치는 깃대 (좌하단 손에서 우상단 끝까지 곧게 뻗은 메탈릭 골드 봉) */}
+          <line x1="76" y1="122" x2="150" y2="46" stroke="url(#flagPoleGrad)" strokeWidth="6.5" strokeLinecap="round" />
+          <line x1="77" y1="121" x2="149" y2="47" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" opacity="0.85" />
+
+          {/* 깃대 꼭대기 황금 피니얼 장식 구슬 */}
+          <circle cx="152" cy="44" r="5.5" fill="#FBBF24" stroke="#D97706" strokeWidth="1.5" />
+          <circle cx="150.5" cy="42.5" r="1.6" fill="#FFFFFF" />
+
+          {/* 우상단에서 펄럭이는 대형 승리의 응원 깃발 (글자 2획의 솟구침 끝자락에 연결) */}
+          <path
+            d="M 150 48 C 168 40 182 50 192 42 L 186 76 C 174 82 162 70 144 80 Z"
+            fill="url(#cheerFlagGrad)"
+            stroke="#0369A1"
+            strokeWidth="2.2"
+            strokeLinejoin="round"
+          />
+          {/* 깃발 펄럭임 명암 하이라이트 */}
+          <path
+            d="M 152 50 C 168 43 180 52 190 45"
+            stroke="#BAE6FD"
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
+          />
+          {/* 깃발 중앙의 빛나는 황금 승리의 별 문양 */}
+          <path
+            d="M 168 56 L 170 50 L 172 56 L 178 58 L 172 60 L 170 66 L 168 60 L 162 58 Z"
+            fill="#FDE047"
+            stroke="#F59E0B"
+            strokeWidth="0.8"
+          />
+        </g>
+
+        {/* 5. 우상단 팡팡 터지는 응원 콘페티 & 반짝이 스파클 */}
+        <g id="cheer-confetti" opacity="0.85">
+          {/* 황금 스파클 */}
+          <path d="M 140 28 L 142 22 L 144 28 L 150 30 L 144 32 L 142 38 L 140 32 L 134 30 Z" fill="#F59E0B" />
+          <circle cx="142" cy="30" r="1.2" fill="#FFFFFF" />
+
+          {/* 알록달록 날리는 색종이 조각들 */}
+          <circle cx="128" cy="42" r="2.2" fill="#38BDF8" />
+          <circle cx="160" cy="26" r="2.5" fill="#F43F5E" />
+          <rect x="180" y="24" width="4.5" height="3" rx="1" fill="#FBBF24" transform="rotate(25 182 25)" />
+          <rect x="188" y="60" width="4" height="4" rx="1" fill="#34D399" transform="rotate(-20 190 62)" />
+        </g>
+
+        {/* 6. 글자 'ン' 오버레이 (오직 2개의 획만 깔끔하게 일러스트와 1:1 결합!) */}
         <KatakanaCharOverlay char="ン" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );

@@ -76,5 +76,5 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   // ワ·ン
   ワ: { char: 'ワ', word: '와인', highlightIndex: 0, romaji: 'wa', tip: '와인(Wine)의 사각 테두리 실루엣' },
   ヲ: { char: 'ヲ', word: '오리', highlightIndex: 0, romaji: 'o', tip: '부리를 꽥! 벌린 귀여운 오리의 윗부리(1획)와 아랫부리 및 목선(2획)' },
-  ン: { char: 'ン', word: '응차! (들어올리기)', highlightIndex: 0, romaji: 'n', tip: '★ 바닥에서 위로 \"응차!\" 번쩍 들어 올리는 궤적' }
+  ン: { char: 'ン', word: '응원', highlightIndex: 0, romaji: 'n', reuseNote: '히라가나 ん과 동일한 응원 모티브', tip: '승리의 머리띠를 한 응원단(1획)과 우상단으로 힘차게 치켜든 응원 깃발(2획)' }
 };
