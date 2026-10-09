@@ -40,36 +40,143 @@ export default function KatakanaRowWa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ヲ') {
-    // ヲ: 워터슬라이드 (워터파크의 지그재그 2단 레일과 시원하게 미끄러져 내려오는 튜브)
+    // ヲ: 오리 (글자에 가려지지 않도록 대폭 확대한 큼직한 오리: 꽥 벌린 윗부리[1획], 아랫부리[2획 가로], 풍성한 목·가슴[2획 삐침])
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 풀장 수면 배경 */}
-        <path d="M 10 134 C 40 130 80 136 120 132 C 160 128 190 132 200 130 L 200 160 L 0 160 Z" fill="#E0F2FE" />
-        <path d="M 10 134 C 40 130 80 136 120 132 C 160 128 190 132 200 130" stroke="#0284C7" strokeWidth="2.5" />
+        <defs>
+          {/* 오리 깃털 그라데이션 */}
+          <linearGradient id="duck-body-grad" x1="100" y1="20" x2="180" y2="140" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FEF9C3" />
+            <stop offset="40%" stopColor="#FEF08A" />
+            <stop offset="100%" stopColor="#FDE047" />
+          </linearGradient>
+          {/* 부리 그라데이션 */}
+          <linearGradient id="duck-beak-grad" x1="20" y1="35" x2="140" y2="95" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FB923C" />
+            <stop offset="100%" stopColor="#EA580C" />
+          </linearGradient>
+        </defs>
 
-        {/* 지그재그 2단 슬라이드 레일 (글자 ヲ의 2개 가로선과 대각선) */}
-        {/* 1단 상단 레일 */}
-        <rect x="58" y="44" width="94" height="10" rx="5" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="2" />
-        {/* 2단 중단 레일 */}
-        <rect x="66" y="74" width="86" height="10" rx="5" fill="#3B82F6" stroke="#1D4ED8" strokeWidth="2" />
+        {/* 1. 호수 수면 및 찰랑이는 물결 배경 */}
+        <path d="M 0 134 C 40 131 90 137 140 133 C 170 130 190 134 200 133 L 200 160 L 0 160 Z" fill="#E0F2FE" />
+        <path d="M 0 134 C 40 131 90 137 140 133 C 170 130 190 134 200 133" stroke="#38BDF8" strokeWidth="2.5" />
+        <ellipse cx="120" cy="138" rx="66" ry="8" fill="#BAE6FD" opacity="0.6" />
+        <circle cx="50" cy="136" r="3" fill="#38BDF8" />
+        <circle cx="42" cy="142" r="2" fill="#60A5FA" />
 
-        {/* 급커브 하강 튜브 슬라이드 (글자 ヲ 하단 꺾임선) */}
+        {/* 2. 대형 오리 몸통 & 꼬리 & 날개 (우하단에 꽉 차게 풍성한 실루엣) */}
+        {/* 하단 둥근 몸통 베이스 */}
         <path
-          d="M 132 74 C 132 94 124 122 84 138"
-          stroke="#0284C7"
-          strokeWidth="6"
+          d="M 90 125 C 100 110 120 102 155 104 C 178 105 192 110 190 120 C 188 126 178 136 150 138 C 118 140 85 138 72 134 C 74 130 84 128 90 125 Z"
+          fill="url(#duck-body-grad)"
+          stroke="#EAB308"
+          strokeWidth="2.5"
+        />
+        {/* 쫑긋 솟은 귀여운 꼬리 깃털 */}
+        <path
+          d="M 180 112 C 194 104 196 114 186 124"
+          stroke="#EAB308"
+          strokeWidth="2.2"
+          fill="#FDE047"
+          strokeLinecap="round"
+        />
+        {/* 큼직하고 둥근 날개 */}
+        <path
+          d="M 125 110 C 150 106 170 114 166 128 C 155 135 132 134 122 122 C 120 116 122 112 125 110 Z"
+          fill="#FACC15"
+          stroke="#CA8A04"
+          strokeWidth="2"
+        />
+        <path d="M 140 118 C 152 118 160 124 156 128" stroke="#CA8A04" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* 3. 큼직한 오리 머리 & 뒤통수 (위/오른쪽으로 시원하게 솟은 대형 헤드) */}
+        <path
+          d="M 130 38 C 145 20 174 20 182 44 C 188 64 184 86 166 98 C 154 106 138 106 128 100"
+          fill="url(#duck-body-grad)"
+          stroke="#EAB308"
+          strokeWidth="2.5"
+        />
+        {/* 머리 위 귀여운 깃털 볏 2단 */}
+        <path
+          d="M 148 24 C 146 10 160 12 156 22 C 162 12 172 16 166 26"
+          stroke="#EAB308"
+          strokeWidth="2"
+          fill="#FEF08A"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* 4. 포동포동한 오리 가슴 & 목 (글자 ヲ 삐침선 좌하단으로 시원하게 노출) */}
+        <path
+          d="M 132 86 C 130 106 112 126 66 135 C 56 132 54 122 66 114 C 82 100 106 90 132 86 Z"
+          fill="url(#duck-body-grad)"
+          stroke="#EAB308"
+          strokeWidth="2.5"
+        />
+        {/* 가슴 안쪽 결 하이라이트 */}
+        <path
+          d="M 122 98 C 114 112 96 124 74 130"
+          stroke="#FEF08A"
+          strokeWidth="4"
           strokeLinecap="round"
         />
 
-        {/* 튜브 타고 미끄러지는 사람 */}
-        <circle cx="100" cy="118" r="8" fill="#F97316" stroke="#EA580C" strokeWidth="1.5" />
-        <circle cx="100" cy="118" r="4" fill="#FEF08A" />
+        {/* 5. 꽥! 크게 벌린 오리 입속 (포인트 핑크 & 혀) */}
+        <path
+          d="M 134 54 L 34 54 C 28 66 32 76 44 76 L 134 76 Z"
+          fill="#FDA4AF"
+          stroke="#FB7185"
+          strokeWidth="1.5"
+        />
+        <ellipse cx="90" cy="70" rx="14" ry="6" fill="#F43F5E" />
 
-        {/* 튀는 시원한 물보라 */}
-        <circle cx="76" cy="132" r="2.5" fill="#38BDF8" />
-        <circle cx="68" cy="138" r="2" fill="#60A5FA" />
+        {/* 6. 오리 윗부리 (대폭 확대: x=30까지 길게 뻗고 위로 도톰하게 솟음) */}
+        <path
+          d="M 136 34 L 38 34 C 24 34 22 56 38 56 L 136 56 Z"
+          fill="url(#duck-beak-grad)"
+          stroke="#C2410C"
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
+        {/* 윗부리 하이라이트 & 콧구멍 */}
+        <path d="M 46 40 L 115 40" stroke="#FDBA74" strokeWidth="2.5" strokeLinecap="round" />
+        <ellipse cx="60" cy="46" rx="2" ry="1.2" fill="#9A3412" />
 
-        {/* 글자 'ヲ' 오버레이 */}
+        {/* 7. 오리 아랫부리 (대폭 확대: x=36까지 길게 뻗고 아래로 도톰하게 확장) */}
+        <path
+          d="M 138 74 L 42 74 C 28 74 28 94 42 94 L 138 94 Z"
+          fill="url(#duck-beak-grad)"
+          stroke="#C2410C"
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+        />
+        <path d="M 48 88 L 115 88" stroke="#FDBA74" strokeWidth="2" strokeLinecap="round" />
+
+        {/* 8. 오리 얼굴 디테일 (대형 초롱초롱 눈망울 & 핑크 볼터치 - 글자 우상단 여백에 온전히 노출) */}
+        <g transform="translate(152, 46)">
+          <circle cx="0" cy="0" r="7.5" fill="#1C1917" />
+          <circle cx="-2.2" cy="-2.5" r="2.8" fill="#FFFFFF" />
+          <circle cx="2.5" cy="2.5" r="1.4" fill="#FFFFFF" />
+          {/* 눈썹 */}
+          <path d="M -5 -9 Q 0 -13 6 -9" stroke="#78716C" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+        </g>
+        {/* 사랑스러운 핑크 볼터치 */}
+        <ellipse cx="162" cy="68" rx="8" ry="5.5" fill="#FCA5A5" opacity="0.85" />
+
+        {/* 9. 꽥꽥! 노래하는 음표 & 반짝이 별 (부리 앞 좌상단) */}
+        <g transform="translate(18, 24)">
+          <path
+            d="M 6 18 L 6 4 L 14 1 L 14 12 M 6 18 A 3 2.5 0 1 1 0 16 A 3 2.5 0 0 1 6 18 M 14 12 A 3 2.5 0 1 1 8 10 A 3 2.5 0 0 1 14 12"
+            stroke="#F59E0B"
+            strokeWidth="2"
+            fill="#F59E0B"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
+        <path d="M 12 12 L 14 6 L 16 12 L 22 14 L 16 16 L 14 22 L 12 16 L 6 14 Z" fill="#FDE047" stroke="#F59E0B" strokeWidth="1" />
+
+        {/* 10. 글자 'ヲ' 오버레이 */}
         <KatakanaCharOverlay char="ヲ" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );

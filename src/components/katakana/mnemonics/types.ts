@@ -74,7 +74,7 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   ロ: { char: 'ロ', word: '로봇', highlightIndex: 0, romaji: 'ro', tip: '네모반듯한 로봇(Robot)의 사각 몸통' },
 
   // ワ·ン
-  ワ: { char: 'ワ', word: '와인잔', highlightIndex: 0, romaji: 'wa', tip: '와인잔(Wine)의 사각 테두리 실루엣' },
-  ヲ: { char: 'ヲ', word: '워터슬라이드', highlightIndex: 0, romaji: 'wo', tip: '워터파크의 지그재그 슬라이드 레일' },
+  ワ: { char: 'ワ', word: '와인', highlightIndex: 0, romaji: 'wa', tip: '와인(Wine)의 사각 테두리 실루엣' },
+  ヲ: { char: 'ヲ', word: '오리', highlightIndex: 0, romaji: 'o', tip: '부리를 꽥! 벌린 귀여운 오리의 윗부리(1획)와 아랫부리 및 목선(2획)' },
   ン: { char: 'ン', word: '응차! (들어올리기)', highlightIndex: 0, romaji: 'n', tip: '★ 바닥에서 위로 \"응차!\" 번쩍 들어 올리는 궤적' }
 };

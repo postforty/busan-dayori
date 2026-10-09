@@ -176,7 +176,7 @@ export const KATAKANA_GRID: KatakanaRow[] = [
       null,
       null,
       null,
-      { char: 'ヲ', romaji: 'wo', koreanSound: '오(워)', row: 'ワ', colIndex: 4, strokeCount: 3, strokeGuide: '가로선 ① ➔ 가로 꺾임 ② ➔ 빗금 삐침 ③', soundTip: '목적격 조사(~을/를)로 주로 쓰이며 발음은 [오]입니다.', matchingHiragana: 'を' },
+      { char: 'ヲ', romaji: 'o', koreanSound: '오(조사)', row: 'ワ', colIndex: 4, strokeCount: 3, strokeGuide: '가로선 ① ➔ 가로 꺾임 ② ➔ 빗금 삐침 ③', soundTip: '목적격 조사(~을/를)로 쓰이며 실제 발음은 [오]입니다. (외래어의 [워] 발음은 특수음 ウォ를 사용합니다)', matchingHiragana: 'を' },
     ]
   },
   {
