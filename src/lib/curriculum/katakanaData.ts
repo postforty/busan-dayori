@@ -144,8 +144,8 @@ export const KATAKANA_GRID: KatakanaRow[] = [
     chars: [
       { char: 'マ', romaji: 'ma', koreanSound: '마', row: 'マ', colIndex: 0, strokeCount: 2, strokeGuide: '가로 꺾임선 ① ➔ 대각선 점 ②', soundTip: '녹음실에서 노래하는 입 앞의 마이크(1획 바디·스탠드, 2획 조절 핀)를 연상해 보세요.', matchingHiragana: 'ま' },
       { char: 'ミ', romaji: 'mi', koreanSound: '미', row: 'マ', colIndex: 1, strokeCount: 3, strokeGuide: '평행한 빗금 세 줄 ①, ②, ③', soundTip: '석 삼(三)을 대각선으로 기울인 모양입니다.', matchingHiragana: 'み' },
-      { char: 'ム', romaji: 'mu', koreanSound: '무', row: 'マ', colIndex: 2, strokeCount: 2, strokeGuide: '삼각형 꺾임선 ① ➔ 짧은 점 ②', soundTip: '사사로울 사(厶) 모양과 같습니다.', matchingHiragana: 'む' },
-      { char: 'メ', romaji: 'me', koreanSound: '메', row: 'マ', colIndex: 3, strokeCount: 2, strokeGuide: '왼쪽 삐침 ① ➔ 가로지르는 빗금 ②', soundTip: '영문 X나 한자 칼도(刀)의 변형과 비슷합니다.', matchingHiragana: 'め' },
+      { char: 'ム', romaji: 'mu', koreanSound: '무', row: 'マ', colIndex: 2, strokeCount: 2, strokeGuide: '삼각형 꺾임선 ① ➔ 짧은 점 ②', soundTip: '오른쪽을 향해 오른팔(1획)을 뻗고 왼팔로 정권 찌르기(2획)를 날리는 무술(ム)을 연상해 보세요.', matchingHiragana: 'む' },
+      { char: 'メ', romaji: 'me', koreanSound: '메', row: 'マ', colIndex: 3, strokeCount: 2, strokeGuide: '왼쪽 삐침 ① ➔ 가로지르는 빗금 ②', soundTip: '메모지에 사선으로 쓱 그은 X체크(メ) 표시를 연상해 보세요.', matchingHiragana: 'め' },
       { char: 'モ', romaji: 'mo', koreanSound: '모', row: 'マ', colIndex: 4, strokeCount: 3, strokeGuide: '가로선 2개 ①, ② ➔ 세로 꺾임선 ③', soundTip: '히라가나 も를 각지게 만든 형태입니다.', matchingHiragana: 'も' },
     ]
   },

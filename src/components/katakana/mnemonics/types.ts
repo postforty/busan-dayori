@@ -57,9 +57,9 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   // マ행
   マ: { char: 'マ', word: '마이크', highlightIndex: 0, romaji: 'ma', tip: '녹음실에서 헤드폰을 끼고 노래하는 입 앞의 마이크(1획 바디·스탠드, 2획 조절 핀)' },
   ミ: { char: 'ミ', word: '미사일', highlightIndex: 0, romaji: 'mi', tip: '나란히 날아가는 3발의 미사일(Missile)' },
-  ム: { char: 'ム', word: '무스케이크', highlightIndex: 0, romaji: 'mu', tip: '삼각형으로 자른 달콤한 무스케이크' },
-  メ: { char: 'メ', word: '메모 (체크)', highlightIndex: 0, romaji: 'me', tip: '메모지에 사선으로 쓱 그은 체크(X) 표시' },
-  モ: { char: 'モ', word: '모기', highlightIndex: 0, romaji: 'mo', reuseNote: '히라가나 も가 직선화된 동일 형태', tip: '모기의 침과 다리가 뻗은 모티브' },
+  ム: { char: 'ム', word: '무술', highlightIndex: 0, romaji: 'mu', tip: '오른쪽을 향해 오른팔을 굽혀 뻗고(1획), 왼팔로 날렵하게 찌르는(2획) 무술가' },
+  メ: { char: 'メ', word: '메모 (X체크)', highlightIndex: 0, romaji: 'me', tip: '메모지에 크게 쓱 그은 X체크(メ) 표시' },
+  モ: { char: 'モ', word: '모기', highlightIndex: 0, romaji: 'mo', reuseNote: '히라가나 も가 직선화된 동일 형태', tip: '모기의 펼쳐진 날개(1·2획)와 콕 찌른 침·오른쪽으로 빵빵해진 배(3획)' },
 
   // ヤ행
   ヤ: { char: 'ヤ', word: '야구', highlightIndex: 0, romaji: 'ya', reuseNote: '히라가나 や가 각지게 직선화된 동일 형태', tip: '홈플레이트에 비스듬히 세운 야구 배트' },
