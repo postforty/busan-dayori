@@ -55,7 +55,7 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   ホ: { char: 'ホ', word: '호박', highlightIndex: 0, romaji: 'ho', tip: '할로윈 호박(잭오랜턴)의 모자 챙(1획)과 고깔 기둥(2획), 양옆 리본과 눈(3·4획)' },
 
   // マ행
-  マ: { char: 'マ', word: '마이크', highlightIndex: 0, romaji: 'ma', tip: '스탠드에 비스듬히 꽂힌 마이크(Microphone)' },
+  マ: { char: 'マ', word: '마이크', highlightIndex: 0, romaji: 'ma', tip: '녹음실에서 헤드폰을 끼고 노래하는 입 앞의 마이크(1획 바디·스탠드, 2획 조절 핀)' },
   ミ: { char: 'ミ', word: '미사일', highlightIndex: 0, romaji: 'mi', tip: '나란히 날아가는 3발의 미사일(Missile)' },
   ム: { char: 'ム', word: '무스케이크', highlightIndex: 0, romaji: 'mu', tip: '삼각형으로 자른 달콤한 무스케이크' },
   メ: { char: 'メ', word: '메모 (체크)', highlightIndex: 0, romaji: 'me', tip: '메모지에 사선으로 쓱 그은 체크(X) 표시' },

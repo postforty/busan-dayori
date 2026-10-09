@@ -370,28 +370,122 @@ export default function KatakanaRowHa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'フ') {
-    // フ: 후크 (후크 선장의 날카롭게 꺾인 해적 갈고리 손)
+    // フ: 후크 (후크 선장의 블랙 돔 컵 손잡이와 매끄럽게 휜 은빛 갈고리 손)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 해적 소매 깃 & 금빛 버클 */}
-        <rect x="42" y="38" width="46" height="32" rx="6" fill="#881337" stroke="#4C0519" strokeWidth="2" />
-        <rect x="80" y="44" width="12" height="20" rx="3" fill="#FDE047" stroke="#CA8A04" strokeWidth="1.5" />
+        <defs>
+          {/* 1. 블랙 돔 컵 그라디언트 (매끄러운 검은색 컵 표면 입체감) */}
+          <radialGradient id="hookCupDomeGrad" cx="45%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#475569" />
+            <stop offset="25%" stopColor="#1E293B" />
+            <stop offset="70%" stopColor="#0F172A" />
+            <stop offset="100%" stopColor="#020617" />
+          </radialGradient>
 
-        {/* 은빛 후크 갈고리 (글자 フ의 가로선과 꺾여 내려오는 획과 1:1 일치) */}
+          {/* 2. 컵 표면 하이라이트 광택 */}
+          <linearGradient id="hookCupHighlightGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#94A3B8" stopOpacity="0.6" />
+            <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#475569" stopOpacity="0.1" />
+          </linearGradient>
+
+          {/* 3. 은회색 매끄러운 둥근 갈고리 본체 그라디언트 */}
+          <linearGradient id="silverHookGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#F1F5F9" />
+            <stop offset="30%" stopColor="#E2E8F0" />
+            <stop offset="70%" stopColor="#94A3B8" />
+            <stop offset="100%" stopColor="#64748B" />
+          </linearGradient>
+
+          {/* 4. 갈고리 곡선 광택 하이라이트 */}
+          <linearGradient id="silverHookGleam" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+            <stop offset="50%" stopColor="#F8FAFC" stopOpacity="0.65" />
+            <stop offset="100%" stopColor="#CBD5E1" stopOpacity="0.15" />
+          </linearGradient>
+
+          {/* 5. 컵 바닥 그림자 */}
+          <radialGradient id="hookCupShadow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#0F172A" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#0F172A" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* 컵 바닥 부드러운 그림자 */}
+        <ellipse cx="46" cy="68" rx="34" ry="16" fill="url(#hookCupShadow)" />
+
+        {/* --- [1. 은회색 둥근 갈고리 본체 (글자 'フ'의 가로선 및 대각선 삐침 획과 1:1 완벽 일치)] --- */}
+        {/* 갈고리 바디 면 */}
         <path
-          d="M 88 54 L 146 54 C 146 78 136 104 96 138 C 92 142 86 138 88 134 C 114 106 126 84 126 68 L 88 68 Z"
-          fill="#F1F5F9"
+          d="M 68 53
+             L 126 53
+             C 142 53 144 70 134 85
+             C 124 100 106 118 82 126
+             C 79 127 76 124 78 121
+             C 98 106 118 88 120 70
+             C 121 62 116 59 108 59
+             L 68 59 Z"
+          fill="url(#silverHookGrad)"
           stroke="#475569"
-          strokeWidth="2.5"
+          strokeWidth="1.8"
           strokeLinejoin="round"
         />
-        {/* 갈고리 끝 뾰족한 포인트 */}
-        <circle cx="92" cy="138" r="2" fill="#38BDF8" />
 
-        {/* 번쩍이는 빛 스파크 */}
-        <path d="M 152 46 L 154 38 L 156 46 L 164 48 L 156 50 L 154 58 L 152 50 L 144 48 Z" fill="#38BDF8" />
+        {/* 갈고리 윗면 매끄러운 둥근 튜브 하이라이트 (원통형 갈고리의 볼륨 광택) */}
+        <path
+          d="M 68 54
+             L 125 54
+             C 136 54 139 66 132 78
+             C 123 92 105 111 82 123"
+          stroke="url(#silverHookGleam)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          fill="none"
+        />
 
-        {/* 글자 'フ' 오버레이 */}
+        {/* 갈고리 끝 둥근 마감 포인트 (레퍼런스 사진 속 둥글고 매끄러운 팁) */}
+        <circle cx="80" cy="123" r="2.5" fill="#E2E8F0" stroke="#64748B" strokeWidth="0.8" />
+
+        {/* 갈고리 꺾임부 반짝이는 스파클 */}
+        <g transform="translate(138, 56) scale(0.85)">
+          <path d="M 0,-9 Q 0,0 9,0 Q 0,0 0,9 Q 0,0 -9,0 Q 0,0 0,-9 Z" fill="#38BDF8" />
+          <path d="M 0,-6 Q 0,0 6,0 Q 0,0 0,6 Q 0,0 -6,0 Q 0,0 0,-6 Z" fill="#FFFFFF" />
+        </g>
+
+        {/* --- [2. 블랙 돔 컵 손잡이 (Black Dome Hand Cup)] --- */}
+        {/* 컵 본체 (왼쪽 손목에서 뻗어 나오는 둥근 종 모양 돔) */}
+        <path
+          d="M 18 36
+             C 34 35 56 40 68 47
+             C 71 50 71 62 68 65
+             C 56 72 34 77 18 76
+             C 14 62 14 50 18 36 Z"
+          fill="url(#hookCupDomeGrad)"
+          stroke="#0F172A"
+          strokeWidth="2"
+        />
+
+        {/* 컵 왼쪽 손목 투입구 림 (타원형 립) */}
+        <ellipse cx="18" cy="56" rx="5" ry="20" fill="#020617" stroke="#334155" strokeWidth="1.2" />
+
+        {/* 컵 상단 둥근 돔 표면의 원형 광택 하이라이트 (레퍼런스 사진 속 핫스팟 반사광) */}
+        <ellipse cx="44" cy="48" rx="14" ry="7" transform="rotate(-10 44 48)" fill="url(#hookCupHighlightGrad)" opacity="0.65" />
+        <ellipse cx="42" cy="46" rx="7" ry="3" transform="rotate(-10 42 46)" fill="#FFFFFF" opacity="0.75" />
+
+        {/* 컵 앞부분 갈고리 고정 칼라/소켓 링 */}
+        <path
+          d="M 64 47
+             C 67 49 69 52 69 56
+             C 69 60 67 63 64 65
+             L 68 64
+             C 71 62 72 59 72 56
+             C 72 53 71 50 68 48 Z"
+          fill="#475569"
+          stroke="#1E293B"
+          strokeWidth="0.8"
+        />
+
+        {/* --- [3. 글자 'フ' 오버레이] --- */}
         <KatakanaCharOverlay char="フ" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );
