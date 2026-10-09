@@ -56,48 +56,103 @@ export default function KatakanaRowA({ char, fontFamily }: KatakanaMnemonicSvgCh
   }
 
   if (char === 'ウ') {
-    // ウ: 우산 (활짝 펼쳐진 각진 우산 꼭지와 돔 지붕, J자 손잡이)
+    // ウ: 우주선 (중심축 기준 완벽 좌우 대칭의 유선형 메인 동체, 대칭 날개, 중앙 원형 전망창)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 하늘에서 떨어지는 경쾌한 빗방울 포인트 */}
-        <ellipse cx="36" cy="46" rx="2" ry="4" fill="#60A5FA" opacity="0.65" transform="rotate(-15 36 46)" />
-        <ellipse cx="172" cy="50" rx="2" ry="4" fill="#60A5FA" opacity="0.65" transform="rotate(-15 172 50)" />
-        <ellipse cx="44" cy="120" rx="1.8" ry="3.5" fill="#93C5FD" opacity="0.55" transform="rotate(-10 44 120)" />
-        <ellipse cx="164" cy="116" rx="2" ry="4" fill="#93C5FD" opacity="0.55" transform="rotate(-10 164 116)" />
+        <defs>
+          {/* 유선형 우주선 본체 그라디언트 (산뜻한 실버-아이스 블루) */}
+          <linearGradient id="u-hull-sym" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="25%" stopColor="#F0F9FF" />
+            <stop offset="50%" stopColor="#FFFFFF" />
+            <stop offset="75%" stopColor="#F0F9FF" />
+            <stop offset="100%" stopColor="#BAE6FD" />
+          </linearGradient>
+          {/* 좌우 대칭 날개 그라디언트 */}
+          <linearGradient id="u-wing-left" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="100%" stopColor="#BAE6FD" />
+          </linearGradient>
+          <linearGradient id="u-wing-right" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="100%" stopColor="#BAE6FD" />
+          </linearGradient>
+          {/* 중앙 전망창 돔 글래스 그라디언트 */}
+          <linearGradient id="u-window-sym" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#38BDF8" />
+            <stop offset="60%" stopColor="#0284C7" />
+            <stop offset="100%" stopColor="#0369A1" />
+          </linearGradient>
+        </defs>
 
-        {/* 우산 꼭대기 팁/꼭지 (글자 점 획과 일치) */}
-        <line x1="106" y1="16" x2="106" y2="34" stroke="#3D5A80" strokeWidth="3" strokeLinecap="round" />
-        <circle cx="106" cy="15" r="3.5" fill="#3D5A80" />
-        <ellipse cx="106" cy="34" rx="6" ry="2.5" fill="#64748B" />
+        {/* 배경: 은은한 메탈릭 별빛 & 미니 행성 (완벽 쿨톤) */}
+        <path d="M 24 36 Q 24 42 18 42 Q 24 42 24 48 Q 24 42 30 42 Q 24 42 24 36 Z" fill="#94A3B8" opacity="0.6" />
+        <path d="M 178 36 Q 178 42 172 42 Q 178 42 178 48 Q 178 42 184 42 Q 178 42 178 36 Z" fill="#94A3B8" opacity="0.6" />
+        <circle cx="184" cy="90" r="1.5" fill="#93C5FD" opacity="0.6" />
+        <circle cx="16" cy="90" r="1.5" fill="#93C5FD" opacity="0.6" />
 
-        {/* 우산 돔 캐노피 천 (글자 ウ의 갓머리 지붕선과 매칭) */}
+        {/* 1획: 우주선 정중앙 통신 안테나 & 센서 팁 (완벽 대칭 기준선 x=106) */}
+        <path d="M 97 12 A 10 10 0 0 1 115 12" stroke="#7DD3FC" strokeWidth="1.5" strokeLinecap="round" opacity="0.75" />
+        <path d="M 93 7 A 15 15 0 0 1 119 7" stroke="#BAE6FD" strokeWidth="1.2" strokeLinecap="round" opacity="0.55" />
+        <line x1="106" y1="15" x2="106" y2="38" stroke="#0284C7" strokeWidth="2.8" strokeLinecap="round" />
+        <circle cx="106" cy="14" r="3.5" fill="#38BDF8" stroke="#0284C7" strokeWidth="1.2" />
+
+        {/* 좌우 대칭 유선형 날개 (Wings / Aerodynamic Fins) */}
+        {/* 좌측 날개 */}
         <path
-          d="M 52 84 C 58 44 106 34 106 34 C 106 34 154 44 160 84 C 144 78 126 80 106 76 C 86 80 68 78 52 84 Z"
-          fill="#EBF3FB"
-          stroke="#3D5A80"
+          d="M 86 80 C 80 94 64 110 58 124 C 62 128 76 126 86 124 Z"
+          fill="url(#u-wing-left)"
+          stroke="#0284C7"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        />
+        {/* 우측 날개 (x=106 기준 완벽 대칭) */}
+        <path
+          d="M 126 80 C 132 94 148 110 154 124 C 150 128 136 126 126 124 Z"
+          fill="url(#u-wing-right)"
+          stroke="#0284C7"
+          strokeWidth="2.2"
+          strokeLinejoin="round"
+        />
+
+        {/* 좌우 날개 윙팁 항법 비컨 (대칭) */}
+        <circle cx="58" cy="124" r="2.2" fill="#EF4444" />
+        <circle cx="154" cy="124" r="2.2" fill="#22C55E" />
+
+        {/* 유선형 메인 선체 동체 (완벽 좌우 대칭 유선형 우주선 실루엣) */}
+        <path
+          d="M 106 36
+             C 114 46 122 60 126 80
+             C 130 96 130 114 126 124
+             L 86 124
+             C 82 114 82 96 86 80
+             C 90 60 98 46 106 36 Z"
+          fill="url(#u-hull-sym)"
+          stroke="#0284C7"
           strokeWidth="2.4"
           strokeLinejoin="round"
         />
 
-        {/* 우산 살대 라인 */}
-        <path d="M 106 34 Q 80 56 52 84" stroke="#93C5FD" strokeWidth="1.8" strokeLinecap="round" />
-        <line x1="106" y1="34" x2="106" y2="76" stroke="#93C5FD" strokeWidth="1.6" strokeLinecap="round" />
-        <path d="M 106 34 Q 132 56 160 84" stroke="#93C5FD" strokeWidth="1.8" strokeLinecap="round" />
-        <path d="M 106 34 Q 93 54 80 81" stroke="#BFDBFE" strokeWidth="1.2" strokeDasharray="3 2" />
-        <path d="M 106 34 Q 119 54 132 81" stroke="#BFDBFE" strokeWidth="1.2" strokeDasharray="3 2" />
+        {/* 중앙 메탈릭 볼륨 레이스 라인 */}
+        <path d="M 104 38 L 104 124 L 108 124 L 108 38 Z" fill="#BAE6FD" opacity="0.4" />
 
-        {/* 우산대 샤프트 */}
-        <line x1="106" y1="76" x2="106" y2="128" stroke="#475569" strokeWidth="2.8" strokeLinecap="round" />
+        {/* 유선형 대칭 패널 라인 */}
+        <path d="M 94 56 C 96 74 96 102 92 122" stroke="#93C5FD" strokeWidth="1.2" strokeDasharray="3 2" />
+        <path d="M 118 56 C 116 74 116 102 120 122" stroke="#93C5FD" strokeWidth="1.2" strokeDasharray="3 2" />
 
-        {/* 우산 J자 곡선 손잡이 (글자 ウ의 삐침 곡선 흐름과 조화) */}
-        <path
-          d="M 106 126 C 106 142 86 144 78 134 C 70 124 80 114 88 116"
-          stroke="#3D5A80"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="88" cy="116" r="2.5" fill="#F59E0B" />
+        {/* 대칭 조종석 원형 전망창 (Porthole / Cockpit Window) */}
+        <circle cx="106" cy="68" r="14" fill="url(#u-window-sym)" stroke="#0284C7" strokeWidth="2" />
+        <circle cx="106" cy="68" r="10" fill="none" stroke="#BAE6FD" strokeWidth="1" opacity="0.6" />
+        {/* 전망창 반사광 하이라이트 */}
+        <path d="M 98 64 Q 106 60 114 64" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.9" />
+
+        {/* 하단 대칭 엔진 슬러스터 노즐 블록 */}
+        <rect x="91" y="124" width="11" height="7" rx="1.5" fill="#334155" stroke="#1E293B" strokeWidth="1.2" />
+        <rect x="110" y="124" width="11" height="7" rx="1.5" fill="#334155" stroke="#1E293B" strokeWidth="1.2" />
+        <rect x="103" y="124" width="6" height="5" rx="1" fill="#475569" />
+        {/* 이온 분사 슬릿 라인 */}
+        <line x1="93" y1="131" x2="100" y2="131" stroke="#38BDF8" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="112" y1="131" x2="119" y2="131" stroke="#38BDF8" strokeWidth="1.8" strokeLinecap="round" />
 
         {/* 글자 'ウ' 오버레이 */}
         <KatakanaCharOverlay char="ウ" fontFamily={fontFamily} x="106" y="118" />

@@ -363,174 +363,167 @@ export default function KatakanaRowTa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'テ') {
-    // テ: 테이프 디스펜서 (톱니 커터날=1획, 팽팽하게 당겨진 테이프=2획, 둥글게 풀려나오는 테이프 롤=3획)
+    // テ: 테이블 (원근법 입체 테이블: 뒤쪽 모서리=1획, 앞쪽 모서리=2획, 꼬깔형 받침 다리=3획)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          {/* 디스펜서 본체 프리미엄 민트 그라디언트 */}
-          <linearGradient id="tapeBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#A7F3D0" />
-            <stop offset="40%" stopColor="#34D399" />
-            <stop offset="100%" stopColor="#059669" />
+          {/* 테이블 상판 원근 윗면 웜 오크/내추럴 우드 그라디언트 */}
+          <linearGradient id="tableTopPerspectiveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FDE68A" />
+            <stop offset="55%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#D97706" />
           </linearGradient>
 
-          {/* 투명 테이프 반투명 샤인 그라디언트 */}
-          <linearGradient id="tapeStripGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#ECFDF5" stopOpacity="0.85" />
-            <stop offset="50%" stopColor="#D1FAE5" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#A7F3D0" stopOpacity="0.8" />
+          {/* 테이블 상판 앞면 두께 림 그라디언트 */}
+          <linearGradient id="tableFrontRimGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#B45309" />
+            <stop offset="50%" stopColor="#D97706" />
+            <stop offset="100%" stopColor="#92400E" />
           </linearGradient>
 
-          {/* 테이프 롤러 코어 원형 그라디언트 */}
-          <radialGradient id="tapeRollGrad" cx="40%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="65%" stopColor="#E2E8F0" />
-            <stop offset="100%" stopColor="#94A3B8" />
-          </radialGradient>
+          {/* 꼬깔(원뿔대) 받침 다리 입체 음영 그라디언트 */}
+          <linearGradient id="conicalBaseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#475569" />
+            <stop offset="25%" stopColor="#94A3B8" />
+            <stop offset="65%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#1E293B" />
+          </linearGradient>
 
-          {/* 스테인리스 톱니 커터날 메탈 그라디언트 */}
-          <linearGradient id="metalBladeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          {/* 바닥 원형 플레이트 림 그라디언트 */}
+          <linearGradient id="basePlateRimGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#64748B" />
+            <stop offset="50%" stopColor="#CBD5E1" />
+            <stop offset="100%" stopColor="#334155" />
+          </linearGradient>
+
+          {/* 미니 머그잔 세라믹 그라디언트 */}
+          <linearGradient id="miniMugGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="40%" stopColor="#E2E8F0" />
-            <stop offset="100%" stopColor="#64748B" />
+            <stop offset="100%" stopColor="#E2E8F0" />
           </linearGradient>
         </defs>
 
-        {/* 1. 바닥 그림자 */}
-        <ellipse cx="106" cy="144" rx="62" ry="7" fill="#E2E8F0" />
-        <ellipse cx="94" cy="144" rx="42" ry="4.5" fill="#CBD5E1" opacity="0.6" />
+        {/* 1. 바닥 그림자 (테이블 꼬깔 받침 아래로 은은하게 드리운 그림자) */}
+        <ellipse cx="106" cy="144" rx="60" ry="7" fill="#E2E8F0" />
+        <ellipse cx="106" cy="144" rx="44" ry="4.5" fill="#CBD5E1" opacity="0.65" />
 
-        {/* 2. 테이프 디스펜서 본체 (묵직하고 매끄러운 유선형 데스크 디스펜서) */}
-        {/* 디스펜서 메인 프레임 바디 */}
-        <path
-          d="M 46 142 
-             C 36 142 32 134 32 118 
-             C 32 96 46 82 66 80 
-             C 74 79 84 82 92 86 
-             L 142 86 
-             C 156 86 166 74 168 60 
-             L 174 60 
-             C 174 88 158 142 144 142 
-             Z"
-          fill="url(#tapeBodyGrad)"
-          stroke="#047857"
-          strokeWidth="1.8"
-          strokeLinejoin="round"
-        />
+        {/* 2. [★ 3획 매칭] 꼬깔(원뿔) 형태의 우아한 페데스탈 받침 다리 */}
+        <g id="conical-table-base">
+          {/* 바닥 원형 접지 디스크 (Base Foot Plate) */}
+          <ellipse cx="106" cy="140" rx="44" ry="6.5" fill="url(#basePlateRimGrad)" stroke="#1E293B" strokeWidth="1" />
+          <ellipse cx="106" cy="138.5" rx="40" ry="5" fill="#475569" opacity="0.75" />
 
-        {/* 바디 하단 고무 논슬립 패드 베이스 */}
-        <path
-          d="M 44 140 L 146 140 C 146 143 144 145 141 145 L 49 145 C 46 145 44 143 44 140 Z"
-          fill="#065F46"
-        />
-
-        {/* 3. [★ 3획 매칭] 둥근 테이프 롤 & 풀려나오는 곡선 (Tape Roll Hub) */}
-        {/* 테이프 롤 안착 홀더 홈 */}
-        <circle cx="84" cy="108" r="28" fill="#065F46" opacity="0.15" />
-
-        {/* 감겨 있는 반투명 테이프 롤러 휠 */}
-        <circle cx="84" cy="108" r="25" fill="#D1FAE5" stroke="#10B981" strokeWidth="1.5" />
-        <circle cx="84" cy="108" r="21" fill="#A7F3D0" opacity="0.7" />
-        <circle cx="84" cy="108" r="16" fill="url(#tapeRollGrad)" stroke="#64748B" strokeWidth="1.2" />
-
-        {/* 롤러 센터 회전축 핀 */}
-        <circle cx="84" cy="108" r="7" fill="#047857" stroke="#FFFFFF" strokeWidth="1.2" />
-        <circle cx="84" cy="108" r="3" fill="#FFFFFF" />
-
-        {/* [3획 곡선 삐침 강조] 롤러에서 위로 풀려나와 2획과 만나는 테이프 바깥쪽 둘레 곡선 */}
-        <path
-          d="M 72 134 C 95 124 105 100 106 74"
-          stroke="#059669"
-          strokeWidth="4"
-          strokeLinecap="round"
-          opacity="0.45"
-        />
-        <path
-          d="M 72 134 C 95 124 105 100 106 74"
-          stroke="#34D399"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-
-        {/* 4. [★ 2획 매칭] 롤에서 커터날까지 팽팽하게 뻗은 가로 테이프 띠 (Tape Strip) */}
-        <g id="tape-pulled-strip">
-          {/* 테이프 몸체 밴드 */}
-          <rect
-            x="54"
-            y="66"
-            width="104"
-            height="11"
-            rx="2.5"
-            fill="url(#tapeStripGrad)"
-            stroke="#10B981"
+          {/* 꼬깔형 원뿔대 바디 (상단 좁은 목 -> 하단 둥글고 넓은 나팔형 곡면) */}
+          {/* 3획의 좌하향 곡선 삐침이 꼬깔의 좌측 곡선 실루엣과 완벽 일치! */}
+          <path
+            d="M 102 76 
+               C 102 96 92 120 64 138 
+               C 80 144 132 144 148 138 
+               C 120 120 110 96 110 76 
+               Z"
+            fill="url(#conicalBaseGrad)"
+            stroke="#1E293B"
             strokeWidth="1.2"
           />
-          {/* 테이프 표면 하이라이트 투명 반사광 */}
-          <line x1="58" y1="69" x2="152" y2="69" stroke="#FFFFFF" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
-          <line x1="62" y1="74" x2="148" y2="74" stroke="#6EE7B7" strokeWidth="0.9" strokeDasharray="4 3" opacity="0.8" />
-          
-          {/* 커터날 너머로 살짝 튀어나와 잡기 쉽게 접힌 테이프 탭(End tab) */}
+
+          {/* [★ 3획 궤적 강조] 꼬깔 좌측 실루엣을 따라 흐르는 세련된 메탈 하이라이트 광택선 */}
           <path
-            d="M 158 67 L 165 67 L 163 75 L 158 75 Z"
-            fill="#6EE7B7"
-            stroke="#059669"
-            strokeWidth="0.8"
+            d="M 102 77 C 102 96 92 120 66 137"
+            stroke="#FFFFFF"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            opacity="0.8"
+            fill="none"
+          />
+          <path
+            d="M 103 79 C 103 97 93 121 70 136"
+            stroke="#93C5FD"
+            strokeWidth="1"
+            strokeLinecap="round"
+            opacity="0.6"
+            fill="none"
+          />
+
+          {/* 꼬깔 중앙 은은한 원통형 볼륨 하이라이트 */}
+          <path
+            d="M 105 76 L 105 140"
+            stroke="#E2E8F0"
+            strokeWidth="4"
+            opacity="0.25"
+            strokeLinecap="round"
           />
         </g>
 
-        {/* 5. [★ 1획 매칭] 상단 메탈 톱니 커터날 & 커터 브래킷 (Metal Cutter Blade) */}
-        <g id="tape-cutter-blade">
-          {/* 커터 지지대 헤드 */}
-          <rect x="74" y="49" width="60" height="7" rx="1.5" fill="#334155" stroke="#1E293B" strokeWidth="1" />
-          
-          {/* 메탈 블레이드 베이스 바 (1획 상단 가로선) */}
-          <rect
-            x="76"
-            y="44"
-            width="56"
-            height="6"
-            rx="1.2"
-            fill="url(#metalBladeGrad)"
-            stroke="#475569"
+        {/* 3. [★ 1획 & 2획 매칭] 원근감(Perspective)을 살린 입체 테이블 상판 */}
+        <g id="perspective-tabletop">
+          {/* 상판 앞면 두께 (Front Bevel Edge - 2획 바로 아래로 떨어지는 입체감) */}
+          <path
+            d="M 52 70 
+               L 160 70 
+               Q 162 70 160 76 
+               L 158 77 
+               L 54 77 
+               Q 51 77 52 70 
+               Z"
+            fill="url(#tableFrontRimGrad)"
+            stroke="#78350F"
             strokeWidth="1"
           />
+          {/* 앞면 하단 그림자선 */}
+          <line x1="55" y1="77" x2="157" y2="77" stroke="#451A03" strokeWidth="1" opacity="0.6" />
 
-          {/* 스테인리스 날카로운 톱니바퀴 디테일 (Zigzag Teeth) */}
+          {/* [★ 1획 & 2획] 사다리꼴 원근 테이블 상판 윗면 (Tabletop Surface) */}
+          {/* 뒤쪽 모서리(1획) = 짧고 원근감 있게 뒤로 물러남 (x 78~134) */}
+          {/* 앞쪽 모서리(2획) = 넓고 시원하게 앞으로 돌출됨 (x 52~160) */}
           <path
-            d="M 78 44 
-               L 80 41 L 82 44 
-               L 84 41 L 86 44 
-               L 88 41 L 90 44 
-               L 92 41 L 94 44 
-               L 96 41 L 98 44 
-               L 100 41 L 102 44 
-               L 104 41 L 106 44 
-               L 108 41 L 110 44 
-               L 112 41 L 114 44 
-               L 116 41 L 118 44 
-               L 120 41 L 122 44 
-               L 124 41 L 126 44 
-               L 128 41 L 130 44"
-            stroke="#475569"
-            strokeWidth="1"
-            fill="#CBD5E1"
+            d="M 78 46 
+               Q 79 44 82 44 
+               L 130 44 
+               Q 133 44 134 46 
+               L 160 70 
+               Q 161 72 158 72 
+               L 54 72 
+               Q 51 72 52 70 
+               Z"
+            fill="url(#tableTopPerspectiveGrad)"
+            stroke="#B45309"
+            strokeWidth="1.4"
             strokeLinejoin="round"
           />
 
-          {/* 메탈 블레이드 반짝이는 크롬 하이라이트 */}
-          <line x1="80" y1="46" x2="126" y2="46" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" />
+          {/* [★ 1획 뒤쪽 모서리 하이라이트선] */}
+          <line x1="82" y1="45" x2="130" y2="45" stroke="#FEF3C7" strokeWidth="1.8" strokeLinecap="round" opacity="0.95" />
+
+          {/* [★ 2획 앞쪽 모서리 메인 라인] */}
+          <line x1="54" y1="70.5" x2="158" y2="70.5" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" opacity="0.9" />
+
+          {/* 원근감 나뭇결 투시선 (소실점을 향해 뻗는 은은한 원근 가이드라인) */}
+          <line x1="88" y1="47" x2="72" y2="69" stroke="#D97706" strokeWidth="0.8" opacity="0.45" />
+          <line x1="106" y1="46" x2="106" y2="69" stroke="#D97706" strokeWidth="0.8" opacity="0.45" />
+          <line x1="124" y1="47" x2="140" y2="69" stroke="#D97706" strokeWidth="0.8" opacity="0.45" />
         </g>
 
-        {/* 6. 산뜻하고 경쾌한 데스크 스파클 & 모션 이펙트 (✨) */}
-        {/* 커터날 쪽 메탈 샤인 */}
-        <path d="M 136 34 L 138 27 L 140 34 L 147 36 L 140 38 L 138 45 L 136 38 L 129 36 Z" fill="#34D399" />
-        <circle cx="146" cy="28" r="1.5" fill="#6EE7B7" />
+        {/* 4. 테이블 위 아기자기한 소품: 미니 커피 머그잔 & 모락모락 김 (상판 원근감 강화) */}
+        <g id="table-coffee-cup" transform="translate(18, 0)">
+          {/* 머그 그림자 */}
+          <ellipse cx="106" cy="54" rx="5" ry="1.8" fill="#B45309" opacity="0.4" />
+          {/* 머그 손잡이 */}
+          <path d="M 111 47 C 114 47 114 52 111 52" stroke="#94A3B8" strokeWidth="1.4" fill="none" />
+          {/* 머그 몸체 */}
+          <rect x="101" y="44" width="9" height="9" rx="1.5" fill="url(#miniMugGrad)" stroke="#64748B" strokeWidth="0.8" />
+          {/* 커피 수면 */}
+          <ellipse cx="105.5" cy="44.5" rx="4" ry="1.2" fill="#78350F" />
+          {/* 커피 김 (스팀) */}
+          <path d="M 104 40 C 103 36 106 34 104 30" stroke="#CBD5E1" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.8" />
+          <path d="M 107 39 C 108 35 105 33 107 29" stroke="#E2E8F0" strokeWidth="1" strokeLinecap="round" fill="none" opacity="0.8" />
+        </g>
 
-        {/* 테이프 당겨짐 모션 라인 */}
-        <path d="M 166 84 C 172 88 174 94 172 100" stroke="#A7F3D0" strokeWidth="1.6" strokeLinecap="round" fill="none" />
-        <circle cx="174" cy="92" r="1.2" fill="#34D399" />
+        {/* 5. 감성 햇살 스파클 (✨) */}
+        <path d="M 148 30 L 149.5 25 L 151 30 L 156 31.5 L 151 33 L 149.5 38 L 148 33 L 143 31.5 Z" fill="#FBBF24" opacity="0.9" />
+        <circle cx="158" cy="26" r="1.2" fill="#FDE68A" />
+        <circle cx="36" cy="66" r="1.5" fill="#FDE68A" opacity="0.8" />
 
-        {/* 7. 글자 'テ' 오버레이 (디스펜서와 일체형으로 완벽하게 조화) */}
+        {/* 6. 글자 'テ' 오버레이 (원근감 있는 테이블의 모서리 및 꼬깔 다리와 완벽 일체화) */}
         <KatakanaCharOverlay char="テ" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );

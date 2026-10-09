@@ -16,7 +16,7 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   // ア행
   ア: { char: 'ア', word: '아이스크림', highlightIndex: 0, romaji: 'a', tip: '아이스크림 콘의 뾰족한 각 모서리' },
   イ: { char: 'イ', word: '이젤', highlightIndex: 0, romaji: 'i', tip: '화가의 이젤(Easel) 다리와 붓' },
-  ウ: { char: 'ウ', word: '우산', highlightIndex: 0, romaji: 'u', reuseNote: '히라가나 う(접힌 우산)에 이어 활짝 펼쳐진 각진 우산', tip: '비 올 때 활짝 펼친 각진 우산 꼭지와 지붕선' },
+  ウ: { char: 'ウ', word: '우주선', highlightIndex: 0, romaji: 'u', tip: '정중앙 안테나와 좌우 대칭 유선형 몸체를 지닌 우주선' },
   エ: { char: 'エ', word: '에ㄹ리베이터', highlightIndex: 0, romaji: 'e', tip: '에ㄹ리베이터 문 / 건축 H빔' },
   オ: { char: 'オ', word: '오토바이', highlightIndex: 0, romaji: 'o', tip: '오토바이 라이더의 핸들과 발' },
 
@@ -38,12 +38,13 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   タ: { char: 'タ', word: '타조', highlightIndex: 0, romaji: 'ta', tip: '타조의 앞으로 숙인 목(1획), 둥근 등과 깃털(2획), 땅을 박차는 다리(3획)' },
   チ: { char: 'チ', word: '치어리더', highlightIndex: 0, romaji: 'chi', tip: '치어리더가 양손에 폼폼(수술)을 들고(2획), 하이킥 점프를 뛰는 모습(3획)' },
   ツ: { char: 'ツ', word: '셔츠', highlightIndex: 1, romaji: 'tsu', tip: '단정한 셔츠 칼라의 단추 2개(1, 2획)와 비스듬히 떨어지는 앞섶 라인(3획)' },
+  テ: { char: 'テ', word: '테이블', highlightIndex: 0, romaji: 'te', tip: '원근감 있는 테이블의 뒤쪽 모서리(1획), 앞쪽 모서리(2획), 꼬깔형 받침 다리(3획)' },
   ト: { char: 'ト', word: '토치', highlightIndex: 0, romaji: 'to', tip: '수직 가스 실린더(1획)와 우측 사선으로 뻗은 화구 파이프 & 불꽃(2획)' },
   // ナ행
   ナ: { char: 'ナ', word: '나이프', highlightIndex: 0, romaji: 'na', tip: '가로 손잡이(1획)와 아래로 날렵하게 뻗어 베어 내리는 칼날(2획)의 나이프(Knife)' },
   ニ: { char: 'ニ', word: '니모', highlightIndex: 0, romaji: 'ni', tip: '위로 헤엄쳐 올라가는 니모(흰동가리)의 머리와 배에 새겨진 하얀 가로 줄무늬 2개' },
   ヌ: { char: 'ヌ', word: '누들', highlightIndex: 0, romaji: 'nu', tip: '가로 젓가락(1획 가로)과 반대쪽 젓가락(2획)으로 건져 올린 꼬불꼬불한 누들(Noodles) 면발' },
-  ネ: { char: 'ネ', word: '네트', highlightIndex: 0, romaji: 'ne', tip: '테니스 네트 상공의 공(1획), 상단 밴드(2획), 중앙 센터 스트랩(3획)' },
+  ネ: { char: 'ネ', word: '네ㄱ타이', highlightIndex: 0, romaji: 'ne', tip: '단정한 셔츠 칼라와 매듭, 아래로 곧게 늘어뜨린 넥타이' },
   ノ: { char: 'ノ', word: '노 (슬래시)', highlightIndex: 0, romaji: 'no', tip: '배를 젓는 노(Oar)의 날렵한 삐침선' },
 
   // ハ행

@@ -115,7 +115,7 @@ export const KATAKANA_GRID: KatakanaRow[] = [
       { char: 'タ', romaji: 'ta', koreanSound: '타', row: 'タ', colIndex: 0, strokeCount: 3, strokeGuide: '짧은 삐침 ① ➔ 꺾임선 ② ➔ 안쪽 점 ③', soundTip: '저녁 석(夕) 모양과 거의 일치합니다.', matchingHiragana: 'た' },
       { char: 'チ', romaji: 'chi', koreanSound: '치', row: 'タ', colIndex: 1, strokeCount: 3, strokeGuide: '짧은 삐침 ① ➔ 가로선 ② ➔ 둥근 세로 곡선 ③', soundTip: '치어리더가 양손에 폼폼을 들고(2획), 하이킥 점프를 뛰는 모습(3획)을 연상해 보세요.', matchingHiragana: 'ち' },
       { char: 'ツ', romaji: 'tsu', koreanSound: '츠', row: 'タ', colIndex: 2, strokeCount: 3, strokeGuide: '왼쪽 점 ① ➔ 오른쪽 점 ② ➔ 위에서 아래로 미끄러지듯 삐침 ③', soundTip: '단정한 셔츠 칼라의 단추 2개와 아래로 떨어지는 앞섶 라인을 연상해 보세요.', matchingHiragana: 'つ' },
-      { char: 'テ', romaji: 'te', koreanSound: '테', row: 'タ', colIndex: 3, strokeCount: 3, strokeGuide: '상단 짧은 가로 ① ➔ 가로선 ② ➔ 둥근 삐침 ③', soundTip: '테이프 디스펜서의 톱니 커터(1획), 팽팽한 테이프(2획), 둥글게 풀려나오는 롤(3획)을 연상해 보세요.', matchingHiragana: 'て' },
+      { char: 'テ', romaji: 'te', koreanSound: '테', row: 'タ', colIndex: 3, strokeCount: 3, strokeGuide: '상단 짧은 가로 ① ➔ 가로선 ② ➔ 둥근 삐침 ③', soundTip: '원근감 있는 테이블의 뒤쪽 모서리(1획), 앞쪽 모서리(2획), 꼬깔형 받침 다리(3획)를 연상해 보세요.', matchingHiragana: 'て' },
       { char: 'ト', romaji: 'to', koreanSound: '토', row: 'タ', colIndex: 4, strokeCount: 2, strokeGuide: '곧은 세로선 ① ➔ 오른쪽 대각선 점 ②', soundTip: '우뚝 선 가스 토치 본체(1획)와 우측 사선으로 뻗은 화구 파이프 & 불꽃(2획)을 연상해 보세요.', matchingHiragana: 'と' },
     ]
   },
@@ -125,7 +125,7 @@ export const KATAKANA_GRID: KatakanaRow[] = [
       { char: 'ナ', romaji: 'na', koreanSound: '나', row: 'ナ', colIndex: 0, strokeCount: 2, strokeGuide: '가로선 ① ➔ 왼쪽 세로 삐침 ②', soundTip: '가로로 쥔 나이프 손잡이(1획)와 아래로 촥 베어 내리는 날렵한 칼날(2획)을 연상해 보세요.', matchingHiragana: 'な' },
       { char: 'ニ', romaji: 'ni', koreanSound: '니', row: 'ナ', colIndex: 1, strokeCount: 2, strokeGuide: '상단 짧은 가로 ① ➔ 하단 긴 가로 ②', soundTip: '위로 힘차게 헤엄쳐 올라가는 주황색 니모(흰동가리)의 머리와 배에 새겨진 하얀 가로 줄무늬 2개(ニ)를 연상해 보세요.', matchingHiragana: 'に' },
       { char: 'ヌ', romaji: 'nu', koreanSound: '누', row: 'ナ', colIndex: 2, strokeCount: 2, strokeGuide: '가로 꺾임선 ① ➔ 교차 삐침선 ②', soundTip: '가로 젓가락(1획 가로)과 반대쪽 젓가락(2획)으로 건져 올린 꼬불꼬불한 누들(Noodles) 면발을 연상해 보세요.', matchingHiragana: 'ぬ' },
-      { char: 'ネ', romaji: 'ne', koreanSound: '네', row: 'ナ', colIndex: 3, strokeCount: 4, strokeGuide: '상단 점 ① ➔ 꺾임선 ② ➔ 곧은 세로선 ③ ➔ 우하향 빗금 점 ④', soundTip: '테니스 네트 상공에 뜬 공(1획), 상단 밴드(2획), 중앙 센터 스트랩(3획)의 단정한 네트(Net)를 연상해 보세요.', matchingHiragana: 'ね' },
+      { char: 'ネ', romaji: 'ne', koreanSound: '네', row: 'ナ', colIndex: 3, strokeCount: 4, strokeGuide: '상단 점 ① ➔ 꺾임선 ② ➔ 곧은 세로선 ③ ➔ 우하향 빗금 점 ④', soundTip: '단정한 셔츠 칼라와 매듭, 아래로 곧게 늘어뜨린 네ㄱ타이(Necktie)를 연상해 보세요.', matchingHiragana: 'ね' },
       { char: 'ノ', romaji: 'no', koreanSound: '노', row: 'ナ', colIndex: 4, strokeCount: 1, strokeGuide: '우상단에서 좌하단으로 부드러운 삐침 ①', soundTip: '빗금 하나로 가장 쓰기 쉬운 글자입니다.', matchingHiragana: 'の' },
     ]
   },

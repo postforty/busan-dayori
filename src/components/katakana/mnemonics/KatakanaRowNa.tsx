@@ -523,141 +523,218 @@ export default function KatakanaRowNa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'ネ') {
-    // ネ: 네트 (미니멀: 테니스 네트 상공의 공, 상단 캔버스 밴드, 중앙 센터 스트랩)
+    // ネ: 네ㄱ타이 (밝은 드레스 셔츠 위의 단정하고 세련된 스트라이프 넥타이)
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          {/* 미니멀 코트 배경 그라디언트 (청량한 스카이 & 딥블루 하드코트) */}
-          <linearGradient id="nePerspectiveCourtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#BAE6FD" />
-            <stop offset="40%" stopColor="#E0F2FE" />
-            <stop offset="40%" stopColor="#0369A1" />
-            <stop offset="70%" stopColor="#0284C7" />
-            <stop offset="100%" stopColor="#075985" />
+          {/* 드레스 셔츠 화사하고 깨끗한 배경 그라디언트 */}
+          <linearGradient id="neBrightShirtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="50%" stopColor="#F8FAFC" />
+            <stop offset="100%" stopColor="#F1F5F9" />
           </linearGradient>
 
-          {/* 깔끔한 와이드 네트 그물망 패턴 */}
-          <pattern id="neWideMeshPattern" width="6" height="6" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="6" y2="6" stroke="#FFFFFF" strokeWidth="0.7" opacity="0.6" />
-            <line x1="6" y1="0" x2="0" y2="6" stroke="#FFFFFF" strokeWidth="0.7" opacity="0.6" />
+          {/* 셔츠 은은한 미세 핀스트라이프 패턴 */}
+          <pattern id="neShirtStripeFine" width="12" height="12" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="12" stroke="#E2E8F0" strokeWidth="0.8" opacity="0.6" />
           </pattern>
 
-          {/* 네트 상단 캔버스 헤드밴드 그라디언트 */}
-          <linearGradient id="neHeadbandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          {/* 셔츠 칼라 화이트 입체 그라디언트 */}
+          <linearGradient id="neWhiteCollarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stopColor="#FFFFFF" />
             <stop offset="65%" stopColor="#F8FAFC" />
-            <stop offset="100%" stopColor="#CBD5E1" />
+            <stop offset="100%" stopColor="#E2E8F0" />
           </linearGradient>
 
-          {/* 중앙 센터 스트랩 캔버스 그라디언트 */}
-          <linearGradient id="neCenterStrapGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#E2E8F0" />
-            <stop offset="25%" stopColor="#FFFFFF" />
-            <stop offset="75%" stopColor="#FFFFFF" />
-            <stop offset="100%" stopColor="#CBD5E1" />
+          {/* 넥타이 클래식 사파이어 블루 실크 그라디언트 */}
+          <linearGradient id="neTieSilkBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2563EB" />
+            <stop offset="35%" stopColor="#1D4ED8" />
+            <stop offset="70%" stopColor="#1E40AF" />
+            <stop offset="100%" stopColor="#1E3A8A" />
           </linearGradient>
 
-          {/* 미니멀 테니스공 구형 그라디언트 */}
-          <radialGradient id="neTennisBallGrad" cx="35%" cy="30%" r="70%">
+          {/* 넥타이 사선 레지멘탈 스트라이프 패턴 */}
+          <pattern id="neTieStripePattern" width="16" height="16" patternTransform="rotate(40)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="16" stroke="#FFFFFF" strokeWidth="1.6" opacity="0.45" />
+            <line x1="4.5" y1="0" x2="4.5" y2="16" stroke="#FEF08A" strokeWidth="0.9" opacity="0.4" />
+          </pattern>
+
+          {/* 넥타이 핀 세련된 골드 메탈 그라디언트 */}
+          <linearGradient id="neTiePinGoldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#FEF08A" />
-            <stop offset="25%" stopColor="#FACC15" />
-            <stop offset="65%" stopColor="#84CC16" />
-            <stop offset="100%" stopColor="#3F6212" />
-          </radialGradient>
+            <stop offset="35%" stopColor="#FACC15" />
+            <stop offset="75%" stopColor="#EAB308" />
+            <stop offset="100%" stopColor="#CA8A04" />
+          </linearGradient>
         </defs>
 
-        {/* 1. 심플한 코트 배경 */}
-        <rect x="0" y="0" width="200" height="160" rx="14" fill="url(#nePerspectiveCourtGrad)" />
+        {/* 1. 배경: 화사하고 단정한 드레스 셔츠 전체 바탕 */}
+        <rect x="0" y="0" width="200" height="160" rx="14" fill="url(#neBrightShirtGrad)" />
+        <rect x="0" y="0" width="200" height="160" rx="14" fill="url(#neShirtStripeFine)" />
 
-        {/* 단정한 코트 바닥 수평선 하나만 유지 */}
-        <line x1="12" y1="138" x2="188" y2="138" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.85" strokeLinecap="round" />
+        {/* 셔츠 어깨선 재봉 스티치 */}
+        <path d="M 0 34 L 66 18" stroke="#CBD5E1" strokeWidth="1" strokeDasharray="3 2" />
+        <path d="M 134 18 L 200 34" stroke="#CBD5E1" strokeWidth="1" strokeDasharray="3 2" />
 
-        {/* 2. 와이드 네트 그물망 본체 */}
-        {/* 네트 그림자 */}
+        {/* 셔츠 중앙 앞섶 (Center Placket) */}
+        <rect x="91" y="16" width="30" height="144" fill="#FFFFFF" opacity="0.8" />
+        <line x1="91" y1="16" x2="91" y2="160" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="3 2" />
+        <line x1="121" y1="16" x2="121" y2="160" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="3 2" />
+
+        {/* 앞섶 하단 자개 단추 (넥타이 아래로 자연스럽게 비침) */}
+        <circle cx="106" cy="148" r="4.2" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1" />
+        <circle cx="105" cy="147" r="0.5" fill="#94A3B8" />
+        <circle cx="107" cy="147" r="0.5" fill="#94A3B8" />
+        <circle cx="105" cy="149" r="0.5" fill="#94A3B8" />
+        <circle cx="107" cy="149" r="0.5" fill="#94A3B8" />
+
+        {/* 2. 셔츠 목 칼라 (뒤쪽 안쪽 목둘레 넥밴드) */}
+        <path d="M 68 16 C 88 26 124 26 144 16 L 138 8 C 122 18 90 18 74 8 Z" fill="#E2E8F0" />
+
+        {/* 3. 넥타이 뒷면 소프트 섀도우 (셔츠 위에 부드럽게 드리우는 자연스러운 그림자) */}
         <polygon
-          points="10,64 190,64 190,126 10,126"
-          fill="#0C4A6E"
-          opacity="0.35"
+          points="90,52 122,52 131,136 106,152 81,136"
+          fill="#64748B"
+          opacity="0.14"
         />
-        {/* 화이트 격자 메시 그물망 */}
-        <polygon
-          points="10,64 190,64 190,126 10,126"
-          fill="url(#neWideMeshPattern)"
-        />
-        {/* 네트 하단 와이어 라인 */}
-        <line x1="10" y1="126" x2="190" y2="126" stroke="#1E293B" strokeWidth="1.2" opacity="0.7" />
 
-        {/* 3. 2획 매칭: 네트 상단 캔버스 헤드밴드 (화면을 가로지르는 팽팽한 흰색 밴드) */}
-        <path
-          d="M 8 61 L 192 61 L 192 67 L 8 67 Z"
-          fill="url(#neHeadbandGrad)"
-          stroke="#94A3B8"
-          strokeWidth="1"
-        />
-        {/* 헤드밴드 바느질 스티치 점선 */}
-        <line x1="10" y1="62.5" x2="190" y2="62.5" stroke="#64748B" strokeWidth="0.7" strokeDasharray="2.5 1.5" opacity="0.6" />
-        <line x1="10" y1="65.5" x2="190" y2="65.5" stroke="#64748B" strokeWidth="0.7" strokeDasharray="2.5 1.5" opacity="0.6" />
-
-        {/* 4. 3획 매칭: 네트 중앙 화이트 센터 스트랩 (Center Strap) */}
-        <g>
-          {/* 센터 스트랩 본체 (폭 10px, y=61 ~ 138) */}
-          <rect
-            x="101"
-            y="61"
-            width="10"
-            height="77"
-            rx="1.5"
-            fill="url(#neCenterStrapGrad)"
-            stroke="#64748B"
+        {/* 4. 넥타이 대검 본체 (Tie Blade) - 시원하고 균형 잡힌 자연스러운 넥타이 실루엣 */}
+        <g id="tie-blade">
+          {/* 넥타이 본체 실크 바탕 */}
+          <polygon
+            points="94,50 118,50 128,134 106,149 84,134"
+            fill="url(#neTieSilkBlue)"
+            stroke="#1E3A8A"
             strokeWidth="1.2"
           />
-          {/* 스트랩 바느질 점선 */}
-          <line x1="103" y1="62" x2="103" y2="136" stroke="#94A3B8" strokeWidth="0.6" strokeDasharray="2 1.5" />
-          <line x1="109" y1="62" x2="109" y2="136" stroke="#94A3B8" strokeWidth="0.6" strokeDasharray="2 1.5" />
-
-          {/* 중앙 입체 하이라이트 림 */}
-          <line x1="106" y1="62" x2="106" y2="136" stroke="#FFFFFF" strokeWidth="1" opacity="0.8" />
-
-          {/* 바닥 코트 앵커 플레이트 & 버클 */}
-          <rect x="100" y="134" width="12" height="5" rx="1.5" fill="#D97706" stroke="#92400E" strokeWidth="1" />
-          <circle cx="106" cy="136.5" r="1.2" fill="#FEF08A" />
+          {/* 사선 스트라이프 패턴 오버레이 */}
+          <polygon
+            points="94,50 118,50 128,134 106,149 84,134"
+            fill="url(#neTieStripePattern)"
+          />
+          {/* 넥타이 중앙 입체 광택 하이라이트 림 (실크 볼륨감) */}
+          <line
+            x1="106"
+            y1="52"
+            x2="106"
+            y2="148"
+            stroke="#93C5FD"
+            strokeWidth="1.2"
+            opacity="0.55"
+            strokeLinecap="round"
+          />
+          {/* 넥타이 하단 V자 가장자리 엣지 */}
+          <line x1="85" y1="134" x2="106" y2="148" stroke="#1E3A8A" strokeWidth="1" />
+          <line x1="127" y1="134" x2="106" y2="148" stroke="#1E3A8A" strokeWidth="1" />
         </g>
 
-        {/* 5. 1획 매칭: 네트 상공의 단정한 테니스공 */}
-        <g>
-          {/* 테니스공 본체 */}
-          <circle
-            cx="108"
-            cy="42"
-            r="13"
-            fill="url(#neTennisBallGrad)"
-            stroke="#15803D"
-            strokeWidth="1.6"
+        {/* 5. 넥타이 핀 (Tie Bar) - 넥타이 중앙에 단정하게 채워진 클래식 타이 바 */}
+        <g id="tie-pin">
+          {/* 핀 소프트 그림자 */}
+          <rect x="91" y="96" width="32" height="4" rx="1.5" fill="#475569" opacity="0.2" />
+          {/* 핀 메탈 바 */}
+          <rect
+            x="91"
+            y="94.5"
+            width="32"
+            height="4"
+            rx="1.5"
+            fill="url(#neTiePinGoldGrad)"
+            stroke="#B45309"
+            strokeWidth="0.8"
           />
-
-          {/* 테니스공 흰색 곡선 심(Seam) 2개 */}
-          <path
-            d="M 98 34 C 102 41 106 43 105 52"
-            stroke="#FFFFFF"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            fill="none"
-            opacity="0.95"
-          />
-          <path
-            d="M 118 34 C 114 41 110 43 111 52"
-            stroke="#FFFFFF"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            fill="none"
-            opacity="0.95"
-          />
-
-          {/* 테니스공 은은한 하이라이트 */}
-          <circle cx="104" cy="37" r="2.6" fill="#FFFFFF" opacity="0.85" />
+          {/* 핀 상단 샤이니 하이라이트 */}
+          <line x1="93" y1="95.5" x2="121" y2="95.5" stroke="#FFFFFF" strokeWidth="0.8" opacity="0.85" />
+          {/* 우측 클립 힌지 포인트 */}
+          <circle cx="121.5" cy="96.5" r="1.6" fill="#FEF08A" stroke="#B45309" strokeWidth="0.6" />
         </g>
 
-        {/* 6. 글자 'ネ' 오버레이 (단정한 네트와 테니스공 위에 깨끗하게 안착) */}
+        {/* 6. 넥타이 매듭 (Windsor Knot) - 셔츠 목 V존 사이에 단정하게 안착 */}
+        <g id="tie-knot">
+          {/* 매듭 소프트 그림자 */}
+          <path
+            d="M 92 34 C 98 33 114 33 120 34 C 124 40 120 54 114 58 C 109 60 103 60 98 58 C 92 54 88 40 92 34 Z"
+            fill="#64748B"
+            opacity="0.2"
+          />
+          {/* 매듭 본체 (역삼각형의 단정한 볼륨감) */}
+          <path
+            d="M 93 32 C 98 31 114 31 119 32 C 122 38 118 52 113 56 C 109 58 103 58 99 56 C 94 52 90 38 93 32 Z"
+            fill="url(#neTieSilkBlue)"
+            stroke="#1E3A8A"
+            strokeWidth="1.2"
+          />
+          {/* 매듭 상단 림 하이라이트 */}
+          <path
+            d="M 95 33.5 C 100 32.5 112 32.5 117 33.5"
+            stroke="#93C5FD"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            opacity="0.8"
+          />
+          {/* 매듭 딤플(보조개) 및 주름 디테일 */}
+          <path
+            d="M 106 43 C 106 48 104 53 102 55"
+            stroke="#172554"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            fill="none"
+            opacity="0.5"
+          />
+        </g>
+
+        {/* 7. 셔츠 칼라 깃 (좌/우 날개 - 매듭을 단정하게 감싸는 정통 와이셔츠 깃) */}
+        {/* 칼라 그림자 */}
+        <path d="M 68 16 L 24 38 L 78 68 L 98 38 Z" fill="#64748B" opacity="0.12" />
+        <path d="M 144 16 L 188 38 L 134 68 L 114 38 Z" fill="#64748B" opacity="0.12" />
+
+        {/* 좌측 칼라 깃 */}
+        <polygon
+          points="68,16 26,36 78,66 98,38"
+          fill="url(#neWhiteCollarGrad)"
+          stroke="#CBD5E1"
+          strokeWidth="1.4"
+        />
+        {/* 좌측 칼라 톤온톤 스티치 */}
+        <path
+          d="M 30 36 L 76 63 L 94 38"
+          stroke="#94A3B8"
+          strokeWidth="0.8"
+          strokeDasharray="2.5 1.5"
+          fill="none"
+        />
+
+        {/* 우측 칼라 깃 */}
+        <polygon
+          points="144,16 186,36 134,66 114,38"
+          fill="url(#neWhiteCollarGrad)"
+          stroke="#CBD5E1"
+          strokeWidth="1.4"
+        />
+        {/* 우측 칼라 톤온톤 스티치 */}
+        <path
+          d="M 182 36 L 136 63 L 118 38"
+          stroke="#94A3B8"
+          strokeWidth="0.8"
+          strokeDasharray="2.5 1.5"
+          fill="none"
+        />
+
+        {/* 8. 산뜻하고 청결한 다림질 스파클 디테일 (✨) */}
+        <path
+          d="M 22 72 L 24 64 L 26 72 L 34 74 L 26 76 L 24 84 L 22 76 L 14 74 Z"
+          fill="#38BDF8"
+          opacity="0.85"
+        />
+        <circle cx="16" cy="88" r="1.5" fill="#BAE6FD" />
+        <path
+          d="M 180 76 L 182 69 L 184 76 L 191 78 L 184 80 L 182 87 L 180 80 L 173 78 Z"
+          fill="#38BDF8"
+          opacity="0.85"
+        />
+
+        {/* 9. 글자 'ネ' 오버레이 (화사한 셔츠와 블루 넥타이 위에 선명하게 안착) */}
         <KatakanaCharOverlay char="ネ" fontFamily={fontFamily} x="106" y="118" />
       </svg>
     );
