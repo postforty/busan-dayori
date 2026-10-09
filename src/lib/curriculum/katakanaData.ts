@@ -165,7 +165,7 @@ export const KATAKANA_GRID: KatakanaRow[] = [
       { char: 'ラ', romaji: 'ra', koreanSound: '라', row: 'ラ', colIndex: 0, strokeCount: 2, strokeGuide: '상단 짧은 가로 ① ➔ 꺾임 곡선 ②', soundTip: '숫자 5의 윗부분과 유사합니다.', matchingHiragana: 'ら' },
       { char: 'リ', romaji: 'ri', koreanSound: '리', row: 'ラ', colIndex: 1, strokeCount: 2, strokeGuide: '왼쪽 짧은 세로 ① ➔ 오른쪽 긴 세로 삐침 ②', soundTip: '히라가나 り와 거의 같습니다.', matchingHiragana: 'り' },
       { char: 'ル', romaji: 'ru', koreanSound: '루', row: 'ラ', colIndex: 2, strokeCount: 2, strokeGuide: '왼쪽 세로 삐침 ① ➔ 오른쪽 꺾임 치켜올림 ②', soundTip: '신나게 달리는 루돌프의 두 다리(앞다리 1획, 힘차게 차는 뒷다리 2획)를 연상해 보세요.', matchingHiragana: 'る' },
-      { char: 'レ', romaji: 're', koreanSound: '레', row: 'ラ', colIndex: 3, strokeCount: 1, strokeGuide: '세로로 내려오다 우상단으로 꺾어 올림 ①', soundTip: '체크 표시(✓) 모양으로 한 번에 씁니다.', matchingHiragana: 'れ' },
+      { char: 'レ', romaji: 're', koreanSound: '레', row: 'ラ', colIndex: 3, strokeCount: 1, strokeGuide: '세로로 내려오다 우상단으로 꺾어 올림 ①', soundTip: '위에서 쏘아진 레이저(1획 세로)가 거울에 부딪혀 우상단으로 튕겨 나가는(1획 삐침) 모습을 연상해 보세요.', matchingHiragana: 'れ' },
       { char: 'ロ', romaji: 'ro', koreanSound: '로', row: 'ラ', colIndex: 4, strokeCount: 3, strokeGuide: '네모 상자 형태로 세 번에 걸쳐 씀 ①, ②, ③', soundTip: '입 구(口) 모양과 100% 동일합니다.', matchingHiragana: 'ろ' },
     ]
   },

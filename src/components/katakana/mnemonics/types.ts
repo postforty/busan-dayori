@@ -70,7 +70,7 @@ export const KATAKANA_MNEMONIC_DATA: Record<string, KatakanaMnemonicItem> = {
   ラ: { char: 'ラ', word: '라멘', highlightIndex: 0, romaji: 'ra', tip: '빨간 젓가락 두 짝(1획·2획 가로)으로 건져 올린 맛있는 라멘 면발(2획 곡선)' },
   リ: { char: 'リ', word: '리본', highlightIndex: 0, romaji: 'ri', reuseNote: '히라가나 り와 95% 동일한 형태', tip: '양쪽으로 살랑살랑 내려오는 예쁜 리본 끝' },
   ル: { char: 'ル', word: '루돌프', highlightIndex: 0, romaji: 'ru', tip: '눈밭을 신나게 달리는 루돌프의 앞다리(1획)와 껑충 뛰는 뒷다리(2획)' },
-  レ: { char: 'レ', word: '레몬', highlightIndex: 0, romaji: 're', tip: '초승달 모양으로 꺾인 상큼한 레몬 조각' },
+  レ: { char: 'レ', word: '레이저', highlightIndex: 0, romaji: 're', tip: '수직으로 쏘아진 레이저 빔(1획 세로)이 거울에 반사되어 우상단으로 튕겨 나가는 궤적(1획 삐침)' },
   ロ: { char: 'ロ', word: '로봇', highlightIndex: 0, romaji: 'ro', tip: '네모반듯한 로봇(Robot)의 사각 머리' },
 
   // ワ·ン

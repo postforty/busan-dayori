@@ -543,31 +543,215 @@ export default function KatakanaRowRa({ char, fontFamily }: KatakanaMnemonicSvgC
   }
 
   if (char === 'レ') {
-    // レ: 레몬 (초승달 모양으로 꺾인 상큼한 노란 레몬 조각)
+    // レ: 레이저 (수직으로 쏘아진 거대한 레이저 빔이 광학 반사 거울에 반사되어 우상단으로 뻗어나가는 궤적!)
+    // ⚠️ 1획 세로선: 상단 레이저 발사기에서 수직으로 꽂히는 강력한 굵은 입사 레이저 빔
+    //    1획 하단 코너: 물리적 반사각(입사각 23° = 반사각 23°)에 맞춰 23도 기울어진 대형 반사경 거울 유닛 & 눈부신 충돌 스파크
+    //    1획 우상단 삐침: 거울에 반사되어 타겟을 향해 우상단(46°)으로 강력하게 솟구치는 굵은 네온 레이저 빔
     return (
       <svg viewBox="0 0 200 160" className="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* 접시 베이스 */}
-        <ellipse cx="106" cy="140" rx="56" ry="8" fill="#F1F5F9" />
+        <defs>
+          {/* 레이저 발사기 건메탈 그라디언트 */}
+          <linearGradient id="re-cannon-metal" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#1E293B" />
+            <stop offset="50%" stopColor="#475569" />
+            <stop offset="100%" stopColor="#0F172A" />
+          </linearGradient>
 
-        {/* 초승달 웨지 모양 레몬 슬라이스 껍질 (글자 レ의 세로선과 하단 꺾임과 일치) */}
-        <path
-          d="M 74 38 C 72 74 76 116 86 134 C 104 136 136 128 152 108 L 140 102 C 124 116 102 122 92 120 C 86 106 84 74 86 38 Z"
-          fill="#FDE047"
-          stroke="#EAB308"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-        />
+          {/* 대형 반사경 거울 메탈 프레임 그라디언트 */}
+          <linearGradient id="re-mirror-frame" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#475569" />
+            <stop offset="40%" stopColor="#334155" />
+            <stop offset="100%" stopColor="#0F172A" />
+          </linearGradient>
 
-        {/* 상큼한 레몬 과육 알갱이 부채꼴 섹션 */}
-        <path d="M 88 56 C 88 84 94 104 128 108 C 112 88 100 68 88 56 Z" fill="#FEF9C3" stroke="#FDE047" strokeWidth="1.2" />
+          {/* 광학 반사 거울 표면 유리 (영롱한 사이언-블루 코팅) */}
+          <linearGradient id="re-mirror-glass" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#E0F2FE" />
+            <stop offset="30%" stopColor="#BAE6FD" />
+            <stop offset="70%" stopColor="#38BDF8" />
+            <stop offset="100%" stopColor="#0284C7" />
+          </linearGradient>
 
-        {/* 튀는 레몬 과즙 방울 */}
-        <circle cx="146" cy="92" r="3" fill="#FACC15" />
-        <circle cx="158" cy="100" r="2" fill="#FDE047" />
-        <circle cx="64" cy="52" r="2.5" fill="#FDE047" />
+          {/* 거울 표면 눈부신 반사광 하이라이트 */}
+          <linearGradient id="re-glass-glare" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+          </linearGradient>
 
-        {/* 글자 'レ' 오버레이 */}
+          {/* 충돌 스파크 대형 방사형 글로우 */}
+          <radialGradient id="re-spark-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="25%" stopColor="#FEF08A" />
+            <stop offset="60%" stopColor="#F43F5E" />
+            <stop offset="100%" stopColor="#E11D48" stopOpacity="0" />
+          </radialGradient>
+
+          {/* 타겟 적중 버스트 글로우 */}
+          <radialGradient id="re-target-burst" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="40%" stopColor="#FDA4AF" />
+            <stop offset="80%" stopColor="#E11D48" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#9F1239" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* 1. 배경: 하이테크 타겟 레티클 & 조준 그리드 */}
+        <g id="re-tech-grid" opacity="0.5">
+          {/* 우상단 레이저 타겟 조준원 (반사 빔의 타겟 목표점) */}
+          <circle cx="140" cy="62" r="18" stroke="#94A3B8" strokeWidth="1" strokeDasharray="3 3" />
+          <circle cx="140" cy="62" r="8" stroke="#EF4444" strokeWidth="1.2" />
+          <line x1="140" y1="38" x2="140" y2="50" stroke="#94A3B8" strokeWidth="1.4" />
+          <line x1="140" y1="74" x2="140" y2="86" stroke="#94A3B8" strokeWidth="1.4" />
+          <line x1="116" y1="62" x2="128" y2="62" stroke="#94A3B8" strokeWidth="1.4" />
+          <line x1="152" y1="62" x2="164" y2="62" stroke="#94A3B8" strokeWidth="1.4" />
+
+          {/* 바닥 스탠드 베이스 그림자 */}
+          <ellipse cx="88" cy="148" rx="46" ry="6.5" fill="#E2E8F0" />
+        </g>
+
+        {/* 2. 하단 대형 광학 반사 거울 유닛 (빛의 반사법칙: 입사각 23° = 반사각 23°에 맞춰 약 23도 완만하게 기울인 대형 거울) */}
+        <g id="re-corner-reflector">
+          {/* 거울 스탠드 하단 메탈 베이스 플레이트 */}
+          <path d="M 58 147 L 118 147 L 110 135 L 66 135 Z" fill="url(#re-cannon-metal)" stroke="#0F172A" strokeWidth="1.4" />
+          <line x1="68" y1="141" x2="108" y2="141" stroke="#64748B" strokeWidth="1" />
+
+          {/* 스탠드 수직 듀얼 서포트 암 */}
+          <path d="M 80 135 L 80 124 L 96 124 L 96 135 Z" fill="url(#re-mirror-frame)" stroke="#0F172A" strokeWidth="1.2" />
+
+          {/* 틸트 각도 조절 힌지 볼트 */}
+          <circle cx="88" cy="125" r="6" fill="#475569" stroke="#1E293B" strokeWidth="1.2" />
+          <circle cx="88" cy="125" r="2.5" fill="#94A3B8" />
+
+          {/* ★ 대형 반사경 거울 플레이트 (빛의 반사 법칙: 입사광(↓)을 우상단(↗)으로 반사하기 위해 좌상➔우하 방향 +23도 경사) */}
+          <g transform="rotate(23 88 116)">
+            {/* 거울 백플레이트 하우징 프레임 */}
+            <rect x="49" y="109" width="78" height="14" rx="4" fill="url(#re-mirror-frame)" stroke="#0F172A" strokeWidth="1.5" />
+
+            {/* 영롱한 광학 유리 거울면 (우상단을 향해 빛을 반사하는 상단면) */}
+            <rect x="52" y="110" width="72" height="6.5" rx="2" fill="url(#re-mirror-glass)" stroke="#38BDF8" strokeWidth="0.8" />
+
+            {/* 거울 유리 표면의 날렵한 글레어 하이라이트 선 */}
+            <line x1="56" y1="112" x2="120" y2="112" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round" opacity="0.9" />
+
+            {/* 거울 양쪽 코너 고정 볼트 나사 */}
+            <circle cx="53" cy="116" r="1.5" fill="#CBD5E1" />
+            <circle cx="123" cy="116" r="1.5" fill="#CBD5E1" />
+          </g>
+        </g>
+
+        {/* 3. 초강력 네온 레이저 빔 (글자 'レ'에 덮이지 않도록 대폭 두껍게 확장된 5단계 레이저 빔) */}
+        <g id="re-laser-beam">
+          {/* [1단계] 최외곽 거대 네온 플라즈마 필드 (폭 46px - 글자 바깥으로 활활 타오르는 붉은 아우라) */}
+          <path
+            d="M 88 34 L 88 116 L 138 64"
+            stroke="#FDA4AF"
+            strokeWidth="46"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.25"
+          />
+
+          {/* [2단계] 선명한 네온 블룸 광채 (폭 32px) */}
+          <path
+            d="M 88 34 L 88 116 L 138 64"
+            stroke="#FB7185"
+            strokeWidth="32"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.5"
+          />
+
+          {/* [3단계] 고에너지 메인 레이저 광선 (폭 20px - 글자의 14px 폭을 압도하며 양옆으로 뿜어져 나옴) */}
+          <path
+            d="M 88 34 L 88 116 L 138 64"
+            stroke="#E11D48"
+            strokeWidth="20"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity="0.9"
+          />
+
+          {/* [4단계] 핫 핑크 에너지 코어 (폭 11px) */}
+          <path
+            d="M 88 34 L 88 116 L 138 64"
+            stroke="#FDA4AF"
+            strokeWidth="11"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* [5단계] 순백 플라즈마 핫라인 (폭 4.5px) */}
+          <path
+            d="M 88 34 L 88 116 L 138 64"
+            stroke="#FFFFFF"
+            strokeWidth="4.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        {/* 4. 상단 레이저 발사기 (Laser Cannon Emitter) */}
+        <g id="re-laser-emitter">
+          {/* 천장 고정 마운트 기둥 */}
+          <rect x="84" y="12" width="8" height="12" fill="#334155" />
+
+          {/* 발사기 메인 바디 */}
+          <rect x="73" y="20" width="30" height="16" rx="4" fill="url(#re-cannon-metal)" stroke="#0F172A" strokeWidth="1.5" />
+
+          {/* 에너지 파워 LED 인디케이터 */}
+          <circle cx="80" cy="28" r="2.2" fill="#22C55E" />
+          <circle cx="88" cy="28" r="2.2" fill="#EF4444" />
+          <circle cx="96" cy="28" r="2.2" fill="#3B82F6" />
+
+          {/* 하단 집광 렌즈 노즐 */}
+          <path d="M 79 36 L 97 36 L 93 42 L 83 42 Z" fill="#475569" stroke="#0F172A" strokeWidth="1.2" />
+
+          {/* 발사구 발광 코어 링 & 섬광 */}
+          <ellipse cx="88" cy="42" rx="4.5" ry="2" fill="#FFFFFF" />
+          <circle cx="88" cy="44" r="5" fill="#FDA4AF" opacity="0.8" />
+        </g>
+
+        {/* 5. 거울 반사점 충돌 스파크 & 쇼크웨이브 (거울면 충돌점 (88, 116)) */}
+        <g id="re-impact-flash">
+          {/* 대형 방사형 충돌 광채 */}
+          <circle cx="88" cy="116" r="22" fill="url(#re-spark-glow)" />
+
+          {/* 거울 표면 튀는 8방향 십자 하이퍼 스타 스파크 */}
+          <path d="M 88 98 L 88 134" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" />
+          <path d="M 70 116 L 106 116" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" />
+          <path d="M 75 103 L 101 129" stroke="#FEF08A" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 75 129 L 101 103" stroke="#FEF08A" strokeWidth="2" strokeLinecap="round" />
+
+          {/* 중심 초고열 화이트 코어 */}
+          <circle cx="88" cy="116" r="5" fill="#FFFFFF" />
+
+          {/* 광자 파티클 (Photon Particles) */}
+          <circle cx="92" cy="104" r="2.2" fill="#FEF08A" />
+          <circle cx="106" cy="94" r="2" fill="#FDE047" />
+          <circle cx="120" cy="80" r="2.5" fill="#FDA4AF" />
+          <circle cx="74" cy="110" r="1.8" fill="#FFFFFF" />
+        </g>
+
+        {/* 6. 우상단 타겟 적중 버스트 (Target Hit Burst) */}
+        <g id="re-target-hit">
+          <circle cx="138" cy="64" r="14" fill="url(#re-target-burst)" />
+          <circle cx="138" cy="64" r="3" fill="#FFFFFF" />
+          <path d="M 138 54 L 138 74" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M 128 64 L 148 64" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
+        </g>
+
+        {/* 7. 글자 'レ' 오버레이 (정중앙 투영: 입사 빔 1획 세로선 & 반사 빔 1획 삐침과 100% 일치!) */}
         <KatakanaCharOverlay char="レ" fontFamily={fontFamily} x="106" y="118" />
+
+        {/* 8. 글자 위로 솟아오르는 전면 하이라이트 (글자에 완전히 덮이지 않도록 글자 전면에도 빛 효과 오버랩) */}
+        <g id="re-front-highlights" opacity="0.85">
+          {/* 거울 충돌점 중심 플래시 코어 */}
+          <circle cx="88" cy="116" r="3.2" fill="#FFFFFF" />
+          {/* 반사 빔을 따라 흐르는 에너지 링 */}
+          <ellipse cx="112" cy="90" rx="3.5" ry="6" transform="rotate(45 112 90)" stroke="#FFFFFF" strokeWidth="1.4" fill="none" opacity="0.8" />
+          <ellipse cx="128" cy="74" rx="3" ry="5" transform="rotate(45 128 74)" stroke="#FEF08A" strokeWidth="1.4" fill="none" opacity="0.9" />
+        </g>
       </svg>
     );
   }
