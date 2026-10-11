@@ -955,17 +955,17 @@ export default function HiraganaFlashcards({
         </div>
 
         {/* 하단 진행도 및 셔플 컨트롤 바 */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#EDE8E1]/80 text-xs">
-          <div className="flex items-center gap-3">
-            <span className="font-extrabold text-[#2D3748]">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2 gap-y-2 pt-2 border-t border-[#EDE8E1]/80 text-xs">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 whitespace-nowrap">
+            <span className="font-extrabold text-[#2D3748] whitespace-nowrap shrink-0">
               진행: <span className="text-[#E07A5F]">{currentIndex + 1}</span> / {cardDeck.length}
             </span>
-            <div className="flex items-center gap-1.5 text-[11px] font-bold">
+            <div className="flex items-center gap-1 sm:gap-1.5 text-[11px] font-bold shrink-0">
               <button
                 type="button"
                 onClick={() => setActiveBadgeModal('known')}
                 disabled={knownCharIds.size === 0}
-                className={`flex items-center gap-0.5 bg-[#FAF0E6] text-[#E07A5F] px-2 py-0.5 rounded-full border border-[#F4DDD4] transition-all ${
+                className={`flex items-center gap-0.5 bg-[#FAF0E6] text-[#E07A5F] px-1.5 sm:px-2 py-0.5 rounded-full border border-[#F4DDD4] transition-all whitespace-nowrap shrink-0 ${
                   knownCharIds.size > 0
                     ? 'hover:bg-[#F4DDD4] hover:opacity-90 active:scale-95 cursor-pointer shadow-2xs'
                     : 'cursor-default opacity-70'
@@ -976,14 +976,14 @@ export default function HiraganaFlashcards({
                     : '외운 글자 0자'
                 }
               >
-                <Check className="w-3 h-3 text-[#E07A5F]" />
+                <Check className="w-3 h-3 text-[#E07A5F] shrink-0" />
                 <span>{knownCharIds.size}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveBadgeModal('confused')}
                 disabled={confusedCharIds.size === 0}
-                className={`flex items-center gap-0.5 bg-[#F7EBE5] text-[#C45B40] px-2 py-0.5 rounded-full border border-[#ECCDC2] transition-all ${
+                className={`flex items-center gap-0.5 bg-[#F7EBE5] text-[#C45B40] px-1.5 sm:px-2 py-0.5 rounded-full border border-[#ECCDC2] transition-all whitespace-nowrap shrink-0 ${
                   confusedCharIds.size > 0
                     ? 'hover:bg-[#F2DDD3] hover:opacity-90 active:scale-95 cursor-pointer shadow-2xs'
                     : 'cursor-default opacity-70'
@@ -994,28 +994,25 @@ export default function HiraganaFlashcards({
                     : '헷갈린 글자 0자'
                 }
               >
-                <RotateCcw className="w-3 h-3 text-[#C45B40]" />
+                <RotateCcw className="w-3 h-3 text-[#C45B40] shrink-0" />
                 <span>{confusedCharIds.size}</span>
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
             {/* 글꼴 스타일 토글 (정자체 / 흘림체) */}
             <button
               type="button"
               onClick={handleToggleFont}
-              className={`px-2 py-1 rounded-xl text-[11px] font-bold transition-all border flex items-center gap-1 shadow-2xs ${currentFontStyle === 'serif'
+              className={`px-2 py-1 rounded-xl text-[11px] font-bold transition-all border flex items-center gap-1 shadow-2xs shrink-0 whitespace-nowrap ${currentFontStyle === 'serif'
                 ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4] font-serif'
                 : 'bg-white hover:bg-stone-50 text-[#4A5568] border-[#EDE8E1] font-sans'
                 }`}
-              title="글꼴 변경: 또박또박한 정자체 ⇄ 붓글씨 느낌 흘림체"
+              title={`글꼴 변경: 또박또박한 정자체 ⇄ 붓글씨 느낌 흘림체 (현재: ${currentFontStyle === 'serif' ? '흘림체' : '정자체'})`}
             >
-              <Type className="w-3 h-3 text-[#E07A5F]" />
+              <Type className="w-3 h-3 text-[#E07A5F] shrink-0" />
               <span className="hidden sm:inline">
-                {currentFontStyle === 'serif' ? '흘림' : '정자'}
-              </span>
-              <span className="sm:hidden">
                 {currentFontStyle === 'serif' ? '흘림' : '정자'}
               </span>
             </button>
@@ -1024,13 +1021,16 @@ export default function HiraganaFlashcards({
             <button
               type="button"
               onClick={() => setAutoSpeech((prev) => !prev)}
-              className={`px-2 py-1 rounded-xl text-[11px] font-bold transition-all border flex items-center gap-1 ${autoSpeech
+              className={`px-2 py-1 rounded-xl text-[11px] font-bold transition-all border flex items-center gap-1 shrink-0 whitespace-nowrap ${autoSpeech
                 ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4]'
                 : 'bg-stone-50 text-stone-400 border-stone-200'
                 }`}
               title="카드 뒤집을 때 발음 자동 재생"
             >
-              <Volume2 className="w-3 h-3" />
+              <div className="relative flex items-center">
+                <Volume2 className="w-3 h-3 shrink-0" />
+                <span className="sm:hidden text-[9px] font-black leading-none ml-0.5">A</span>
+              </div>
               <span className="hidden sm:inline">자동발음</span>
             </button>
 
@@ -1038,10 +1038,10 @@ export default function HiraganaFlashcards({
             <button
               type="button"
               onClick={handleShuffle}
-              className="px-2 py-1 rounded-xl text-[11px] font-bold bg-[#FAF9F7] hover:bg-[#F4EFEA] text-[#718096] border border-[#EDE8E1] transition-all flex items-center gap-1"
+              className="px-2 py-1 rounded-xl text-[11px] font-bold bg-[#FAF9F7] hover:bg-[#F4EFEA] text-[#718096] border border-[#EDE8E1] transition-all flex items-center gap-1 shrink-0 whitespace-nowrap"
               title="카드 순서 섞기"
             >
-              <Shuffle className="w-3 h-3" />
+              <Shuffle className="w-3 h-3 shrink-0" />
               <span className="hidden sm:inline">셔플</span>
             </button>
           </div>
