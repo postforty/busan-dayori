@@ -37,6 +37,7 @@ import {
 import KatakanaMatchGame from '@/components/katakana/KatakanaMatchGame';
 import TravelKatakanaWords from '@/components/katakana/TravelKatakanaWords';
 import KatakanaFlashcards from '@/components/katakana/KatakanaFlashcards';
+import SoundToggleButton from '@/components/common/SoundToggleButton';
 
 export type KatakanaCategory = 'seion' | 'dakuon' | 'youon' | 'special';
 export type KatakanaStudioStep = 'sound' | 'cards' | 'confusing' | 'write' | 'match' | 'travel';
@@ -460,6 +461,9 @@ export default function KatakanaStudio({
 
           {/* 우측 유틸리티 & 전환 도구 */}
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* 전체 소리 On/Off 토글 버튼 */}
+            <SoundToggleButton variant="studio" theme="slate" showLabel={true} />
+
             {/* 전체 글꼴 토글 버튼 */}
             <button
               type="button"

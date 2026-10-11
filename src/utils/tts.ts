@@ -4,6 +4,8 @@
  * 일본어 모라(Mora) 박자 타이밍 보정 엔진으로 완벽히 보정하여 100% 실시간 하이라이트를 보장합니다.
  */
 
+import { isSoundEnabled } from './soundManager';
+
 interface CharTiming {
   index: number;
   length: number;
@@ -133,6 +135,12 @@ export function speakJapanese(
   // 이전 타이머 및 재생 중지
   stopJapaneseSpeech();
 
+  // 전역 음소거 상태 시 재생 차단
+  if (!isSoundEnabled()) {
+    if (onEnd) onEnd();
+    return;
+  }
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ja-JP';
   utterance.rate = rate; // 0.65: 초저속, 0.8: 천천히, 0.95: 보통
@@ -216,6 +224,12 @@ export function speakKorean(
   }
 
   stopKoreanSpeech();
+
+  // 전역 음소거 상태 시 재생 차단
+  if (!isSoundEnabled()) {
+    if (onEnd) onEnd();
+    return;
+  }
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ko-KR';

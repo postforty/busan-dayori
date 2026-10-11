@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Mail, Sparkles, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { signInWithGoogle, signOut } from '@/lib/supabase/auth';
+import SoundToggleButton from '@/components/common/SoundToggleButton';
 
 interface AuthUser {
   id: string;
@@ -107,6 +108,9 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-2">
+            {/* 0. 전역 소리 On/Off 토글 버튼 */}
+            <SoundToggleButton variant="header" />
+
             {/* 1. 소개 버튼 */}
             <button
               onClick={() => setShowAboutModal(true)}

@@ -1,4 +1,5 @@
 // 가타카나 커리큘럼 데이터 정의
+import { isSoundEnabled } from '@/utils/soundManager';
 
 export interface KatakanaChar {
   char: string;
@@ -891,6 +892,7 @@ export const KATAKANA_TRAVEL_WORDS: KatakanaTravelWord[] = [
 // 음성 발음 재생 헬퍼 (Web Speech API)
 export function playKatakanaAudio(text: string) {
   if (typeof window === 'undefined') return;
+  if (!isSoundEnabled()) return;
   const synth = window.speechSynthesis;
   if (!synth) return;
 

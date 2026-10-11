@@ -45,6 +45,7 @@ import {
 
 import HiraganaFlashcards from './HiraganaFlashcards';
 import MiniWordFlashcards from './MiniWordFlashcards';
+import SoundToggleButton from '@/components/common/SoundToggleButton';
 
 type StudioStep = 'sound' | 'write' | 'cards' | 'words' | 'dialogue';
 export type CharCategory = 'seion' | 'dakuon' | 'youon';
@@ -483,6 +484,9 @@ export default function HiraganaStudio({
 
           {/* 우측 유틸리티 & 전환 도구 */}
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* 전체 소리 On/Off 토글 버튼 */}
+            <SoundToggleButton variant="studio" theme="coral" showLabel={true} />
+
             {/* 전체 글꼴 토글 버튼 */}
             <button
               type="button"
