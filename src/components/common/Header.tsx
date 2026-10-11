@@ -93,43 +93,45 @@ export default function Header() {
     <>
       <header className="sticky top-0 z-40 bg-[#FBF9F5]/90 backdrop-blur-md border-b border-[#EDE8E1] px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-full bg-[#E07A5F]/10 flex items-center justify-center text-[#E07A5F] group-hover:bg-[#E07A5F] group-hover:text-white transition-colors">
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#E07A5F]/10 flex items-center justify-center text-[#E07A5F] group-hover:bg-[#E07A5F] group-hover:text-white transition-colors shrink-0">
               <Mail className="w-4 h-4" />
             </div>
-            <div>
-              <span className="font-bold text-lg tracking-tight text-[#2D3748] block leading-none">
+            <div className="shrink-0">
+              <span className="font-bold text-lg tracking-tight text-[#2D3748] block leading-none whitespace-nowrap">
                 釜山だより
               </span>
-              <span className="text-[10px] text-[#718096] block mt-0.5 tracking-wider font-medium">
+              <span className="text-[10px] text-[#718096] block mt-0.5 tracking-wider font-medium whitespace-nowrap">
                 Busan Dayori
               </span>
             </div>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* 0. 전역 소리 On/Off 토글 버튼 */}
             <SoundToggleButton variant="header" />
 
             {/* 1. 소개 버튼 */}
             <button
               onClick={() => setShowAboutModal(true)}
-              className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full bg-[#E2E8F0]/70 hover:bg-[#E2E8F0] text-[#4A5568] transition-all font-medium active:scale-95"
+              className="flex items-center justify-center gap-1.5 text-xs p-2 sm:px-2.5 sm:py-1.5 rounded-full bg-[#E2E8F0]/70 hover:bg-[#E2E8F0] text-[#4A5568] transition-all font-medium active:scale-95 shrink-0"
+              title="このサイトについて (서비스 안내)"
+              aria-label="이 사이트 소개"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
+              <Sparkles className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#D97706]" />
               <span className="hidden sm:inline">このサイトについて</span>
-              <span className="sm:hidden">案内</span>
             </button>
 
             {/* 2. 관리자 전용 새 편지 쓰기 버튼 */}
             {isAdmin && (
               <Link
                 href="/letters/new"
-                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#E07A5F] hover:bg-[#C8654B] text-white transition-all font-bold shadow-sm hover:shadow active:scale-95 shrink-0"
+                className="flex items-center justify-center gap-1.5 text-xs p-2 sm:px-3 sm:py-1.5 rounded-full bg-[#E07A5F] hover:bg-[#C8654B] text-white transition-all font-bold shadow-sm hover:shadow active:scale-95 shrink-0"
+                title="새 편지 쓰기"
+                aria-label="새 편지 쓰기"
               >
-                <PlusCircle className="w-3.5 h-3.5" />
+                <PlusCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                 <span className="hidden sm:inline">새 편지 쓰기</span>
-                <span className="sm:hidden">글쓰기</span>
               </Link>
             )}
 
