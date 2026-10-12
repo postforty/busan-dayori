@@ -8,7 +8,19 @@
  */
 
 import { isSoundEnabled } from './soundManager';
-import { canUseGeminiTts, getTtsEngineMode, incrementTtsUsage, markQuotaExhausted, notifyQuotaExhaustedOnce } from './ttsQuota';
+import {
+  canUseGeminiTts,
+  getTtsEngineMode,
+  incrementTtsUsage,
+  getTtsUsage,
+  DAILY_TTS_LIMIT,
+  isServerQuotaExhausted,
+  setServerQuotaExhausted,
+  setTtsTransientCooldown,
+  notifyQuotaExhaustedOnce,
+  notifyServerQuotaOnce,
+  notifyTransientCooldownOnce,
+} from './ttsQuota';
 
 interface CharTiming {
   index: number;
@@ -349,8 +361,44 @@ export function speakKoreanWebSpeech(
   window.speechSynthesis.speak(utterance);
 }
 
+
 /**
- * 일본어 음성 출력 (Gemini TTS 우선 -> 일 10회 소진/에러 시 Web Speech 자동 폴백)
+ * Gemini TTS 에러 응답 분석 및 상태 분기 (429 rate limit vs quota exceeded 등)
+ */
+async function handleTtsErrorResponse(res: Response): Promise<void> {
+  try {
+    const errorData = await res.json().catch(() => null);
+    const code = errorData?.code;
+    const category = errorData?.category;
+
+    if (category === 'daily_quota' || code === 'quota_exceeded' || res.status === 402) {
+      // 서버 일일 쿼터 소진 (개인 사용량 카운트는 유지)
+      setServerQuotaExhausted();
+    } else if (category === 'transient' || code === 'rate_limit_exceeded' || code === 'too_many_requests' || res.status === 429) {
+      // 일시적 과부하 / RPM 제한 (60초 쿨다운 적용, 개인 카운트는 절대 몰수하지 않음!)
+      setTtsTransientCooldown(60);
+      notifyTransientCooldownOnce();
+    }
+  } catch {
+    if (res.status === 429) {
+      setTtsTransientCooldown(60);
+    }
+  }
+}
+
+/**
+ * AI 음성 사용 불가 시 적절한 사유별 안내 토스트 발송
+ */
+function notifyReasonForFallback(): void {
+  if (isServerQuotaExhausted()) {
+    notifyServerQuotaOnce();
+  } else if (getTtsUsage().count >= DAILY_TTS_LIMIT) {
+    notifyQuotaExhaustedOnce();
+  }
+}
+
+/**
+ * 일본어 음성 출력 (Gemini TTS 우선 -> 한도 소진/쿨다운/에러 시 Web Speech 자동 폴백)
  */
 export function speakJapanese(
   text: string,
@@ -386,9 +434,9 @@ export function speakJapanese(
     return;
   }
 
-  // 2. 일일 10회를 모두 소진했다면 안내 토스트 1회 발송 후 즉시 Web Speech 실행 (0ms 무지연)
+  // 2. AI 음성을 사용할 수 없는 상태(개인 한도 소진 / 쿨다운 중 / 서버 쿼터 소진)라면 폴백
   if (!canUseGeminiTts()) {
-    notifyQuotaExhaustedOnce();
+    notifyReasonForFallback();
     speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
     return;
   }
@@ -404,15 +452,10 @@ export function speakJapanese(
     }),
   })
     .then(async (res) => {
-      if (res.status === 429) {
-        // 서버 쿼터 초과 시 오늘 카운트 10으로 마킹 후 폴백
-        markQuotaExhausted();
+      if (!res.ok) {
+        await handleTtsErrorResponse(res);
         speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
         return;
-      }
-
-      if (!res.ok) {
-        throw new Error(`TTS HTTP error: ${res.status}`);
       }
 
       const isCacheHit = res.headers.get('X-TTS-Cache') === 'HIT';
@@ -467,9 +510,9 @@ export function speakKorean(
     return;
   }
 
-  // 2. 일일 10회를 모두 소진했다면 안내 토스트 1회 발송 후 즉시 Web Speech 실행 (0ms 무지연)
+  // 2. AI 음성을 사용할 수 없는 상태라면 폴백
   if (!canUseGeminiTts()) {
-    notifyQuotaExhaustedOnce();
+    notifyReasonForFallback();
     speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
     return;
   }
@@ -485,14 +528,10 @@ export function speakKorean(
     }),
   })
     .then(async (res) => {
-      if (res.status === 429) {
-        markQuotaExhausted();
+      if (!res.ok) {
+        await handleTtsErrorResponse(res);
         speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
         return;
-      }
-
-      if (!res.ok) {
-        throw new Error(`TTS HTTP error: ${res.status}`);
       }
 
       const isCacheHit = res.headers.get('X-TTS-Cache') === 'HIT';
@@ -537,7 +576,10 @@ export async function playGeminiPreview(
         voice: 'Charon',
       }),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      await handleTtsErrorResponse(res);
+      throw new Error(`HTTP ${res.status}`);
+    }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     audioBlobCache.set(cacheKey, url);
@@ -551,3 +593,4 @@ export async function playGeminiPreview(
     }
   }
 }
+

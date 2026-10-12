@@ -110,10 +110,36 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      console.warn(`[Gemini TTS Error] Status: ${response.status}, Details: ${errText}`);
+      let errCode = 'api_error';
+      let errMessage = 'Gemini TTS generation failed';
+      let details: unknown = null;
+
+      try {
+        const errJson = await response.json();
+        details = errJson;
+        if (errJson?.error) {
+          errCode = errJson.error.code || errCode;
+          errMessage = errJson.error.message || errMessage;
+        }
+      } catch {
+        const rawText = await response.text();
+        details = rawText;
+        errMessage = rawText;
+      }
+
+      console.warn(`[Gemini TTS Error] Status: ${response.status}, Code: ${errCode}, Message: ${errMessage}`);
+
+      const isTransient = errCode === 'rate_limit_exceeded' || errCode === 'too_many_requests' || response.status === 503;
+      const isDailyQuota = errCode === 'quota_exceeded' || response.status === 402;
+
       return NextResponse.json(
-        { error: 'Gemini TTS generation failed', details: errText },
+        {
+          error: 'Gemini TTS generation failed',
+          code: errCode,
+          message: errMessage,
+          category: isDailyQuota ? 'daily_quota' : isTransient ? 'transient' : 'general',
+          details,
+        },
         { status: response.status }
       );
     }
