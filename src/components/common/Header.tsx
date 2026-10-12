@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Mail, Sparkles, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { Mail, Sparkles, Smile, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { signInWithGoogle, signOut } from '@/lib/supabase/auth';
 import SoundToggleButton from '@/components/common/SoundToggleButton';
+import { getTtsEngineMode, getTtsUsage, TtsEngineMode, setTtsEngineMode } from '@/utils/ttsQuota';
 
 interface AuthUser {
   id: string;
@@ -15,6 +16,8 @@ interface AuthUser {
 
 export default function Header() {
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [ttsMode, setTtsMode] = useState<TtsEngineMode>(() => getTtsEngineMode());
+  const [, setTtsUsageCount] = useState<number>(() => getTtsUsage().count);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -67,8 +70,17 @@ export default function Header() {
       fetchAuthStatus();
     });
 
+    // 4. TTS 모드 및 사용량 변경 리스너
+    const handleTtsModeChange = () => {
+      setTtsMode(getTtsEngineMode());
+      setTtsUsageCount(getTtsUsage().count);
+    };
+
+    window.addEventListener('tts-mode-change', handleTtsModeChange);
+
     return () => {
       subscription.unsubscribe();
+      window.removeEventListener('tts-mode-change', handleTtsModeChange);
     };
   }, []);
 
@@ -87,6 +99,12 @@ export default function Header() {
     } catch {
       alert('로그아웃에 실패했습니다.');
     }
+  };
+
+  const handleToggleTtsMode = () => {
+    const nextMode: TtsEngineMode = ttsMode === 'gemini' ? 'browser' : 'gemini';
+    setTtsMode(nextMode);
+    setTtsEngineMode(nextMode);
   };
 
   return (
@@ -111,15 +129,39 @@ export default function Header() {
             {/* 0. 전역 소리 On/Off 토글 버튼 */}
             <SoundToggleButton variant="header" />
 
-            {/* 1. 소개 버튼 */}
+            {/* 1. TTS 음성 엔진 원클릭 토글 버튼 (ON: Gemini AI 남성 음성 + DB 캐싱 / OFF: 브라우저 여성 음성) */}
+            <button
+              type="button"
+              onClick={handleToggleTtsMode}
+              className={`flex items-center justify-center gap-1.5 text-xs p-2 sm:px-2.5 sm:py-1.5 rounded-full transition-all font-semibold active:scale-95 shrink-0 border cursor-pointer ${ttsMode === 'gemini'
+                ? 'bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#92400E] border-[#FDE68A] shadow-xs'
+                : 'bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#64748B] border-[#CBD5E1]'
+                }`}
+              title={
+                ttsMode === 'gemini'
+                  ? 'AI 고품질 음성 모드 ON (남성 Charon / DB 자동 저장) - 클릭하여 끄기'
+                  : '브라우저 기본 음성 모드 OFF (여성 음성) - 클릭하여 AI 음성 켜기'
+              }
+              aria-label="AI 음성 토글"
+            >
+              <Sparkles
+                className={`w-4 h-4 sm:w-3.5 sm:h-3.5 transition-transform ${ttsMode === 'gemini' ? 'text-[#D97706] scale-105' : 'text-[#94A3B8]'
+                  }`}
+              />
+              <span className="hidden sm:inline">
+                {ttsMode === 'gemini' ? 'AI ON' : 'AI OFF'}
+              </span>
+            </button>
+
+            {/* 2. 주인장 소개 버튼 */}
             <button
               onClick={() => setShowAboutModal(true)}
               className="flex items-center justify-center gap-1.5 text-xs p-2 sm:px-2.5 sm:py-1.5 rounded-full bg-[#E2E8F0]/70 hover:bg-[#E2E8F0] text-[#4A5568] transition-all font-medium active:scale-95 shrink-0"
-              title="このサイトについて (서비스 안내)"
-              aria-label="이 사이트 소개"
+              title="はじめまして！ (주인장 소개)"
+              aria-label="주인장 소개"
             >
-              <Sparkles className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#D97706]" />
-              <span className="hidden sm:inline">このサイトについて</span>
+              <Smile className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#E07A5F]" />
+              <span className="hidden sm:inline">はじめまして</span>
             </button>
 
             {/* 2. 관리자 전용 새 편지 쓰기 버튼 */}

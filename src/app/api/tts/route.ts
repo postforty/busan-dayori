@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!supabaseUrl || !supabaseKey) return null;
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { text, lang = 'ja', voice = 'Kore', style } = body;
+    const { text, lang = 'ja', voice = 'Charon', style } = body;
+    const targetVoice = voice || 'Charon';
 
     if (!text || typeof text !== 'string' || text.trim() === '') {
       return NextResponse.json(
@@ -12,6 +23,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const trimmedText = text.trim();
+    const supabase = getSupabaseClient();
+
+    // 1. Supabase 영구 오디오 캐시 확인 (0ms 즉시 반환 & API 쿼터 절약)
+    if (supabase) {
+      try {
+        const { data: cached } = await supabase
+          .from('tts_audio_cache')
+          .select('audio_base64')
+          .eq('text', trimmedText)
+          .eq('lang', lang)
+          .eq('voice', targetVoice)
+          .maybeSingle();
+
+        if (cached?.audio_base64) {
+          const audioBuffer = Buffer.from(cached.audio_base64, 'base64');
+          return new Response(audioBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'audio/wav',
+              'X-TTS-Cache': 'HIT',
+              'Cache-Control': 'public, max-age=31536000, immutable',
+            },
+          });
+        }
+      } catch (cacheErr) {
+        console.warn('[Supabase TTS Cache Read Warning]:', cacheErr);
+      }
+    }
+
+    // 2. Gemini API 호출
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -36,7 +78,7 @@ export async function POST(req: NextRequest) {
           type: 'user_input',
           content: [{
             type: 'text',
-            text: text.trim(),
+            text: trimmedText,
             annotations: [{
               type: 'speech_metadata',
               style: style || defaultStyle,
@@ -46,7 +88,7 @@ export async function POST(req: NextRequest) {
         response_format: { type: 'audio' },
         generation_config: {
           speech_config: [
-            { voice: voice || 'Kore' },
+            { voice: targetVoice },
           ],
         },
       }),
@@ -62,10 +104,6 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
-
-    // REST API 반환값에서 audio data 추출
-    // 구조 1: data.steps[].content[].data (select type == 'audio')
-    // 구조 2: data.output_audio.data
     let audioBase64: string | undefined = data.output_audio?.data;
 
     if (!audioBase64 && Array.isArray(data.steps)) {
@@ -87,12 +125,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const audioBuffer = Buffer.from(audioBase64, 'base64');
+    // 3. Supabase 캐시에 저장 (동일 문장 재요청 시 전 단말기 무제한 재생 보장)
+    if (supabase) {
+      try {
+        await supabase
+          .from('tts_audio_cache')
+          .upsert(
+            {
+              text: trimmedText,
+              lang,
+              voice: targetVoice,
+              audio_base64: audioBase64,
+            },
+            { onConflict: 'text,lang,voice' }
+          );
+      } catch (err: unknown) {
+        console.warn('[Supabase TTS Cache Save Warning]:', err);
+      }
+    }
 
+    const audioBuffer = Buffer.from(audioBase64, 'base64');
     return new Response(audioBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'audio/wav',
+        'X-TTS-Cache': 'MISS',
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });

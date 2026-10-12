@@ -8,7 +8,7 @@
  */
 
 import { isSoundEnabled } from './soundManager';
-import { canUseGeminiTts, incrementTtsUsage, markQuotaExhausted, notifyQuotaExhaustedOnce } from './ttsQuota';
+import { canUseGeminiTts, getTtsEngineMode, incrementTtsUsage, markQuotaExhausted, notifyQuotaExhaustedOnce } from './ttsQuota';
 
 interface CharTiming {
   index: number;
@@ -221,7 +221,7 @@ function playAudioBlob(
 /**
  * 기존 Web Speech API를 활용한 일본어 Fallback 재생
  */
-function speakJapaneseWebSpeech(
+export function speakJapaneseWebSpeech(
   text: string,
   rate: number = 0.9,
   onStart?: () => void,
@@ -307,7 +307,7 @@ function speakJapaneseWebSpeech(
 /**
  * 기존 Web Speech API를 활용한 한국어 Fallback 재생
  */
-function speakKoreanWebSpeech(
+export function speakKoreanWebSpeech(
   text: string,
   rate: number = 0.9,
   onStart?: () => void,
@@ -371,6 +371,13 @@ export function speakJapanese(
   }
 
   const trimmedText = text.trim();
+
+  // 0. 사용자가 'browser' 기본 음성 모드를 선택한 경우 즉시 Web Speech 실행
+  if (getTtsEngineMode() === 'browser') {
+    speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+    return;
+  }
+
   const cacheKey = `ja:${trimmedText}`;
 
   // 1. 이미 캐싱된 고품질 오디오가 있다면 쿼터 차감 없이 즉시 0ms 재생
@@ -393,7 +400,7 @@ export function speakJapanese(
     body: JSON.stringify({
       text: trimmedText,
       lang: 'ja',
-      voice: 'Kore',
+      voice: 'Charon',
     }),
   })
     .then(async (res) => {
@@ -408,10 +415,13 @@ export function speakJapanese(
         throw new Error(`TTS HTTP error: ${res.status}`);
       }
 
+      const isCacheHit = res.headers.get('X-TTS-Cache') === 'HIT';
       const blob = await res.blob();
       const audioUrl = URL.createObjectURL(blob);
       audioBlobCache.set(cacheKey, audioUrl);
-      incrementTtsUsage();
+      if (!isCacheHit) {
+        incrementTtsUsage();
+      }
 
       playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd, onBoundary);
     })
@@ -442,6 +452,13 @@ export function speakKorean(
   }
 
   const trimmedText = text.trim();
+
+  // 0. 사용자가 'browser' 기본 음성 모드를 선택한 경우 즉시 Web Speech 실행
+  if (getTtsEngineMode() === 'browser') {
+    speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
+    return;
+  }
+
   const cacheKey = `ko:${trimmedText}`;
 
   // 1. 이미 캐싱된 고품질 오디오가 있다면 쿼터 차감 없이 즉시 0ms 재생
@@ -464,7 +481,7 @@ export function speakKorean(
     body: JSON.stringify({
       text: trimmedText,
       lang: 'ko',
-      voice: 'Kore',
+      voice: 'Charon',
     }),
   })
     .then(async (res) => {
@@ -478,10 +495,13 @@ export function speakKorean(
         throw new Error(`TTS HTTP error: ${res.status}`);
       }
 
+      const isCacheHit = res.headers.get('X-TTS-Cache') === 'HIT';
       const blob = await res.blob();
       const audioUrl = URL.createObjectURL(blob);
       audioBlobCache.set(cacheKey, audioUrl);
-      incrementTtsUsage();
+      if (!isCacheHit) {
+        incrementTtsUsage();
+      }
 
       playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd);
     })
@@ -489,4 +509,45 @@ export function speakKorean(
       console.warn('[Gemini TTS fallback to Web Speech]:', err);
       speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
     });
+}
+
+/**
+ * TTS 설정 모달 등에서 Gemini AI 음성을 미리 체험하기 위한 함수
+ */
+export async function playGeminiPreview(
+  text: string = 'こんにちは！釜山だよりへようこそ。',
+  lang: 'ja' | 'ko' = 'ja'
+): Promise<void> {
+  if (!isSoundEnabled()) return;
+  const trimmedText = text.trim();
+  const cacheKey = `${lang}:${trimmedText}`;
+
+  if (audioBlobCache.has(cacheKey)) {
+    playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, 0.9);
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: trimmedText,
+        lang,
+        voice: 'Charon',
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    audioBlobCache.set(cacheKey, url);
+    playAudioBlob(url, trimmedText, 0.9);
+  } catch (err) {
+    console.warn('[Preview Gemini Error]:', err);
+    if (lang === 'ja') {
+      speakJapaneseWebSpeech(trimmedText, 0.9);
+    } else {
+      speakKoreanWebSpeech(trimmedText, 0.9);
+    }
+  }
 }

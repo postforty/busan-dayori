@@ -4,6 +4,30 @@ const STORAGE_KEY = 'gemini_tts_daily_usage';
 const NOTIFIED_KEY = 'gemini_tts_notified_date';
 export const DAILY_TTS_LIMIT = 10;
 
+export type TtsEngineMode = 'gemini' | 'browser';
+const MODE_STORAGE_KEY = 'gemini_tts_engine_mode';
+
+export function getTtsEngineMode(): TtsEngineMode {
+  if (typeof window === 'undefined') return 'gemini';
+  try {
+    const saved = localStorage.getItem(MODE_STORAGE_KEY);
+    if (saved === 'browser') return 'browser';
+    return 'gemini';
+  } catch {
+    return 'gemini';
+  }
+}
+
+export function setTtsEngineMode(mode: TtsEngineMode): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(MODE_STORAGE_KEY, mode);
+    window.dispatchEvent(new CustomEvent('tts-mode-change', { detail: { mode } }));
+  } catch {
+    // ignore
+  }
+}
+
 interface QuotaData {
   date: string; // YYYY-MM-DD
   count: number;
@@ -89,9 +113,9 @@ export function notifyQuotaExhaustedOnce(): void {
     const lastNotifiedDate = localStorage.getItem(NOTIFIED_KEY);
     if (lastNotifiedDate !== today) {
       localStorage.setItem(NOTIFIED_KEY, today);
-      showGlobalToast('오늘의 AI 음성 한도(10회)가 소진되어 기본 브라우저 음성으로 재생됩니다.');
+      showGlobalToast('오늘의 AI 음성 한도(10회)가 소진되어 기본 브라우저 음성으로 재생됩니다.', { icon: 'info' });
     }
   } catch {
-    showGlobalToast('오늘의 AI 음성 한도(10회)가 소진되어 기본 브라우저 음성으로 재생됩니다.');
+    showGlobalToast('오늘의 AI 음성 한도(10회)가 소진되어 기본 브라우저 음성으로 재생됩니다.', { icon: 'info' });
   }
 }
