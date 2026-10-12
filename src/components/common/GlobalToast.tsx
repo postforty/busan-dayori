@@ -43,6 +43,28 @@ export default function GlobalToast() {
     }
   }, [searchParams]);
 
+  // 외부(유틸/컴포넌트) 커스텀 이벤트 수신
+  useEffect(() => {
+    const handleCustomToast = (event: Event) => {
+      const customEvent = event as CustomEvent<{ message?: string; duration?: number }>;
+      const msg = customEvent.detail?.message;
+      if (!msg) return;
+
+      setToastMessage(msg);
+
+      const hideTimer = setTimeout(() => {
+        setToastMessage(null);
+      }, customEvent.detail?.duration || 3500);
+
+      return () => clearTimeout(hideTimer);
+    };
+
+    window.addEventListener('app:toast', handleCustomToast);
+    return () => {
+      window.removeEventListener('app:toast', handleCustomToast);
+    };
+  }, []);
+
   if (!toastMessage) return null;
 
   return (
