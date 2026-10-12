@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-function getSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!supabaseUrl || !supabaseKey) return null;
-  return createClient(supabaseUrl, supabaseKey);
-}
+import { createClient as createServerClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,33 +15,57 @@ export async function POST(req: NextRequest) {
     }
 
     const trimmedText = text.trim();
-    const supabase = getSupabaseClient();
 
-    // 1. Supabase 영구 오디오 캐시 확인 (0ms 즉시 반환 & API 쿼터 절약)
-    if (supabase) {
-      try {
-        const { data: cached } = await supabase
-          .from('tts_audio_cache')
-          .select('audio_base64')
-          .eq('text', trimmedText)
-          .eq('lang', lang)
-          .eq('voice', targetVoice)
-          .maybeSingle();
+    // 보안 검증 1: 학습용 단어/단문 최대 100자 제한 (악의적 장문 공격 및 Gemini API 토큰 고갈 방지)
+    if (trimmedText.length > 100) {
+      return NextResponse.json(
+        { error: '음성 생성은 최대 100자 이하의 단어 및 문장만 지원합니다.' },
+        { status: 400 }
+      );
+    }
 
-        if (cached?.audio_base64) {
-          const audioBuffer = Buffer.from(cached.audio_base64, 'base64');
-          return new Response(audioBuffer, {
-            status: 200,
-            headers: {
-              'Content-Type': 'audio/wav',
-              'X-TTS-Cache': 'HIT',
-              'Cache-Control': 'public, max-age=31536000, immutable',
-            },
-          });
-        }
-      } catch (cacheErr) {
-        console.warn('[Supabase TTS Cache Read Warning]:', cacheErr);
+    // 보안 검증 2: 허용된 언어 코드만 처리 (ja, ko)
+    if (lang !== 'ja' && lang !== 'ko') {
+      return NextResponse.json(
+        { error: '지원하지 않는 언어입니다 (ja, ko만 허용).' },
+        { status: 400 }
+      );
+    }
+
+    // 보안 검증 3: 허용된 모델 음성만 처리
+    const allowedVoices = ['Charon', 'Puck', 'Kore'];
+    if (!allowedVoices.includes(targetVoice)) {
+      return NextResponse.json(
+        { error: '유효하지 않은 보이스입니다.' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createServerClient();
+
+    // 1. Supabase 영구 오디오 캐시 확인 (누구나 조회 가능, 0ms 즉시 반환 & API 쿼터 절약)
+    try {
+      const { data: cached } = await supabase
+        .from('tts_audio_cache')
+        .select('audio_base64')
+        .eq('text', trimmedText)
+        .eq('lang', lang)
+        .eq('voice', targetVoice)
+        .maybeSingle();
+
+      if (cached?.audio_base64) {
+        const audioBuffer = Buffer.from(cached.audio_base64, 'base64');
+        return new Response(audioBuffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'audio/wav',
+            'X-TTS-Cache': 'HIT',
+            'Cache-Control': 'public, max-age=31536000, immutable',
+          },
+        });
       }
+    } catch (cacheErr) {
+      console.warn('[Supabase TTS Cache Read Warning]:', cacheErr);
     }
 
     // 2. Gemini API 호출
@@ -125,9 +140,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Supabase 캐시에 저장 (동일 문장 재요청 시 전 단말기 무제한 재생 보장)
-    if (supabase) {
-      try {
+    // 3. 로그인 사용자(관리자 등)인 경우에만 Supabase DB에 영구 캐시 저장
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
         await supabase
           .from('tts_audio_cache')
           .upsert(
@@ -139,9 +158,9 @@ export async function POST(req: NextRequest) {
             },
             { onConflict: 'text,lang,voice' }
           );
-      } catch (err: unknown) {
-        console.warn('[Supabase TTS Cache Save Warning]:', err);
       }
+    } catch (err: unknown) {
+      console.warn('[Supabase TTS Cache Save Warning]:', err);
     }
 
     const audioBuffer = Buffer.from(audioBase64, 'base64');
