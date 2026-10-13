@@ -495,7 +495,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                     </p>
                     {showPronounce && (
                       <p className="text-[11px] font-semibold text-[#E07A5F] leading-normal">
-                        [{getPronunciation(line.japanese)}]
+                        [{line.pronunciation || getPronunciation(line.japanese)}]
                       </p>
                     )}
                     <p className="text-[11px] text-gray-500 leading-normal">

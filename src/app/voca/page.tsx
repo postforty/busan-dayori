@@ -601,7 +601,7 @@ export default function VocaPage() {
                                   {line.japanese}
                                 </p>
                                 <p className="text-[11px] font-semibold text-[#E07A5F]">
-                                  [{getPronunciation(line.japanese)}]
+                                  [{line.pronunciation || getPronunciation(line.japanese)}]
                                 </p>
                                 <p className="text-[11px] text-gray-500">
                                   {line.korean}

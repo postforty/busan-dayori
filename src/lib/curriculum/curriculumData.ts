@@ -177,17 +177,20 @@ export const curriculumLevels: CurriculumLevel[] = [
             {
               speaker: '나 (급한 표정)',
               japanese: 'あの、すみません！ トイレは どこですか？',
-              korean: '저, 죄송한데요! 화장실 어디예요?'
+              korean: '저, 죄송한데요! 화장실 어디예요?',
+              pronunciation: '아노, 스미마센! 토이레와 도코데스카?'
             },
             {
               speaker: '친절한 행인',
               japanese: 'あっちですよ！',
-              korean: '저쪽이에요!'
+              korean: '저쪽이에요!',
+              pronunciation: '앗치데스요!'
             },
             {
               speaker: '나',
               japanese: '助かりました！ ありがとうございます！',
-              korean: '살았어요! 감사합니다!'
+              korean: '살았어요! 감사합니다!',
+              pronunciation: '타스카리마시타! 아리가토-고자이마스!'
             }
           ],
           grammar: {

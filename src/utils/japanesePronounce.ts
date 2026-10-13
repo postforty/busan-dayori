@@ -88,6 +88,7 @@ const KANJI_READING_DICT: Record<string, string> = {
   '抜き': 'ぬき',
   '抜きで': 'ぬきで',
   '別添え': 'べつぞえ',
+  '助かりました': 'たすかりました',
   '助かります': 'たすかります',
   '助かる': 'たすかる',
   'ありがとう': 'ありがとう',
@@ -116,6 +117,12 @@ const KANJI_READING_DICT: Record<string, string> = {
   '昼食': 'ちゅうしょく',
   '食事': 'しょくじ',
   '店': 'みせ',
+  '店内': 'てんない',
+  'ご利用': 'ごりよう',
+  '利用': 'りよう',
+  '使えますか': 'つかえますか',
+  '使えます': 'つかえます',
+  '駅': 'えき',
   '今日': 'きょう',
   '明日': 'あした',
   '友達': 'ともだち',
@@ -239,10 +246,42 @@ export function kanaToHangul(text: string): string {
 
     // 5. 2글자 요음 확인 (きゃ, チュ 등)
     const twoChars = text.substr(i, 2);
-    if (KANA_TO_HANGUL[twoChars]) {
+    if (twoChars.length === 2 && KANA_TO_HANGUL[twoChars]) {
       result += KANA_TO_HANGUL[twoChars];
       i += 2;
       continue;
+    }
+
+    // 5.5 조사 は (wa) 및 특수 표현 발음 처리
+    if (ch === 'は') {
+      const prevCh = i > 0 ? text[i - 1] : '';
+      const isPrevWordChar = prevCh !== '' && ![' ', '　', '、', '。', '！', '!', '？', '?', ',', '.', '~', '〜', '\n', '\t'].includes(prevCh);
+      const isNextDelimiter = i + 1 === len || [' ', '　', '、', '。', '！', '!', '？', '?', ',', '.', '~', '〜', '\n', '\t'].includes(nextCh);
+      const isPrevKatakana = /[\u30A0-\u30FF]/.test(prevCh);
+      const isKonnichiwa = i >= 4 && text.substring(i - 4, i + 1) === 'こんにちは';
+      const isKonbanwa = i >= 4 && text.substring(i - 4, i + 1) === 'こんばんは';
+
+      // 1) 인사말(こんにちは, こんばんは)
+      // 2) 단어 뒤 + 공백/구두점/문장끝 (조사 は)
+      // 3) 가타카나 외래어 바로 뒤의 히라가나 は (예: トイレは, カードは)
+      if (isKonnichiwa || isKonbanwa || (isPrevWordChar && isNextDelimiter) || (isPrevKatakana && !isNextDelimiter)) {
+        result += '와';
+        i++;
+        continue;
+      }
+    }
+
+    // 5.6 조사 へ (e) 처리: 단어 뒤 + 공백/구두점/문장끝
+    if (ch === 'へ') {
+      const prevCh = i > 0 ? text[i - 1] : '';
+      const isPrevWordChar = prevCh !== '' && ![' ', '　', '、', '。', '！', '!', '？', '?', ',', '.', '~', '〜', '\n', '\t'].includes(prevCh);
+      const isNextDelimiter = i + 1 === len || [' ', '　', '、', '。', '！', '!', '？', '?', ',', '.', '~', '〜', '\n', '\t'].includes(nextCh);
+
+      if (isPrevWordChar && isNextDelimiter) {
+        result += '에';
+        i++;
+        continue;
+      }
     }
 
     // 6. 1글자 가나 확인

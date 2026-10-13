@@ -98,6 +98,7 @@ export interface DialogueLine {
   speaker: string;
   japanese: string;
   korean: string;
+  pronunciation?: string;
 }
 
 export type LessonLevel = 'starter' | 'beginner' | 'intermediate' | 'advanced';
