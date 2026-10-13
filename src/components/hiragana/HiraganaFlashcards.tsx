@@ -12,7 +12,7 @@ import {
   CONFUSING_PAIRS,
   HiraganaChar
 } from '@/lib/curriculum/hiraganaData';
-import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
+import { speakHiraganaAudio, stopJapaneseSpeech } from '@/utils/tts';
 import {
   Volume2,
   RotateCcw,
@@ -385,7 +385,7 @@ export default function HiraganaFlashcards({
     if (!textToPlay) return;
 
     setIsPlayingSound(true);
-    speakJapanese(
+    speakHiraganaAudio(
       textToPlay,
       0.85,
       undefined,

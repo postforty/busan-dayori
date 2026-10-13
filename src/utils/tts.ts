@@ -9,17 +9,8 @@
 
 import { isSoundEnabled } from './soundManager';
 import {
-  canUseGeminiTts,
   getTtsEngineMode,
-  incrementTtsUsage,
-  getTtsUsage,
-  DAILY_TTS_LIMIT,
-  isServerQuotaExhausted,
-  setServerQuotaExhausted,
-  setTtsTransientCooldown,
-  notifyQuotaExhaustedOnce,
-  notifyServerQuotaOnce,
-  notifyTransientCooldownOnce,
+  handleTtsQuotaExceeded,
 } from './ttsQuota';
 
 interface CharTiming {
@@ -363,7 +354,7 @@ export function speakKoreanWebSpeech(
 
 
 /**
- * Gemini TTS 에러 응답 분석 및 상태 분기 (429 rate limit vs quota exceeded 등)
+ * Gemini TTS 에러 응답 분석 및 쿼터/레이트 리밋 초과 시 자동으로 토글 OFF 전환
  */
 async function handleTtsErrorResponse(res: Response): Promise<void> {
   try {
@@ -371,34 +362,43 @@ async function handleTtsErrorResponse(res: Response): Promise<void> {
     const code = errorData?.code;
     const category = errorData?.category;
 
-    if (category === 'daily_quota' || code === 'quota_exceeded' || res.status === 402) {
-      // 서버 일일 쿼터 소진 (개인 사용량 카운트는 유지)
-      setServerQuotaExhausted();
-    } else if (category === 'transient' || code === 'rate_limit_exceeded' || code === 'too_many_requests' || res.status === 429) {
-      // 일시적 과부하 / RPM 제한 (60초 쿨다운 적용, 개인 카운트는 절대 몰수하지 않음!)
-      setTtsTransientCooldown(60);
-      notifyTransientCooldownOnce();
+    const isQuotaOrRateLimit =
+      res.status === 429 ||
+      res.status === 402 ||
+      res.status === 503 ||
+      category === 'daily_quota' ||
+      category === 'transient' ||
+      code === 'quota_exceeded' ||
+      code === 'rate_limit_exceeded' ||
+      code === 'too_many_requests';
+
+    if (isQuotaOrRateLimit) {
+      handleTtsQuotaExceeded();
     }
   } catch {
-    if (res.status === 429) {
-      setTtsTransientCooldown(60);
+    if (res.status === 429 || res.status === 402 || res.status === 503) {
+      handleTtsQuotaExceeded();
     }
   }
 }
 
 /**
- * AI 음성 사용 불가 시 적절한 사유별 안내 토스트 발송
+ * 히라가나 전용 음성 출력
+ * (Gemini 쿼터 보존 및 즉각적 반응성을 위해 브라우저 Web Speech 엔진 고정 사용)
  */
-function notifyReasonForFallback(): void {
-  if (isServerQuotaExhausted()) {
-    notifyServerQuotaOnce();
-  } else if (getTtsUsage().count >= DAILY_TTS_LIMIT) {
-    notifyQuotaExhaustedOnce();
-  }
+export function speakHiraganaAudio(
+  text: string,
+  rate: number = 0.85,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onBoundary?: (charIndex: number, charLength?: number) => void
+) {
+  speakJapaneseWebSpeech(text, rate, onStart, onEnd, onBoundary);
 }
 
 /**
- * 일본어 음성 출력 (Gemini TTS 우선 -> 한도 소진/쿨다운/에러 시 Web Speech 자동 폴백)
+ * 일본어 음성 출력 (회화, 데일리 레슨, 로드맵, 편지 등 회화 유닛 전용)
+ * 토글 ON 시 Gemini TTS 호출, 쿼터 소진 시 자동으로 토글 OFF 전환 및 Web Speech 폴백
  */
 export function speakJapanese(
   text: string,
@@ -420,7 +420,7 @@ export function speakJapanese(
 
   const trimmedText = text.trim();
 
-  // 0. 사용자가 'browser' 기본 음성 모드를 선택한 경우 즉시 Web Speech 실행
+  // 0. 토글이 OFF('browser')인 경우 즉시 Web Speech 실행
   if (getTtsEngineMode() === 'browser') {
     speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
     return;
@@ -428,20 +428,13 @@ export function speakJapanese(
 
   const cacheKey = `ja:${trimmedText}`;
 
-  // 1. 이미 캐싱된 고품질 오디오가 있다면 쿼터 차감 없이 즉시 0ms 재생
+  // 1. 이미 인메모리에 캐싱된 고품질 오디오가 있다면 즉시 재생
   if (audioBlobCache.has(cacheKey)) {
     playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, rate, onStart, onEnd, onBoundary);
     return;
   }
 
-  // 2. AI 음성을 사용할 수 없는 상태(개인 한도 소진 / 쿨다운 중 / 서버 쿼터 소진)라면 폴백
-  if (!canUseGeminiTts()) {
-    notifyReasonForFallback();
-    speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
-    return;
-  }
-
-  // 3. Gemini TTS 비동기 호출
+  // 2. Gemini TTS 비동기 호출 (개인 일일 카운트 제한 없이 토글 ON이면 바로 호출)
   fetch('/api/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -458,13 +451,9 @@ export function speakJapanese(
         return;
       }
 
-      const isCacheHit = res.headers.get('X-TTS-Cache') === 'HIT';
       const blob = await res.blob();
       const audioUrl = URL.createObjectURL(blob);
       audioBlobCache.set(cacheKey, audioUrl);
-      if (!isCacheHit) {
-        incrementTtsUsage();
-      }
 
       playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd, onBoundary);
     })
@@ -475,7 +464,7 @@ export function speakJapanese(
 }
 
 /**
- * 한국어 음성 출력 (Gemini TTS 우선 -> 일 10회 소진/에러 시 Web Speech 자동 폴백)
+ * 한국어 음성 출력
  */
 export function speakKorean(
   text: string,
@@ -496,7 +485,7 @@ export function speakKorean(
 
   const trimmedText = text.trim();
 
-  // 0. 사용자가 'browser' 기본 음성 모드를 선택한 경우 즉시 Web Speech 실행
+  // 0. 토글이 OFF('browser')인 경우 즉시 Web Speech 실행
   if (getTtsEngineMode() === 'browser') {
     speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
     return;
@@ -504,20 +493,13 @@ export function speakKorean(
 
   const cacheKey = `ko:${trimmedText}`;
 
-  // 1. 이미 캐싱된 고품질 오디오가 있다면 쿼터 차감 없이 즉시 0ms 재생
+  // 1. 이미 캐싱된 고품질 오디오가 있다면 즉시 재생
   if (audioBlobCache.has(cacheKey)) {
     playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, rate, onStart, onEnd);
     return;
   }
 
-  // 2. AI 음성을 사용할 수 없는 상태라면 폴백
-  if (!canUseGeminiTts()) {
-    notifyReasonForFallback();
-    speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
-    return;
-  }
-
-  // 3. Gemini TTS 비동기 호출
+  // 2. Gemini TTS 비동기 호출
   fetch('/api/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -534,13 +516,9 @@ export function speakKorean(
         return;
       }
 
-      const isCacheHit = res.headers.get('X-TTS-Cache') === 'HIT';
       const blob = await res.blob();
       const audioUrl = URL.createObjectURL(blob);
       audioBlobCache.set(cacheKey, audioUrl);
-      if (!isCacheHit) {
-        incrementTtsUsage();
-      }
 
       playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd);
     })
@@ -551,7 +529,7 @@ export function speakKorean(
 }
 
 /**
- * TTS 설정 모달 등에서 Gemini AI 음성을 미리 체험하기 위한 함수
+ * TTS 미리보기용 함수
  */
 export async function playGeminiPreview(
   text: string = 'こんにちは！釜山だよりへようこそ。',

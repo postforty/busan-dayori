@@ -22,7 +22,7 @@ import {
   MiniWord,
   FirstDialogueItem
 } from '@/lib/curriculum/hiraganaData';
-import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
+import { speakHiraganaAudio, stopJapaneseSpeech } from '@/utils/tts';
 import {
   Volume2,
   Pencil,
@@ -130,11 +130,11 @@ export default function HiraganaStudio({
   const handlePlayCompareSound = useCallback((firstSoundText: string, secondSoundText: string) => {
     stopJapaneseSpeech();
     setPlayingChar(firstSoundText);
-    speakJapanese(firstSoundText, 0.85, undefined, () => {
+    speakHiraganaAudio(firstSoundText, 0.85, undefined, () => {
       setPlayingChar(null);
       setTimeout(() => {
         setPlayingChar(secondSoundText);
-        speakJapanese(secondSoundText, 0.85, undefined, () => {
+        speakHiraganaAudio(secondSoundText, 0.85, undefined, () => {
           setPlayingChar(null);
         });
       }, 350);
@@ -186,7 +186,7 @@ export default function HiraganaStudio({
   // 소리 재생 핸들러
   const handlePlayCharSound = useCallback((charItem: HiraganaChar) => {
     setPlayingChar(charItem.char);
-    speakJapanese(
+    speakHiraganaAudio(
       charItem.char,
       0.85,
       undefined,
@@ -196,7 +196,7 @@ export default function HiraganaStudio({
 
   const handlePlayWordSound = useCallback((word: MiniWord) => {
     setPlayingWordId(word.id);
-    speakJapanese(
+    speakHiraganaAudio(
       word.japanese,
       0.8,
       undefined,
@@ -206,7 +206,7 @@ export default function HiraganaStudio({
 
   const handlePlayDialogueSound = useCallback((item: FirstDialogueItem) => {
     setPlayingDialogueId(item.id);
-    speakJapanese(
+    speakHiraganaAudio(
       item.japanese,
       0.85,
       undefined,
@@ -448,7 +448,7 @@ export default function HiraganaStudio({
       );
 
       // 완성 순간 해당 글자의 일본어 원어민 발음(TTS) 자동 재생
-      speakJapanese(selectedChar.char, 0.85);
+      speakHiraganaAudio(selectedChar.char, 0.85);
 
       // 이전 타이머 취소 후 1.5초 뒤 다음 글자로 자동 이동
       if (autoNextTimerRef.current) {
@@ -928,7 +928,7 @@ export default function HiraganaStudio({
                         ? `${selectedChar.baseChar}`
                         : selectedChar.baseChar!;
                       setPlayingChar(soundToPlay);
-                      speakJapanese(soundToPlay, 0.85, undefined, () => setPlayingChar(null));
+                      speakHiraganaAudio(soundToPlay, 0.85, undefined, () => setPlayingChar(null));
                     }}
                     className="py-2.5 px-3 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 transition-all flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 min-w-0"
                     title="원래 소리 듣기"

@@ -8,7 +8,7 @@ import {
   YOUON_MINI_WORDS,
   MiniWord
 } from '@/lib/curriculum/hiraganaData';
-import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
+import { speakHiraganaAudio, stopJapaneseSpeech } from '@/utils/tts';
 import {
   Volume2,
   RotateCcw,
@@ -291,7 +291,7 @@ export default function MiniWordFlashcards({
     if (!textToPlay) return;
 
     setIsPlayingSound(true);
-    speakJapanese(
+    speakHiraganaAudio(
       textToPlay,
       0.8,
       undefined,
@@ -339,7 +339,7 @@ export default function MiniWordFlashcards({
             const nextCard = cardDeck[currentIndex + 1];
             if (nextCard) {
               setTimeout(() => {
-                speakJapanese(nextCard.japanese, 0.8);
+                speakHiraganaAudio(nextCard.japanese, 0.8);
               }, 200);
             }
           }

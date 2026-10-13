@@ -6,7 +6,7 @@ import { Mail, Sparkles, Smile, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } f
 import { createClient } from '@/lib/supabase/client';
 import { signInWithGoogle, signOut } from '@/lib/supabase/auth';
 import SoundToggleButton from '@/components/common/SoundToggleButton';
-import { getTtsEngineMode, getTtsUsage, TtsEngineMode, setTtsEngineMode } from '@/utils/ttsQuota';
+import { getTtsEngineMode, TtsEngineMode, setTtsEngineMode } from '@/utils/ttsQuota';
 
 interface AuthUser {
   id: string;
@@ -17,7 +17,6 @@ interface AuthUser {
 export default function Header() {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [ttsMode, setTtsMode] = useState<TtsEngineMode>(() => getTtsEngineMode());
-  const [, setTtsUsageCount] = useState<number>(() => getTtsUsage().count);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -70,10 +69,9 @@ export default function Header() {
       fetchAuthStatus();
     });
 
-    // 4. TTS 모드 및 사용량 변경 리스너
+    // 4. TTS 모드 변경 리스너
     const handleTtsModeChange = () => {
       setTtsMode(getTtsEngineMode());
-      setTtsUsageCount(getTtsUsage().count);
     };
 
     window.addEventListener('tts-mode-change', handleTtsModeChange);
@@ -139,10 +137,10 @@ export default function Header() {
                 }`}
               title={
                 ttsMode === 'gemini'
-                  ? 'AI 고품질 음성 모드 ON (남성 Charon / DB 자동 저장) - 클릭하여 끄기'
-                  : '브라우저 기본 음성 모드 OFF (여성 음성) - 클릭하여 AI 음성 켜기'
+                  ? '회화 AI 음성 모드 ON (Gemini 고품질 음성) - 클릭하여 기본 음성으로 전환'
+                  : '기본 브라우저 음성 모드 - 클릭하여 회화 AI 음성 켜기'
               }
-              aria-label="AI 음성 토글"
+              aria-label={ttsMode === 'gemini' ? '회화 AI 음성 켜짐' : '기본 음성 모드'}
             >
               <Sparkles
                 className={`w-4 h-4 sm:w-3.5 sm:h-3.5 transition-transform ${ttsMode === 'gemini' ? 'text-[#D97706] scale-105' : 'text-[#94A3B8]'

@@ -1,5 +1,6 @@
 // 가타카나 커리큘럼 데이터 정의
 import { isSoundEnabled } from '@/utils/soundManager';
+import { speakJapaneseWebSpeech } from '@/utils/tts';
 
 export interface KatakanaChar {
   char: string;
@@ -889,16 +890,8 @@ export const KATAKANA_TRAVEL_WORDS: KatakanaTravelWord[] = [
   }
 ];
 
-// 음성 발음 재생 헬퍼 (Web Speech API)
+// 음성 발음 재생 헬퍼 (Web Speech API 고품질 브라우저 음성 전용)
 export function playKatakanaAudio(text: string) {
   if (typeof window === 'undefined') return;
-  if (!isSoundEnabled()) return;
-  const synth = window.speechSynthesis;
-  if (!synth) return;
-
-  synth.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'ja-JP';
-  utterance.rate = 0.85; // 입문자용 적정 속도
-  synth.speak(utterance);
+  speakJapaneseWebSpeech(text, 0.85);
 }
