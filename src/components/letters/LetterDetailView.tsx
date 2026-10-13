@@ -282,11 +282,13 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
                             return;
                           }
                           setPlayingIdx(idx);
-                          setActiveBoundary({ idx, charIndex: 0, charLength: 1 });
                           speakJapanese(
                             paragraphText,
                             0.9,
-                            () => setPlayingIdx(idx),
+                            () => {
+                              setPlayingIdx(idx);
+                              setActiveBoundary({ idx, charIndex: 0, charLength: 1 });
+                            },
                             () => {
                               setPlayingIdx(null);
                               setActiveBoundary(null);

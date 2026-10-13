@@ -13,51 +13,79 @@ import {
   handleTtsQuotaExceeded,
 } from './ttsQuota';
 
-interface CharTiming {
+interface CharRange {
   index: number;
-  length: number;
-  startMs: number;
-  endMs: number;
+  char: string;
+  weight: number;
+  startRatio: number;
+  endRatio: number;
 }
 
-// 모라 박자 기반 글자별 재생 시간 계산
-function computeCharTimings(text: string, rate: number): CharTiming[] {
-  const timings: CharTiming[] = [];
-  let currentMs = 0;
-  const speed = Math.max(0.1, rate);
+// 일본어 글자별 모라(Mora) 가중치 및 상대적 재생 비율 계산
+function computeCharRanges(text: string): CharRange[] {
+  const ODAN_CHARS = 'おこそとのほもよろごぞどぼぽヲ';
+  const EDAN_CHARS = 'えけせてねへめれげぜでべぺ';
+  const UDAN_CHARS = 'うくすつぬふむゆるぐずづぶぷ';
+  const ADAN_CHARS = 'あかさたなはまやらわがざだばぱ';
+
+  const ranges: CharRange[] = [];
+  const weights: number[] = [];
+  let totalWeight = 0;
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    let baseMs = 120;
+    const prevChar = i > 0 ? text[i - 1] : '';
+    let weight = 1.0;
 
-    // 한자는 보통 2~3음절(모라)을 차지함
+    // 한자는 보통 2음절(모라)을 차지함
     if (/[\u4e00-\u9faf]/.test(char)) {
-      baseMs = 210;
+      weight = 2.0;
     } else if ('ゃゅょぁぃぅぇぉャュョァィゥェォ'.includes(char)) {
-      baseMs = 40; // 요음
+      weight = 0.3; // 요음
     } else if ('っッ'.includes(char)) {
-      baseMs = 90; // 촉음
+      weight = 0.75; // 촉음
     } else if ('ー'.includes(char)) {
-      baseMs = 110; // 장음
+      weight = 0.85; // 장음 부호
+    } else if (char === 'う' && ODAN_CHARS.includes(prevChar)) {
+      weight = 0.85; // 오단 장음 (예: ありがとう의 う)
+    } else if (char === 'い' && EDAN_CHARS.includes(prevChar)) {
+      weight = 0.85; // 에단 장음 (예: せんせい의 い)
+    } else if (char === 'う' && UDAN_CHARS.includes(prevChar)) {
+      weight = 0.85; // 우단 장음
+    } else if (char === 'あ' && ADAN_CHARS.includes(prevChar)) {
+      weight = 0.85; // 아단 장음
     } else if ('、,'.includes(char)) {
-      baseMs = 250; // 쉼표
+      weight = 0.35; // 쉼표
     } else if ('。.!?！？'.includes(char)) {
-      baseMs = 350; // 마침표
-    } else if (char === ' ') {
-      baseMs = 70; // 공백
+      // 문장 부호는 발음되지 않는 무음 기호이므로 싱크 밀림 방지를 위해 최소 가중치 부여
+      weight = 0.05;
+    } else if (char === ' ' || char === '　') {
+      weight = 0.15; // 공백
     }
 
-    const duration = Math.round(baseMs / speed);
-    timings.push({
-      index: i,
-      length: 1,
-      startMs: currentMs,
-      endMs: currentMs + duration,
-    });
-    currentMs += duration;
+    weights.push(weight);
+    totalWeight += weight;
   }
 
-  return timings;
+  const safeTotal = Math.max(0.001, totalWeight);
+  let cumWeight = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    const w = weights[i];
+    const startRatio = cumWeight / safeTotal;
+    cumWeight += w;
+    const endRatio = cumWeight / safeTotal;
+
+    ranges.push({
+      index: i,
+      char: text[i],
+      weight: w,
+      startRatio,
+      endRatio: i === text.length - 1 ? 1.0 : endRatio,
+    });
+  }
+
+  return ranges;
 }
 
 // 브라우저 보이스 목록 비동기 로딩 대비 프리로드
@@ -168,8 +196,7 @@ function playAudioBlob(
   audio.src = audioUrl;
   audio.playbackRate = rate;
 
-  const timings = computeCharTimings(text, rate);
-  const totalComputedMs = timings[timings.length - 1]?.endMs || 1000;
+  const ranges = computeCharRanges(text);
 
   const cleanup = () => {
     if (activeTimer) {
@@ -183,19 +210,18 @@ function playAudioBlob(
 
     if (onBoundary) {
       onBoundary(0, 1);
-      const startTime = performance.now();
 
       activeTimer = setInterval(() => {
-        // 실제 오디오 duration과 계산된 mora 타이밍의 비율 보정
-        const durationMs = audio.duration && !isNaN(audio.duration) ? audio.duration * 1000 : totalComputedMs;
-        const scale = durationMs / Math.max(1, totalComputedMs);
-
-        const elapsed = (performance.now() - startTime) / scale;
-        const current = timings.find((t) => elapsed >= t.startMs && elapsed < t.endMs);
-        if (current) {
-          onBoundary(current.index, 1);
-        } else if (elapsed >= (timings[timings.length - 1]?.endMs || 0)) {
-          onBoundary(text.length - 1, 1);
+        if (!audio) return;
+        const duration = audio.duration;
+        if (duration && !isNaN(duration) && duration > 0) {
+          // audio.currentTime은 배속(rate)과 상관없이 원본 오디오 기준 위치(0~duration)로 흐르므로
+          // progress는 어떤 배속(0.65x, 0.8x, 0.95x)이든 실제 발화 위치와 정확하게 일치합니다.
+          const progress = Math.min(0.999, Math.max(0, audio.currentTime / duration));
+          const current = ranges.find((r) => progress >= r.startRatio && progress < r.endRatio);
+          if (current) {
+            onBoundary(current.index, 1);
+          }
         }
       }, 25);
     }
@@ -253,7 +279,10 @@ export function speakJapaneseWebSpeech(
     utterance.voice = bestVoice;
   }
 
-  const timings = computeCharTimings(text, rate);
+  const ranges = computeCharRanges(text);
+  const totalWeight = ranges.reduce((acc, r) => acc + r.weight, 0);
+  // 일본어 1모라당 기준 발화 시간: 약 145ms (rate에 반비례)
+  const estimatedTotalMs = Math.round((totalWeight * 145) / Math.max(0.1, rate));
 
   const cleanup = () => {
     if (activeTimer) {
@@ -273,10 +302,11 @@ export function speakJapaneseWebSpeech(
 
       activeTimer = setInterval(() => {
         const elapsed = performance.now() - startTime;
-        const current = timings.find((t) => elapsed >= t.startMs && elapsed < t.endMs);
+        const progress = Math.min(0.999, Math.max(0, elapsed / estimatedTotalMs));
+        const current = ranges.find((r) => progress >= r.startRatio && progress < r.endRatio);
         if (current) {
           onBoundary(current.index, 1);
-        } else if (elapsed >= (timings[timings.length - 1]?.endMs || 0)) {
+        } else if (progress >= 0.999) {
           onBoundary(text.length - 1, 1);
         }
       }, 25);
@@ -286,9 +316,10 @@ export function speakJapaneseWebSpeech(
   if (onBoundary) {
     utterance.onboundary = (event) => {
       const charIndex = event.charIndex;
-      const matched = timings.find((t) => t.index === charIndex);
+      const matched = ranges.find((r) => r.index === charIndex);
       if (matched && startTime > 0) {
-        startTime = performance.now() - matched.startMs;
+        // 브라우저의 실제 발음 경계 이벤트 발생 시 경과 시간 부드럽게 동기화
+        startTime = performance.now() - matched.startRatio * estimatedTotalMs;
         onBoundary(charIndex, 1);
       }
     };
@@ -296,6 +327,9 @@ export function speakJapaneseWebSpeech(
 
   utterance.onend = () => {
     cleanup();
+    if (onBoundary) {
+      onBoundary(text.length - 1, 1);
+    }
     if (onEnd) onEnd();
   };
 

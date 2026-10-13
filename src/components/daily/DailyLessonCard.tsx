@@ -173,12 +173,12 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
   // 발음 듣기 (실시간 글자 경계 추적 지원)
   const handlePlay = (text: string, id: string, rate: number = 0.9) => {
     setPlayingId(id);
-    setActiveBoundary({ id, charIndex: 0, charLength: 1 });
     speakJapanese(
       text,
       rate,
       () => {
         setPlayingId(id);
+        setActiveBoundary({ id, charIndex: 0, charLength: 1 });
       },
       () => {
         setPlayingId(null);
