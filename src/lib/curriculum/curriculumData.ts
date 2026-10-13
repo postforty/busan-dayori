@@ -27,7 +27,7 @@ export const curriculumLevels: CurriculumLevel[] = [
           seriesTitle: 'Lv.0 유치원생 입문',
           themeTitle: '안녕! 고마워! (인사와 부름)',
           unitTitle: 'Unit 1: 인사와 부름',
-          pronunciationKorean: '아리가토-고자이마스! [고맙습니다!]',
+          pronunciationKorean: '아리가토-!',
           keyExpression: {
             japanese: 'ありがとう！',
             reading: 'ありがとう',
@@ -97,7 +97,7 @@ export const curriculumLevels: CurriculumLevel[] = [
           seriesTitle: 'Lv.0 유치원생 입문',
           themeTitle: '맘마 냠냠! (이거 주세요 & 맛있어!)',
           unitTitle: 'Unit 2: 주문과 맛 표현',
-          pronunciationKorean: '코레 쿠다사이! 오이시이-!',
+          pronunciationKorean: '코레 쿠다사이!',
           keyExpression: {
             japanese: 'これ ください！',
             reading: 'これ ください',
@@ -167,7 +167,7 @@ export const curriculumLevels: CurriculumLevel[] = [
           seriesTitle: 'Lv.0 유치원생 입문',
           themeTitle: '화장실이 어디예요? (생존 SOS)',
           unitTitle: 'Unit 3: 생존 SOS',
-          pronunciationKorean: '스미마센, 토이레와 도코데스카?',
+          pronunciationKorean: '토이레와 도코데스카?',
           keyExpression: {
             japanese: 'トイレは どこですか？',
             reading: 'トイレは どこですか',
@@ -240,7 +240,7 @@ export const curriculumLevels: CurriculumLevel[] = [
           seriesTitle: 'Lv.0 유치원생 입문',
           themeTitle: '응! 좋아! 괜찮아! (의사표현)',
           unitTitle: 'Unit 4: 의사표현과 거절',
-          pronunciationKorean: '다이죠-부데스! [괜찮습니다!]',
+          pronunciationKorean: '다이죠-부데스!',
           keyExpression: {
             japanese: 'だいじょうぶです！',
             reading: 'だいじょうぶです',
@@ -310,7 +310,7 @@ export const curriculumLevels: CurriculumLevel[] = [
           seriesTitle: 'Lv.0 유치원생 입문',
           themeTitle: '이게 뭐야? 얼마예요? (쇼핑과 호기심)',
           unitTitle: 'Unit 5: 쇼핑과 가격 묻기',
-          pronunciationKorean: '코레, 이쿠라데스카? [이거 얼마예요?]',
+          pronunciationKorean: '코레, 이쿠라데스카?',
           keyExpression: {
             japanese: 'これ、いくらですか？',
             reading: 'これ いくらですか',
