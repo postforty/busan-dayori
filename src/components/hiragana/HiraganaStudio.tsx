@@ -1162,10 +1162,11 @@ export default function HiraganaStudio({
                     {/* 앞 글자 (큰 글자 1.0) 보정 */}
                     <div className="flex-1 flex flex-col items-center justify-center">
                       <span
-                        className={`text-[115px] font-bold text-[#2D3748] leading-none ${
+                        className={`text-[115px] font-bold leading-none ${
                           fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
                         }`}
                         style={{
+                          color: penColor,
                           fontFamily:
                             fontStyle === 'serif'
                               ? "'Noto Serif JP', 'Yu Mincho', serif"
@@ -1180,10 +1181,11 @@ export default function HiraganaStudio({
                     {/* 작은 ゃ/ゅ/ょ (작은 글자 0.7) 보정 */}
                     <div className="w-[95px] flex flex-col items-center justify-center translate-y-3">
                       <span
-                        className={`text-[72px] font-bold text-[#2D3748] leading-none ${
+                        className={`text-[72px] font-bold leading-none ${
                           fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
                         }`}
                         style={{
+                          color: penColor,
                           fontFamily:
                             fontStyle === 'serif'
                               ? "'Noto Serif JP', 'Yu Mincho', serif"
@@ -1197,10 +1199,11 @@ export default function HiraganaStudio({
                   </div>
                 ) : (
                   <span
-                    className={`text-[160px] font-bold text-[#2D3748] leading-none ${
+                    className={`text-[160px] font-bold leading-none ${
                       fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
                     }`}
                     style={{
+                      color: penColor,
                       fontFamily:
                         fontStyle === 'serif'
                           ? "'Noto Serif JP', 'Yu Mincho', serif"
