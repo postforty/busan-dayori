@@ -427,7 +427,7 @@ export default function KatakanaStudio({
       // 완성 순간 해당 글자의 일본어 원어민 발음 자동 재생
       playKatakanaAudio(selectedChar.char);
 
-      // 이전 타이머 취소 후 1.5초 뒤 다음 글자로 자동 이동
+      // 이전 타이머 취소 후 보정된 글씨를 충분히 감상할 수 있도록 1.8초 뒤 다음 글자로 자동 이동
       if (autoNextTimerRef.current) {
         clearTimeout(autoNextTimerRef.current);
       }
@@ -438,7 +438,7 @@ export default function KatakanaStudio({
         autoNextTimerRef.current = setTimeout(() => {
           setSelectedChar(nextChar);
           autoNextTimerRef.current = null;
-        }, 1500);
+        }, 1800);
       }
     }
   };
@@ -1209,6 +1209,69 @@ export default function KatakanaStudio({
                 )}
               </div>
 
+              {/* 글자 완성 성공 시 손글씨를 완벽한 정자/명조체로 자동 보정해주는 레이어 */}
+              <div
+                className={`absolute inset-0 flex items-center justify-center pointer-events-none select-none px-4 transition-all duration-700 ease-out ${
+                  isCharCompleted
+                    ? 'opacity-100 scale-100 drop-shadow-[0_8px_20px_rgba(61,90,128,0.35)]'
+                    : 'opacity-0 scale-95'
+                }`}
+              >
+                {selectedChar.soundType === 'youon' && selectedChar.baseChar && selectedChar.smallChar ? (
+                  <div className="flex items-baseline justify-center gap-1 w-full">
+                    {/* 앞 글자 (큰 글자 1.0) 보정 */}
+                    <div className="flex-1 flex flex-col items-center justify-center">
+                      <span
+                        className={`text-[115px] font-bold text-[#2D3748] leading-none ${
+                          fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                        }`}
+                        style={{
+                          fontFamily:
+                            fontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
+                        {selectedChar.baseChar}
+                      </span>
+                      <span className="text-[9px] font-extrabold text-[#3D5A80] mt-1">글씨 보정 완료 ✨</span>
+                    </div>
+
+                    {/* 작은 ャ/ュ/ョ (작은 글자 0.7) 보정 */}
+                    <div className="w-[95px] flex flex-col items-center justify-center translate-y-3">
+                      <span
+                        className={`text-[72px] font-bold text-[#2D3748] leading-none ${
+                          fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                        }`}
+                        style={{
+                          fontFamily:
+                            fontStyle === 'serif'
+                              ? "'Noto Serif JP', 'Yu Mincho', serif"
+                              : "'Klee One', 'Noto Sans JP', sans-serif"
+                        }}
+                      >
+                        {selectedChar.smallChar}
+                      </span>
+                      <span className="text-[9px] font-extrabold text-[#3D5A80] mt-1">0.7 비율 보정</span>
+                    </div>
+                  </div>
+                ) : (
+                  <span
+                    className={`text-[160px] font-bold text-[#2D3748] leading-none ${
+                      fontStyle === 'serif' ? 'font-jp-mincho' : 'font-jp-gothic'
+                    }`}
+                    style={{
+                      fontFamily:
+                        fontStyle === 'serif'
+                          ? "'Noto Serif JP', 'Yu Mincho', serif"
+                          : "'Klee One', 'Noto Sans JP', sans-serif"
+                    }}
+                  >
+                    {selectedChar.char}
+                  </span>
+                )}
+              </div>
+
               {/* 획순 팁 및 완료 배지 */}
               <div
                 className={`absolute top-3 left-3 backdrop-blur-sm px-2.5 py-1 rounded-full text-[11px] font-bold transition-all duration-300 pointer-events-none flex items-center gap-1 shadow-2xs ${
@@ -1220,7 +1283,7 @@ export default function KatakanaStudio({
                 {isCharCompleted ? (
                   <>
                     <span>✨</span>
-                    <span>{selectedChar.strokeCount}획 완성!</span>
+                    <span>글씨 자동 보정 완료! ({selectedChar.strokeCount}획)</span>
                     <span className="text-[10px] text-amber-700 font-normal">곧 다음으로 이동</span>
                   </>
                 ) : (
@@ -1239,14 +1302,16 @@ export default function KatakanaStudio({
                 </div>
               )}
 
-              {/* 실제 드로잉 캔버스 */}
+              {/* 실제 드로잉 캔버스 (완성 시 부드럽게 페이드아웃되며 보정 글씨로 전환) */}
               <canvas
                 ref={canvasRef}
                 onPointerDown={startDrawing}
                 onPointerMove={draw}
                 onPointerUp={stopDrawing}
                 onPointerCancel={stopDrawing}
-                className="relative z-10 w-full h-full cursor-crosshair touch-none"
+                className={`relative z-10 w-full h-full cursor-crosshair touch-none transition-opacity duration-500 ${
+                  isCharCompleted ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}
               />
             </div>
 
