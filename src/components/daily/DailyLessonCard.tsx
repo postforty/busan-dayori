@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { DailyLesson, VocabItem, SavedWord } from '@/types';
-import { speakJapanese } from '@/utils/tts';
+import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
 import {
   Volume2,
+  Loader2,
   Bookmark,
   BookmarkCheck,
   BookOpen,
@@ -108,6 +109,7 @@ function renderRuby(
 }
 
 export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCardProps) {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [activeBoundary, setActiveBoundary] = useState<{ id: string; charIndex: number; charLength: number } | null>(null);
   const [savedWordIds, setSavedWordIds] = useState<Set<string>>(new Set());
@@ -170,21 +172,32 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
     }
   }, [lesson.id]);
 
-  // 발음 듣기 (실시간 글자 경계 추적 지원)
+  // 발음 듣기 (실시간 글자 경계 추적 지원 및 비동기 로딩 딜레이 격리)
   const handlePlay = (text: string, id: string, rate: number = 0.9) => {
-    setPlayingId(id);
+    if (playingId === id || loadingId === id) {
+      stopJapaneseSpeech();
+      setLoadingId(null);
+      setPlayingId(null);
+      setActiveBoundary(null);
+      return;
+    }
+
+    setLoadingId(id);
     speakJapanese(
       text,
       rate,
       () => {
+        setLoadingId(null);
         setPlayingId(id);
         setActiveBoundary({ id, charIndex: 0, charLength: 1 });
       },
       () => {
+        setLoadingId(null);
         setPlayingId(null);
         setActiveBoundary(null);
       },
       (charIndex) => {
+        setLoadingId(null);
         setActiveBoundary({ id, charIndex, charLength: 1 });
       }
     );
@@ -408,35 +421,39 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
               <button
                 onClick={() => handlePlay(lesson.keyExpression.japanese, 'key-slowest', 0.65)}
                 className={`px-1.5 py-1 rounded-lg border text-[10px] font-medium transition-all ${
-                  playingId === 'key-slowest'
+                  playingId === 'key-slowest' || loadingId === 'key-slowest'
                     ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                     : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                 }`}
                 title="초저속 따라하기 (0.65x)"
               >
-                0.65x
+                {loadingId === 'key-slowest' ? <Loader2 className="w-3 h-3 animate-spin inline" /> : '0.65x'}
               </button>
               <button
                 onClick={() => handlePlay(lesson.keyExpression.japanese, 'key-slow', 0.8)}
                 className={`px-1.5 py-1 rounded-lg border text-[10px] font-medium transition-all ${
-                  playingId === 'key-slow'
+                  playingId === 'key-slow' || loadingId === 'key-slow'
                     ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                     : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
                 }`}
                 title="천천히 듣기 (0.8x)"
               >
-                0.8x
+                {loadingId === 'key-slow' ? <Loader2 className="w-3 h-3 animate-spin inline" /> : '0.8x'}
               </button>
               <button
                 onClick={() => handlePlay(lesson.keyExpression.japanese, 'key-normal', 0.95)}
                 className={`p-1.5 rounded-lg border transition-all ${
-                  playingId === 'key-normal'
+                  playingId === 'key-normal' || loadingId === 'key-normal'
                     ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}
                 title="보통 속도 듣기"
               >
-                <Volume2 className="w-4 h-4" />
+                {loadingId === 'key-normal' ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-[#E07A5F]" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -481,6 +498,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           <div className="space-y-2">
             {lesson.dialogue.map((line, idx) => {
               const isPlayingLine = playingId === `line-${idx}`;
+              const isLoadingLine = loadingId === `line-${idx}`;
               return (
                 <div
                   key={idx}
@@ -506,13 +524,17 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                   <button
                     onClick={() => handlePlay(line.japanese, `line-${idx}`)}
                     className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
-                      isPlayingLine
+                      isPlayingLine || isLoadingLine
                         ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                         : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
                     }`}
                     title="音声を聞く"
                   >
-                    <Volume2 className="w-3.5 h-3.5" />
+                    {isLoadingLine ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E07A5F]" />
+                    ) : (
+                      <Volume2 className="w-3.5 h-3.5" />
+                    )}
                   </button>
                 </div>
               );
@@ -556,6 +578,7 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           <div className="grid grid-cols-1 gap-1.5">
             {lesson.vocabulary.map((vocab, idx) => {
               const vocabKey = getVocabKey(vocab, idx);
+              const isLoadingVocab = loadingId === `vocab-${vocabKey}`;
               const isSaved =
                 savedWordIds.has(vocabKey) ||
                 savedWordIds.has(`${lesson.id}_${vocab.kanji}`);
@@ -570,7 +593,11 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
                       className="p-1 text-gray-400 hover:text-gray-600"
                       title="発音を聞く"
                     >
-                      <Volume2 className="w-3.5 h-3.5" />
+                      {isLoadingVocab ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E07A5F]" />
+                      ) : (
+                        <Volume2 className="w-3.5 h-3.5" />
+                      )}
                     </button>
                     <div>
                       <div className="flex items-baseline gap-1.5 flex-wrap">

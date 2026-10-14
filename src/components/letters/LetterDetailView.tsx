@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Letter } from '@/types';
 import Badge from '@/components/common/Badge';
 import FeedbackWidget from '@/components/feedback/FeedbackWidget';
-import { speakJapanese } from '@/utils/tts';
+import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation } from '@/utils/japanesePronounce';
 import {
   ArrowLeft,
@@ -62,6 +62,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showPronounce, setShowPronounce] = useState(true);
+  const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [playingIdx, setPlayingIdx] = useState<number | null>(null);
   const [activeBoundary, setActiveBoundary] = useState<{ idx: number; charIndex: number; charLength: number } | null>(null);
 
@@ -273,39 +274,46 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
                     {paragraphText.trim() && (
                       <button
                         onClick={() => {
-                          if (isPlaying) {
-                            if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                              window.speechSynthesis.cancel();
-                            }
+                          const isCurrentlyActive = isPlaying || loadingIdx === idx;
+                          if (isCurrentlyActive) {
+                            stopJapaneseSpeech();
+                            setLoadingIdx(null);
                             setPlayingIdx(null);
                             setActiveBoundary(null);
                             return;
                           }
-                          setPlayingIdx(idx);
+                          setLoadingIdx(idx);
                           speakJapanese(
                             paragraphText,
                             0.9,
                             () => {
+                              setLoadingIdx(null);
                               setPlayingIdx(idx);
                               setActiveBoundary({ idx, charIndex: 0, charLength: 1 });
                             },
                             () => {
+                              setLoadingIdx(null);
                               setPlayingIdx(null);
                               setActiveBoundary(null);
                             },
                             (charIndex) => {
+                              setLoadingIdx(null);
                               setActiveBoundary({ idx, charIndex, charLength: 1 });
                             }
                           );
                         }}
                         className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
-                          isPlaying
+                          isPlaying || loadingIdx === idx
                             ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                             : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
                         }`}
                         title="段落の発音を聞く"
                       >
-                        <Volume2 className="w-3.5 h-3.5" />
+                        {loadingIdx === idx ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E07A5F]" />
+                        ) : (
+                          <Volume2 className="w-3.5 h-3.5" />
+                        )}
                       </button>
                     )}
                   </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { SavedWord, DailyLesson } from '@/types';
-import { speakJapanese } from '@/utils/tts';
+import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation } from '@/utils/japanesePronounce';
 import {
   Bookmark,
@@ -95,6 +95,11 @@ export default function VocaPage() {
   // 발음 재생
   const handlePlay = (e: React.MouseEvent, text: string, id?: string) => {
     e.stopPropagation();
+    if (id && playingId === id) {
+      stopJapaneseSpeech();
+      setPlayingId(null);
+      return;
+    }
     if (id) setPlayingId(id);
     speakJapanese(
       text,

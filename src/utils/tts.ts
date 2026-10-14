@@ -139,6 +139,7 @@ export function getBestVoice(langPrefix: 'ja' | 'ko'): SpeechSynthesisVoice | nu
 const audioBlobCache = new Map<string, string>(); // `${lang}:${text}` -> ObjectURL
 let sharedAudio: HTMLAudioElement | null = null;
 let activeTimer: ReturnType<typeof setInterval> | null = null;
+let currentPlaybackSession = 0;
 
 function getSharedAudio(): HTMLAudioElement | null {
   if (typeof window === 'undefined') return null;
@@ -148,7 +149,7 @@ function getSharedAudio(): HTMLAudioElement | null {
   return sharedAudio;
 }
 
-function stopCurrentPlayback() {
+function stopAudioPlayback() {
   if (activeTimer) {
     clearInterval(activeTimer);
     activeTimer = null;
@@ -160,10 +161,16 @@ function stopCurrentPlayback() {
     sharedAudio.onended = null;
     sharedAudio.onerror = null;
     sharedAudio.ontimeupdate = null;
+    sharedAudio.oncanplay = null;
   }
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
+}
+
+function stopCurrentPlayback() {
+  currentPlaybackSession++;
+  stopAudioPlayback();
 }
 
 export function stopJapaneseSpeech() {
@@ -183,7 +190,8 @@ function playAudioBlob(
   rate: number,
   onStart?: () => void,
   onEnd?: () => void,
-  onBoundary?: (charIndex: number, charLength?: number) => void
+  onBoundary?: (charIndex: number, charLength?: number) => void,
+  sessionId?: number
 ) {
   const audio = getSharedAudio();
   if (!audio) {
@@ -191,7 +199,17 @@ function playAudioBlob(
     return;
   }
 
-  stopCurrentPlayback();
+  // 외부에서 세션을 지정하지 않았을 때만 새로운 세션 발급
+  const activeSession = sessionId !== undefined ? sessionId : ++currentPlaybackSession;
+
+  // 이미 세션이 만료된 요청이면 실행하지 않음
+  if (activeSession !== currentPlaybackSession) {
+    if (onEnd) onEnd();
+    return;
+  }
+
+  // 기존 오디오 재생 및 타이머만 정지 (세션 번호는 유지하여 콜백 보장)
+  stopAudioPlayback();
 
   audio.src = audioUrl;
   audio.playbackRate = rate;
@@ -205,19 +223,37 @@ function playAudioBlob(
     }
   };
 
+  // Gemini TTS 오디오 모델 고유의 선행 무음(Leading Silence, 약 160ms) 보정
+  const LEADING_SILENCE_SEC = 0.16;
+
   audio.onplay = () => {
+    if (activeSession !== currentPlaybackSession) return;
     if (onStart) onStart();
 
     if (onBoundary) {
       onBoundary(0, 1);
 
       activeTimer = setInterval(() => {
-        if (!audio) return;
+        if (!audio || activeSession !== currentPlaybackSession) {
+          cleanup();
+          return;
+        }
+
         const duration = audio.duration;
-        if (duration && !isNaN(duration) && duration > 0) {
-          // audio.currentTime은 배속(rate)과 상관없이 원본 오디오 기준 위치(0~duration)로 흐르므로
-          // progress는 어떤 배속(0.65x, 0.8x, 0.95x)이든 실제 발화 위치와 정확하게 일치합니다.
-          const progress = Math.min(0.999, Math.max(0, audio.currentTime / duration));
+        if (duration && !isNaN(duration) && duration > LEADING_SILENCE_SEC) {
+          const currentTime = audio.currentTime;
+
+          // 선행 무음 구간 중에는 첫 번째 글자(index: 0)에 안정적으로 유지
+          if (currentTime <= LEADING_SILENCE_SEC) {
+            onBoundary(0, 1);
+            return;
+          }
+
+          // 선행 무음을 상쇄한 실제 발화 구간 기준 진행률 계산
+          const spokenTime = currentTime - LEADING_SILENCE_SEC;
+          const effectiveDuration = duration - LEADING_SILENCE_SEC;
+          const progress = Math.min(0.999, Math.max(0, spokenTime / effectiveDuration));
+
           const current = ranges.find((r) => progress >= r.startRatio && progress < r.endRatio);
           if (current) {
             onBoundary(current.index, 1);
@@ -229,21 +265,27 @@ function playAudioBlob(
 
   audio.onended = () => {
     cleanup();
-    if (onBoundary) {
-      onBoundary(text.length - 1, 1);
+    if (activeSession === currentPlaybackSession) {
+      if (onBoundary) {
+        onBoundary(text.length - 1, 1);
+      }
+      if (onEnd) onEnd();
     }
-    if (onEnd) onEnd();
   };
 
   audio.onerror = () => {
     cleanup();
-    if (onEnd) onEnd();
+    if (activeSession === currentPlaybackSession && onEnd) {
+      onEnd();
+    }
   };
 
   audio.play().catch((err) => {
     console.warn('[Gemini TTS Audio Play Error]:', err);
     cleanup();
-    if (onEnd) onEnd();
+    if (activeSession === currentPlaybackSession && onEnd) {
+      onEnd();
+    }
   });
 }
 
@@ -453,6 +495,7 @@ export function speakJapanese(
   }
 
   const trimmedText = text.trim();
+  const thisSession = ++currentPlaybackSession;
 
   // 0. 토글이 OFF('browser')인 경우 즉시 Web Speech 실행
   if (getTtsEngineMode() === 'browser') {
@@ -464,7 +507,7 @@ export function speakJapanese(
 
   // 1. 이미 인메모리에 캐싱된 고품질 오디오가 있다면 즉시 재생
   if (audioBlobCache.has(cacheKey)) {
-    playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, rate, onStart, onEnd, onBoundary);
+    playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, rate, onStart, onEnd, onBoundary, thisSession);
     return;
   }
 
@@ -479,21 +522,30 @@ export function speakJapanese(
     }),
   })
     .then(async (res) => {
+      // 대기 도중 새로운 재생이 요청되었거나 취소된 경우 무시
+      if (thisSession !== currentPlaybackSession) return;
+
       if (!res.ok) {
         await handleTtsErrorResponse(res);
-        speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+        if (thisSession === currentPlaybackSession) {
+          speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+        }
         return;
       }
 
       const blob = await res.blob();
+      if (thisSession !== currentPlaybackSession) return;
+
       const audioUrl = URL.createObjectURL(blob);
       audioBlobCache.set(cacheKey, audioUrl);
 
-      playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd, onBoundary);
+      playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd, onBoundary, thisSession);
     })
     .catch((err) => {
       console.warn('[Gemini TTS fallback to Web Speech]:', err);
-      speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+      if (thisSession === currentPlaybackSession) {
+        speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+      }
     });
 }
 
@@ -518,6 +570,7 @@ export function speakKorean(
   }
 
   const trimmedText = text.trim();
+  const thisSession = ++currentPlaybackSession;
 
   // 0. 토글이 OFF('browser')인 경우 즉시 Web Speech 실행
   if (getTtsEngineMode() === 'browser') {
@@ -529,7 +582,7 @@ export function speakKorean(
 
   // 1. 이미 캐싱된 고품질 오디오가 있다면 즉시 재생
   if (audioBlobCache.has(cacheKey)) {
-    playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, rate, onStart, onEnd);
+    playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, rate, onStart, onEnd, undefined, thisSession);
     return;
   }
 
@@ -544,21 +597,29 @@ export function speakKorean(
     }),
   })
     .then(async (res) => {
+      if (thisSession !== currentPlaybackSession) return;
+
       if (!res.ok) {
         await handleTtsErrorResponse(res);
-        speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
+        if (thisSession === currentPlaybackSession) {
+          speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
+        }
         return;
       }
 
       const blob = await res.blob();
+      if (thisSession !== currentPlaybackSession) return;
+
       const audioUrl = URL.createObjectURL(blob);
       audioBlobCache.set(cacheKey, audioUrl);
 
-      playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd);
+      playAudioBlob(audioUrl, trimmedText, rate, onStart, onEnd, undefined, thisSession);
     })
     .catch((err) => {
       console.warn('[Gemini TTS fallback to Web Speech]:', err);
-      speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
+      if (thisSession === currentPlaybackSession) {
+        speakKoreanWebSpeech(trimmedText, rate, onStart, onEnd);
+      }
     });
 }
 
@@ -572,9 +633,10 @@ export async function playGeminiPreview(
   if (!isSoundEnabled()) return;
   const trimmedText = text.trim();
   const cacheKey = `${lang}:${trimmedText}`;
+  const thisSession = ++currentPlaybackSession;
 
   if (audioBlobCache.has(cacheKey)) {
-    playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, 0.9);
+    playAudioBlob(audioBlobCache.get(cacheKey)!, trimmedText, 0.9, undefined, undefined, undefined, thisSession);
     return;
   }
 
@@ -588,20 +650,24 @@ export async function playGeminiPreview(
         voice: 'Charon',
       }),
     });
+    if (thisSession !== currentPlaybackSession) return;
     if (!res.ok) {
       await handleTtsErrorResponse(res);
       throw new Error(`HTTP ${res.status}`);
     }
     const blob = await res.blob();
+    if (thisSession !== currentPlaybackSession) return;
     const url = URL.createObjectURL(blob);
     audioBlobCache.set(cacheKey, url);
-    playAudioBlob(url, trimmedText, 0.9);
+    playAudioBlob(url, trimmedText, 0.9, undefined, undefined, undefined, thisSession);
   } catch (err) {
     console.warn('[Preview Gemini Error]:', err);
-    if (lang === 'ja') {
-      speakJapaneseWebSpeech(trimmedText, 0.9);
-    } else {
-      speakKoreanWebSpeech(trimmedText, 0.9);
+    if (thisSession === currentPlaybackSession) {
+      if (lang === 'ja') {
+        speakJapaneseWebSpeech(trimmedText, 0.9);
+      } else {
+        speakKoreanWebSpeech(trimmedText, 0.9);
+      }
     }
   }
 }
