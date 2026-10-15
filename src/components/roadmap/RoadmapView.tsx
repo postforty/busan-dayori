@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CurriculumLevel, LessonLevel } from '@/types';
 import {
@@ -15,16 +15,64 @@ import {
   Mail,
   Volume2,
   CheckCircle,
-  Target
+  Target,
+  Languages
 } from 'lucide-react';
 import { speakJapanese } from '@/utils/tts';
+import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
 
 interface RoadmapViewProps {
   levels: CurriculumLevel[];
 }
 
+function renderRuby(text: string) {
+  const segments = parseRubySegments(text);
+  return (
+    <>
+      {segments.map((seg, i) => {
+        if (seg.ruby) {
+          return (
+            <ruby key={i} className="transition-colors">
+              <span className="text-[#2D3748]">{seg.text}</span>
+              <rp>(</rp>
+              <rt className="text-[10px] leading-none text-[#E07A5F] font-normal">
+                {seg.ruby}
+              </rt>
+              <rp>)</rp>
+            </ruby>
+          );
+        }
+        return <span key={i} className="text-[#2D3748]">{seg.text}</span>;
+      })}
+    </>
+  );
+}
+
 export default function RoadmapView({ levels }: RoadmapViewProps) {
   const [selectedLevel, setSelectedLevel] = useState<LessonLevel>('starter');
+  const [showPronounce, setShowPronounce] = useState(true);
+
+  // 로컬 스토리지에서 발음 모드 로드
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('beginner_pronounce_mode');
+      if (saved !== null) {
+        setShowPronounce(saved === 'true');
+      }
+    } catch {
+      // 무시
+    }
+  }, []);
+
+  const handleTogglePronounce = () => {
+    const nextState = !showPronounce;
+    setShowPronounce(nextState);
+    try {
+      localStorage.setItem('beginner_pronounce_mode', String(nextState));
+    } catch {
+      // 무시
+    }
+  };
 
   const getLevelIcon = (level: LessonLevel, inBadge: boolean = false) => {
     const iconClass = inBadge ? 'w-3.5 h-3.5 text-white' : 'w-4 h-4';
@@ -176,10 +224,38 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                 )}
               </div>
 
+              {/* 초보자 발음 가이드 모드 전용 툴바 ([그림1]과 동일한 툴바) */}
+              <div className="bg-[#FAF0E6]/40 px-4 py-2 border-b border-[#F4DDD4]/70 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 text-gray-600 text-xs">
+                  <Languages className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+                  <span className="text-[11px] font-medium text-gray-600">
+                    読み仮名 &amp; 発音ガイド
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleTogglePronounce}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border active:scale-95 shrink-0 ${
+                    showPronounce
+                      ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-xs'
+                      : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${showPronounce ? 'bg-white' : 'bg-gray-300'}`} />
+                  <span>{showPronounce ? '表示 ON' : '表示 OFF'}</span>
+                </button>
+              </div>
+
               {/* 유닛 리스트 */}
               <div className="p-3 space-y-2.5 bg-[#FAF9F7]/40">
                 {lvl.units.map((unit) => {
                   const targetHref = `/?lessonId=${unit.lessonId}`;
+                  const reading = unit.keyPhraseReading || unit.lessonData?.keyExpression.reading;
+                  const shouldShowReading = Boolean(reading && reading !== unit.keyPhrase);
+                  const pronunciation =
+                    unit.pronunciationKorean ||
+                    getPronunciation(unit.keyPhrase, unit.keyPhraseReading);
 
                   return (
                     <div
@@ -214,27 +290,45 @@ export default function RoadmapView({ levels }: RoadmapViewProps) {
                         {unit.description}
                       </p>
 
-                      {/* 핵심 표현 미리보기 박스 */}
+                      {/* 핵심 표현 미리보기 박스 ([그림1]과 동일한 세로 계층 구조 & 루비 & 발음 가이드 뱃지) */}
                       <div
-                        className={`p-2.5 rounded-xl border flex flex-col gap-1 ${
+                        className={`p-3 rounded-xl border flex flex-col gap-1.5 ${
                           isStarter
                             ? 'bg-[#FFF6F1]/80 border-[#FCE4D8]'
-                            : 'bg-[#FAF0E6]/50 border-[#F4DDD4]'
+                            : 'bg-[#FBF9F5] border-[#EDE8E1]'
                         }`}
                       >
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-sm font-black text-[#2D3748] tracking-wide">
-                            {unit.keyPhrase}
-                          </span>
-                          {unit.pronunciationKorean && (
-                            <span className="text-xs font-black text-[#C45B40]">
-                              [{unit.pronunciationKorean}]
+                        {/* 히라가나 전체 읽기 (한자가 섞인 경우) */}
+                        {shouldShowReading && (
+                          <p className="text-[11px] text-gray-500 font-medium">
+                            {reading}
+                          </p>
+                        )}
+
+                        {/* 일본어 표기 (루비 후리가나 지원) */}
+                        <h4 className="text-base font-black text-[#2D3748] tracking-tight leading-snug">
+                          {renderRuby(unit.keyPhrase)}
+                        </h4>
+
+                        {/* 한글 발음 독음 뱃지 (발음 가이드 모드 ON일 때) */}
+                        {showPronounce && pronunciation && (
+                          <div>
+                            <span
+                              className={`inline-block rounded-md border font-bold ${
+                                isStarter
+                                  ? 'text-xs font-black text-[#D97706] bg-amber-50 px-2 py-0.5 border-amber-200 shadow-2xs'
+                                  : 'text-xs text-[#E07A5F] bg-[#FAF0E6] px-2 py-0.5 border-[#F4DDD4]'
+                              }`}
+                            >
+                              [{pronunciation}]
                             </span>
-                          )}
-                        </div>
-                        <span className="text-[11px] text-[#4A5568]">
+                          </div>
+                        )}
+
+                        {/* 한국어 번역 */}
+                        <p className="text-xs font-bold text-[#2D3748]">
                           {unit.keyPhraseKorean}
-                        </span>
+                        </p>
                       </div>
 
                       {/* 바로 학습하러 가기 링크 */}

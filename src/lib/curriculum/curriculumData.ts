@@ -1,4 +1,5 @@
 import { CurriculumLevel, DailyLesson } from '@/types';
+import { kanjiToKana } from '@/utils/japanesePronounce';
 
 export const curriculumLevels: CurriculumLevel[] = [
   {
@@ -37,17 +38,20 @@ export const curriculumLevels: CurriculumLevel[] = [
             {
               speaker: '점원/친구',
               japanese: 'どうぞ！',
-              korean: '여기 있어요!'
+              korean: '여기 있어요!',
+              pronunciation: '도-조!'
             },
             {
               speaker: '나 (아이)',
               japanese: 'ありがとう！',
-              korean: '고마워요!'
+              korean: '고마워요!',
+              pronunciation: '아리가토-!'
             },
             {
               speaker: '나 (어른에게 정중히)',
               japanese: 'ありがとうございます！',
-              korean: '정말 감사합니다!'
+              korean: '정말 감사합니다!',
+              pronunciation: '아리가토-고자이마스!'
             }
           ],
           grammar: {
@@ -107,17 +111,20 @@ export const curriculumLevels: CurriculumLevel[] = [
             {
               speaker: '나 (아이)',
               japanese: 'すみません、これ ください！',
-              korean: '저기요, 이거 주세요!'
+              korean: '저기요, 이거 주세요!',
+              pronunciation: '스미마센, 코레 쿠다사이!'
             },
             {
               speaker: '식당 이모님',
               japanese: 'はい、どうぞ！',
-              korean: '네, 맛있게 드세요!'
+              korean: '네, 맛있게 드세요!',
+              pronunciation: '하이, 도-조!'
             },
             {
               speaker: '나 (먹고 나서)',
               japanese: 'わぁ、おいしい！',
-              korean: '와아, 진짜 맛있다!'
+              korean: '와아, 진짜 맛있다!',
+              pronunciation: '와-, 오이시이!'
             }
           ],
           grammar: {
@@ -250,17 +257,20 @@ export const curriculumLevels: CurriculumLevel[] = [
             {
               speaker: '점원',
               japanese: 'ふくろは ご利用ですか？',
-              korean: '봉투 필요하신가요?'
+              korean: '봉투 필요하신가요?',
+              pronunciation: '후쿠로와 고리요-데스카?'
             },
             {
               speaker: '나',
               japanese: 'あ、だいじょうぶです！',
-              korean: '아, 괜찮습니다! (필요 없어요)'
+              korean: '아, 괜찮습니다! (필요 없어요)',
+              pronunciation: '아, 다이죠-부데스!'
             },
             {
               speaker: '점원',
               japanese: 'かしこまりました。',
-              korean: '알겠습니다.'
+              korean: '알겠습니다.',
+              pronunciation: '카시코마리마시타.'
             }
           ],
           grammar: {
@@ -320,17 +330,20 @@ export const curriculumLevels: CurriculumLevel[] = [
             {
               speaker: '나',
               japanese: 'すみません、これ いくらですか？',
-              korean: '저기요, 이거 얼마예요?'
+              korean: '저기요, 이거 얼마예요?',
+              pronunciation: '스미마센, 코레 이쿠라데스카?'
             },
             {
               speaker: '점원',
               japanese: 'せんえんです！',
-              korean: '천 엔입니다!'
+              korean: '천 엔입니다!',
+              pronunciation: '센엔데스!'
             },
             {
               speaker: '나',
               japanese: 'じゃあ、これ ください！',
-              korean: '그럼 이거 주세요!'
+              korean: '그럼 이거 주세요!',
+              pronunciation: '쟈-, 코레 쿠다사이!'
             }
           ],
           grammar: {
@@ -401,17 +414,20 @@ export const curriculumLevels: CurriculumLevel[] = [
             {
               speaker: '손님 (나)',
               japanese: 'すみません、アイスコーヒーを 一つ お願いします。',
-              korean: '저기요, 아이스 아메리카노 하나 부탁드립니다.'
+              korean: '저기요, 아이스 아메리카노 하나 부탁드립니다.',
+              pronunciation: '스미마센, 아이스코-히-오 히토츠 오네가이시마스.'
             },
             {
               speaker: '점원',
               japanese: 'かしこまりました。店内でお召し上がりですか？',
-              korean: '알겠습니다. 매장에서 드시고 가시나요?'
+              korean: '알겠습니다. 매장에서 드시고 가시나요?',
+              pronunciation: '카시코마리마시타. 텐나이데 오메시아가리데스카?'
             },
             {
               speaker: '손님 (나)',
               japanese: 'はい、店内で お願いします。',
-              korean: '네, 매장에서 마실게요.'
+              korean: '네, 매장에서 마실게요.',
+              pronunciation: '하이, 텐나이데 오네가이시마스.'
             }
           ],
           grammar: {
@@ -451,6 +467,7 @@ export const curriculumLevels: CurriculumLevel[] = [
         title: '결제 수단 묻기 (카드 사용 가능한가요?)',
         description: '현금과 카드를 구분하여 안심하고 결제하는 표현',
         keyPhrase: 'カードは 使えますか？',
+        keyPhraseReading: 'カードは つかえますか？',
         keyPhraseKorean: '카드 사용 가능한가요?',
         pronunciationKorean: '카-도와 츠카에마스카?',
         lessonId: 'lesson-beginner-2'
@@ -461,6 +478,7 @@ export const curriculumLevels: CurriculumLevel[] = [
         title: '지하철역과 길 찾기 (~는 어디인가요?)',
         description: '목적지를 물어보고 출구를 확인하는 길 찾기 패턴',
         keyPhrase: '駅は どちらですか？',
+        keyPhraseReading: 'えきは どちらですか？',
         keyPhraseKorean: '역은 어느 쪽인가요?',
         pronunciationKorean: '에키와 도치라데스카?',
         lessonId: 'lesson-beginner-3'
@@ -483,6 +501,7 @@ export const curriculumLevels: CurriculumLevel[] = [
         title: '식당에서 자연스럽게 주문하기 (~でお願いできますか)',
         description: '다대기나 양념을 조절하며 완곡하게 의뢰하는 현지 표현',
         keyPhrase: '〜でお願いできますか',
+        keyPhraseReading: '〜でおねがいできますか',
         keyPhraseKorean: '~로 부탁드려도 될까요?',
         pronunciationKorean: '~데 오네가이데키마스카',
         lessonId: 'lesson-day-1'
@@ -493,6 +512,7 @@ export const curriculumLevels: CurriculumLevel[] = [
         title: '식사 계산과 분할 결제 요청하기 (따로 계산)',
         description: '각자 계산(割り勘) 가능 여부를 정중하게 확인하는 매너 표현',
         keyPhrase: 'お会計、別々でお願いできますか',
+        keyPhraseReading: 'おかいけい、べつべつでおねがいできますか',
         keyPhraseKorean: '계산, 각자 따로 부탁드려도 될까요?',
         pronunciationKorean: '오카이케이, 베츠베츠데 오네가이데키마스카',
         lessonId: 'lesson-day-3'
@@ -515,6 +535,7 @@ export const curriculumLevels: CurriculumLevel[] = [
         title: '맛과 식감의 미묘한 차이 묘사하기 (コク・さっぱり)',
         description: '담백함과 깊은 감칠맛을 섬세하게 표현하는 고급 묘사',
         keyPhrase: 'さっぱりしていてコクがある',
+        keyPhraseReading: 'さっぱりしていてコクがある',
         keyPhraseKorean: '깔끔하면서도 깊은 감칠맛이 있다',
         pronunciationKorean: '삿파리시테이테 코쿠가 아루',
         lessonId: 'lesson-day-2'
@@ -525,6 +546,7 @@ export const curriculumLevels: CurriculumLevel[] = [
         title: '혼잡 시 일괄 결제 및 가게 에티켓 대처하기',
         description: '피크 타임 매장의 안내를 정확히 알아듣고 응대하는 표현',
         keyPhrase: '混雑時はまとめてのお支払いをお願いしております',
+        keyPhraseReading: 'こんざつじは まとめての おしはらいを おねがいしております',
         keyPhraseKorean: '혼잡 시에는 일괄 결제를 부탁드리고 있습니다',
         pronunciationKorean: '콘자츠지와 마토메테노 오시하라이오 오네가이시테오리마스',
         lessonId: 'lesson-advanced-2'
@@ -606,6 +628,7 @@ export function getLessonByIdFromCurriculum(lessonId: string): DailyLesson | nul
           return enrichLessonWithCurriculum(u.lessonData);
         }
         // lessonData가 없는 유닛을 위한 완성형 대체 레슨
+        const kanaReading = u.keyPhraseReading || kanjiToKana(u.keyPhrase);
         return {
           id: u.lessonId,
           dayNumber: u.unitNumber,
@@ -616,19 +639,21 @@ export function getLessonByIdFromCurriculum(lessonId: string): DailyLesson | nul
           pronunciationKorean: u.pronunciationKorean,
           keyExpression: {
             japanese: u.keyPhrase,
-            reading: u.keyPhrase,
+            reading: kanaReading,
             korean: u.keyPhraseKorean
           },
           dialogue: [
             {
               speaker: '나',
               japanese: u.keyPhrase,
-              korean: u.keyPhraseKorean
+              korean: u.keyPhraseKorean,
+              pronunciation: u.pronunciationKorean
             },
             {
               speaker: '상대방',
               japanese: 'かしこまりました。どうぞ！',
-              korean: '알겠습니다. 여기 있습니다!'
+              korean: '알겠습니다. 여기 있습니다!',
+              pronunciation: '카시코마리마시타. 도-조!'
             }
           ],
           grammar: {
@@ -640,7 +665,7 @@ export function getLessonByIdFromCurriculum(lessonId: string): DailyLesson | nul
             {
               id: `${u.id}-v1`,
               kanji: u.keyPhrase.split(' ')[0] || u.keyPhrase,
-              reading: u.keyPhrase.split(' ')[0] || u.keyPhrase,
+              reading: kanaReading,
               meaning: u.keyPhraseKorean,
               partOfSpeech: '표현'
             }

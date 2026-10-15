@@ -130,6 +130,7 @@ export interface CurriculumUnit {
   title: string;
   description: string;
   keyPhrase: string;
+  keyPhraseReading?: string;
   keyPhraseKorean: string;
   pronunciationKorean?: string;
   lessonId: string;
