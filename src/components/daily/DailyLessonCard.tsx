@@ -19,13 +19,17 @@ import {
   Baby,
   Pencil,
   Zap,
-  Flame
+  Flame,
+  Upload
 } from 'lucide-react';
 import { enrichLessonWithCurriculum } from '@/lib/curriculum/curriculumData';
+import { publishDailyLesson } from '@/lib/actions/lesson-actions';
 
 interface DailyLessonCardProps {
   lesson: DailyLesson;
   isAiGenerated?: boolean;
+  isAdmin?: boolean;
+  onPublish?: (publishedLesson: DailyLesson) => void;
 }
 
 function renderRuby(
@@ -108,7 +112,12 @@ function renderRuby(
   );
 }
 
-export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCardProps) {
+export default function DailyLessonCard({
+  lesson,
+  isAiGenerated,
+  isAdmin: propIsAdmin,
+  onPublish
+}: DailyLessonCardProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [activeBoundary, setActiveBoundary] = useState<{ id: string; charIndex: number; charLength: number } | null>(null);
@@ -116,6 +125,45 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
   const [showPronounce, setShowPronounce] = useState(true);
+
+  // 관리자 권한 상태 관리 (prop이 없으면 /api/auth/me 조회)
+  const [isAdmin, setIsAdmin] = useState<boolean>(propIsAdmin ?? false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isPublished, setIsPublished] = useState(
+    lesson.id.startsWith('lesson-day-') && !lesson.id.includes('preview')
+  );
+
+  useEffect(() => {
+    if (propIsAdmin !== undefined) {
+      setIsAdmin(propIsAdmin);
+      return;
+    }
+    fetch('/api/auth/me')
+      .then((res) => (res.ok ? res.json() : { isAdmin: false }))
+      .then((data) => setIsAdmin(!!data.isAdmin))
+      .catch(() => setIsAdmin(false));
+  }, [propIsAdmin]);
+
+  // DB에 공식 레슨으로 1-Click 발행
+  const handlePublishToDb = async () => {
+    if (isPublishing || isPublished) return;
+    setIsPublishing(true);
+
+    try {
+      const res = await publishDailyLesson(lesson);
+      if (res.success && res.lesson) {
+        setIsPublished(true);
+        onPublish?.(res.lesson);
+      } else {
+        alert(res.error || '레슨 발행에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error('[handlePublishToDb] 에러:', err);
+      alert('레슨 발행 중 오류가 발생했습니다.');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부, 발음 모드 로드
   useEffect(() => {
@@ -353,23 +401,59 @@ export default function DailyLessonCard({ lesson, isAiGenerated }: DailyLessonCa
           </span>
         </div>
 
-        <button
-          onClick={handleToggleLessonSave}
-          className={`w-7 h-7 sm:w-auto sm:h-auto p-1.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
-            isLessonSaved
-              ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
-              : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-gray-50 hover:text-[#2D3748]'
-          }`}
-          title={isLessonSaved ? '保存解除' : 'レッスン保存'}
-          aria-label={isLessonSaved ? '保存解除' : 'レッスン保存'}
-        >
-          {isLessonSaved ? (
-            <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
-          ) : (
-            <Bookmark className="w-3.5 h-3.5 shrink-0" />
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* 관리자 1-Click DB 공식 발행 버튼 (DESIGN.md 슬레이트 네이비 테마 준수) */}
+          {isAdmin && (
+            isPublished ? (
+              <span
+                className="px-2 py-1 sm:px-2.5 rounded-xl text-[11px] font-bold bg-[#EBF3FB] text-[#3D5A80] border border-[#C5D9F2] flex items-center gap-1 shrink-0 shadow-2xs"
+                title="공식 레슨으로 DB에 영구 보존되었습니다"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#3D5A80] shrink-0" />
+                <span className="hidden sm:inline">공식 발행 완료</span>
+                <span className="sm:hidden">발행됨</span>
+              </span>
+            ) : (
+              <button
+                onClick={handlePublishToDb}
+                disabled={isPublishing}
+                className="px-2 py-1 sm:px-2.5 rounded-xl text-[11px] font-bold bg-[#EBF3FB] text-[#3D5A80] border border-[#C5D9F2] hover:bg-[#DCEBF9] flex items-center gap-1 shrink-0 active:scale-95 transition-all disabled:opacity-60 shadow-2xs cursor-pointer"
+                title="Supabase daily_lessons 테이블에 영구 발행합니다"
+              >
+                {isPublishing ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                    <span>발행 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-3.5 h-3.5 shrink-0" />
+                    <span className="hidden sm:inline">공식 DB 발행</span>
+                    <span className="sm:hidden">발행</span>
+                  </>
+                )}
+              </button>
+            )
           )}
-          <span className="hidden sm:inline">{isLessonSaved ? '保存済み' : 'レッスン保存'}</span>
-        </button>
+
+          <button
+            onClick={handleToggleLessonSave}
+            className={`w-7 h-7 sm:w-auto sm:h-auto p-1.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
+              isLessonSaved
+                ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
+                : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-gray-50 hover:text-[#2D3748]'
+            }`}
+            title={isLessonSaved ? '保存解除' : 'レッスン保存'}
+            aria-label={isLessonSaved ? '保存解除' : 'レッスン保存'}
+          >
+            {isLessonSaved ? (
+              <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
+            ) : (
+              <Bookmark className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span className="hidden sm:inline">{isLessonSaved ? '保存済み' : 'レッスン保存'}</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. 초보자 발음 가이드 모드 전용 툴바 (여유로운 독립 행으로 겹침 완벽 방지) */}

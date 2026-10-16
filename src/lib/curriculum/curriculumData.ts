@@ -552,6 +552,17 @@ export const curriculumLevels: CurriculumLevel[] = [
         lessonId: 'lesson-advanced-2'
       }
     ]
+  },
+  {
+    level: 'ai',
+    badge: 'AI+',
+    title: 'AI+ 실전 로컬 챌린지',
+    subTitle: '일본인 친구에게 들려주고 싶은 나만의 부산 이야기를 AI와 함께 실전 일본어로 기록하고 차곡차곡 채워갑니다.',
+    targetAudience: '부산 여행과 일상에서 마주치는 나만의 상황을 AI로 만들고 무제한으로 확장하는 학습자',
+    color: '#3D5A80',
+    bgLight: '#EBF3FB',
+    borderColor: '#C5D9F2',
+    units: []
   }
 ];
 
