@@ -470,7 +470,69 @@ export const curriculumLevels: CurriculumLevel[] = [
         keyPhraseReading: 'カードは つかえますか？',
         keyPhraseKorean: '카드 사용 가능한가요?',
         pronunciationKorean: '카-도와 츠카에마스카?',
-        lessonId: 'lesson-beginner-2'
+        lessonId: 'lesson-beginner-2',
+        lessonData: {
+          id: 'lesson-beginner-2',
+          dayNumber: 2,
+          level: 'beginner',
+          seriesTitle: 'Lv.1 초급 실전 회화',
+          themeTitle: '결제 수단 묻기 (카드 사용 가능한가요?)',
+          unitTitle: 'Unit 2: 결제 수단 확인',
+          keyExpression: {
+            japanese: 'カードは 使えますか？',
+            reading: 'カードは つかえますか？',
+            korean: '카드 사용 가능한가요?'
+          },
+          dialogue: [
+            {
+              speaker: '손님 (나)',
+              japanese: 'すみません、カードは 使えますか？',
+              korean: '저기요, 카드 사용 가능한가요?',
+              pronunciation: '스미마센, 카-도와 츠카에마스카?'
+            },
+            {
+              speaker: '점원',
+              japanese: 'はい、使えますよ。どうぞ！',
+              korean: '네, 사용 가능합니다. 이쪽으로 주세요!',
+              pronunciation: '하이, 츠카에마스요. 도-조!'
+            },
+            {
+              speaker: '손님 (나)',
+              japanese: 'これで お願いします。',
+              korean: '이걸로 부탁드립니다.',
+              pronunciation: '코레데 오네가이시마스.'
+            }
+          ],
+          grammar: {
+            title: '[명사] + は + 使えますか？',
+            structure: '[결제 수단] + は (은/는) + 使えますか (쓸 수 있습니까?)',
+            explanation: '가게나 식당에서 특정 결제 수단(신용카드, 교통카드 등)을 사용할 수 있는지 사전에 확인하는 정중한 의문 패턴입니다.'
+          },
+          vocabulary: [
+            {
+              id: 'bg2-v1',
+              kanji: 'カード',
+              reading: 'カード',
+              meaning: '카드 (신용카드 등)',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'bg2-v2',
+              kanji: '使える',
+              reading: 'つかえる',
+              meaning: '사용할 수 있다, 쓸 수 있다',
+              partOfSpeech: '동사'
+            },
+            {
+              id: 'bg2-v3',
+              kanji: '現金',
+              reading: 'げんきん',
+              meaning: '현금',
+              partOfSpeech: '명사'
+            }
+          ],
+          nuanceTip: '일본의 일부 노포나 소규모 매장은 현금 결제(現金のみ, 겐킨노미)만 가능한 경우가 많습니다. 식사 전이나 주문 전에 "カードは 使えますか？"라고 미리 확인하면 당황하지 않고 결제할 수 있습니다.'
+        }
       },
       {
         id: 'beginner-3',
@@ -481,7 +543,76 @@ export const curriculumLevels: CurriculumLevel[] = [
         keyPhraseReading: 'えきは どちらですか？',
         keyPhraseKorean: '역은 어느 쪽인가요?',
         pronunciationKorean: '에키와 도치라데스카?',
-        lessonId: 'lesson-beginner-3'
+        lessonId: 'lesson-beginner-3',
+        lessonData: {
+          id: 'lesson-beginner-3',
+          dayNumber: 3,
+          level: 'beginner',
+          seriesTitle: 'Lv.1 초급 실전 회화',
+          themeTitle: '지하철역과 길 찾기 (~는 어디인가요?)',
+          unitTitle: 'Unit 3: 지하철역과 길 찾기',
+          keyExpression: {
+            japanese: '駅は どちらですか？',
+            reading: 'えきは どちらですか？',
+            korean: '역은 어느 쪽인가요?'
+          },
+          dialogue: [
+            {
+              speaker: '나',
+              japanese: 'すみません、駅は どちらですか？',
+              korean: '실례합니다, 역은 어느 쪽인가요?',
+              pronunciation: '스미마센, 에키와 도치라데스카?'
+            },
+            {
+              speaker: '행인',
+              japanese: 'あちらです。まっすぐ 行ってください。',
+              korean: '저쪽입니다. 곧장(쭉) 가세요.',
+              pronunciation: '아치라데스. 맛스구 잇테쿠다사이.'
+            },
+            {
+              speaker: '나',
+              japanese: 'ありがとうございます！',
+              korean: '감사합니다!',
+              pronunciation: '아리가토-고자이마스!'
+            }
+          ],
+          grammar: {
+            title: '[장소] + は + どちらですか？',
+            structure: '[장소] + は (은/는) + どちらですか (어느 쪽인가요?)',
+            explanation: '목적지 명사 뒤에 조사 「は(은/는)」를 붙여 방향과 위치를 정중하게 묻는 길 찾기 대표 패턴입니다. 「どこ(어디)」보다 공손하고 교양 있는 표현으로, 장소 단어만 바꾸면 어디서든 길을 물을 수 있습니다.'
+          },
+          vocabulary: [
+            {
+              id: 'bg3-v1',
+              kanji: '駅',
+              reading: 'えき',
+              meaning: '역 (지하철역, 기차역)',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'bg3-v2',
+              kanji: 'どちら',
+              reading: 'どちら',
+              meaning: '어느 쪽, 어디 (공손한 표현)',
+              partOfSpeech: '대명사'
+            },
+            {
+              id: 'bg3-v3',
+              kanji: 'あちら',
+              reading: 'あちら',
+              meaning: '저쪽, 저편',
+              partOfSpeech: '대명사'
+            },
+            {
+              id: 'bg3-v4',
+              kanji: 'まっすぐ',
+              reading: 'まっすぐ',
+              meaning: '곧장, 똑바로',
+              partOfSpeech: '부사'
+            }
+          ],
+          nuanceTip: '친구 사이에서는 "駅は どこ？(역 어디야?)"라고 가볍게 묻지만, 길거리에서 낯선 행인이나 역무원에게 물어볼 때는 방향을 가리키는 정중한 표현인 "どちら(어느 쪽)"를 사용하는 것이 일본 매너에 훨씬 잘 맞습니다.'
+        }
       }
     ]
   },
