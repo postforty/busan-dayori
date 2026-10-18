@@ -194,10 +194,10 @@ export const curriculumLevels: CurriculumLevel[] = [
               pronunciation: '앗치데스요!'
             },
             {
-              speaker: '나',
-              japanese: '助かりました！ ありがとうございます！',
-              korean: '살았어요! 감사합니다!',
-              pronunciation: '타스카리마시타! 아리가토-고자이마스!'
+              speaker: '나 (안도하며)',
+              japanese: 'あ、ありがとうございます！',
+              korean: '아, 정말 감사합니다!',
+              pronunciation: '아, 아리가토-고자이마스!'
             }
           ],
           grammar: {
@@ -228,7 +228,7 @@ export const curriculumLevels: CurriculumLevel[] = [
               partOfSpeech: '지시대명사'
             }
           ],
-          nuanceTip: '지하철역이나 백화점에서 화장실을 찾을 땐 인포메이션이나 역무원에게 "토이레와 도코데스카?"라고 공손히 여쭤보세요.'
+          nuanceTip: '친절하게 길을 알려준 분에게 Unit 1에서 배운 "아리가토-고자이마스(정말 감사합니다)!"로 기분 좋게 감사 인사를 전해보세요.'
         }
       },
       {
@@ -255,19 +255,19 @@ export const curriculumLevels: CurriculumLevel[] = [
           },
           dialogue: [
             {
-              speaker: '점원',
-              japanese: 'ふくろは ご利用ですか？',
-              korean: '봉투 필요하신가요?',
-              pronunciation: '후쿠로와 고리요-데스카?'
+              speaker: '점원 (물건을 담으며)',
+              japanese: 'ふくろ、いりますか？',
+              korean: '봉투, 필요하세요?',
+              pronunciation: '후쿠로, 이리마스카?'
             },
             {
-              speaker: '나',
+              speaker: '나 (손을 살짝 저으며)',
               japanese: 'あ、だいじょうぶです！',
               korean: '아, 괜찮습니다! (필요 없어요)',
               pronunciation: '아, 다이죠-부데스!'
             },
             {
-              speaker: '점원',
+              speaker: '점원 (공손히)',
               japanese: 'かしこまりました。',
               korean: '알겠습니다.',
               pronunciation: '카시코마리마시타.'
@@ -288,20 +288,20 @@ export const curriculumLevels: CurriculumLevel[] = [
             },
             {
               id: 'st4-v2',
-              kanji: 'いいよ',
-              reading: 'いいよ',
-              meaning: '좋아! (편한 말투)',
-              partOfSpeech: '표현'
-            },
-            {
-              id: 'st4-v3',
               kanji: 'ふくろ',
               reading: 'ふくろ',
               meaning: '봉투, 비닐봉지',
               partOfSpeech: '명사'
+            },
+            {
+              id: 'st4-v3',
+              kanji: 'いる',
+              reading: 'いる',
+              meaning: '필요하다',
+              partOfSpeech: '동사'
             }
           ],
-          nuanceTip: '일본 편의점에서 봉투를 사지 않을 때 손을 살짝 저으며 "다이죠-부데스"라고 하면 가장 자연스럽고 정중한 거절이 됩니다.'
+          nuanceTip: '💡 [듣기 전용 꿀팁] 마지막에 점원이 말하는 "카시코마리마시타(かしこまりました)"는 손님에게 공손히 "잘 알겠습니다"라고 답하는 전형적인 일본 점원의 접객어입니다. 학습자가 직접 외워서 말할 필요는 전혀 없으며, 편의점이나 식당에서 들리기만 하면 "아, 내 말을 알아들었구나!" 하고 끄덕이시면 됩니다.'
         }
       },
       {
@@ -458,7 +458,7 @@ export const curriculumLevels: CurriculumLevel[] = [
               partOfSpeech: '명사'
             }
           ],
-          nuanceTip: '테이크아웃을 원할 때는 "모치카에리데(持ち帰りで お願いします)"라고 말하면 됩니다.'
+          nuanceTip: '💡 [듣기 팁] 점원이 말하는 "店内でお召し上がりですか？(텐나이데 오메시아가리데스카?)"는 "매장에서 드시나요?"라는 전형적인 접객 경어입니다. 학습자가 이 문장을 외울 필요는 없으며, 매장에서 마실 땐 "はい、店内で(네, 매장에서요)", 포장해 갈 땐 "持ち帰りで(모치카에리데)"라고만 간단히 말하면 됩니다.'
         }
       },
       {
@@ -635,7 +635,70 @@ export const curriculumLevels: CurriculumLevel[] = [
         keyPhraseReading: '〜でおねがいできますか',
         keyPhraseKorean: '~로 부탁드려도 될까요?',
         pronunciationKorean: '~데 오네가이데키마스카',
-        lessonId: 'lesson-day-1'
+        lessonId: 'lesson-day-1',
+        lessonData: {
+          id: 'lesson-day-1',
+          dayNumber: 1,
+          level: 'intermediate',
+          seriesTitle: 'Lv.2 중급 실전 일본어',
+          themeTitle: '식당에서 자연스럽게 주문하기 (~でお願いできますか)',
+          unitTitle: 'Unit 1: 식당에서 자연스럽게 주문하기',
+          pronunciationKorean: '~데 오네가이데키마스카',
+          keyExpression: {
+            japanese: '〜でお願いできますか',
+            reading: '〜でおねがいできますか',
+            korean: '〜로 부탁드려도 될까요?'
+          },
+          dialogue: [
+            {
+              speaker: '손님 (나)',
+              japanese: 'すみません、テジクッパ一つ、タテギ抜きでお願いできますか？',
+              korean: '저기요, 돼지국밥 하나, 다대기 빼고 부탁드려도 될까요?',
+              pronunciation: '스미마센, 테지쿱파 히토츠, 타테기 누키데 오네가이데키마스카?'
+            },
+            {
+              speaker: '점원 (메모하며)',
+              japanese: 'はい、かしこまりました。タテギは別添えにいたしますね。',
+              korean: '네, 잘 알겠습니다. 다대기는 따로 담아 드릴게요.',
+              pronunciation: '하이, 카시코마리마시타. 타테기와 베츠조에니 이타시마스네.'
+            },
+            {
+              speaker: '손님 (나)',
+              japanese: '助かります。ありがとうございます！',
+              korean: '감사합니다(덕분에 살았어요)! 고맙습니다!',
+              pronunciation: '타스카리마스. 아리가토-고자이마스!'
+            }
+          ],
+          grammar: {
+            title: '명사 + で + お願いできますか',
+            structure: '명사 + で + お願いできますか (또는 동사て形 + いただけますか)',
+            explanation: '단순히 "~를 주세요(〜をください)"라고 요구하기보다 상대방의 입장을 배려하여 완곡하게 요청하는 정중한 표현입니다.'
+          },
+          vocabulary: [
+            {
+              id: 'it1-v1',
+              kanji: '別添え',
+              reading: 'べつぞえ',
+              meaning: '따로 곁들임, 따로 담음',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'it1-v2',
+              kanji: '抜き',
+              reading: 'ぬき',
+              meaning: '뺌, 제외함',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'it1-v3',
+              kanji: '助かる',
+              reading: 'たすかる',
+              meaning: '도움이 되다, 다행이다',
+              partOfSpeech: '동사'
+            }
+          ],
+          nuanceTip: '💡 [언어 부품 꿀팁: 助かる vs かしこまる]\n손님이 말한 "助かります(타스카리마스: 도움이 됩니다/살았습니다)"와 점원이 말한 "かしこまりました(카시코마리마시타: 잘 알겠습니다)"는 끝부분이 비슷하게 들리지만 완전히 다른 부품입니다!\n- [助かり] + [ます / ました] = (도움/구원) + (합니다/했습니다)\n- [かしこまり] + [ました] = (삼가 수락) + (했습니다)\n상대방이 배려해 주었을 때는 "助かります!"라고 가볍게 웃으며 답해보세요.'
+        }
       },
       {
         id: 'intermediate-2',
@@ -646,7 +709,70 @@ export const curriculumLevels: CurriculumLevel[] = [
         keyPhraseReading: 'おかいけい、べつべつでおねがいできますか',
         keyPhraseKorean: '계산, 각자 따로 부탁드려도 될까요?',
         pronunciationKorean: '오카이케이, 베츠베츠데 오네가이데키마스카',
-        lessonId: 'lesson-day-3'
+        lessonId: 'lesson-day-3',
+        lessonData: {
+          id: 'lesson-day-3',
+          dayNumber: 2,
+          level: 'intermediate',
+          seriesTitle: 'Lv.2 중급 실전 일본어',
+          themeTitle: '식사 계산과 분할 결제 요청하기 (따로 계산)',
+          unitTitle: 'Unit 2: 식사 계산과 분할 결제 요청하기',
+          pronunciationKorean: '오카이케이, 베츠베츠데 오네가이데키마스카',
+          keyExpression: {
+            japanese: 'お会計、別々でお願いできますか',
+            reading: 'おかいけい、べつべつでおねがいできますか',
+            korean: '계산, 각자 따로 부탁드려도 될까요?'
+          },
+          dialogue: [
+            {
+              speaker: '손님 (나)',
+              japanese: 'ごちそうさまでした。お会計、別々でお願いできますか？',
+              korean: '잘 먹었습니다. 계산 각자 따로 부탁드려도 될까요?',
+              pronunciation: '고치소-사마데시타. 오카이케이, 베츠베츠데 오네가이데키마스카?'
+            },
+            {
+              speaker: '점원 (양해를 구하며)',
+              japanese: '申し訳ありません、混雑時はまとめてのお支払いをお願いしております。',
+              korean: '죄송합니다, 혼잡 시간대에는 일괄 결제를 부탁드리고 있습니다.',
+              pronunciation: '모-시와케 아리마센, 콘자츠지와 마토메테노 오시하라이오 오네가이시테오리마스.'
+            },
+            {
+              speaker: '손님 (나)',
+              japanese: 'あ、分かりました。じゃあカードでまとめて払いますね。',
+              korean: '아, 알겠습니다. 그럼 카드로 한꺼번에 결제할게요.',
+              pronunciation: '아, 와카리마시타. 쟈- 카-도데 마토메테 하라이마스네.'
+            }
+          ],
+          grammar: {
+            title: '명사 + で (수단·상태의 조사 で)',
+            structure: '別々 + で (각자 따로) / まとめて + お支払い (한꺼번에 결제)',
+            explanation: '지불 방식이나 인원 구분을 나타낼 때 조사 で를 사용합니다. 각자 계산은 "別々で(베츠베츠데)", 일괄 결제는 "まとめて(마토메테)"로 표현합니다.'
+          },
+          vocabulary: [
+            {
+              id: 'it2-v1',
+              kanji: '会計',
+              reading: 'かいけい',
+              meaning: '계산, 지불',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'it2-v2',
+              kanji: '混雑時',
+              reading: 'こんざつじ',
+              meaning: '혼잡할 때, 붐비는 시간',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'it2-v3',
+              kanji: 'まとめて',
+              reading: 'まとめて',
+              meaning: '한꺼번에, 모아서',
+              partOfSpeech: '부사'
+            }
+          ],
+          nuanceTip: '점원이 "まとめてのお支払いをお願いしております(일괄 결제를 부탁드립니다)"라고 정중히 거절할 경우, 억지로 분할 결제를 요구하지 않고 "分かりました(알겠습니다)"라며 한 명이 대표로 결제하는 것이 성숙한 일본 식당 매너입니다.'
+        }
       }
     ]
   },
@@ -669,7 +795,70 @@ export const curriculumLevels: CurriculumLevel[] = [
         keyPhraseReading: 'さっぱりしていてコクがある',
         keyPhraseKorean: '깔끔하면서도 깊은 감칠맛이 있다',
         pronunciationKorean: '삿파리시테이테 코쿠가 아루',
-        lessonId: 'lesson-day-2'
+        lessonId: 'lesson-day-2',
+        lessonData: {
+          id: 'lesson-day-2',
+          dayNumber: 1,
+          level: 'advanced',
+          seriesTitle: 'Lv.3 실전 일본어',
+          themeTitle: '맛과 식감의 미묘한 차이 묘사하기 (コク・さっぱり)',
+          unitTitle: 'Unit 1: 맛과 식감의 미묘한 차이 묘사하기',
+          pronunciationKorean: '삿파리시테이테 코쿠가 아루',
+          keyExpression: {
+            japanese: 'さっぱりしていてコクがある',
+            reading: 'さっぱりしていてこくがある',
+            korean: '깔끔하면서도 깊은 감칠맛이 있다'
+          },
+          dialogue: [
+            {
+              speaker: '친구',
+              japanese: 'スープの味はどう？脂っこくない？',
+              korean: '국물 맛 어때? 기름지지 않아?',
+              pronunciation: '스-푸노 아지와 도-? 아부랏코쿠나이?'
+            },
+            {
+              speaker: '나 (감탄하며)',
+              japanese: '全然！さっぱりしているのに、豚骨のコクがしっかりあるよ。',
+              korean: '전혀! 담백하고 깔끔한데, 돼지 뼈의 깊은 맛이 제대로 살아있어.',
+              pronunciation: '젠젠! 삿파리시테이루노니, 톤코츠노 코쿠가 싯카리 아루요.'
+            },
+            {
+              speaker: '친구',
+              japanese: '評判通りだね。箸が止まらないよ。',
+              korean: '소문대로네. 젓가락을 멈출 수가 없어.',
+              pronunciation: '효-반도-리다네. 하시가 토마라나이요.'
+            }
+          ],
+          grammar: {
+            title: '형용사 연결형 (~くて / ~で / ~のに)',
+            structure: 'さっぱりしている(깔끔하다) + のに(하지만) + コクがある(깊은 맛이 있다)',
+            explanation: '상반되거나 복합적인 음식의 풍미를 연결할 때 사용하는 고급 미각 묘사 구문입니다.'
+          },
+          vocabulary: [
+            {
+              id: 'ad1-v1',
+              kanji: '脂っこい',
+              reading: 'あぶらっこい',
+              meaning: '기름지다, 느끼하다',
+              partOfSpeech: '형용사'
+            },
+            {
+              id: 'ad1-v2',
+              kanji: 'コク',
+              reading: 'こく',
+              meaning: '깊은 맛, 감칠맛, 풍미',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'ad1-v3',
+              kanji: '評判通り',
+              reading: 'ひょうばんどおり',
+              meaning: '소문대로, 명성 그대로',
+              partOfSpeech: '부사/명사'
+            }
+          ],
+          nuanceTip: '일본 미식 문화에서 "코쿠(コク)"는 단순한 짠맛이나 단맛이 아니라 오랫동안 우려낸 깊은 감칠맛을 뜻합니다. "삿파리(깔끔함)"와 대조하여 쓰면 현지인도 감탄하는 고급스러운 맛 표현이 됩니다.'
+        }
       },
       {
         id: 'advanced-2',
@@ -680,7 +869,70 @@ export const curriculumLevels: CurriculumLevel[] = [
         keyPhraseReading: 'こんざつじは まとめての おしはらいを おねがいしております',
         keyPhraseKorean: '혼잡 시에는 일괄 결제를 부탁드리고 있습니다',
         pronunciationKorean: '콘자츠지와 마토메테노 오시하라이오 오네가이시테오리마스',
-        lessonId: 'lesson-advanced-2'
+        lessonId: 'lesson-advanced-2',
+        lessonData: {
+          id: 'lesson-advanced-2',
+          dayNumber: 2,
+          level: 'advanced',
+          seriesTitle: 'Lv.3 실전 일본어',
+          themeTitle: '혼잡 시 일괄 결제 및 가게 에티켓 대처하기',
+          unitTitle: 'Unit 2: 혼잡 시 일괄 결제 및 가게 에티켓 대처하기',
+          pronunciationKorean: '콘자츠지와 마토메테노 오시하라이오 오네가이시테오리마스',
+          keyExpression: {
+            japanese: '混雑時はまとめてのお支払いをお願いしております',
+            reading: 'こんざつじは まとめての おしはらいを おねがいしております',
+            korean: '혼잡 시에는 일괄 결제를 부탁드리고 있습니다'
+          },
+          dialogue: [
+            {
+              speaker: '점원 (양해를 구하며)',
+              japanese: '恐れ入りますが、混雑時はまとめてのお支払いをお願いしております。',
+              korean: '송구스럽습니다만, 혼잡 시에는 일괄 결제를 부탁드리고 있습니다.',
+              pronunciation: '오소레이리마스가, 콘자츠지와 마토메테노 오시하라이오 오네가이시테오리마스.'
+            },
+            {
+              speaker: '손님 (나)',
+              japanese: 'あ、承知しました。じゃあ私が代表で支払います。',
+              korean: '아, 잘 알겠습니다. 그럼 제가 대표로 결제할게요.',
+              pronunciation: '아, 쇼-치시마시타. 쟈- 와타시가 다이효-데 시하라이마스.'
+            },
+            {
+              speaker: '점원 (미소 지으며)',
+              japanese: 'ご協力ありがとうございます！',
+              korean: '협조해 주셔서 대단히 감사합니다!',
+              pronunciation: '고쿄-료쿠 아리가토-고자이마스!'
+            }
+          ],
+          grammar: {
+            title: 'お + 동사 연용형 + しております (겸양 정중 표현)',
+            structure: 'お + 支払い + を + お願いしております',
+            explanation: '가게 직원이 손님에게 협조나 규칙을 정중하게 요청할 때 사용하는 공식적인 일본 비즈니스 접객 패턴입니다.'
+          },
+          vocabulary: [
+            {
+              id: 'ad2-v1',
+              kanji: '恐れ入ります',
+              reading: 'おそれいります',
+              meaning: '송구스럽습니다, 죄송합니다',
+              partOfSpeech: '표현'
+            },
+            {
+              id: 'ad2-v2',
+              kanji: '代表',
+              reading: 'だいひょう',
+              meaning: '대표',
+              partOfSpeech: '명사'
+            },
+            {
+              id: 'ad2-v3',
+              kanji: 'ご協力',
+              reading: 'ごきょうりょく',
+              meaning: '협력, 협조',
+              partOfSpeech: '명사'
+            }
+          ],
+          nuanceTip: '💡 [듣기 및 대응 팁] 점원이 "まとめてのお支払い(일괄 결제)"를 요청할 때, 당황하지 않고 "承知しました(쇼-치시마시타: 잘 알겠습니다)"나 "私が代表で支払います(제가 대표로 낼게요)"라고 유연하게 응대하면 최고의 일본 식당 에티켓을 발휘할 수 있습니다.'
+        }
       }
     ]
   },

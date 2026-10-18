@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { enrichLessonWithCurriculum } from '@/lib/curriculum/curriculumData';
 import { publishDailyLesson } from '@/lib/actions/lesson-actions';
+import SentenceTutorDrawer from './SentenceTutorDrawer';
+import { showGlobalToast } from '@/utils/toast';
 
 interface DailyLessonCardProps {
   lesson: DailyLesson;
@@ -125,6 +127,8 @@ export default function DailyLessonCard({
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
   const [showPronounce, setShowPronounce] = useState(true);
+  const [openTutorLineIdx, setOpenTutorLineIdx] = useState<number | null>(null);
+  const [openKeyTutor, setOpenKeyTutor] = useState(false);
 
   // 관리자 권한 상태 관리 (prop이 없으면 /api/auth/me 조회)
   const [isAdmin, setIsAdmin] = useState<boolean>(propIsAdmin ?? false);
@@ -293,7 +297,7 @@ export default function DailyLessonCard({
     }
   };
 
-  // 레슨 전체 보관 토글
+  // 레슨 전체(상황 대화) 보관 토글
   const handleToggleLessonSave = () => {
     try {
       const saved = localStorage.getItem('saved_lessons');
@@ -302,9 +306,11 @@ export default function DailyLessonCard({
       if (isLessonSaved) {
         lessons = lessons.filter((l) => l.id !== lesson.id);
         setIsLessonSaved(false);
+        showGlobalToast('보관함에서 상황 대화를 해제했습니다.', { icon: 'info' });
       } else {
         lessons.unshift(lesson);
         setIsLessonSaved(true);
+        showGlobalToast('이 상황 대화 전체가 보관함에 저장되었습니다! 📂', { icon: 'check' });
       }
       localStorage.setItem('saved_lessons', JSON.stringify(lessons));
     } catch {
@@ -443,15 +449,15 @@ export default function DailyLessonCard({
                 ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
                 : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-gray-50 hover:text-[#2D3748]'
             }`}
-            title={isLessonSaved ? '保存解除' : 'レッスン保存'}
-            aria-label={isLessonSaved ? '保存解除' : 'レッスン保存'}
+            title={isLessonSaved ? '상황 대화 보관 해제' : '상황 대화 전체 보관하기'}
+            aria-label={isLessonSaved ? '상황 보관됨' : '상황 대화 보관'}
           >
             {isLessonSaved ? (
               <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
             ) : (
               <Bookmark className="w-3.5 h-3.5 shrink-0" />
             )}
-            <span className="hidden sm:inline">{isLessonSaved ? '保存済み' : 'レッスン保存'}</span>
+            <span className="hidden sm:inline">{isLessonSaved ? '상황 보관됨' : '상황 보관'}</span>
           </button>
         </div>
       </div>
@@ -486,22 +492,6 @@ export default function DailyLessonCard({
               今日のキーフレーズ
             </span>
             <div className="flex items-center gap-1.5">
-              <button
-                onClick={handleToggleKeyExpression}
-                className={`p-1.5 rounded-lg border transition-all ${
-                  isKeyExpressionSaved
-                    ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
-                    : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
-                }`}
-                title={isKeyExpressionSaved ? '단어장에서 제거' : '핵심 표현 단어장에 저장'}
-              >
-                {isKeyExpressionSaved ? (
-                  <BookmarkCheck className="w-4 h-4" />
-                ) : (
-                  <Bookmark className="w-4 h-4" />
-                )}
-              </button>
-
               <button
                 onClick={() => handlePlay(lesson.keyExpression.japanese, 'key-slowest', 0.65)}
                 className={`px-1.5 py-1 rounded-lg border text-[10px] font-medium transition-all ${
@@ -539,6 +529,18 @@ export default function DailyLessonCard({
                   <Volume2 className="w-4 h-4" />
                 )}
               </button>
+
+              <button
+                onClick={() => setOpenKeyTutor(!openKeyTutor)}
+                className={`p-1.5 rounded-lg border transition-all ${
+                  openKeyTutor
+                    ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs scale-105'
+                    : 'bg-[#FFF6F1] text-[#E07A5F] border-[#FCE4D8] hover:bg-[#FAF0E6] hover:border-[#E07A5F]'
+                }`}
+                title="키프레이즈 다요리 센세에게 질문하기"
+              >
+                <Sparkles className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -570,6 +572,24 @@ export default function DailyLessonCard({
           <p className="text-sm font-bold text-[#2D3748]">
             {lesson.keyExpression.korean}
           </p>
+
+          {/* 키프레이즈 1:1 과외 창 */}
+          {openKeyTutor && (
+            <SentenceTutorDrawer
+              sentence={{
+                japanese: lesson.keyExpression.japanese,
+                korean: lesson.keyExpression.korean,
+                speaker: '핵심 표현',
+                pronunciation: lesson.pronunciationKorean,
+              }}
+              context={{
+                level: effectiveLesson.level,
+                themeTitle: effectiveLesson.themeTitle,
+                unitTitle: effectiveLesson.unitTitle,
+              }}
+              onClose={() => setOpenKeyTutor(false)}
+            />
+          )}
         </section>
 
         {/* 2. 실전 대화문 (Dialogue) */}
@@ -583,43 +603,80 @@ export default function DailyLessonCard({
             {lesson.dialogue.map((line, idx) => {
               const isPlayingLine = playingId === `line-${idx}`;
               const isLoadingLine = loadingId === `line-${idx}`;
+              const isTutorOpen = openTutorLineIdx === idx;
               return (
-                <div
-                  key={idx}
-                  className="bg-white rounded-xl p-3.5 border border-[#EDE8E1] hover:border-[#E07A5F]/40 transition-colors flex items-start justify-between gap-3"
-                >
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-gray-400 block">
-                      {line.speaker}
-                    </span>
-                    <p className="text-xs font-semibold text-[#2D3748] leading-relaxed">
-                      {renderRuby(line.japanese, `line-${idx}`, activeBoundary)}
-                    </p>
-                    {showPronounce && (
-                      <p className="text-[11px] font-semibold text-[#E07A5F] leading-normal">
-                        [{line.pronunciation || getPronunciation(line.japanese)}]
+                <div key={idx} className="space-y-1">
+                  <div
+                    className={`bg-white rounded-xl p-3.5 border transition-all flex items-start justify-between gap-3 ${
+                      isTutorOpen ? 'border-[#E07A5F] shadow-xs' : 'border-[#EDE8E1] hover:border-[#E07A5F]/40'
+                    }`}
+                  >
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <span className="text-[10px] font-bold text-gray-400 block">
+                        {line.speaker}
+                      </span>
+                      <p className="text-xs font-semibold text-[#2D3748] leading-relaxed">
+                        {renderRuby(line.japanese, `line-${idx}`, activeBoundary)}
                       </p>
-                    )}
-                    <p className="text-[11px] text-gray-500 leading-normal">
-                      {line.korean}
-                    </p>
+                      {showPronounce && (
+                        <p className="text-[11px] font-semibold text-[#E07A5F] leading-normal">
+                          [{line.pronunciation || getPronunciation(line.japanese)}]
+                        </p>
+                      )}
+                      <p className="text-[11px] text-gray-500 leading-normal">
+                        {line.korean}
+                      </p>
+                    </div>
+
+                    {/* 우측 수직 액션 바 (스피커 + AI 튜터 버튼) */}
+                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handlePlay(line.japanese, `line-${idx}`)}
+                        className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
+                          isPlayingLine || isLoadingLine
+                            ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                            : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                        }`}
+                        title="발음 듣기"
+                      >
+                        {isLoadingLine ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E07A5F]" />
+                        ) : (
+                          <Volume2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+
+                      <button
+                        onClick={() => setOpenTutorLineIdx(isTutorOpen ? null : idx)}
+                        className={`p-1.5 rounded-lg border shrink-0 transition-all ${
+                          isTutorOpen
+                            ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs scale-105'
+                            : 'bg-[#FFF6F1] text-[#E07A5F] border-[#FCE4D8] hover:bg-[#FAF0E6] hover:border-[#E07A5F]'
+                        }`}
+                        title={isTutorOpen ? '과외 창 닫기' : '다요리 센세에게 질문하기'}
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
-                  <button
-                    onClick={() => handlePlay(line.japanese, `line-${idx}`)}
-                    className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
-                      isPlayingLine || isLoadingLine
-                        ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
-                        : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
-                    }`}
-                    title="音声を聞く"
-                  >
-                    {isLoadingLine ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E07A5F]" />
-                    ) : (
-                      <Volume2 className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+                  {/* 인라인 과외 창 (열렸을 때) */}
+                  {isTutorOpen && (
+                    <SentenceTutorDrawer
+                      sentence={{
+                        japanese: line.japanese,
+                        korean: line.korean,
+                        speaker: line.speaker,
+                        pronunciation: line.pronunciation,
+                      }}
+                      context={{
+                        level: effectiveLesson.level,
+                        themeTitle: effectiveLesson.themeTitle,
+                        unitTitle: effectiveLesson.unitTitle,
+                      }}
+                      onClose={() => setOpenTutorLineIdx(null)}
+                    />
+                  )}
                 </div>
               );
             })}
