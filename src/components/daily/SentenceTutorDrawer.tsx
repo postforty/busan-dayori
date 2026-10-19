@@ -24,6 +24,47 @@ interface ChatMessage {
   content: string;
 }
 
+function renderFormattedMessage(content: string, role: 'assistant' | 'user'): React.ReactNode {
+  if (!content) return null;
+
+  // **볼드체** 및 `인라인 코드` 마크다운 패턴 매칭
+  const parts = content.split(/(\*\*(?:[\s\S]+?)\*\*|`[^`]+?`)/g);
+
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+      const boldText = part.slice(2, -2);
+      return (
+        <strong
+          key={index}
+          className={`font-bold ${
+            role === 'assistant' ? 'text-[#1A202C]' : 'text-white'
+          }`}
+        >
+          {boldText}
+        </strong>
+      );
+    }
+
+    if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
+      const codeText = part.slice(1, -1);
+      return (
+        <code
+          key={index}
+          className={`px-1 py-0.5 mx-0.5 rounded text-[11px] font-mono ${
+            role === 'assistant'
+              ? 'bg-[#F4E8E1] text-[#C45B40] border border-[#ECD1C3]'
+              : 'bg-white/20 text-white'
+          }`}
+        >
+          {codeText}
+        </code>
+      );
+    }
+
+    return part;
+  });
+}
+
 const QUICK_PROMPTS = [
   '💡 단어 부품별로 쪼개서 설명해줘',
   '🗣️ 실제 말할 때 뉘앙스와 팁',
@@ -219,7 +260,7 @@ export default function SentenceTutorDrawer({
                   : 'bg-white text-[#2D3748] border border-[#EDE8E1] rounded-tl-xs'
               }`}
             >
-              {msg.content}
+              {renderFormattedMessage(msg.content, msg.role)}
             </div>
           </div>
         ))}
