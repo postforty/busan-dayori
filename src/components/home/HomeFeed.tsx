@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { DailyLesson } from '@/types';
 import DailyLessonCard from '@/components/daily/DailyLessonCard';
-import AiGeneratorBar from '@/components/daily/AiGeneratorBar';
 import {
   getLessonByIdFromCurriculum,
   enrichLessonWithCurriculum,
@@ -134,12 +133,6 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
     }
   }, []);
 
-  // AI 생성 결과 수신
-  const handleLessonGenerated = (lesson: DailyLesson, isAi: boolean) => {
-    setCurrentLesson(lesson);
-    setIsAiGenerated(isAi);
-  };
-
   // 인접 로드맵 유닛 계산
   const adjacentInfo = getAdjacentCurriculumUnits(currentLesson.id);
 
@@ -232,10 +225,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
         </div>
       </section>
 
-      {/* 2. AI 맞춤 일본어 생성기 바 */}
-      <AiGeneratorBar onLessonGenerated={handleLessonGenerated} />
-
-      {/* 3. 데일리 일본어 학습 카드 섹션 */}
+      {/* 2. 데일리 일본어 학습 카드 섹션 */}
       <section className="space-y-3">
         {/* 섹션 헤더: 로드맵 연동 및 타이틀 */}
         <div className="flex items-center justify-between gap-2">

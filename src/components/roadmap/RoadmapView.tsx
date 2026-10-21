@@ -133,7 +133,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
       case 'advanced':
         return <Flame className={inBadge ? iconClass : 'w-4 h-4 text-[#943A25]'} />;
       case 'ai':
-        return <Sparkles className={inBadge ? iconClass : 'w-4 h-4 text-[#3D5A80]'} />;
+        return <Sparkles className={inBadge ? iconClass : 'w-4 h-4 text-[#E07A5F]'} />;
     }
   };
 
@@ -202,22 +202,22 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
       {selectedLevel === 'ai' ? (
         <section
           className="rounded-3xl border transition-all overflow-hidden bg-white shadow-xs"
-          style={{ borderColor: '#C5D9F2' }}
+          style={{ borderColor: '#F4DDD4' }}
         >
-          {/* AI+ 레벨 헤더 (DESIGN.md 슬레이트 네이비 테마) */}
+          {/* AI+ 레벨 헤더 (홈 화면 AI 스타일 웜톤 피치/코랄 테마) */}
           <div
             className="p-4.5 border-b"
-            style={{ backgroundColor: '#EBF3FB', borderColor: '#C5D9F2' }}
+            style={{ backgroundColor: '#FAF0E6', borderColor: '#F4DDD4' }}
           >
             <div className="flex items-center justify-between gap-2 mb-1.5">
               <span
                 className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black text-white shadow-2xs"
-                style={{ backgroundColor: '#3D5A80' }}
+                style={{ backgroundColor: '#E07A5F' }}
               >
                 {getLevelIcon('ai', true)}
                 AI+
               </span>
-              <span className="text-[11px] font-bold text-[#3D5A80]">
+              <span className="text-[11px] font-bold text-[#E07A5F]">
                 {aiLessons.length}개 유닛 누적
               </span>
             </div>
@@ -236,9 +236,9 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
           </div>
 
           {/* 초보자 발음 가이드 모드 전용 툴바 */}
-          <div className="bg-[#EBF3FB]/50 px-4 py-2 border-b border-[#C5D9F2]/70 flex items-center justify-between gap-2">
+          <div className="bg-[#FAF0E6]/50 px-4 py-2 border-b border-[#F4DDD4]/70 flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 text-gray-600 text-xs">
-              <Languages className="w-3.5 h-3.5 text-[#3D5A80] shrink-0" />
+              <Languages className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
               <span className="text-[11px] font-medium text-gray-600">
                 読み仮名 &amp; 発音ガイド
               </span>
@@ -249,7 +249,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
               onClick={handleTogglePronounce}
               className={`px-2.5 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border active:scale-95 shrink-0 ${
                 showPronounce
-                  ? 'bg-[#3D5A80] text-white border-[#3D5A80] shadow-xs'
+                  ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-xs'
                   : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
               }`}
             >
@@ -262,7 +262,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
           <div className="p-3 space-y-3 bg-[#FAF9F7]/40">
             {aiLessons.length === 0 ? (
               <div className="p-8 text-center bg-white rounded-2xl border border-[#EDE8E1] space-y-2">
-                <Sparkles className="w-6 h-6 text-[#3D5A80] mx-auto opacity-70" />
+                <Sparkles className="w-6 h-6 text-[#E07A5F] mx-auto opacity-70" />
                 <p className="text-xs font-bold text-[#2D3748]">
                   아직 생성된 AI 유닛이 없습니다.
                 </p>
@@ -283,14 +283,14 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
                 return (
                   <div
                     key={lesson.id}
-                    className="bg-white rounded-2xl p-3.5 border border-[#EDE8E1] hover:border-[#3D5A80] hover:shadow-xs transition-all flex flex-col gap-2.5 group"
+                    className="bg-white rounded-2xl p-3.5 border border-[#EDE8E1] hover:border-[#E07A5F] hover:shadow-xs transition-all flex flex-col gap-2.5 group"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-0.5">
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#3D5A80] bg-[#EBF3FB] px-2 py-0.5 rounded-md border border-[#C5D9F2]">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#E07A5F] bg-[#FAF0E6] px-2 py-0.5 rounded-md border border-[#F4DDD4]">
                           UNIT {idx + 1}
                         </span>
-                        <h3 className="text-sm font-bold text-[#2D3748] group-hover:text-[#3D5A80] transition-colors mt-1">
+                        <h3 className="text-sm font-bold text-[#2D3748] group-hover:text-[#E07A5F] transition-colors mt-1">
                           {lesson.themeTitle || lesson.seriesTitle}
                         </h3>
                       </div>
@@ -302,7 +302,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
                           e.preventDefault();
                           speakJapanese(japanese);
                         }}
-                        className="p-1.5 rounded-full bg-stone-50 hover:bg-[#EBF3FB] text-[#718096] hover:text-[#3D5A80] transition-colors shrink-0"
+                        className="p-1.5 rounded-full bg-stone-50 hover:bg-[#FAF0E6] text-[#718096] hover:text-[#E07A5F] transition-colors shrink-0"
                         title="발음 듣기"
                       >
                         <Volume2 className="w-4 h-4" />
@@ -329,7 +329,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
 
                       {showPronounce && pronunciation && (
                         <div>
-                          <span className="inline-block rounded-md border font-bold text-xs text-[#3D5A80] bg-[#EBF3FB] px-2 py-0.5 border-[#C5D9F2]">
+                          <span className="inline-block rounded-md border font-bold text-xs text-[#E07A5F] bg-[#FAF0E6] px-2 py-0.5 border-[#F4DDD4]">
                             [{pronunciation}]
                           </span>
                         </div>
@@ -347,7 +347,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
                         onClick={() =>
                           setExpandedLessonId(isExpanded ? null : lesson.id)
                         }
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all shadow-2xs hover:opacity-95 active:scale-[0.99] bg-[#3D5A80]"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold text-white transition-all shadow-2xs hover:opacity-95 active:scale-[0.99] bg-[#E07A5F]"
                       >
                         <span>{isExpanded ? '학습 카드 접기' : '이 유닛 전체 학습하기'}</span>
                         {isExpanded ? (
@@ -359,7 +359,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
 
                       <Link
                         href={`/?lessonId=${lesson.id}`}
-                        className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-bold text-[#3D5A80] bg-[#EBF3FB] hover:bg-[#DCEBF9] transition-all border border-[#C5D9F2]"
+                        className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-bold text-[#E07A5F] bg-[#FAF0E6] hover:bg-[#F4DCD1] transition-all border border-[#F4DDD4]"
                         title="전체화면 카드로 이동"
                       >
                         <ExternalLink className="w-4 h-4" />
