@@ -3,12 +3,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Send, Loader2, X, RefreshCw, MessageCircleQuestion } from 'lucide-react';
 
+import { WordBreakdown } from '@/types';
+
 export interface SentenceTutorDrawerProps {
   sentence: {
     japanese: string;
     korean: string;
     speaker: string;
     pronunciation?: string;
+    breakdown?: WordBreakdown[];
   };
   context?: {
     level?: string;
@@ -22,6 +25,29 @@ interface ChatMessage {
   id: string;
   role: 'assistant' | 'user';
   content: string;
+}
+
+function formatBreakdownLine(part: WordBreakdown): string {
+  // 포맷 예시:
+  // 텐나이(店内, てんない) = 가게 안, 매장
+  // 오메시아가리(お召し上がり) = '드시다'의 높인말
+  // 데스카(ですか) = ~입니까?
+  const hasReading = part.reading && part.reading !== part.word;
+  const notation = hasReading ? `${part.word}, ${part.reading}` : part.word;
+  const label = part.pronunciation ? `${part.pronunciation}(${notation})` : notation;
+  return `• **${label}** = ${part.meaning}`;
+}
+
+export function buildWelcomeMessage(sentence: SentenceTutorDrawerProps['sentence']): string {
+  const parts = sentence.breakdown;
+  const hasBreakdown = parts && parts.length > 0;
+
+  if (hasBreakdown) {
+    const list = parts.map(formatBreakdownLine).join('\n');
+    return `안녕하세요! 부산다요리의 과외 선생님 **다요리 센세**예요 🌸\n「**${sentence.japanese}**」 (${sentence.korean})\n\n🧩 **문장 부품 분해**\n${list}\n\n문장에서 헷갈리는 부분이나 궁금한 점이 있으신가요?\n아래 추천 질문을 누르시거나 편하게 물어보세요!`;
+  }
+
+  return `안녕하세요! 부산다요리의 과외 선생님 **다요리 센세**예요 🌸\n「**${sentence.japanese}**」 (${sentence.korean}) 문장에서 헷갈리는 부분이나 궁금한 점이 있으신가요?\n아래 추천 질문을 누르시거나 편하게 물어보세요!`;
 }
 
 function renderFormattedMessage(content: string, role: 'assistant' | 'user'): React.ReactNode {
@@ -81,7 +107,7 @@ export default function SentenceTutorDrawer({
     {
       id: 'welcome',
       role: 'assistant',
-      content: `안녕하세요! 부산다요리의 과외 선생님 **다요리 센세**예요 🌸\n「**${sentence.japanese}**」 (${sentence.korean}) 문장에서 헷갈리는 부분이나 궁금한 점이 있으신가요?\n아래 추천 질문을 누르시거나 편하게 물어보세요!`,
+      content: buildWelcomeMessage(sentence),
     },
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -99,6 +125,18 @@ export default function SentenceTutorDrawer({
       });
     }
   };
+
+  useEffect(() => {
+    // 문장이 변경되면 새로운 문장에 맞춰 대화창 초기화
+    setMessages([
+      {
+        id: `welcome-${Date.now()}`,
+        role: 'assistant',
+        content: buildWelcomeMessage(sentence),
+      },
+    ]);
+    setInputValue('');
+  }, [sentence.japanese, sentence.korean, sentence.breakdown]);
 
   useEffect(() => {
     // 첫 마운트(환영 메시지만 있는 상태)에서는 스크롤 이동 금지
@@ -175,9 +213,9 @@ export default function SentenceTutorDrawer({
   const handleReset = () => {
     setMessages([
       {
-        id: 'welcome',
+        id: `welcome-${Date.now()}`,
         role: 'assistant',
-        content: `안녕하세요! **다요리 센세**예요 🌸\n「**${sentence.japanese}**」 문장에 대해 무엇이든 다시 물어보세요!`,
+        content: buildWelcomeMessage(sentence),
       },
     ]);
   };

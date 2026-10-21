@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { DailyLesson, VocabItem, SavedWord } from '@/types';
+import { DailyLesson, VocabItem, SavedWord, WordBreakdown } from '@/types';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
 import {
@@ -32,6 +32,22 @@ interface DailyLessonCardProps {
   isAiGenerated?: boolean;
   isAdmin?: boolean;
   onPublish?: (publishedLesson: DailyLesson) => void;
+}
+
+function deriveBreakdownFromVocab(
+  japanese: string,
+  vocabList?: VocabItem[]
+): WordBreakdown[] | undefined {
+  if (!vocabList || vocabList.length === 0) return undefined;
+  const matched = vocabList.filter(
+    (v) => v.kanji && japanese.includes(v.kanji)
+  );
+  if (matched.length === 0) return undefined;
+  return matched.map((v) => ({
+    word: v.kanji,
+    reading: v.reading,
+    meaning: v.meaning,
+  }));
 }
 
 function renderRuby(
@@ -191,8 +207,16 @@ export default function DailyLessonCard({
     }
   };
 
-  // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부 로드
+  // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부 로드 및 유닛 전환 시 상태 초기화
   useEffect(() => {
+    // 유닛(레슨) 전환 시 열려 있던 과외 창 닫기 및 재생 중인 음성 정지
+    setOpenKeyTutor(false);
+    setOpenTutorLineIdx(null);
+    stopJapaneseSpeech();
+    setLoadingId(null);
+    setPlayingId(null);
+    setActiveBoundary(null);
+
     try {
       const saved = localStorage.getItem('saved_words');
       const completed = localStorage.getItem(`lesson_completed_${lesson.id}`);
@@ -222,6 +246,10 @@ export default function DailyLessonCard({
     } catch {
       // 로컬 스토리지 읽기 에러 무시
     }
+
+    return () => {
+      stopJapaneseSpeech();
+    };
   }, [lesson.id]);
 
   // 발음 듣기 (실시간 글자 경계 추적 지원 및 비동기 로딩 딜레이 격리)
@@ -531,7 +559,13 @@ export default function DailyLessonCard({
               </button>
 
               <button
-                onClick={() => setOpenKeyTutor(!openKeyTutor)}
+                onClick={() => {
+                  const nextState = !openKeyTutor;
+                  setOpenKeyTutor(nextState);
+                  if (nextState) {
+                    setOpenTutorLineIdx(null);
+                  }
+                }}
                 className={`p-1.5 rounded-lg border transition-all ${
                   openKeyTutor
                     ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs scale-105'
@@ -576,11 +610,15 @@ export default function DailyLessonCard({
           {/* 키프레이즈 1:1 과외 창 */}
           {openKeyTutor && (
             <SentenceTutorDrawer
+              key={`${lesson.id}-key`}
               sentence={{
                 japanese: lesson.keyExpression.japanese,
                 korean: lesson.keyExpression.korean,
                 speaker: '핵심 표현',
                 pronunciation: lesson.pronunciationKorean,
+                breakdown:
+                  lesson.keyExpression.breakdown ||
+                  deriveBreakdownFromVocab(lesson.keyExpression.japanese, lesson.vocabulary),
               }}
               context={{
                 level: effectiveLesson.level,
@@ -647,7 +685,13 @@ export default function DailyLessonCard({
                       </button>
 
                       <button
-                        onClick={() => setOpenTutorLineIdx(isTutorOpen ? null : idx)}
+                        onClick={() => {
+                          const nextIdx = isTutorOpen ? null : idx;
+                          setOpenTutorLineIdx(nextIdx);
+                          if (nextIdx !== null) {
+                            setOpenKeyTutor(false);
+                          }
+                        }}
                         className={`p-1.5 rounded-lg border shrink-0 transition-all ${
                           isTutorOpen
                             ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs scale-105'
@@ -663,11 +707,15 @@ export default function DailyLessonCard({
                   {/* 인라인 과외 창 (열렸을 때) */}
                   {isTutorOpen && (
                     <SentenceTutorDrawer
+                      key={`${lesson.id}-line-${idx}`}
                       sentence={{
                         japanese: line.japanese,
                         korean: line.korean,
                         speaker: line.speaker,
                         pronunciation: line.pronunciation,
+                        breakdown:
+                          line.breakdown ||
+                          deriveBreakdownFromVocab(line.japanese, lesson.vocabulary),
                       }}
                       context={{
                         level: effectiveLesson.level,

@@ -94,11 +94,19 @@ export interface GrammarPoint {
   comparison?: string;
 }
 
+export interface WordBreakdown {
+  word: string;           // 표기 (예: 店内, はい)
+  reading?: string;       // 히라가나 읽기 (예: てんない)
+  pronunciation?: string; // 한글 발음 (예: 텐나이)
+  meaning: string;        // 한국어 뜻 (예: 가게 안, 매장)
+}
+
 export interface DialogueLine {
   speaker: string;
   japanese: string;
   korean: string;
   pronunciation?: string;
+  breakdown?: WordBreakdown[];
 }
 
 export type LessonLevel = 'starter' | 'beginner' | 'intermediate' | 'advanced' | 'ai';
@@ -116,6 +124,7 @@ export interface DailyLesson {
     japanese: string;
     reading: string;
     korean: string;
+    breakdown?: WordBreakdown[];
   };
   dialogue: DialogueLine[];
   grammar: GrammarPoint;

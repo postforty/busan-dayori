@@ -338,7 +338,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
           </button>
         </div>
 
-        <DailyLessonCard lesson={currentLesson} isAiGenerated={isAiGenerated} />
+        <DailyLessonCard key={currentLesson.id} lesson={currentLesson} isAiGenerated={isAiGenerated} />
       </section>
     </div>
   );

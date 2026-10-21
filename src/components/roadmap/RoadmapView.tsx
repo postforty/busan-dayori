@@ -370,6 +370,7 @@ export default function RoadmapView({ levels, initialDbLessons = [] }: RoadmapVi
                     {isExpanded && (
                       <div className="mt-2 pt-3 border-t border-[#EDE8E1]">
                         <DailyLessonCard
+                          key={lesson.id}
                           lesson={lesson}
                           isAiGenerated={true}
                           onPublish={handlePublishSuccess}
