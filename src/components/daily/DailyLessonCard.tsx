@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DailyLesson, VocabItem, SavedWord, WordBreakdown } from '@/types';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
@@ -20,7 +20,9 @@ import {
   Pencil,
   Zap,
   Flame,
-  Upload
+  Upload,
+  Play,
+  Square
 } from 'lucide-react';
 import { enrichLessonWithCurriculum } from '@/lib/curriculum/curriculumData';
 import { publishDailyLesson } from '@/lib/actions/lesson-actions';
@@ -145,6 +147,8 @@ export default function DailyLessonCard({
   const [showPronounce, setShowPronounce] = useState(true);
   const [openTutorLineIdx, setOpenTutorLineIdx] = useState<number | null>(null);
   const [openKeyTutor, setOpenKeyTutor] = useState(false);
+  const [isPlayingAllDialogue, setIsPlayingAllDialogue] = useState(false);
+  const dialogueSessionRef = useRef<number>(0);
 
   // 관리자 권한 상태 관리 (prop이 없으면 /api/auth/me 조회)
   const [isAdmin, setIsAdmin] = useState<boolean>(propIsAdmin ?? false);
@@ -210,6 +214,8 @@ export default function DailyLessonCard({
   // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부 로드 및 유닛 전환 시 상태 초기화
   useEffect(() => {
     // 유닛(레슨) 전환 시 열려 있던 과외 창 닫기 및 재생 중인 음성 정지
+    dialogueSessionRef.current++;
+    setIsPlayingAllDialogue(false);
     setOpenKeyTutor(false);
     setOpenTutorLineIdx(null);
     stopJapaneseSpeech();
@@ -248,12 +254,112 @@ export default function DailyLessonCard({
     }
 
     return () => {
+      dialogueSessionRef.current++;
       stopJapaneseSpeech();
     };
   }, [lesson.id]);
 
+  // 대화문 전체 연속 재생 정지
+  const stopAllDialogue = () => {
+    dialogueSessionRef.current++;
+    stopJapaneseSpeech();
+    setIsPlayingAllDialogue(false);
+    setLoadingId(null);
+    setPlayingId(null);
+    setActiveBoundary(null);
+  };
+
+  // 대화문 전체 연속 재생 토글
+  const handleTogglePlayAllDialogue = async () => {
+    if (isPlayingAllDialogue) {
+      stopAllDialogue();
+      return;
+    }
+
+    if (!lesson.dialogue || lesson.dialogue.length === 0) return;
+
+    // 기존 재생 중인 음성 정지
+    stopJapaneseSpeech();
+    setLoadingId(null);
+    setPlayingId(null);
+    setActiveBoundary(null);
+
+    const currentSession = ++dialogueSessionRef.current;
+    setIsPlayingAllDialogue(true);
+
+    for (let idx = 0; idx < lesson.dialogue.length; idx++) {
+      if (dialogueSessionRef.current !== currentSession) break;
+
+      const line = lesson.dialogue[idx];
+      const lineId = `line-${idx}`;
+
+      // 문장 발음 재생 대기
+      await new Promise<void>((resolve) => {
+        let isResolved = false;
+        const finish = () => {
+          if (!isResolved) {
+            isResolved = true;
+            resolve();
+          }
+        };
+
+        const timeoutId = setTimeout(finish, 15000);
+
+        setLoadingId(lineId);
+
+        speakJapanese(
+          line.japanese,
+          0.9,
+          () => {
+            if (dialogueSessionRef.current !== currentSession) {
+              clearTimeout(timeoutId);
+              finish();
+              return;
+            }
+            setLoadingId(null);
+            setPlayingId(lineId);
+            setActiveBoundary({ id: lineId, charIndex: 0, charLength: 1 });
+          },
+          () => {
+            clearTimeout(timeoutId);
+            finish();
+          },
+          (charIndex) => {
+            if (dialogueSessionRef.current !== currentSession) return;
+            setLoadingId(null);
+            setActiveBoundary({ id: lineId, charIndex, charLength: 1 });
+          }
+        );
+      });
+
+      if (dialogueSessionRef.current !== currentSession) break;
+
+      setLoadingId(null);
+      setPlayingId(null);
+      setActiveBoundary(null);
+
+      // 마지막 문장이 아니면 화자 간 자연스러운 대화 텀(0.65초) 부여
+      if (idx < lesson.dialogue.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 650));
+      }
+    }
+
+    // 정상 완료 시 상태 리셋
+    if (dialogueSessionRef.current === currentSession) {
+      setIsPlayingAllDialogue(false);
+      setLoadingId(null);
+      setPlayingId(null);
+      setActiveBoundary(null);
+    }
+  };
+
   // 발음 듣기 (실시간 글자 경계 추적 지원 및 비동기 로딩 딜레이 격리)
   const handlePlay = (text: string, id: string, rate: number = 0.9) => {
+    if (isPlayingAllDialogue) {
+      dialogueSessionRef.current++;
+      setIsPlayingAllDialogue(false);
+    }
+
     if (playingId === id || loadingId === id) {
       stopJapaneseSpeech();
       setLoadingId(null);
@@ -560,6 +666,9 @@ export default function DailyLessonCard({
 
               <button
                 onClick={() => {
+                  if (isPlayingAllDialogue) {
+                    stopAllDialogue();
+                  }
                   const nextState = !openKeyTutor;
                   setOpenKeyTutor(nextState);
                   if (nextState) {
@@ -632,9 +741,31 @@ export default function DailyLessonCard({
 
         {/* 2. 실전 대화문 (Dialogue) */}
         <section className="space-y-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-[#2D3748]">
-            <MessageSquare className="w-4 h-4 text-[#E07A5F]" />
-            <span>実践カンバセーション</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-[#2D3748]">
+              <MessageSquare className="w-4 h-4 text-[#E07A5F]" />
+              <span>実践カンバセーション</span>
+            </div>
+
+            {lesson.dialogue && lesson.dialogue.length > 0 && (
+              <button
+                type="button"
+                onClick={handleTogglePlayAllDialogue}
+                className={`p-1.5 rounded-lg border transition-all flex items-center justify-center shrink-0 mr-3.5 ${
+                  isPlayingAllDialogue
+                    ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs'
+                    : 'bg-[#FFF6F1] text-[#E07A5F] border-[#FCE4D8] hover:bg-[#FAF0E6] hover:border-[#E07A5F]'
+                }`}
+                title={isPlayingAllDialogue ? '전체 대화 멈추기' : '전체 대화 연속 듣기'}
+                aria-label={isPlayingAllDialogue ? '전체 대화 멈추기' : '전체 대화 연속 듣기'}
+              >
+                {isPlayingAllDialogue ? (
+                  <Square className="w-3.5 h-3.5 fill-current" />
+                ) : (
+                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                )}
+              </button>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -645,8 +776,12 @@ export default function DailyLessonCard({
               return (
                 <div key={idx} className="space-y-1">
                   <div
-                    className={`bg-white rounded-xl p-3.5 border transition-all flex items-start justify-between gap-3 ${
-                      isTutorOpen ? 'border-[#E07A5F] shadow-xs' : 'border-[#EDE8E1] hover:border-[#E07A5F]/40'
+                    className={`rounded-xl p-3.5 border transition-all flex items-start justify-between gap-3 ${
+                      isPlayingLine
+                        ? 'bg-[#FFFDF9] border-[#E07A5F] shadow-xs ring-2 ring-[#E07A5F]/20'
+                        : isTutorOpen
+                        ? 'bg-white border-[#E07A5F] shadow-xs'
+                        : 'bg-white border-[#EDE8E1] hover:border-[#E07A5F]/40'
                     }`}
                   >
                     <div className="space-y-1 min-w-0 flex-1">
@@ -658,7 +793,7 @@ export default function DailyLessonCard({
                       </p>
                       {showPronounce && (
                         <p className="text-[11px] font-semibold text-[#E07A5F] leading-normal">
-                          [{line.pronunciation || getPronunciation(line.japanese)}]
+                           [{line.pronunciation || getPronunciation(line.japanese)}]
                         </p>
                       )}
                       <p className="text-[11px] text-gray-500 leading-normal">
@@ -686,6 +821,9 @@ export default function DailyLessonCard({
 
                       <button
                         onClick={() => {
+                          if (isPlayingAllDialogue) {
+                            stopAllDialogue();
+                          }
                           const nextIdx = isTutorOpen ? null : idx;
                           setOpenTutorLineIdx(nextIdx);
                           if (nextIdx !== null) {
