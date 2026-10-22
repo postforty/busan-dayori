@@ -63,13 +63,15 @@ interface KatakanaFlashcardsProps {
   fontStyle?: 'sans' | 'serif';
   onToggleFontStyle?: () => void;
   category?: 'seion' | 'dakuon' | 'youon' | 'special';
+  initialChar?: string;
 }
 
 export default function KatakanaFlashcards({
   onCompleteToNextStep,
   fontStyle: propFontStyle,
   onToggleFontStyle,
-  category = 'seion'
+  category = 'seion',
+  initialChar
 }: KatakanaFlashcardsProps) {
   const storageKey =
     category === 'special'
@@ -144,13 +146,32 @@ export default function KatakanaFlashcards({
   const [cardDeck, setCardDeck] = useState<KatakanaChar[]>(() =>
     prepareDeck(defaultFilter)
   );
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (initialChar) {
+      const deck = prepareDeck(defaultFilter);
+      const idx = deck.findIndex((c) => c.char === initialChar);
+      return idx >= 0 ? idx : 0;
+    }
+    return 0;
+  });
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownChars, setKnownChars] = useState<Set<string>>(new Set());
   const [confusedChars, setConfusedChars] = useState<Set<string>>(new Set());
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [reviewListTab, setReviewListTab] = useState<'confused' | 'skipped'>('confused');
   const [isPlayingSound, setIsPlayingSound] = useState(false);
+
+  // initialChar 변경 감지 및 인덱스 동기화 (React 공식 권장 패턴: 렌더링 중 상태 조정)
+  const [prevInitialChar, setPrevInitialChar] = useState<string | undefined>(initialChar);
+  if (initialChar && initialChar !== prevInitialChar) {
+    setPrevInitialChar(initialChar);
+    const idx = cardDeck.findIndex((c) => c.char === initialChar);
+    if (idx >= 0) {
+      setCurrentIndex(idx);
+      setIsFlipped(false);
+      setIsSessionFinished(false);
+    }
+  }
 
   // 뱃지 클릭 시 글자 상세/복습 모달 ('known' | 'confused' | null)
   const [activeBadgeModal, setActiveBadgeModal] = useState<'known' | 'confused' | null>(null);

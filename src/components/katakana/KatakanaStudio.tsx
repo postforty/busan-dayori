@@ -106,19 +106,118 @@ export default function KatakanaStudio({
   });
   const [playingChar, setPlayingChar] = useState<string | null>(null);
 
-  // 카테고리 변경 시 글자 재설정
+  // 스텝 전환 (브라우저 히스토리에 새 엔트리 추가하여 뒤로가기 가능)
+  const handleStepChange = useCallback((nextStep: KatakanaStudioStep) => {
+    setCurrentStep(nextStep);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('step', nextStep);
+      url.searchParams.set('char', selectedChar.char);
+      url.searchParams.set('type', category);
+      window.history.pushState(
+        { step: nextStep, char: selectedChar.char, type: category },
+        '',
+        url.toString()
+      );
+    }
+  }, [selectedChar.char, category]);
+
+  // 글자 선택 (현재 히스토리 엔트리의 쿼리 파라미터만 갱신)
+  const handleSelectChar = useCallback((char: KatakanaChar) => {
+    setSelectedChar(char);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('step', currentStep);
+      url.searchParams.set('char', char.char);
+      url.searchParams.set('type', category);
+      window.history.replaceState(
+        { step: currentStep, char: char.char, type: category },
+        '',
+        url.toString()
+      );
+    }
+  }, [currentStep, category]);
+
+  // 카테고리 변경 시 글자 재설정 및 히스토리 갱신
   const handleSelectCategory = (newCat: KatakanaCategory) => {
     setCategory(newCat);
+    let firstChar = ALL_KATAKANA_SEION_CHARS[0];
     if (newCat === 'seion') {
-      setSelectedChar(ALL_KATAKANA_SEION_CHARS[0]);
+      firstChar = ALL_KATAKANA_SEION_CHARS[0];
     } else if (newCat === 'dakuon') {
-      setSelectedChar(ALL_KATAKANA_DAKUON_CHARS[0]);
+      firstChar = ALL_KATAKANA_DAKUON_CHARS[0];
     } else if (newCat === 'youon') {
-      setSelectedChar(ALL_KATAKANA_YOUON_CHARS[0]);
+      firstChar = ALL_KATAKANA_YOUON_CHARS[0];
     } else if (newCat === 'special') {
-      setSelectedChar(ALL_KATAKANA_SPECIAL_CHARS[0]);
+      firstChar = ALL_KATAKANA_SPECIAL_CHARS[0];
+    }
+    setSelectedChar(firstChar);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('step', currentStep);
+      url.searchParams.set('char', firstChar.char);
+      url.searchParams.set('type', newCat);
+      window.history.replaceState(
+        { step: currentStep, char: firstChar.char, type: newCat },
+        '',
+        url.toString()
+      );
     }
   };
+
+  // 초기 URL 파라미터 동기화 및 브라우저 뒤로가기/앞으로가기(popstate) 이벤트 처리
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // 초기 마운트 시 파라미터가 비어있으면 현재 상태로 채워두기
+    const initialUrl = new URL(window.location.href);
+    let updated = false;
+    if (!initialUrl.searchParams.has('step')) {
+      initialUrl.searchParams.set('step', initialStep);
+      updated = true;
+    }
+    if (!initialUrl.searchParams.has('char')) {
+      initialUrl.searchParams.set('char', initialChar);
+      updated = true;
+    }
+    if (!initialUrl.searchParams.has('type')) {
+      initialUrl.searchParams.set('type', initialCategory);
+      updated = true;
+    }
+    if (updated) {
+      window.history.replaceState(
+        { step: initialStep, char: initialChar, type: initialCategory },
+        '',
+        initialUrl.toString()
+      );
+    }
+
+    const handlePopState = () => {
+      const url = new URL(window.location.href);
+      const stepParam = url.searchParams.get('step') as KatakanaStudioStep | null;
+      const charParam = url.searchParams.get('char');
+      const typeParam = url.searchParams.get('type') as KatakanaCategory | null;
+
+      if (typeParam && ['seion', 'dakuon', 'youon', 'special'].includes(typeParam)) {
+        setCategory(typeParam);
+      }
+      if (charParam) {
+        const found = ALL_KATAKANA_CHARS.find((c) => c.char === charParam);
+        if (found) {
+          setSelectedChar(found);
+        }
+      }
+      const validSteps: KatakanaStudioStep[] = ['sound', 'cards', 'confusing', 'write', 'match', 'travel'];
+      if (stepParam && validSteps.includes(stepParam)) {
+        setCurrentStep(stepParam);
+      } else {
+        setCurrentStep('sound');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [initialStep, initialChar, initialCategory]);
 
   const handlePlaySound = useCallback((char: KatakanaChar) => {
     setPlayingChar(char.char);
@@ -436,7 +535,7 @@ export default function KatakanaStudio({
       if (currIdx >= 0 && currIdx < currentChars.length - 1) {
         const nextChar = currentChars[currIdx + 1];
         autoNextTimerRef.current = setTimeout(() => {
-          setSelectedChar(nextChar);
+          handleSelectChar(nextChar);
           autoNextTimerRef.current = null;
         }, 1800);
       }
@@ -518,7 +617,7 @@ export default function KatakanaStudio({
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setCurrentStep(tab.id as KatakanaStudioStep)}
+                onClick={() => handleStepChange(tab.id as KatakanaStudioStep)}
                 className={`flex flex-col items-center justify-center py-2 px-0.5 rounded-2xl text-[10px] sm:text-[11px] font-bold transition-all relative group ${
                   isActive
                     ? 'bg-[#3D5A80] text-white shadow-xs scale-[1.02]'
@@ -662,7 +761,7 @@ export default function KatakanaStudio({
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentStep('cards')}
+                onClick={() => handleStepChange('cards')}
                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-2xl bg-[#EBF3FB] hover:bg-[#DCEBFA] text-[#3D5A80] font-bold text-xs border border-[#C5D9F2] transition-all active:scale-95 whitespace-nowrap"
               >
                 <Sparkles className="w-3.5 h-3.5 shrink-0" />
@@ -670,7 +769,7 @@ export default function KatakanaStudio({
               </button>
               <button
                 type="button"
-                onClick={() => setCurrentStep('write')}
+                onClick={() => handleStepChange('write')}
                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-2xl bg-[#FAF9F7] hover:bg-white text-[#718096] hover:text-[#2D3748] font-bold text-xs border border-[#EDE8E1] transition-all active:scale-95 whitespace-nowrap"
               >
                 <PenTool className="w-3.5 h-3.5 shrink-0" />
@@ -722,7 +821,7 @@ export default function KatakanaStudio({
                           <button
                             key={cIdx}
                             onClick={() => {
-                              setSelectedChar(charObj);
+                              handleSelectChar(charObj);
                               handlePlaySound(charObj);
                             }}
                             className={`aspect-square rounded-2xl p-1.5 flex flex-col items-center justify-center transition-all relative group select-none ${isSelected
@@ -801,7 +900,7 @@ export default function KatakanaStudio({
                           <button
                             key={cIdx}
                             onClick={() => {
-                              setSelectedChar(charObj);
+                              handleSelectChar(charObj);
                               handlePlaySound(charObj);
                             }}
                             className={`aspect-square rounded-2xl p-1 sm:p-1.5 flex flex-col items-center justify-center transition-all relative group select-none ${isSelected
@@ -846,9 +945,10 @@ export default function KatakanaStudio({
       {currentStep === 'cards' && (
         <KatakanaFlashcards
           category={category}
+          initialChar={selectedChar.char}
           fontStyle={fontStyle}
           onToggleFontStyle={handleToggleFontStyle}
-          onCompleteToNextStep={() => setCurrentStep('confusing')}
+          onCompleteToNextStep={() => handleStepChange('confusing')}
         />
       )}
 
@@ -1102,7 +1202,7 @@ export default function KatakanaStudio({
                     key={c.char}
                     type="button"
                     data-active={isSelected}
-                    onClick={() => setSelectedChar(c)}
+                    onClick={() => handleSelectChar(c)}
                     className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${
                       isSelected
                         ? 'bg-[#3D5A80] text-white shadow-2xs scale-105'
