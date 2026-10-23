@@ -15,7 +15,6 @@ import {
   Sparkles,
   GraduationCap,
   FolderArchive,
-  Compass,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
@@ -261,13 +260,13 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
               </div>
             )}
 
-            {/* 전체 로드맵 바로가기 버튼 */}
+            {/* AI 챌린지 바로가기 버튼 */}
             <Link
               href="/roadmap"
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white text-[#E07A5F] border border-[#F4DDD4] text-[11px] font-bold hover:bg-[#FAF0E6] transition-colors shadow-2xs"
             >
-              <Compass className="w-3 h-3 text-[#E07A5F]" />
-              <span>전체 로드맵</span>
+              <Sparkles className="w-3 h-3 text-[#E07A5F]" />
+              <span>AI 챌린지</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           </div>

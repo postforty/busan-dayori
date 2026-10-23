@@ -440,11 +440,11 @@ export default function DailyLessonCard({
       if (isLessonSaved) {
         lessons = lessons.filter((l) => l.id !== lesson.id);
         setIsLessonSaved(false);
-        showGlobalToast('보관함에서 상황 대화를 해제했습니다.', { icon: 'info' });
+        showGlobalToast('북마크를 해제했습니다.', { icon: 'info' });
       } else {
         lessons.unshift(lesson);
         setIsLessonSaved(true);
-        showGlobalToast('이 상황 대화 전체가 보관함에 저장되었습니다! 📂', { icon: 'check' });
+        showGlobalToast('이 레슨이 북마크에 추가되었습니다.', { icon: 'check' });
       }
       localStorage.setItem('saved_lessons', JSON.stringify(lessons));
     } catch {
@@ -505,9 +505,9 @@ export default function DailyLessonCard({
       <div className="bg-gradient-to-r from-[#FAF0E6] to-[#FFF9F2] px-4 py-3 border-b border-[#F4DDD4] flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           {isAiGenerated ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-xs shrink-0">
-              <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
-              <span>AIカスタム</span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBF3FB] text-[11px] font-black text-[#3D5A80] border border-[#C5D9F2] whitespace-nowrap shadow-2xs shrink-0">
+              <Sparkles className="w-3 h-3 text-[#3D5A80] shrink-0" />
+              <span>AI 맞춤</span>
             </span>
           ) : effectiveLesson.level === 'starter' ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFF2EA] text-[11px] font-black text-[#D96B4F] border border-[#FCDCCE] whitespace-nowrap shadow-xs shrink-0">
@@ -583,15 +583,15 @@ export default function DailyLessonCard({
                 ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
                 : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-gray-50 hover:text-[#2D3748]'
             }`}
-            title={isLessonSaved ? '상황 대화 보관 해제' : '상황 대화 전체 보관하기'}
-            aria-label={isLessonSaved ? '상황 보관됨' : '상황 대화 보관'}
+            title={isLessonSaved ? '북마크 해제' : '이 레슨 북마크하기'}
+            aria-label={isLessonSaved ? '북마크됨' : '북마크'}
           >
             {isLessonSaved ? (
               <BookmarkCheck className="w-3.5 h-3.5 shrink-0" />
             ) : (
               <Bookmark className="w-3.5 h-3.5 shrink-0" />
             )}
-            <span className="hidden sm:inline">{isLessonSaved ? '상황 보관됨' : '상황 보관'}</span>
+            <span className="hidden sm:inline">{isLessonSaved ? '북마크됨' : '북마크'}</span>
           </button>
         </div>
       </div>

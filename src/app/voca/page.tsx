@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { SavedWord, DailyLesson } from '@/types';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation } from '@/utils/japanesePronounce';
@@ -18,9 +19,20 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-export default function VocaPage() {
+function VocaContent() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+
   // 상단 메인 탭: 단어&표현 vs 보관한 학습자료
-  const [mainView, setMainView] = useState<'words' | 'lessons'>('words');
+  const [mainView, setMainView] = useState<'words' | 'lessons'>(() =>
+    tabParam === 'lessons' ? 'lessons' : 'words'
+  );
+
+  useEffect(() => {
+    if (tabParam === 'lessons') {
+      setMainView('lessons');
+    }
+  }, [tabParam]);
 
   // 단어 & 표현 상태
   const [words, setWords] = useState<SavedWord[]>([]);
@@ -657,5 +669,13 @@ export default function VocaPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function VocaPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[#718096]">로딩 중...</div>}>
+      <VocaContent />
+    </Suspense>
   );
 }

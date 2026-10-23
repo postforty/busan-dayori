@@ -292,7 +292,7 @@ export default function SentenceTutorDrawer({
               </div>
             )}
             <div
-              className={`rounded-2xl px-3 py-2 max-w-[85%] leading-relaxed whitespace-pre-wrap break-keep text-xs shadow-2xs ${
+              className={`rounded-2xl px-3 py-2 max-w-[88%] min-w-0 leading-relaxed whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] text-xs shadow-2xs ${
                 msg.role === 'user'
                   ? 'bg-[#E07A5F] text-white rounded-tr-xs font-medium'
                   : 'bg-white text-[#2D3748] border border-[#EDE8E1] rounded-tl-xs'
