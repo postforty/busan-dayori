@@ -471,14 +471,15 @@ export default function HiraganaStudio({
       {/* 1. 상단 인트로 헤더 */}
       <section className="bg-gradient-to-br from-[#FFF9F2] via-[#FAF0E6] to-[#F5EBE1] rounded-3xl p-5 border border-[#F4DDD4] shadow-xs relative overflow-hidden">
         <div className="flex items-center justify-between gap-2 mb-3">
-          {/* 뒤로가기 네비게이션 */}
+          {/* 뒤로가기 네비게이션: 메인 화면으로 이동 */}
           <Link
-            href="/roadmap"
+            href="/"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#718096] hover:text-[#E07A5F] bg-white/90 hover:bg-white px-2.5 py-1.5 rounded-full border border-[#EDE8E1] hover:border-[#F4DDD4] transition-all shadow-2xs whitespace-nowrap shrink-0 active:scale-95"
+            title="메인 홈으로 이동"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
             <span>
-              로드맵<span className="hidden sm:inline">으로 돌아가기</span>
+              홈<span className="hidden sm:inline">으로 돌아가기</span>
             </span>
           </Link>
 
@@ -1720,7 +1721,7 @@ export default function HiraganaStudio({
               href="/roadmap"
               className="inline-flex items-center justify-center gap-1.5 py-3 px-6 rounded-2xl bg-[#E07A5F] hover:bg-[#C45B40] text-white text-xs font-black transition-all shadow-xs active:scale-95"
             >
-              <span>Lv.1 초급 로드맵 보러가기</span>
+              <span>Lv.1 초급 AI 챌린지 보러가기</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

@@ -547,14 +547,15 @@ export default function KatakanaStudio({
       {/* 1. 상단 안내 헤더 & 히라가나 ⇄ 가타카나 브릿지 배너 */}
       <section className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-2xs relative overflow-hidden">
         <div className="flex items-center justify-between gap-2 mb-3">
-          {/* 뒤로가기 네비게이션 */}
+          {/* 뒤로가기 네비게이션: 메인 화면으로 이동 */}
           <Link
-            href="/roadmap"
+            href="/"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#718096] hover:text-[#3D5A80] bg-[#FAF9F7] hover:bg-white px-2.5 py-1.5 rounded-full border border-[#EDE8E1] hover:border-[#CBD5E0] transition-all shadow-2xs whitespace-nowrap shrink-0 active:scale-95"
+            title="메인 홈으로 이동"
           >
             <ArrowLeft className="w-3.5 h-3.5 text-[#3D5A80] shrink-0" />
             <span>
-              로드맵<span className="hidden sm:inline">으로 돌아가기</span>
+              홈<span className="hidden sm:inline">으로 돌아가기</span>
             </span>
           </Link>
 
