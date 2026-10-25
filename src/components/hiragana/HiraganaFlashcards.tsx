@@ -74,13 +74,15 @@ interface HiraganaFlashcardsProps {
   fontStyle?: 'sans' | 'serif';
   onToggleFontStyle?: () => void;
   category?: 'seion' | 'dakuon' | 'youon';
+  initialChar?: string;
 }
 
 export default function HiraganaFlashcards({
   onCompleteToNextStep,
   fontStyle: propFontStyle,
   onToggleFontStyle,
-  category = 'seion'
+  category = 'seion',
+  initialChar
 }: HiraganaFlashcardsProps) {
   // 카테고리별 독립된 스토리지 키 사용 (청음/탁음/요음 간 덱 및 인덱스 꼬임 원천 방지)
   const storageKey = category === 'youon'
@@ -159,7 +161,14 @@ export default function HiraganaFlashcards({
   const [cardDeck, setCardDeck] = useState<HiraganaChar[]>(() =>
     category === 'youon' ? ALL_YOUON_CHARS : category === 'dakuon' ? ALL_DAKUON_CHARS : ALL_SEION_CHARS
   );
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (initialChar) {
+      const initialDeck = category === 'youon' ? ALL_YOUON_CHARS : category === 'dakuon' ? ALL_DAKUON_CHARS : ALL_SEION_CHARS;
+      const idx = initialDeck.findIndex((c) => c.char === initialChar);
+      return idx >= 0 ? idx : 0;
+    }
+    return 0;
+  });
   const [isFlipped, setIsFlipped] = useState(false);
   const [isPlayingSound, setIsPlayingSound] = useState(false);
 
@@ -172,6 +181,18 @@ export default function HiraganaFlashcards({
   const [confusedCharIds, setConfusedCharIds] = useState<Set<string>>(new Set());
   const [isSessionFinished, setIsSessionFinished] = useState(false);
   const [reviewListTab, setReviewListTab] = useState<'confused' | 'skipped'>('confused');
+
+  // initialChar 변경 감지 및 인덱스 동기화 (상위에서 선택 글자가 변경될 때 카드 즉시 이동)
+  const [prevInitialChar, setPrevInitialChar] = useState<string | undefined>(initialChar);
+  if (initialChar && initialChar !== prevInitialChar) {
+    setPrevInitialChar(initialChar);
+    const idx = cardDeck.findIndex((c) => c.char === initialChar);
+    if (idx >= 0) {
+      setCurrentIndex(idx);
+      setIsFlipped(false);
+      setIsSessionFinished(false);
+    }
+  }
 
   // 뱃지 클릭 시 글자 상세/복습 모달 ('known' | 'confused' | null)
   const [activeBadgeModal, setActiveBadgeModal] = useState<'known' | 'confused' | null>(null);
@@ -269,8 +290,19 @@ export default function HiraganaFlashcards({
           : (category === 'youon' ? [...ALL_YOUON_CHARS] : category === 'dakuon' ? [...ALL_DAKUON_CHARS] : [...ALL_SEION_CHARS]);
         setCardDeck(finalDeck);
 
-        // 현재 카드 인덱스 복원 (안전 범위 검사)
-        if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0 && finalDeck.length > 0) {
+        // 현재 카드 인덱스 복원 (initialChar 우선, 없으면 로컬 스토리지 안전 범위 검사)
+        if (initialChar) {
+          const initialIdx = finalDeck.findIndex((c) => c.char === initialChar);
+          if (initialIdx >= 0) {
+            setCurrentIndex(initialIdx);
+            setIsSessionFinished(false);
+          } else if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0 && finalDeck.length > 0) {
+            const safeIndex = Math.min(parsed.currentIndex, Math.max(0, finalDeck.length - 1));
+            setCurrentIndex(safeIndex);
+          } else {
+            setCurrentIndex(0);
+          }
+        } else if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0 && finalDeck.length > 0) {
           const safeIndex = Math.min(parsed.currentIndex, Math.max(0, finalDeck.length - 1));
           setCurrentIndex(safeIndex);
         } else {
@@ -287,14 +319,19 @@ export default function HiraganaFlashcards({
         setFilterType(defaultFilter);
         setSelectedRow(defaultRow);
         setCardDeck(initialDeck);
-        setCurrentIndex(0);
+        if (initialChar) {
+          const initialIdx = initialDeck.findIndex((c) => c.char === initialChar);
+          setCurrentIndex(initialIdx >= 0 ? initialIdx : 0);
+        } else {
+          setCurrentIndex(0);
+        }
       }
     } catch {
       // 무시
     } finally {
       setIsLoaded(true);
     }
-  }, [category, defaultFilter, defaultRow, prepareDeck, storageKey]);
+  }, [category, defaultFilter, defaultRow, prepareDeck, storageKey, initialChar]);
 
   // 상위 category 변경 시 플래시카드 필터 및 덱 즉시 갱신
   const prevCategoryRef = useRef(category);

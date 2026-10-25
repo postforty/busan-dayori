@@ -108,23 +108,123 @@ export default function HiraganaStudio({
   });
   const [playingChar, setPlayingChar] = useState<string | null>(null);
 
-  // 카테고리(청음 ⇄ 탁음 ⇄ 요음) 전환 핸들러
+  // 스텝 전환 (브라우저 히스토리에 새 엔트리 추가하여 뒤로가기 가능)
+  const handleStepChange = useCallback((nextStep: StudioStep) => {
+    stopJapaneseSpeech();
+    setCurrentStep(nextStep);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('step', nextStep);
+      url.searchParams.set('char', selectedChar.char);
+      url.searchParams.set('type', category);
+      window.history.pushState(
+        { step: nextStep, char: selectedChar.char, type: category },
+        '',
+        url.toString()
+      );
+    }
+  }, [selectedChar.char, category]);
+
+  // 글자 선택 (현재 히스토리 엔트리의 쿼리 파라미터만 갱신)
+  const handleSelectChar = useCallback((char: HiraganaChar) => {
+    setSelectedChar(char);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('step', currentStep);
+      url.searchParams.set('char', char.char);
+      url.searchParams.set('type', category);
+      window.history.replaceState(
+        { step: currentStep, char: char.char, type: category },
+        '',
+        url.toString()
+      );
+    }
+  }, [currentStep, category]);
+
+  // 카테고리(청음 ⇄ 탁음 ⇄ 요음) 전환 핸들러 및 히스토리 갱신
   const handleSelectCategory = useCallback((newCat: CharCategory) => {
     setCategory(newCat);
+    let nextChar = selectedChar;
     if (newCat === 'seion') {
       const match = ALL_SEION_CHARS.find((c) => c.char === selectedChar.char);
-      if (!match) setSelectedChar(ALL_SEION_CHARS[0]);
+      nextChar = match || ALL_SEION_CHARS[0];
+      setSelectedChar(nextChar);
       setSelectedWord(SEION_MINI_WORDS[0]);
     } else if (newCat === 'dakuon') {
       const match = ALL_DAKUON_CHARS.find((c) => c.char === selectedChar.char);
-      if (!match) setSelectedChar(ALL_DAKUON_CHARS[0]);
+      nextChar = match || ALL_DAKUON_CHARS[0];
+      setSelectedChar(nextChar);
       setSelectedWord(DAKUON_MINI_WORDS[0]);
     } else {
       const match = ALL_YOUON_CHARS.find((c) => c.char === selectedChar.char);
-      if (!match) setSelectedChar(ALL_YOUON_CHARS[0]);
+      nextChar = match || ALL_YOUON_CHARS[0];
+      setSelectedChar(nextChar);
       setSelectedWord(YOUON_MINI_WORDS[0]);
     }
-  }, [selectedChar.char]);
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('step', currentStep);
+      url.searchParams.set('char', nextChar.char);
+      url.searchParams.set('type', newCat);
+      window.history.replaceState(
+        { step: currentStep, char: nextChar.char, type: newCat },
+        '',
+        url.toString()
+      );
+    }
+  }, [selectedChar.char, currentStep]);
+
+  // 초기 URL 파라미터 동기화 및 브라우저 뒤로가기/앞으로가기(popstate) 이벤트 처리
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const initialUrl = new URL(window.location.href);
+    let updated = false;
+    if (!initialUrl.searchParams.has('step')) {
+      initialUrl.searchParams.set('step', initialStep);
+      updated = true;
+    }
+    if (!initialUrl.searchParams.has('char')) {
+      initialUrl.searchParams.set('char', initialChar);
+      updated = true;
+    }
+    if (!initialUrl.searchParams.has('type')) {
+      initialUrl.searchParams.set('type', initialCategory);
+      updated = true;
+    }
+    if (updated) {
+      window.history.replaceState(
+        { step: initialStep, char: initialChar, type: initialCategory },
+        '',
+        initialUrl.toString()
+      );
+    }
+
+    const handlePopState = () => {
+      const url = new URL(window.location.href);
+      const stepParam = url.searchParams.get('step') as StudioStep | null;
+      const charParam = url.searchParams.get('char');
+      const typeParam = url.searchParams.get('type') as CharCategory | null;
+
+      if (stepParam && ['sound', 'write', 'cards', 'words', 'dialogue'].includes(stepParam)) {
+        setCurrentStep(stepParam);
+      }
+      if (typeParam && ['seion', 'dakuon', 'youon'].includes(typeParam)) {
+        setCategory(typeParam);
+      }
+      if (charParam) {
+        const allChars = [...ALL_SEION_CHARS, ...ALL_DAKUON_CHARS, ...ALL_YOUON_CHARS];
+        const found = allChars.find((c) => c.char === charParam);
+        if (found) {
+          setSelectedChar(found);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [initialCategory, initialChar, initialStep]);
 
   // 소리 비교 연속 재생 핸들러 (A ➔ B)
   const handlePlayCompareSound = useCallback((firstSoundText: string, secondSoundText: string) => {
@@ -549,8 +649,7 @@ export default function HiraganaStudio({
                     key={tab.key}
                     type="button"
                     onClick={() => {
-                      stopJapaneseSpeech();
-                      setCurrentStep(tab.key as StudioStep);
+                      handleStepChange(tab.key as StudioStep);
                     }}
                     className={`flex flex-col items-center justify-center py-2 px-0.5 rounded-2xl text-[10px] sm:text-[11px] font-bold transition-all ${
                       isActive
@@ -624,8 +723,7 @@ export default function HiraganaStudio({
             <button
               type="button"
               onClick={() => {
-                stopJapaneseSpeech();
-                setCurrentStep('dialogue');
+                handleStepChange('dialogue');
               }}
               className={`w-full h-full min-h-[96px] flex flex-col items-center justify-center p-2 rounded-2xl transition-all border relative overflow-hidden group ${
                 currentStep === 'dialogue'
@@ -662,6 +760,165 @@ export default function HiraganaStudio({
       ======================================================== */}
       {currentStep === 'sound' && (
         <section className="space-y-4">
+          {/* 1. 선택된 글자 상세 카드 & 한국인 발음 팁 (가타카나 페이지와 동일하게 상단 배치) */}
+          <div className="bg-gradient-to-br from-white to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4] shadow-xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`min-w-14 px-3 h-14 rounded-2xl bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center text-2xl sm:text-3xl font-bold text-[#E07A5F] shrink-0 tracking-tight whitespace-nowrap ${fontStyle === 'serif'
+                    ? 'font-jp-mincho'
+                    : 'font-jp-gothic'
+                    }`}
+                  style={{
+                    fontFamily:
+                      fontStyle === 'serif'
+                        ? "'Noto Serif JP', 'Yu Mincho', serif"
+                        : "'Klee One', 'Noto Sans JP', sans-serif"
+                  }}
+                >
+                  {selectedChar.char}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-black text-[#2D3748]">
+                      [{selectedChar.koreanSound}]
+                    </span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#FFF6F1] text-[#E07A5F] border border-[#FCE4D8]">
+                      {selectedChar.romaji} • {selectedChar.strokeCount}획
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#718096] mt-0.5 break-keep">
+                    {selectedChar.strokeGuide || '획순을 지켜 바르게 쓰는 것이 중요해요.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* 발음 듣기 & 암기 카드 & 획순 쓰기 바로가기 */}
+              <div className="flex sm:flex-col items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => handlePlayCharSound(selectedChar)}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-[#E07A5F] hover:bg-[#C45B40] text-white font-bold text-xs shadow-sm hover:shadow transition-all active:scale-95 whitespace-nowrap"
+                  title="소리 다시 듣기"
+                >
+                  <Volume2 className="w-4 h-4 shrink-0" />
+                  <span>발음</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStepChange('cards')}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-2xl bg-[#FFF6F1] hover:bg-[#FCE4D8] text-[#E07A5F] font-bold text-xs border border-[#FCE4D8] transition-all active:scale-95 whitespace-nowrap"
+                  title="플래시 암기 카드로 이동"
+                >
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                  <span>암기 카드</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStepChange('write')}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-2xl bg-[#FAF9F7] hover:bg-white text-[#718096] hover:text-[#2D3748] font-bold text-xs border border-[#EDE8E1] transition-all active:scale-95 whitespace-nowrap"
+                  title="캔버스 쓰기 연습으로 이동"
+                >
+                  <Pencil className="w-3.5 h-3.5 shrink-0" />
+                  <span>써보기</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 탁음 및 요음인 경우: 소리 대조 카드 */}
+            {selectedChar.baseChar && (
+              <div className="p-3.5 rounded-2xl bg-white border border-[#F4DDD4] shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-[#2D3748]">
+                  <span className="flex items-center gap-1.5 whitespace-nowrap">
+                    <ArrowLeftRight className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+                    <span>소리 변화 대조</span>
+                  </span>
+                  <span className="text-[11px] text-[#A0AEC0] font-medium whitespace-nowrap">
+                    {selectedChar.soundType === 'youon'
+                      ? '분리 발음 ➔ 결합 발음'
+                      : selectedChar.soundType === 'handakuon'
+                        ? '청음 ➔ 반탁음'
+                        : '청음 ➔ 탁음'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-2.5 bg-[#FAF0E6]/50 rounded-xl border border-[#F4DDD4]/60">
+                  {/* 원래 소리 버튼 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      stopJapaneseSpeech();
+                      const soundToPlay = selectedChar.soundType === 'youon'
+                        ? `${selectedChar.baseChar}`
+                        : selectedChar.baseChar!;
+                      setPlayingChar(soundToPlay);
+                      speakHiraganaAudio(soundToPlay, 0.85, undefined, () => setPlayingChar(null));
+                    }}
+                    className="py-2.5 px-3 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 transition-all flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 min-w-0"
+                    title="원래 소리 듣기"
+                  >
+                    <Volume2 className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold text-[#4A5568] whitespace-nowrap">
+                      {selectedChar.soundType === 'youon'
+                        ? `분리음 (${selectedChar.separateSound?.match(/\((.+)\)/)?.[1] || '키-야'})`
+                        : `${selectedChar.baseChar} (청음)`}
+                    </span>
+                  </button>
+
+                  <span className="text-sm font-black text-[#E07A5F] shrink-0 px-0.5">➔</span>
+
+                  {/* 결합 소리 버튼 */}
+                  <button
+                    type="button"
+                    onClick={() => handlePlayCharSound(selectedChar)}
+                    className="py-2.5 px-3 rounded-xl bg-[#E07A5F] hover:bg-[#C55D42] text-white transition-all flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 min-w-0"
+                    title="결합 소리 듣기"
+                  >
+                    <Volume2 className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-xs sm:text-sm font-bold whitespace-nowrap">
+                      {selectedChar.soundType === 'youon'
+                        ? `결합음 (${selectedChar.koreanSound})`
+                        : `${selectedChar.char} (${selectedChar.soundType === 'handakuon' ? '반탁음' : '탁음'})`}
+                    </span>
+                  </button>
+                </div>
+
+                {/* 연달아 비교 재생 버튼 */}
+                <button
+                  type="button"
+                  onClick={() => handlePlayCompareSound(selectedChar.baseChar!, selectedChar.char)}
+                  className="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300 transition-colors flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>두 소리 차이 연속으로 듣기</span>
+                </button>
+              </div>
+            )}
+
+            {/* 발음 팁이 있을 경우 노출 */}
+            {selectedChar.soundTip && (
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-2.5 text-xs text-amber-900 leading-relaxed break-keep">
+                <HelpCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="break-keep">
+                  <strong className="font-bold text-amber-800">한국인 발음 클리닉: </strong>
+                  <span>{selectedChar.soundTip}</span>
+                </div>
+              </div>
+            )}
+
+            {/* 바로 쓰기 이동 CTA */}
+            <button
+              type="button"
+              onClick={() => handleStepChange('write')}
+              className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs whitespace-nowrap"
+            >
+              <Pencil className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>&apos;{selectedChar.char}&apos; 캔버스에서 직접 써보기 (Step 2)</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+            </button>
+          </div>
+
+          {/* 2. 50음도 그리드 표 */}
           <div className="bg-white rounded-3xl p-5 border border-[#EDE8E1] shadow-xs space-y-4">
             <div className="flex items-center justify-between gap-2.5">
               <div className="flex items-center gap-2 min-w-0">
@@ -676,7 +933,7 @@ export default function HiraganaStudio({
               {/* 현재 선택된 글자 바로 쓰기 링크 */}
               <button
                 type="button"
-                onClick={() => setCurrentStep('write')}
+                onClick={() => handleStepChange('write')}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition-colors shrink-0 whitespace-nowrap"
               >
                 <span>&apos;{selectedChar.char}&apos; 써보기</span>
@@ -818,7 +1075,7 @@ export default function HiraganaStudio({
                           key={charItem.char}
                           type="button"
                           onClick={() => {
-                            setSelectedChar(charItem);
+                            handleSelectChar(charItem);
                             handlePlayCharSound(charItem);
                           }}
                           className={`aspect-square rounded-2xl flex flex-col items-center justify-center p-1 transition-all relative group ${isSelected
@@ -856,143 +1113,6 @@ export default function HiraganaStudio({
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* 선택된 글자 상세 카드 & 한국인 발음 팁 */}
-          <div className="bg-gradient-to-br from-white to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4] shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`min-w-14 px-3 h-14 rounded-2xl bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center text-2xl sm:text-3xl font-bold text-[#E07A5F] shrink-0 tracking-tight whitespace-nowrap ${fontStyle === 'serif'
-                    ? 'font-jp-mincho'
-                    : 'font-jp-gothic'
-                    }`}
-                  style={{
-                    fontFamily:
-                      fontStyle === 'serif'
-                        ? "'Noto Serif JP', 'Yu Mincho', serif"
-                        : "'Klee One', 'Noto Sans JP', sans-serif"
-                  }}
-                >
-                  {selectedChar.char}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-black text-[#2D3748]">
-                      [{selectedChar.koreanSound}]
-                    </span>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-stone-100 text-[#718096]">
-                      {selectedChar.romaji} • {selectedChar.strokeCount}획
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#718096] mt-0.5 break-keep">
-                    {selectedChar.strokeGuide || '획순을 지켜 바르게 쓰는 것이 중요해요.'}
-                  </p>
-                </div>
-              </div>
-
-              {/* 소리 듣기 큰 버튼 */}
-              <button
-                type="button"
-                onClick={() => handlePlayCharSound(selectedChar)}
-                className="p-3 rounded-2xl bg-[#E07A5F] hover:bg-[#C55D42] text-white shadow-xs transition-transform active:scale-95 shrink-0"
-                title="소리 다시 듣기"
-              >
-                <Volume2 className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* 탁음 및 요음인 경우: 소리 대조 카드 */}
-            {selectedChar.baseChar && (
-              <div className="p-3.5 rounded-2xl bg-white border border-[#F4DDD4] shadow-xs space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-bold text-[#2D3748]">
-                  <span className="flex items-center gap-1.5 whitespace-nowrap">
-                    <ArrowLeftRight className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
-                    <span>소리 변화 대조</span>
-                  </span>
-                  <span className="text-[11px] text-[#A0AEC0] font-medium whitespace-nowrap">
-                    {selectedChar.soundType === 'youon'
-                      ? '분리 발음 ➔ 결합 발음'
-                      : selectedChar.soundType === 'handakuon'
-                        ? '청음 ➔ 반탁음'
-                        : '청음 ➔ 탁음'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-2.5 bg-[#FAF0E6]/50 rounded-xl border border-[#F4DDD4]/60">
-                  {/* 원래 소리 버튼 */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      stopJapaneseSpeech();
-                      const soundToPlay = selectedChar.soundType === 'youon'
-                        ? `${selectedChar.baseChar}`
-                        : selectedChar.baseChar!;
-                      setPlayingChar(soundToPlay);
-                      speakHiraganaAudio(soundToPlay, 0.85, undefined, () => setPlayingChar(null));
-                    }}
-                    className="py-2.5 px-3 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 transition-all flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 min-w-0"
-                    title="원래 소리 듣기"
-                  >
-                    <Volume2 className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
-                    <span className="text-xs sm:text-sm font-bold text-[#4A5568] whitespace-nowrap">
-                      {selectedChar.soundType === 'youon'
-                        ? `분리음 (${selectedChar.separateSound?.match(/\((.+)\)/)?.[1] || '키-야'})`
-                        : `${selectedChar.baseChar} (청음)`}
-                    </span>
-                  </button>
-
-                  <span className="text-sm font-black text-[#E07A5F] shrink-0 px-0.5">➔</span>
-
-                  {/* 결합 소리 버튼 */}
-                  <button
-                    type="button"
-                    onClick={() => handlePlayCharSound(selectedChar)}
-                    className="py-2.5 px-3 rounded-xl bg-[#E07A5F] hover:bg-[#C55D42] text-white transition-all flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 min-w-0"
-                    title="결합 소리 듣기"
-                  >
-                    <Volume2 className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs sm:text-sm font-bold whitespace-nowrap">
-                      {selectedChar.soundType === 'youon'
-                        ? `결합음 (${selectedChar.koreanSound})`
-                        : `${selectedChar.char} (${selectedChar.soundType === 'handakuon' ? '반탁음' : '탁음'})`}
-                    </span>
-                  </button>
-                </div>
-
-                {/* 연달아 비교 재생 버튼 */}
-                <button
-                  type="button"
-                  onClick={() => handlePlayCompareSound(selectedChar.baseChar!, selectedChar.char)}
-                  className="w-full py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300 transition-colors flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>두 소리 차이 연속으로 듣기</span>
-                </button>
-              </div>
-            )}
-
-            {/* 발음 팁이 있을 경우 노출 */}
-            {selectedChar.soundTip && (
-              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-2.5 text-xs text-amber-900 leading-relaxed break-keep">
-                <HelpCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div className="break-keep">
-                  <strong className="font-bold text-amber-800">한국인 발음 클리닉: </strong>
-                  <span>{selectedChar.soundTip}</span>
-                </div>
-              </div>
-            )}
-
-            {/* 바로 쓰기 이동 CTA */}
-            <button
-              type="button"
-              onClick={() => setCurrentStep('write')}
-              className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs whitespace-nowrap"
-            >
-              <Pencil className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>&apos;{selectedChar.char}&apos; 캔버스에서 직접 써보기 (Step 2)</span>
-              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
-            </button>
           </div>
         </section>
       )}
@@ -1403,8 +1523,7 @@ export default function HiraganaStudio({
           <button
             type="button"
             onClick={() => {
-              stopJapaneseSpeech();
-              setCurrentStep('cards');
+              handleStepChange('cards');
             }}
             className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
           >
@@ -1424,10 +1543,10 @@ export default function HiraganaStudio({
           fontStyle={fontStyle}
           onToggleFontStyle={handleToggleFontStyle}
           category={category}
+          initialChar={selectedChar.char}
           onCompleteToNextStep={() => {
-            stopJapaneseSpeech();
             setWordsViewMode('cards');
-            setCurrentStep('words');
+            handleStepChange('words');
           }}
         />
       )}
@@ -1485,8 +1604,7 @@ export default function HiraganaStudio({
               fontStyle={fontStyle}
               onToggleFontStyle={handleToggleFontStyle}
               onCompleteToNextStep={() => {
-                stopJapaneseSpeech();
-                setCurrentStep('dialogue');
+                handleStepChange('dialogue');
               }}
             />
           )}
@@ -1580,8 +1698,7 @@ export default function HiraganaStudio({
               <button
                 type="button"
                 onClick={() => {
-                  stopJapaneseSpeech();
-                  setCurrentStep('dialogue');
+                  handleStepChange('dialogue');
                 }}
                 className="w-full py-3 px-4 rounded-2xl bg-[#2D3748] hover:bg-stone-800 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-xs"
               >
