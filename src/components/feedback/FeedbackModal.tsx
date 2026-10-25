@@ -103,26 +103,26 @@ export default function FeedbackModal({
                 <button
                   type="button"
                   onClick={() => setNaturalness('natural')}
-                  className={`py-2 px-3 rounded-xl border text-center font-medium transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-3 rounded-xl border text-center font-medium transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                     naturalness === 'natural'
                       ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                       : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                   }`}
                 >
-                  <ThumbsUp className="w-3.5 h-3.5" />
+                  <ThumbsUp className="w-3.5 h-3.5 shrink-0" />
                   <span>とても自然！</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setNaturalness('awkward')}
-                  className={`py-2 px-3 rounded-xl border text-center font-medium transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-3 rounded-xl border text-center font-medium transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                     naturalness === 'awkward'
                       ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                       : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                   }`}
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span>少し不自然な点あり</span>
+                  <Edit3 className="w-3.5 h-3.5 shrink-0" />
+                  <span>少し不自然</span>
                 </button>
               </div>
 
