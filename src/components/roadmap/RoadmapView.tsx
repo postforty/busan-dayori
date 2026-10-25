@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { CurriculumLevel, DailyLesson } from '@/types';
 import {
   Sparkles,
-  ArrowRight,
   Bookmark
 } from 'lucide-react';
 import AiGeneratorBar from '@/components/daily/AiGeneratorBar';
@@ -106,14 +105,9 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
       {/* 1. 상단 웰컴 AI 챌린지 카드 (홈 화면 시그니처 웜톤 스타일) */}
       <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4] relative overflow-hidden shadow-xs">
         <div className="relative z-10 space-y-3">
-          {/* 상단 뱃지 & 북마크 퀵 링크 */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
-              <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
-              <span>AI 맞춤 일본어 챌린지</span>
-            </div>
-
-            {savedCount > 0 && (
+          {/* 상단 헤더: 북마크 퀵 링크만 필요 시 우측에 깔끔히 노출 */}
+          {savedCount > 0 && (
+            <div className="flex justify-end">
               <Link
                 href="/voca?tab=lessons"
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-[#F4DDD4] text-[11px] font-bold text-[#E07A5F] hover:bg-white transition-all shadow-2xs shrink-0"
@@ -122,8 +116,8 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
                 <Bookmark className="w-3 h-3 text-[#E07A5F]" />
                 <span>북마크 ({savedCount})</span>
               </Link>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* 2단 감성 볼드 타이틀 */}
           <div>
@@ -139,7 +133,7 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
         </div>
       </section>
 
-      {/* 3. 최근 생성된 1개 레슨 집중 카드 (불필요한 중복 라벨 바 전면 제거) */}
+      {/* 2. 최근 생성된 1개 레슨 집중 카드 */}
       <section>
         {!isLoaded ? (
           <div className="p-8 text-center bg-white rounded-3xl border border-[#EDE8E1] text-xs text-[#718096]">
@@ -150,6 +144,7 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
             key={currentAiLesson.id}
             lesson={currentAiLesson}
             isAiGenerated={true}
+            hideAiBadge={true}
             onPublish={handlePublishSuccess}
           />
         ) : (
@@ -163,25 +158,6 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
             </p>
           </div>
         )}
-      </section>
-
-      {/* 4. 하단 정규 데일리 챌린지(Lv.0 ~ Lv.3) 바로가기 퀵 배너 */}
-      <section className="p-3.5 rounded-2xl bg-[#FBF9F5] border border-[#EDE8E1] flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-xs font-bold text-[#2D3748] truncate">
-            정규 데일리 챌린지 (Lv.0 ~ Lv.3)
-          </p>
-          <span className="text-[11px] text-[#718096]">
-            기초 히라가나부터 단계별로 학습하기
-          </span>
-        </div>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white text-[#718096] hover:text-[#2D3748] text-xs font-bold transition-all shrink-0 border border-[#EDE8E1] shadow-2xs"
-        >
-          <span>매일 챌린지</span>
-          <ArrowRight className="w-3 h-3" />
-        </Link>
       </section>
     </div>
   );

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Letter, Category } from '@/types';
 import LetterCard from '@/components/letters/LetterCard';
 import CategoryFilter from '@/components/letters/CategoryFilter';
-import { Search, Mail, Sparkles, PlusCircle } from 'lucide-react';
+import { Search, Mail, PlusCircle } from 'lucide-react';
 
 interface LettersFeedProps {
   initialLetters: Letter[];
@@ -47,11 +47,6 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
     <div className="px-4 pt-4 space-y-5">
       {/* 1. 헤더 배너 */}
       <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4]">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[10px] font-bold text-[#E07A5F] mb-2.5 border border-[#F4DDD4] w-fit">
-          <Sparkles className="w-3 h-3 text-[#D97706]" />
-          <span>釜山っ子のリアル旅便り</span>
-        </div>
-
         <h1 className="text-lg font-black text-[#2D3748] tracking-tight leading-snug mb-1.5">
           釜山ローカル便り
         </h1>

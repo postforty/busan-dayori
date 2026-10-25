@@ -7,7 +7,7 @@ import HangulMasterStudio from './HangulMasterStudio';
 import PhrasesClient from '@/components/phrases/PhrasesClient';
 import DialectsClient from '@/components/dialects/DialectsClient';
 import HangulIcon from '@/components/common/HangulIcon';
-import { Sparkles, MessageSquareText, Compass, BookOpen } from 'lucide-react';
+import { MessageSquareText, Compass } from 'lucide-react';
 
 interface KoreanHubViewProps {
   initialPhrases: Phrase[];
@@ -47,11 +47,6 @@ export default function KoreanHubView({
       {/* 최상단 소개 히어로 배너 */}
       <section className="bg-gradient-to-br from-[#FAF0E6] via-[#FDF8F3] to-[#F4F1EA] rounded-3xl p-5 border border-[#F4DDD4] shadow-2xs relative overflow-hidden">
         <div className="absolute top-2 right-2 w-24 h-24 bg-[#E07A5F]/10 rounded-full blur-xl pointer-events-none" />
-
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[11px] font-bold text-[#E07A5F] mb-2.5 border border-[#F4DDD4]">
-          <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
-          <span>旅行者のための韓国語ナビ</span>
-        </div>
 
         <h1 className="text-xl font-black text-[#2D3748] tracking-tight mb-2">
           韓国語・ハングル学習ハブ

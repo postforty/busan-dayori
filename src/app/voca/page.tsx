@@ -235,13 +235,8 @@ function VocaContent() {
     <div className="px-4 pt-4 space-y-5">
       {/* 1. 헤더 인트로 */}
       <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4]">
-        <div className="flex items-center justify-between gap-2 mb-2.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
-            <Bookmark className="w-3.5 h-3.5 text-[#E07A5F]" />
-            <span>釜山っ子の日本語ノート</span>
-          </div>
-
-          {mainView === 'words' && filteredWords.length > 0 && (
+        {mainView === 'words' && filteredWords.length > 0 && (
+          <div className="flex justify-end mb-2">
             <button
               onClick={() => {
                 setIsFlashcardMode(!isFlashcardMode);
@@ -253,8 +248,8 @@ function VocaContent() {
               <RotateCw className="w-3.5 h-3.5" />
               <span>{isFlashcardMode ? '一覧で見る' : 'カードで復習'}</span>
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         <h1 className="text-lg font-black text-[#2D3748] tracking-tight mb-1.5">
           手紙の単語帳 & 学習メモ

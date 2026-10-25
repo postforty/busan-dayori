@@ -12,7 +12,6 @@ import {
 } from '@/lib/curriculum/curriculumData';
 import {
   BookOpen,
-  Sparkles,
   GraduationCap,
   FolderArchive,
   ArrowRight,
@@ -154,12 +153,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
         <div className="relative z-10 space-y-3">
 
 
-          {/* 상단 챌린지 배지 ([그림1]과 동일한 스타일 패턴) */}
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/80 backdrop-blur-sm rounded-full text-[11px] font-bold text-[#E07A5F] border border-[#F4DDD4]">
-            <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />
-            <span>매일 한 걸음 일본어 챌린지</span>
-          </div>
-
+          {/* 타이틀 바로 노출 */}
           <div>
             <h1 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug mb-2">
               부산의 따뜻한 이야기를
@@ -235,41 +229,29 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
             </h2>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* AI 보관함 레슨이 있는 경우에만 선택 칩 제공 */}
-            {savedLessons.length > 0 && (
-              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 max-w-[120px]">
-                {savedLessons.map((lesson, idx) => (
-                  <button
-                    key={lesson.id}
-                    onClick={() => {
-                      setCurrentLesson(lesson);
-                      setIsAiGenerated(true);
-                    }}
-                    className={`px-2 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
-                      currentLesson.id === lesson.id && isAiGenerated
-                        ? 'bg-[#E07A5F] text-white'
-                        : 'bg-[#FAF0E6] text-[#E07A5F] border border-[#F4DDD4]'
-                    }`}
-                    title={lesson.themeTitle}
-                  >
-                    <FolderArchive className="w-2.5 h-2.5" />
-                    <span>저장 {idx + 1}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* AI 챌린지 바로가기 버튼 */}
-            <Link
-              href="/roadmap"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white text-[#E07A5F] border border-[#F4DDD4] text-[11px] font-bold hover:bg-[#FAF0E6] transition-colors shadow-2xs"
-            >
-              <Sparkles className="w-3 h-3 text-[#E07A5F]" />
-              <span>AI 챌린지</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
+          {/* 보관함 레슨 칩 (있는 경우에만 표시) */}
+          {savedLessons.length > 0 && (
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 shrink-0">
+              {savedLessons.map((lesson, idx) => (
+                <button
+                  key={lesson.id}
+                  onClick={() => {
+                    setCurrentLesson(lesson);
+                    setIsAiGenerated(true);
+                  }}
+                  className={`px-2 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
+                    currentLesson.id === lesson.id && isAiGenerated
+                      ? 'bg-[#E07A5F] text-white'
+                      : 'bg-[#FAF0E6] text-[#E07A5F] border border-[#F4DDD4]'
+                  }`}
+                  title={lesson.themeTitle}
+                >
+                  <FolderArchive className="w-2.5 h-2.5" />
+                  <span>저장 {idx + 1}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 로드맵 진도 네비게이션 컨트롤 */}

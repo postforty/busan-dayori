@@ -32,6 +32,7 @@ import { showGlobalToast } from '@/utils/toast';
 interface DailyLessonCardProps {
   lesson: DailyLesson;
   isAiGenerated?: boolean;
+  hideAiBadge?: boolean;
   isAdmin?: boolean;
   onPublish?: (publishedLesson: DailyLesson) => void;
 }
@@ -135,6 +136,7 @@ function renderRuby(
 export default function DailyLessonCard({
   lesson,
   isAiGenerated,
+  hideAiBadge,
   isAdmin: propIsAdmin,
   onPublish
 }: DailyLessonCardProps) {
@@ -505,10 +507,12 @@ export default function DailyLessonCard({
       <div className="bg-gradient-to-r from-[#FAF0E6] to-[#FFF9F2] px-4 py-3 border-b border-[#F4DDD4] flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
           {isAiGenerated ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBF3FB] text-[11px] font-black text-[#3D5A80] border border-[#C5D9F2] whitespace-nowrap shadow-2xs shrink-0">
-              <Sparkles className="w-3 h-3 text-[#3D5A80] shrink-0" />
-              <span>AI 맞춤</span>
-            </span>
+            !hideAiBadge && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBF3FB] text-[11px] font-black text-[#3D5A80] border border-[#C5D9F2] whitespace-nowrap shadow-2xs shrink-0">
+                <Sparkles className="w-3 h-3 text-[#3D5A80] shrink-0" />
+                <span>AI 맞춤</span>
+              </span>
+            )
           ) : effectiveLesson.level === 'starter' ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFF2EA] text-[11px] font-black text-[#D96B4F] border border-[#FCDCCE] whitespace-nowrap shadow-xs shrink-0">
               <Baby className="w-3.5 h-3.5 text-[#E78B70] shrink-0" />
