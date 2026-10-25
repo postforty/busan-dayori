@@ -263,6 +263,19 @@ export default function HiraganaStudio({
   const [isCharCompleted, setIsCharCompleted] = useState<boolean>(false);
   const [completedChars, setCompletedChars] = useState<string[]>([]);
   const autoNextTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 로컬 스토리지에서 완료 글자 상태 동기화
+  useEffect(() => {
+    try {
+      const savedChars = localStorage.getItem('hiragana_completed_chars');
+      if (savedChars) {
+        queueMicrotask(() => setCompletedChars(JSON.parse(savedChars)));
+      }
+    } catch {
+      // 무시
+    }
+  }, []);
+
   const [selectedConfusingIndex, setSelectedConfusingIndex] = useState(0);
 
   // 획 정확도 검증(Pixel Mask Matching) 상태
@@ -662,9 +675,21 @@ export default function HiraganaStudio({
 
     if (nextStrokes >= selectedChar.strokeCount && !isCharCompleted) {
       setIsCharCompleted(true);
-      setCompletedChars((prev) =>
-        prev.includes(selectedChar.char) ? prev : [...prev, selectedChar.char]
-      );
+      setCompletedChars((prev) => {
+        const updated = prev.includes(selectedChar.char) ? prev : [...prev, selectedChar.char];
+        try {
+          localStorage.setItem('hiragana_completed_chars', JSON.stringify(updated));
+          if (updated.length >= 46) {
+            const rawStatus = localStorage.getItem('kana_master_status');
+            const status = rawStatus ? JSON.parse(rawStatus) : { hiragana: false, katakana: false };
+            status.hiragana = true;
+            localStorage.setItem('kana_master_status', JSON.stringify(status));
+          }
+        } catch {
+          // 무시
+        }
+        return updated;
+      });
 
       // 완성 순간 해당 글자의 일본어 원어민 발음(TTS) 자동 재생
       speakHiraganaAudio(selectedChar.char, 0.85);

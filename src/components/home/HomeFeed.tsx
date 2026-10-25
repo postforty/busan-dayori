@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { DailyLesson } from '@/types';
@@ -17,7 +17,12 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Languages
+  Languages,
+  Trophy,
+  Sparkles,
+  Check,
+  ChevronDown,
+  RotateCcw
 } from 'lucide-react';
 
 interface HomeFeedProps {
@@ -131,6 +136,64 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
     }
   }, []);
 
+  // ----------------------------------------------------
+  // 히라가나 & 가타카나 마스터 상태 관리 (4안: 게이미피케이션 배지)
+  // ----------------------------------------------------
+  const [kanaStatus, setKanaStatus] = useState<{ hiragana: boolean; katakana: boolean }>({
+    hiragana: false,
+    katakana: false
+  });
+  const [isBadgeMenuOpen, setIsBadgeMenuOpen] = useState(false);
+  const badgeMenuRef = useRef<HTMLDivElement>(null);
+
+  // 로컬 스토리지에서 가나 마스터 상태 로드 (기존 46자 이상 완료 데이터 있을 시 자동 연동)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('kana_master_status');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setTimeout(() => setKanaStatus(parsed), 0);
+      } else {
+        const katakanaChars = localStorage.getItem('katakana_completed_chars');
+        const isKatakanaDone = katakanaChars && JSON.parse(katakanaChars).length >= 46;
+        if (isKatakanaDone) {
+          setTimeout(() => setKanaStatus((prev) => ({ ...prev, katakana: true })), 0);
+        }
+      }
+    } catch {
+      // 무시
+    }
+  }, []);
+
+  // 팝오버 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (badgeMenuRef.current && !badgeMenuRef.current.contains(e.target as Node)) {
+        setIsBadgeMenuOpen(false);
+      }
+    };
+    if (isBadgeMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isBadgeMenuOpen]);
+
+  const updateKanaStatus = (next: Partial<{ hiragana: boolean; katakana: boolean }>) => {
+    setKanaStatus((prev) => {
+      const updated = { ...prev, ...next };
+      try {
+        localStorage.setItem('kana_master_status', JSON.stringify(updated));
+      } catch {
+        // 무시
+      }
+      return updated;
+    });
+  };
+
+  const isAllKanaMastered = kanaStatus.hiragana && kanaStatus.katakana;
+
   // 인접 로드맵 유닛 계산
   const adjacentInfo = getAdjacentCurriculumUnits(currentLesson.id);
 
@@ -148,71 +211,201 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
 
   return (
     <div className="px-4 pt-4 pb-20 space-y-6 max-w-xl mx-auto">
-      {/* 1. 웰컴 인트로 배너 */}
-      <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-4 sm:p-5 border border-[#F4DDD4] relative overflow-hidden shadow-xs">
-        <div className="relative z-10 space-y-2.5">
-          {/* 타이틀 바로 노출 */}
-          <div>
-            <h1 className="text-lg sm:text-xl font-black text-[#2D3748] tracking-tight leading-snug">
-              부산의 따뜻한 이야기를
-              <br />
-              <span className="text-[#E07A5F] text-base sm:text-lg">편지에 담기까지</span>
-            </h1>
-            <p className="text-xs text-[#718096] leading-relaxed mt-1">
-              매일 배운 일본어로 부산을 찾는 일본인 친구에게 다정한 편지를 띄웁니다.
-            </p>
+      {/* 1. 웰컴 인트로 배너 (드롭다운이 가려지지 않도록 overflow-hidden 제거 및 z-index 보장) */}
+      <section
+        className={`bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-4 sm:p-5 border border-[#F4DDD4] relative shadow-xs transition-all ${
+          isBadgeMenuOpen ? 'z-30' : 'z-10'
+        }`}
+      >
+        <div className="relative space-y-3">
+          {/* 타이틀 및 가나 마스터 완료 엠블럼 배지 */}
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-lg sm:text-xl font-black text-[#2D3748] tracking-tight leading-snug">
+                부산의 따뜻한 이야기를
+                <br />
+                <span className="text-[#E07A5F] text-base sm:text-lg">편지에 담기까지</span>
+              </h1>
+              <p className="text-xs text-[#718096] leading-relaxed mt-1">
+                매일 배운 일본어로 부산을 찾는 일본인 친구에게 다정한 편지를 띄웁니다.
+              </p>
+            </div>
+
+            {/* 마스터 달성 시 노출되는 골드 엠블럼 배지 & 팝오버 */}
+            {isAllKanaMastered && (
+              <div className="relative shrink-0 z-50" ref={badgeMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsBadgeMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-gradient-to-r from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/40 text-[#92400E] text-xs font-black shadow-xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer group"
+                  title="가나 마스터 완료! 클릭하여 복습 및 설정"
+                >
+                  <Trophy className="w-3.5 h-3.5 text-[#D97706] group-hover:rotate-12 transition-transform shrink-0" />
+                  <span className="flex items-center gap-0.5 tracking-tight font-black text-xs">
+                    <span className="text-[#E07A5F]">あ</span>
+                    <span className="text-[#D97706]/70 text-[10px]">·</span>
+                    <span className="text-[#3D5A80]">ア</span>
+                  </span>
+                  <ChevronDown
+                    className={`w-3 h-3 text-[#B45309] transition-transform duration-200 shrink-0 ${
+                      isBadgeMenuOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {/* 퀵 복습 팝오버 메뉴 (1안: 듀얼 심볼 퀵 런처) */}
+                {isBadgeMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-2.5rem)] p-2.5 bg-white rounded-2xl shadow-xl border border-[#F4DDD4] z-50 animate-in fade-in zoom-in-95 duration-150 space-y-2">
+                    {/* 상단 콤팩트 헤더: 타이틀 + 리셋 아이콘 버튼 */}
+                    <div className="flex items-center justify-between px-1 pt-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <Trophy className="w-3.5 h-3.5 text-[#D97706]" />
+                        <span className="text-xs font-black text-[#2D3748] tracking-tight">50音 Mastered</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateKanaStatus({ hiragana: false, katakana: false });
+                          setIsBadgeMenuOpen(false);
+                        }}
+                        className="p-1 rounded-lg text-[#A0AEC0] hover:text-[#E07A5F] hover:bg-[#FAF0E6] transition-colors cursor-pointer"
+                        title="기초 카드 형태로 다시 펼치기"
+                        aria-label="기초 카드 형태로 다시 펼치기"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* 가로 2분할 듀얼 심볼 런처 */}
+                    <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                      <Link
+                        href="/hiragana"
+                        onClick={() => setIsBadgeMenuOpen(false)}
+                        className="flex items-center justify-between p-2 rounded-xl bg-[#FFF6F1] hover:bg-[#FCE4D8]/60 border border-[#FCE4D8] transition-all group/h"
+                        title="히라가나 학습 바로가기"
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="w-6 h-6 rounded-lg bg-white border border-[#FCE4D8] text-[#E07A5F] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                            あ
+                          </span>
+                          <span className="text-xs font-black text-[#2D3748] group-hover/h:text-[#E07A5F] transition-colors truncate">
+                            히라가나
+                          </span>
+                        </div>
+                        <ArrowRight className="w-3 h-3 text-[#E07A5F] group-hover/h:translate-x-0.5 transition-transform shrink-0" />
+                      </Link>
+
+                      <Link
+                        href="/katakana"
+                        onClick={() => setIsBadgeMenuOpen(false)}
+                        className="flex items-center justify-between p-2 rounded-xl bg-[#F0F7FF] hover:bg-[#C5D9F2]/60 border border-[#C5D9F2] transition-all group/k"
+                        title="가타카나 학습 바로가기"
+                      >
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="w-6 h-6 rounded-lg bg-white border border-[#C5D9F2] text-[#3D5A80] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                            ア
+                          </span>
+                          <span className="text-xs font-black text-[#2D3748] group-hover/k:text-[#3D5A80] transition-colors truncate">
+                            가타카나
+                          </span>
+                        </div>
+                        <ArrowRight className="w-3 h-3 text-[#3D5A80] group-hover/k:translate-x-0.5 transition-transform shrink-0" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* 문자 학습 CTA (히라가나 & 가타카나) */}
-          <div className="pt-0.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <Link
-              href="/hiragana"
-              className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs transition-all group"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-7 h-7 rounded-lg bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
-                  <GraduationCap className="w-3.5 h-3.5 text-[#E07A5F]" />
-                </div>
-                <div className="text-left min-w-0">
-                  <div className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors flex items-center gap-1.5 flex-wrap">
-                    <span>히라가나 마스터</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
-                      입문
+          {/* 문자 학습 CTA (히라가나 & 가타카나) - 둘 다 마스터 완료 시 숨김 */}
+          {!isAllKanaMastered && (
+            <div className="pt-0.5 animate-in fade-in duration-300">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {/* 히라가나 카드 (Warm Coral 테마) */}
+                <div
+                  className={`flex items-center justify-between p-2.5 rounded-2xl border transition-all ${
+                    kanaStatus.hiragana
+                      ? 'bg-[#FFF6F1] border-[#FCE4D8]'
+                      : 'bg-white border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs'
+                  }`}
+                >
+                  <Link
+                    href="/hiragana"
+                    className="flex items-center gap-2 min-w-0 flex-1 py-0.5 group"
+                    title="히라가나 마스터 학습하러 가기"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
+                      <GraduationCap className="w-3.5 h-3.5 text-[#E07A5F]" />
+                    </div>
+                    <span className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors truncate">
+                      히라가나 마스터
                     </span>
-                  </div>
-                  <p className="text-[10px] text-[#A0AEC0] truncate">소리·획순·단어 107자</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-0.5 text-xs font-bold text-[#E07A5F] shrink-0">
-                <span>학습</span>
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            </Link>
+                  </Link>
 
-            <Link
-              href="/katakana"
-              className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border border-[#D0E1F9] hover:border-[#3D5A80] shadow-2xs hover:shadow-xs transition-all group"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-7 h-7 rounded-lg bg-[#F0F7FF] border border-[#C5D9F2] flex items-center justify-center shrink-0">
-                  <Languages className="w-3.5 h-3.5 text-[#3D5A80]" />
+                  {/* 히라가나 원형 완료 체크 토글 (Warm Coral: #E07A5F) */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      updateKanaStatus({ hiragana: !kanaStatus.hiragana });
+                    }}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all shrink-0 cursor-pointer ${
+                      kanaStatus.hiragana
+                        ? 'bg-[#E07A5F] border-[#E07A5F] text-white shadow-2xs scale-105'
+                        : 'bg-white border-[#F4DDD4] text-transparent hover:border-[#E07A5F] hover:text-[#E07A5F]/40'
+                    }`}
+                    title={kanaStatus.hiragana ? '완료 취소' : '학습 완료 체크'}
+                    aria-label={kanaStatus.hiragana ? '히라가나 완료 취소' : '히라가나 완료 체크'}
+                  >
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </button>
                 </div>
-                <div className="text-left min-w-0">
-                  <div className="text-xs font-black text-[#2D3748] group-hover:text-[#3D5A80] transition-colors flex items-center gap-1.5 flex-wrap">
-                    <span>가타카나 마스터</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold border border-[#C5D9F2]">
-                      외래어
+
+                {/* 가타카나 카드 (Slate Navy 테마) */}
+                <div
+                  className={`flex items-center justify-between p-2.5 rounded-2xl border transition-all ${
+                    kanaStatus.katakana
+                      ? 'bg-[#F0F7FF] border-[#C5D9F2]'
+                      : 'bg-white border-[#D0E1F9] hover:border-[#3D5A80] shadow-2xs hover:shadow-xs'
+                  }`}
+                >
+                  <Link
+                    href="/katakana"
+                    className="flex items-center gap-2 min-w-0 flex-1 py-0.5 group"
+                    title="가타카나 마스터 학습하러 가기"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-[#F0F7FF] border border-[#C5D9F2] flex items-center justify-center shrink-0">
+                      <Languages className="w-3.5 h-3.5 text-[#3D5A80]" />
+                    </div>
+                    <span className="text-xs font-black text-[#2D3748] group-hover:text-[#3D5A80] transition-colors truncate">
+                      가타카나 마스터
                     </span>
-                  </div>
-                  <p className="text-[10px] text-[#A0AEC0] truncate">도플갱어 비교·짝맞추기</p>
+                  </Link>
+
+                  {/* 가타카나 원형 완료 체크 토글 (Slate Navy: #3D5A80) */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      updateKanaStatus({ katakana: !kanaStatus.katakana });
+                    }}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all shrink-0 cursor-pointer ${
+                      kanaStatus.katakana
+                        ? 'bg-[#3D5A80] border-[#3D5A80] text-white shadow-2xs scale-105'
+                        : 'bg-white border-[#C5D9F2] text-transparent hover:border-[#3D5A80] hover:text-[#3D5A80]/40'
+                    }`}
+                    title={kanaStatus.katakana ? '완료 취소' : '학습 완료 체크'}
+                    aria-label={kanaStatus.katakana ? '가타카나 완료 취소' : '가타카나 완료 체크'}
+                  >
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  </button>
                 </div>
               </div>
-              <div className="flex items-center gap-0.5 text-xs font-bold text-[#3D5A80] shrink-0">
-                <span>학습</span>
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            </Link>
-          </div>
+            </div>
+          )}
         </div>
       </section>
 

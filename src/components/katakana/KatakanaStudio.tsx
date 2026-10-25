@@ -625,6 +625,12 @@ export default function KatakanaStudio({
         const updated = prev.includes(selectedChar.char) ? prev : [...prev, selectedChar.char];
         try {
           localStorage.setItem('katakana_completed_chars', JSON.stringify(updated));
+          if (updated.length >= 46) {
+            const rawStatus = localStorage.getItem('kana_master_status');
+            const status = rawStatus ? JSON.parse(rawStatus) : { hiragana: false, katakana: false };
+            status.katakana = true;
+            localStorage.setItem('kana_master_status', JSON.stringify(status));
+          }
         } catch {
           // 무시
         }
