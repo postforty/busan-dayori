@@ -149,69 +149,67 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
   return (
     <div className="px-4 pt-4 pb-20 space-y-6 max-w-xl mx-auto">
       {/* 1. 웰컴 인트로 배너 */}
-      <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4] relative overflow-hidden shadow-xs">
-        <div className="relative z-10 space-y-3">
-
-
+      <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-4 sm:p-5 border border-[#F4DDD4] relative overflow-hidden shadow-xs">
+        <div className="relative z-10 space-y-2.5">
           {/* 타이틀 바로 노출 */}
           <div>
-            <h1 className="text-xl font-black text-[#2D3748] tracking-tight leading-snug mb-2">
+            <h1 className="text-lg sm:text-xl font-black text-[#2D3748] tracking-tight leading-snug">
               부산의 따뜻한 이야기를
               <br />
-              <span className="text-[#E07A5F] text-lg">편지에 담기까지</span>
+              <span className="text-[#E07A5F] text-base sm:text-lg">편지에 담기까지</span>
             </h1>
-            <p className="text-xs text-[#718096] leading-relaxed">
-              히라가나 한 글자부터 차곡차곡 일기 쓰듯 도전해요. 정성껏 배운 일본어로 부산을 찾는 일본인 친구에게 다정한 편지를 띄웁니다.
+            <p className="text-xs text-[#718096] leading-relaxed mt-1">
+              매일 배운 일본어로 부산을 찾는 일본인 친구에게 다정한 편지를 띄웁니다.
             </p>
           </div>
 
           {/* 문자 학습 CTA (히라가나 & 가타카나) */}
-          <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="pt-0.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Link
               href="/hiragana"
-              className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-white border border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs transition-all group"
+              className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs transition-all group"
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
-                  <GraduationCap className="w-4 h-4 text-[#E07A5F]" />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-3.5 h-3.5 text-[#E07A5F]" />
                 </div>
                 <div className="text-left min-w-0">
                   <div className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors flex items-center gap-1.5 flex-wrap">
                     <span>히라가나 마스터</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-[#FFF6F1] text-[#E07A5F] font-bold border border-[#FCE4D8]">
                       입문
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#A0AEC0] truncate">소리·획순·단어 107자</p>
+                  <p className="text-[10px] text-[#A0AEC0] truncate">소리·획순·단어 107자</p>
                 </div>
               </div>
               <div className="flex items-center gap-0.5 text-xs font-bold text-[#E07A5F] shrink-0">
                 <span>학습</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
 
             <Link
               href="/katakana"
-              className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-white border border-[#D0E1F9] hover:border-[#3D5A80] shadow-2xs hover:shadow-xs transition-all group"
+              className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border border-[#D0E1F9] hover:border-[#3D5A80] shadow-2xs hover:shadow-xs transition-all group"
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-[#F0F7FF] border border-[#C5D9F2] flex items-center justify-center shrink-0">
-                  <Languages className="w-4 h-4 text-[#3D5A80]" />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-[#F0F7FF] border border-[#C5D9F2] flex items-center justify-center shrink-0">
+                  <Languages className="w-3.5 h-3.5 text-[#3D5A80]" />
                 </div>
                 <div className="text-left min-w-0">
                   <div className="text-xs font-black text-[#2D3748] group-hover:text-[#3D5A80] transition-colors flex items-center gap-1.5 flex-wrap">
                     <span>가타카나 마스터</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold border border-[#C5D9F2]">
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-[#F0F7FF] text-[#3D5A80] font-bold border border-[#C5D9F2]">
                       외래어
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#A0AEC0] truncate">도플갱어 비교·짝맞추기</p>
+                  <p className="text-[10px] text-[#A0AEC0] truncate">도플갱어 비교·짝맞추기</p>
                 </div>
               </div>
               <div className="flex items-center gap-0.5 text-xs font-bold text-[#3D5A80] shrink-0">
                 <span>학습</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
             </Link>
           </div>
@@ -225,7 +223,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
           <div className="flex items-center gap-1.5 min-w-0">
             <BookOpen className="w-4 h-4 text-[#E07A5F] shrink-0" />
             <h2 className="text-sm font-bold text-[#2D3748] truncate">
-              今日の学習ノート (오늘의 챌린지 일기)
+              今日のレッスン (오늘의 레슨)
             </h2>
           </div>
 

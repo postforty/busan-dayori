@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Mail, Sparkles, Smile, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
+import { Mail, Smile, Heart, X, PlusCircle, LogIn, LogOut, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { signInWithGoogle, signOut } from '@/lib/supabase/auth';
 import SoundToggleButton from '@/components/common/SoundToggleButton';
@@ -124,39 +124,12 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* 0. 전역 소리 On/Off 토글 버튼 */}
-            <SoundToggleButton variant="header" />
-
-            {/* 1. TTS 음성 엔진 원클릭 토글 버튼 (ON: Gemini AI 남성 음성 + DB 캐싱 / OFF: 브라우저 여성 음성) */}
-            <button
-              type="button"
-              onClick={handleToggleTtsMode}
-              className={`flex items-center justify-center gap-1.5 text-xs p-2 sm:px-2.5 sm:py-1.5 rounded-full transition-all font-semibold active:scale-95 shrink-0 border cursor-pointer ${ttsMode === 'gemini'
-                ? 'bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#92400E] border-[#FDE68A] shadow-xs'
-                : 'bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#64748B] border-[#CBD5E1]'
-                }`}
-              title={
-                ttsMode === 'gemini'
-                  ? '회화 AI 음성 모드 ON (Gemini 고품질 음성) - 클릭하여 기본 음성으로 전환'
-                  : '기본 브라우저 음성 모드 - 클릭하여 회화 AI 음성 켜기'
-              }
-              aria-label={ttsMode === 'gemini' ? '회화 AI 음성 켜짐' : '기본 음성 모드'}
-            >
-              <Sparkles
-                className={`w-4 h-4 sm:w-3.5 sm:h-3.5 transition-transform ${ttsMode === 'gemini' ? 'text-[#D97706] scale-105' : 'text-[#94A3B8]'
-                  }`}
-              />
-              <span className="hidden sm:inline">
-                {ttsMode === 'gemini' ? 'AI ON' : 'AI OFF'}
-              </span>
-            </button>
-
-            {/* 2. 주인장 소개 버튼 */}
+            {/* 1. 주인장 소개 & 환경 설정 버튼 */}
             <button
               onClick={() => setShowAboutModal(true)}
               className="flex items-center justify-center gap-1.5 text-xs p-2 sm:px-2.5 sm:py-1.5 rounded-full bg-[#E2E8F0]/70 hover:bg-[#E2E8F0] text-[#4A5568] transition-all font-medium active:scale-95 shrink-0"
-              title="はじめまして！ (주인장 소개)"
-              aria-label="주인장 소개"
+              title="はじめまして！ (소개 및 설정)"
+              aria-label="소개 및 설정"
             >
               <Smile className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-[#E07A5F]" />
               <span className="hidden sm:inline">はじめまして</span>
@@ -241,6 +214,41 @@ export default function Header() {
               <p>
                 もし記事の中に<strong>「ここ、少し不自然だな」</strong>という表現があれば、ぜひ各記事の添削ボタンから気軽に教えていただけると本当に嬉しいです！
               </p>
+            </div>
+
+            {/* 환경 설정 영역 (효과음 & AI 음성 모드) */}
+            <div className="mt-3.5 pt-3 border-t border-gray-100 space-y-2">
+              <span className="text-[11px] font-bold text-gray-500 block">環境・音声設定 (환경 설정)</span>
+
+              {/* 1. 전역 효과음 */}
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FBF9F5] border border-[#EDE8E1] text-xs">
+                <div>
+                  <span className="font-semibold text-[#2D3748] block">効果音 (효과음)</span>
+                  <span className="text-[10px] text-gray-400">터치 및 인터랙션 사운드</span>
+                </div>
+                <SoundToggleButton variant="header" />
+              </div>
+
+              {/* 2. 회화 AI 음성 모드 */}
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FBF9F5] border border-[#EDE8E1] text-xs">
+                <div>
+                  <span className="font-semibold text-[#2D3748] block">AI音声モード (AI 음성 엔진)</span>
+                  <span className="text-[10px] text-gray-400">
+                    {ttsMode === 'gemini' ? 'Gemini 고품질 회화 음성' : '브라우저 기본 음성'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleTtsMode}
+                  className={`text-xs px-2.5 py-1 rounded-full border font-bold transition-all active:scale-95 cursor-pointer ${
+                    ttsMode === 'gemini'
+                      ? 'bg-[#FEF3C7] text-[#92400E] border-[#FDE68A] shadow-xs'
+                      : 'bg-white text-gray-500 border-gray-200'
+                  }`}
+                >
+                  {ttsMode === 'gemini' ? 'AI 音声 ON' : '標準 音声'}
+                </button>
+              </div>
             </div>
 
             <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
