@@ -13,7 +13,6 @@ import {
 import {
   BookOpen,
   GraduationCap,
-  FolderArchive,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
@@ -60,7 +59,6 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
   });
 
   const [isAiGenerated, setIsAiGenerated] = useState(false);
-  const [savedLessons, setSavedLessons] = useState<DailyLesson[]>([]);
 
   // 레슨 선택 및 진도 기억
   const selectLesson = (lesson: DailyLesson, isAi: boolean = false) => {
@@ -123,18 +121,6 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
     }
   }, [queryLessonId, initialLessons]);
 
-  // 로컬 스토리지에서 보관된 레슨 로드
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('saved_lessons');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setTimeout(() => setSavedLessons(parsed), 0);
-      }
-    } catch {
-      // 무시
-    }
-  }, []);
 
   // ----------------------------------------------------
   // 히라가나 & 가타카나 마스터 상태 관리 (4안: 게이미피케이션 배지)
@@ -419,30 +405,6 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
               今日のレッスン (오늘의 레슨)
             </h2>
           </div>
-
-          {/* 보관함 레슨 칩 (있는 경우에만 표시) */}
-          {savedLessons.length > 0 && (
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 shrink-0">
-              {savedLessons.map((lesson, idx) => (
-                <button
-                  key={lesson.id}
-                  onClick={() => {
-                    setCurrentLesson(lesson);
-                    setIsAiGenerated(true);
-                  }}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all flex items-center gap-1 ${
-                    currentLesson.id === lesson.id && isAiGenerated
-                      ? 'bg-[#E07A5F] text-white'
-                      : 'bg-[#FAF0E6] text-[#E07A5F] border border-[#F4DDD4]'
-                  }`}
-                  title={lesson.themeTitle}
-                >
-                  <FolderArchive className="w-2.5 h-2.5" />
-                  <span>저장 {idx + 1}</span>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* 로드맵 진도 네비게이션 컨트롤 */}

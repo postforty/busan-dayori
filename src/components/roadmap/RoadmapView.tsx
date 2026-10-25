@@ -1,12 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import { CurriculumLevel, DailyLesson } from '@/types';
-import {
-  Sparkles,
-  Bookmark
-} from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import AiGeneratorBar from '@/components/daily/AiGeneratorBar';
 import DailyLessonCard from '@/components/daily/DailyLessonCard';
 
@@ -19,22 +15,6 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
   // 최근 생성된 1개의 AI 레슨 상태
   const [currentAiLesson, setCurrentAiLesson] = useState<DailyLesson | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [savedCount, setSavedCount] = useState<number>(0);
-
-  // 보관함(saved_lessons) 상태 동기화
-  const syncSavedState = useCallback(() => {
-    try {
-      const saved = localStorage.getItem('saved_lessons');
-      if (saved) {
-        const list: DailyLesson[] = JSON.parse(saved);
-        setSavedCount(list.length);
-      } else {
-        setSavedCount(0);
-      }
-    } catch {
-      // 무시
-    }
-  }, []);
 
   // 1. 초기 로드: 최근 생성된 레슨 1개 복원 (없으면 초기 DB 레슨 첫 번째 활용)
   useEffect(() => {
@@ -51,7 +31,6 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
       if (targetLesson) {
         setCurrentAiLesson(targetLesson);
       }
-      syncSavedState();
     } catch {
       if (initialDbLessons.length > 0) {
         setCurrentAiLesson(initialDbLessons[0]);
@@ -59,22 +38,7 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
     } finally {
       setIsLoaded(true);
     }
-  }, [initialDbLessons, syncSavedState]);
-
-  // 보관함 로컬 스토리지 변경 감지
-  useEffect(() => {
-    const handleStorageChange = () => {
-      syncSavedState();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    const interval = setInterval(handleStorageChange, 2500);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, [syncSavedState]);
+  }, [initialDbLessons]);
 
   // 2. 새 레슨 생성 시: 오직 최신 1개로 교체 (미북마크된 이전 레슨은 자연 휘발)
   const handleLessonGenerated = (newLesson: DailyLesson) => {
@@ -85,8 +49,6 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
     } catch {
       // 무시
     }
-
-    syncSavedState();
   };
 
   return (
@@ -94,19 +56,6 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
       {/* 1. 상단 웰컴 AI 챌린지 카드 (홈 화면 시그니처 웜톤 스타일) */}
       <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4] relative overflow-hidden shadow-xs">
         <div className="relative z-10 space-y-3">
-          {/* 상단 헤더: 북마크 퀵 링크만 필요 시 우측에 깔끔히 노출 */}
-          {savedCount > 0 && (
-            <div className="flex justify-end">
-              <Link
-                href="/voca?tab=lessons"
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-[#F4DDD4] text-[11px] font-bold text-[#E07A5F] hover:bg-white transition-all shadow-2xs shrink-0"
-                title="북마크한 레슨 모아보기"
-              >
-                <Bookmark className="w-3 h-3 text-[#E07A5F]" />
-                <span>북마크 ({savedCount})</span>
-              </Link>
-            </div>
-          )}
 
           {/* 2단 감성 볼드 타이틀 */}
           <div>

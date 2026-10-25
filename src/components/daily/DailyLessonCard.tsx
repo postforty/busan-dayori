@@ -557,26 +557,26 @@ export default function DailyLessonCard({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* 발음 가이드 ON/OFF 토글 버튼 */}
+            {/* 발음 가이드 ON/OFF 토글 버튼 (아이콘 전용) */}
             <button
               type="button"
               onClick={handleTogglePronounce}
-              className={`px-2 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border active:scale-95 shrink-0 cursor-pointer ${
+              className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all border active:scale-95 shrink-0 cursor-pointer ${
                 showPronounce
-                  ? 'bg-white text-[#E07A5F] border-[#F4DDD4] shadow-2xs'
-                  : 'bg-white/60 text-gray-400 border-[#EDE8E1] hover:bg-white'
+                  ? 'bg-[#FFF2EA] text-[#E07A5F] border-[#FCDCCE] shadow-2xs'
+                  : 'bg-white/60 text-gray-400 border-[#EDE8E1] hover:bg-white hover:text-gray-500'
               }`}
               title={showPronounce ? '발음 가이드 끄기' : '발음 가이드 켜기'}
               aria-label={showPronounce ? '발음 켜짐' : '발음 꺼짐'}
             >
-              <Languages className="w-3.5 h-3.5 text-[#E07A5F]" />
-              <span className="hidden sm:inline">발음</span>
-              <span className="text-[10px]">{showPronounce ? 'ON' : 'OFF'}</span>
+              <Languages className="w-3.5 h-3.5" />
             </button>
 
+            {/* 레슨 북마크 토글 버튼 (아이콘 전용으로 규격 통일) */}
             <button
+              type="button"
               onClick={handleToggleLessonSave}
-              className={`w-7 h-7 sm:w-auto sm:h-auto p-1.5 sm:px-2.5 sm:py-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-all border whitespace-nowrap shrink-0 active:scale-95 ${
+              className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all border shrink-0 active:scale-95 cursor-pointer ${
                 isLessonSaved
                   ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-sm'
                   : 'bg-white text-[#718096] border-[#EDE8E1] hover:bg-gray-50 hover:text-[#2D3748]'
@@ -589,7 +589,6 @@ export default function DailyLessonCard({
               ) : (
                 <Bookmark className="w-3.5 h-3.5 shrink-0" />
               )}
-              <span className="hidden sm:inline">{isLessonSaved ? '북마크됨' : '북마크'}</span>
             </button>
           </div>
         </div>
