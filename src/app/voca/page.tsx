@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { SavedWord, DailyLesson } from '@/types';
+import { SavedWord, DailyLesson, WordBreakdown } from '@/types';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation } from '@/utils/japanesePronounce';
+import SentenceTutorDrawer from '@/components/daily/SentenceTutorDrawer';
 import {
   Bookmark,
   Volume2,
@@ -16,8 +17,25 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Sparkles,
 } from 'lucide-react';
+
+function deriveBreakdownFromVocab(
+  japanese: string,
+  vocabList?: { kanji: string; reading: string; meaning: string }[]
+): WordBreakdown[] | undefined {
+  if (!vocabList || vocabList.length === 0) return undefined;
+  const matched = vocabList.filter(
+    (v) => v.kanji && japanese.includes(v.kanji)
+  );
+  if (matched.length === 0) return undefined;
+  return matched.map((v) => ({
+    word: v.kanji,
+    reading: v.reading,
+    meaning: v.meaning,
+  }));
+}
 
 function VocaContent() {
   const searchParams = useSearchParams();
@@ -45,6 +63,21 @@ function VocaContent() {
   const [savedLessons, setSavedLessons] = useState<DailyLesson[]>([]);
   const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);
 
+  // 다요리 센세 1:1 과외 상태
+  const [activeTutorSentence, setActiveTutorSentence] = useState<{
+    japanese: string;
+    korean: string;
+    speaker: string;
+    pronunciation?: string;
+    breakdown?: WordBreakdown[];
+  } | null>(null);
+
+  const [activeTutorContext, setActiveTutorContext] = useState<{
+    level?: string;
+    themeTitle?: string;
+    unitTitle?: string;
+  } | undefined>(undefined);
+
   // 로컬 스토리지에서 단어 및 보관된 레슨 로드
   useEffect(() => {
     try {
@@ -56,7 +89,19 @@ function VocaContent() {
           setWords(JSON.parse(savedWordsData));
         }
         if (savedLessonsData) {
-          setSavedLessons(JSON.parse(savedLessonsData));
+          const rawLessons: DailyLesson[] = JSON.parse(savedLessonsData);
+          const cleanedLessons = rawLessons.map((l) => ({
+            ...l,
+            seriesTitle: l.seriesTitle?.replace('Lv.0 유치원생 입문', 'Lv.0 입문') || l.seriesTitle,
+          }));
+          setSavedLessons(cleanedLessons);
+          if (savedLessonsData.includes('유치원생')) {
+            try {
+              localStorage.setItem('saved_lessons', JSON.stringify(cleanedLessons));
+            } catch {
+              // 무시
+            }
+          }
         }
       }, 0);
     } catch {
@@ -366,13 +411,35 @@ function VocaContent() {
                       <span className="border border-gray-200 px-2 py-0.5 rounded text-[10px]">
                         {currentFlashcard.partOfSpeech}
                       </span>
-                      <button
-                        onClick={(e) => handlePlay(e, currentFlashcard.kanji)}
-                        className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
-                        title="発音を聞く"
-                      >
-                        <Volume2 className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTutorSentence({
+                              japanese: currentFlashcard.kanji,
+                              korean: currentFlashcard.meaning,
+                              speaker: currentFlashcard.partOfSpeech || '단어·표현',
+                              pronunciation: getPronunciation(currentFlashcard.kanji, currentFlashcard.reading),
+                            });
+                            setActiveTutorContext({
+                              themeTitle: '북마크 단어장 플래시카드',
+                            });
+                          }}
+                          className="px-2 py-1 rounded-full bg-[#FAF0E6] hover:bg-[#F4DDD4] text-[#E07A5F] transition-colors flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                          title="다요리 센세 1:1 과외"
+                        >
+                          <Sparkles className="w-3 h-3 text-[#E07A5F]" />
+                          <span>다요리 센세</span>
+                        </button>
+                        <button
+                          onClick={(e) => handlePlay(e, currentFlashcard.kanji)}
+                          className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
+                          title="発音を聞く"
+                        >
+                          <Volume2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
 
                     {!isFlipped ? (
@@ -457,10 +524,10 @@ function VocaContent() {
                   key={word.id}
                   className="p-3.5 bg-white rounded-2xl border border-[#EDE8E1] card-shadow flex items-center justify-between gap-3 transition-all hover:border-[#E07A5F]/30"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <button
                       onClick={(e) => handlePlay(e, word.kanji, word.id)}
-                      className={`p-2 rounded-xl border transition-colors ${
+                      className={`p-2 rounded-xl border transition-colors shrink-0 ${
                         playingId === word.id
                           ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                           : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
@@ -470,9 +537,39 @@ function VocaContent() {
                       <Volume2 className="w-4 h-4" />
                     </button>
 
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-[#2D3748]">{word.kanji}</span>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => {
+                        setActiveTutorSentence({
+                          japanese: word.kanji,
+                          korean: word.meaning,
+                          speaker: word.partOfSpeech || '단어·표현',
+                          pronunciation: getPronunciation(word.kanji, word.reading),
+                        });
+                        setActiveTutorContext({
+                          themeTitle: '북마크 단어장',
+                        });
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setActiveTutorSentence({
+                            japanese: word.kanji,
+                            korean: word.meaning,
+                            speaker: word.partOfSpeech || '단어·표현',
+                            pronunciation: getPronunciation(word.kanji, word.reading),
+                          });
+                          setActiveTutorContext({
+                            themeTitle: '북마크 단어장',
+                          });
+                        }
+                      }}
+                      className="cursor-pointer group/word hover:opacity-90 select-text focus:outline-none min-w-0 flex-1"
+                      title="클릭하여 다요리 센세 1:1 과외 열기"
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-sm text-[#2D3748] group-hover/word:text-[#E07A5F] transition-colors">{word.kanji}</span>
                         <span className="text-xs text-gray-400 font-mono">({word.reading})</span>
                         <span className="text-[11px] font-semibold text-[#E07A5F]">
                           [{getPronunciation(word.kanji, word.reading)}]
@@ -481,11 +578,30 @@ function VocaContent() {
                           {word.partOfSpeech}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 mt-0.5">{word.meaning}</p>
+                      <p className="text-xs text-gray-600 mt-0.5 truncate">{word.meaning}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTutorSentence({
+                          japanese: word.kanji,
+                          korean: word.meaning,
+                          speaker: word.partOfSpeech || '단어·표현',
+                          pronunciation: getPronunciation(word.kanji, word.reading),
+                        });
+                        setActiveTutorContext({
+                          themeTitle: '북마크 단어장',
+                        });
+                      }}
+                      className="p-1.5 rounded-lg border border-[#F4DDD4] bg-[#FFF8F3] text-[#E07A5F] hover:bg-[#FAF0E6] hover:border-[#E07A5F] transition-colors cursor-pointer"
+                      title="다요리 센세 1:1 과외"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                    </button>
+
                     <button
                       onClick={() => handleToggleMemorized(word.id)}
                       className={`p-1.5 rounded-lg border transition-all ${
@@ -541,21 +657,54 @@ function VocaContent() {
                     onClick={() => setExpandedLessonId(isExpanded ? null : lesson.id)}
                     className="p-4 cursor-pointer hover:bg-gray-50/50 flex items-center justify-between gap-2"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="px-2 py-0.5 rounded-md bg-[#FAF0E6] text-[#E07A5F] font-bold text-[10px]">
-                          {lesson.seriesTitle}
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-full bg-[#FAF0E6] text-[#E07A5F] font-bold text-[10px] whitespace-nowrap shrink-0">
+                          {lesson.seriesTitle?.replace('Lv.0 유치원생 입문', 'Lv.0 입문')}
                         </span>
                         <span className="font-bold text-[#2D3748]">
                           {lesson.themeTitle}
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-500">
-                        {lesson.keyExpression.japanese} ({lesson.keyExpression.korean})
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                        <p className="text-[11px] text-gray-500">
+                          {lesson.keyExpression.japanese} ({lesson.keyExpression.korean})
+                        </p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveTutorSentence({
+                              japanese: lesson.keyExpression.japanese,
+                              korean: lesson.keyExpression.korean,
+                              speaker: '핵심 표현',
+                              pronunciation: getPronunciation(
+                                lesson.keyExpression.japanese,
+                                lesson.keyExpression.reading
+                              ),
+                              breakdown:
+                                lesson.keyExpression.breakdown ||
+                                deriveBreakdownFromVocab(
+                                  lesson.keyExpression.japanese,
+                                  lesson.vocabulary
+                                ),
+                            });
+                            setActiveTutorContext({
+                              level: lesson.level,
+                              themeTitle: lesson.themeTitle,
+                              unitTitle: lesson.unitTitle,
+                            });
+                          }}
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FAF0E6] hover:bg-[#F4DDD4] text-[#E07A5F] text-[10px] font-bold transition-colors cursor-pointer"
+                          title="다요리 센세 1:1 과외 열기"
+                        >
+                          <Sparkles className="w-2.5 h-2.5 text-[#E07A5F]" />
+                          <span>다요리 센세</span>
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={(e) => handlePlay(e, lesson.keyExpression.japanese, `saved-key-${lesson.id}`)}
                         className={`p-1.5 rounded-lg border transition-all ${
@@ -594,8 +743,9 @@ function VocaContent() {
                           <span className="font-bold text-gray-500 text-[10px] block">
                             会話シチュエーション:
                           </span>
-                          <span className="text-[9px] text-gray-400">
-                            スピーカーを押して発音を聞く
+                          <span className="text-[9px] text-[#E07A5F] font-medium flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            문장 클릭 시 다요리 센세 1:1 과외
                           </span>
                         </div>
 
@@ -607,11 +757,51 @@ function VocaContent() {
                               key={idx}
                               className="bg-white p-3 rounded-xl border border-gray-200 hover:border-[#E07A5F]/40 transition-colors flex items-start justify-between gap-3"
                             >
-                              <div className="space-y-0.5">
+                              <div
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => {
+                                  setActiveTutorSentence({
+                                    japanese: line.japanese,
+                                    korean: line.korean,
+                                    speaker: line.speaker,
+                                    pronunciation: line.pronunciation || getPronunciation(line.japanese),
+                                    breakdown:
+                                      line.breakdown ||
+                                      deriveBreakdownFromVocab(line.japanese, lesson.vocabulary),
+                                  });
+                                  setActiveTutorContext({
+                                    level: lesson.level,
+                                    themeTitle: lesson.themeTitle,
+                                    unitTitle: lesson.unitTitle,
+                                  });
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setActiveTutorSentence({
+                                      japanese: line.japanese,
+                                      korean: line.korean,
+                                      speaker: line.speaker,
+                                      pronunciation: line.pronunciation || getPronunciation(line.japanese),
+                                      breakdown:
+                                        line.breakdown ||
+                                        deriveBreakdownFromVocab(line.japanese, lesson.vocabulary),
+                                    });
+                                    setActiveTutorContext({
+                                      level: lesson.level,
+                                      themeTitle: lesson.themeTitle,
+                                      unitTitle: lesson.unitTitle,
+                                    });
+                                  }
+                                }}
+                                className="space-y-0.5 flex-1 cursor-pointer select-text group/line -m-1 p-1 rounded-lg hover:bg-[#FAF0E6]/30 transition-colors focus:outline-none min-w-0"
+                                title="클릭하여 다요리 센세 1:1 해설 보기"
+                              >
                                 <span className="text-[10px] font-bold text-gray-400 block">
                                   {line.speaker}
                                 </span>
-                                <p className="font-semibold text-gray-800 text-xs leading-relaxed">
+                                <p className="font-semibold text-gray-800 text-xs leading-relaxed group-hover/line:text-[#E07A5F] transition-colors">
                                   {line.japanese}
                                 </p>
                                 <p className="text-[11px] font-semibold text-[#E07A5F]">
@@ -622,17 +812,43 @@ function VocaContent() {
                                 </p>
                               </div>
 
-                              <button
-                                onClick={(e) => handlePlay(e, line.japanese, linePlayId)}
-                                className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
-                                  isPlayingLine
-                                    ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
-                                    : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
-                                }`}
-                                title="대화 음성 듣기"
-                              >
-                                <Volume2 className="w-3.5 h-3.5" />
-                              </button>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActiveTutorSentence({
+                                      japanese: line.japanese,
+                                      korean: line.korean,
+                                      speaker: line.speaker,
+                                      pronunciation: line.pronunciation || getPronunciation(line.japanese),
+                                      breakdown:
+                                        line.breakdown ||
+                                        deriveBreakdownFromVocab(line.japanese, lesson.vocabulary),
+                                    });
+                                    setActiveTutorContext({
+                                      level: lesson.level,
+                                      themeTitle: lesson.themeTitle,
+                                      unitTitle: lesson.unitTitle,
+                                    });
+                                  }}
+                                  className="p-1.5 rounded-lg border border-[#F4DDD4] bg-[#FFF8F3] text-[#E07A5F] hover:bg-[#FAF0E6] hover:border-[#E07A5F] transition-colors cursor-pointer"
+                                  title="다요리 센세 1:1 과외"
+                                >
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  onClick={(e) => handlePlay(e, line.japanese, linePlayId)}
+                                  className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
+                                    isPlayingLine
+                                      ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                                      : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                                  }`}
+                                  title="대화 음성 듣기"
+                                >
+                                  <Volume2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           );
                         })}
@@ -664,6 +880,15 @@ function VocaContent() {
             })
           )}
         </div>
+      )}
+      {/* 다요리 센세 1:1 과외 바텀 시트 모달 */}
+      {activeTutorSentence && (
+        <SentenceTutorDrawer
+          key={`${activeTutorSentence.speaker}-${activeTutorSentence.japanese}`}
+          sentence={activeTutorSentence}
+          context={activeTutorContext}
+          onClose={() => setActiveTutorSentence(null)}
+        />
       )}
     </div>
   );
