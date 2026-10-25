@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sparkles, Send, Loader2, X, RefreshCw, MessageCircleQuestion } from 'lucide-react';
 
 import { WordBreakdown } from '@/types';
@@ -210,7 +210,12 @@ export default function SentenceTutorDrawer({
     }
   };
 
+  // 대화 초기화 회전 애니메이션 상태
+  const [isResetting, setIsResetting] = useState(false);
+
   const handleReset = () => {
+    if (isResetting) return;
+    setIsResetting(true);
     setMessages([
       {
         id: `welcome-${Date.now()}`,
@@ -218,13 +223,27 @@ export default function SentenceTutorDrawer({
         content: buildWelcomeMessage(sentence),
       },
     ]);
+    setTimeout(() => {
+      setIsResetting(false);
+    }, 600);
   };
+
+  // 바텀시트 닫힘 애니메이션 상태
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    if (isClosing) return;
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 220);
+  }, [isClosing, onClose]);
 
   // 바텀 시트 열림 시 ESC 닫기 및 바디 스크롤 락
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        handleClose();
       }
     };
     window.addEventListener('keydown', handleEsc);
@@ -235,15 +254,23 @@ export default function SentenceTutorDrawer({
       window.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = originalOverflow;
     };
-  }, [onClose]);
+  }, [handleClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
+    <div
+      className={`fixed inset-0 z-50 flex items-end justify-center bg-black/45 backdrop-blur-xs transition-opacity ${
+        isClosing ? 'animate-backdrop-out pointer-events-none' : 'animate-backdrop-in'
+      }`}
+    >
       {/* 딤 배경 클릭 시 닫기 */}
-      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0" onClick={handleClose} aria-hidden="true" />
 
       {/* 바텀 시트 컨테이너 */}
-      <div className="relative z-10 w-full max-w-lg bg-white rounded-t-3xl shadow-2xl border-t border-[#FCE4D8] flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300 overflow-hidden">
+      <div
+        className={`relative z-10 w-full max-w-lg bg-white rounded-t-3xl shadow-2xl border-t border-[#FCE4D8] flex flex-col max-h-[85vh] overflow-hidden ${
+          isClosing ? 'animate-bottom-sheet-out' : 'animate-bottom-sheet-in'
+        }`}
+      >
         {/* 상단 드래그 핸들 */}
         <div className="pt-2.5 pb-1 flex justify-center bg-gradient-to-r from-[#FAF0E6] to-[#FFF6F1]">
           <div className="w-10 h-1 bg-gray-300/80 rounded-full" />
@@ -269,14 +296,19 @@ export default function SentenceTutorDrawer({
             <button
               type="button"
               onClick={handleReset}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-[#E07A5F] hover:bg-white/80 transition-colors cursor-pointer"
+              disabled={isResetting}
+              className="group p-1.5 rounded-lg text-gray-400 hover:text-[#E07A5F] hover:bg-white/80 active:scale-95 transition-all cursor-pointer disabled:opacity-60"
               title="대화 초기화"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isResetting ? 'animate-spin-once' : 'group-hover:rotate-180'
+                }`}
+              />
             </button>
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-colors cursor-pointer"
               title="과외 창 닫기"
             >

@@ -51,3 +51,69 @@ body {
   font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif !important;
 }
 
+/* 범용 모달/오버레이 페이드인 애니메이션 (기존 animate-in fade-in 호환) */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.animate-in.fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* 바텀시트 전용 슬라이드 및 딤 애니메이션 */
+@keyframes bottomSheetSlideUp {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes bottomSheetSlideDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.animate-bottom-sheet-in {
+  animation: bottomSheetSlideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.animate-bottom-sheet-out {
+  animation: bottomSheetSlideDown 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: transform;
+}
+
+.animate-backdrop-in {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.animate-backdrop-out {
+  animation: fadeOut 0.22s ease-in forwards;
+}
+
+/* 회전 마이크로 애니메이션 (새로고침 / 초기화 버튼용) */
+@keyframes spinOnce {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-once {
+  animation: spinOnce 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
