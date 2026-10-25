@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { enrichLessonWithCurriculum } from '@/lib/curriculum/curriculumData';
 import SentenceTutorDrawer from './SentenceTutorDrawer';
+import { LessonCompletionStamp } from './LessonCompletionStamp';
 import { showGlobalToast } from '@/utils/toast';
 
 interface DailyLessonCardProps {
@@ -160,6 +161,7 @@ export default function DailyLessonCard({
   const [activeBoundary, setActiveBoundary] = useState<{ id: string; charIndex: number; charLength: number } | null>(null);
   const [savedWordIds, setSavedWordIds] = useState<Set<string>>(new Set());
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
+  const [showRewardStamp, setShowRewardStamp] = useState(false);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
   const [showPronounce, setShowPronounce] = useState(true);
   const [activeTutorSentence, setActiveTutorSentence] = useState<{
@@ -564,6 +566,9 @@ export default function DailyLessonCard({
   const handleToggleComplete = () => {
     const nextState = !isLessonCompleted;
     setIsLessonCompleted(nextState);
+    if (nextState) {
+      setShowRewardStamp(true);
+    }
     try {
       localStorage.setItem(`lesson_completed_${lesson.id}`, String(nextState));
     } catch {
@@ -1091,6 +1096,13 @@ export default function DailyLessonCard({
           onClose={() => setActiveTutorSentence(null)}
         />
       )}
+
+      {/* 학습 완료 참 잘했어요 스탬프 보상 모달 */}
+      <LessonCompletionStamp
+        isOpen={showRewardStamp}
+        onClose={() => setShowRewardStamp(false)}
+        lessonTitle={lesson.themeTitle || lesson.unitTitle}
+      />
     </div>
   );
 }
