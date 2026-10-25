@@ -245,6 +245,7 @@ export default function HiraganaStudio({
 
   // --- Step 2: 인터랙티브 캔버스 쓰기 상태 ---
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const completedStrokesRef = useRef<{ x: number; y: number }[][]>([]);
   const {
     scrollRef: charListScrollRef,
     canScrollLeft,
@@ -326,6 +327,37 @@ export default function HiraganaStudio({
     );
   }, []);
 
+  // 성공적으로 완료된 획들을 캔버스에 다시 그리는 헬퍼
+  const redrawCompletedStrokes = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.scale(dpr, dpr);
+
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = penColor;
+    ctx.lineWidth = strokeWidth;
+
+    for (const stroke of completedStrokesRef.current) {
+      if (stroke.length < 2) continue;
+      ctx.beginPath();
+      ctx.moveTo(stroke[0].x, stroke[0].y);
+      for (let i = 1; i < stroke.length; i++) {
+        ctx.lineTo(stroke[i].x, stroke[i].y);
+      }
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }, [penColor, strokeWidth]);
+
   // 캔버스 초기화 및 리사이징
   const clearCanvas = useCallback(() => {
     if (autoNextTimerRef.current) {
@@ -337,10 +369,16 @@ export default function HiraganaStudio({
       feedbackTimerRef.current = null;
     }
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
+    }
+    completedStrokesRef.current = [];
     setHasDrawn(false);
     setDrawnStrokes(0);
     setIsCharCompleted(false);
@@ -348,33 +386,60 @@ export default function HiraganaStudio({
     strokePointsRef.current = [];
   }, []);
 
-  // 가이드 글자 오프스크린 픽셀 마스크 생성
-  const updateCharMask = useCallback(() => {
+  // 가이드 글자 오프스크린 픽셀 마스크 생성 및 캐시 반환 (지연 생성 보장)
+  const getOrUpdateCharMask = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
     const width = Math.round(rect.width);
     const height = Math.round(rect.height);
-    if (width === 0 || height === 0) return;
+    if (width === 0 || height === 0) return null;
+
+    // 이미 유효한 마스크가 캐시되어 있고 크기가 일치하면 재사용
+    if (
+      charMaskRef.current &&
+      charMaskRef.current.width === width &&
+      charMaskRef.current.height === height
+    ) {
+      return charMaskRef.current;
+    }
 
     const offscreen = document.createElement('canvas');
     offscreen.width = width;
     offscreen.height = height;
     const ctx = offscreen.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return;
+    if (!ctx) return null;
 
     const fontFam =
       fontStyle === 'serif'
         ? "'Noto Serif JP', 'Yu Mincho', serif"
         : "'Klee One', 'Noto Sans JP', sans-serif";
-    ctx.font = `bold 160px ${fontFam}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#000000';
-    ctx.fillText(selectedChar.char, width / 2, height / 2);
 
-    charMaskRef.current = ctx.getImageData(0, 0, width, height);
+    if (selectedChar.soundType === 'youon' && selectedChar.baseChar && selectedChar.smallChar) {
+      ctx.font = `bold 115px ${fontFam}`;
+      ctx.fillText(selectedChar.baseChar, width * 0.38, height / 2);
+      ctx.font = `bold 72px ${fontFam}`;
+      ctx.fillText(selectedChar.smallChar, width * 0.78, height / 2 + 15);
+    } else if (selectedChar.char.length > 1) {
+      ctx.font = `bold 100px ${fontFam}`;
+      ctx.fillText(selectedChar.char, width / 2, height / 2);
+    } else {
+      ctx.font = `bold 160px ${fontFam}`;
+      ctx.fillText(selectedChar.char, width / 2, height / 2);
+    }
+
+    const newMask = ctx.getImageData(0, 0, width, height);
+    charMaskRef.current = newMask;
+    return newMask;
   }, [selectedChar, fontStyle]);
+
+  const updateCharMask = useCallback(() => {
+    charMaskRef.current = null;
+    getOrUpdateCharMask();
+  }, [getOrUpdateCharMask]);
 
   // 글자 또는 글꼴 변경 시 캔버스 초기화 및 마스크 갱신
   useEffect(() => {
@@ -427,8 +492,9 @@ export default function HiraganaStudio({
     if (ctx) {
       ctx.scale(dpr, dpr);
     }
+    redrawCompletedStrokes();
     updateCharMask();
-  }, [currentStep, updateCharMask]);
+  }, [currentStep, updateCharMask, redrawCompletedStrokes]);
 
   // 드로잉 좌표 계산
   const getCoordinates = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -494,62 +560,105 @@ export default function HiraganaStudio({
     const points = strokePointsRef.current;
     strokePointsRef.current = [];
 
-    // 1. 최소 길이 검증 (단순 클릭/오터치 무시)
+    // 1. 최소 길이 검증 (단순 클릭/오터치 무시하되, 탁점 및 짧은 점 획을 고려하여 12px로 완화)
     let totalLength = 0;
     for (let i = 1; i < points.length; i++) {
       totalLength += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
     }
-    if (totalLength < 25) {
+    if (totalLength < 12) {
       showAccuracyFeedback('선을 조금 더 길게 그어보세요 ✍️');
+      redrawCompletedStrokes();
       return;
     }
 
-    // 2. 가이드 글자 오프스크린 픽셀 마스크와의 일치도(적중률) 검사
-    const mask = charMaskRef.current;
-    if (mask) {
-      const { width, height, data } = mask;
-      const tolerance = 26; // 글자 획 허용 오차 반경 (px)
-      const step = Math.max(1, Math.floor(points.length / 40));
-      let hitCount = 0;
-      let sampledCount = 0;
+    // 2. 가이드 글자 오프스크린 픽셀 마스크 획득 (Fail-Closed: 마스크 없으면 무조건 실패 처리)
+    const mask = getOrUpdateCharMask();
+    if (!mask) {
+      showAccuracyFeedback('가이드 글자 위를 따라 그려보세요 ✍️');
+      redrawCompletedStrokes();
+      return;
+    }
 
-      for (let i = 0; i < points.length; i += step) {
-        const pt = points[i];
-        sampledCount++;
-        const px = Math.round(pt.x);
-        const py = Math.round(pt.y);
+    const { width, height, data } = mask;
+    const tolerance = 16; // 정상 글자 획 허용 반경 (16px)
+    const outerTol = 24; // 글자 획 외곽 이탈 기준 반경 (24px)
+    const step = Math.max(1, Math.floor(points.length / 40));
+    let hitCount = 0;
+    let sampledCount = 0;
+    let farOutCount = 0;
 
-        let hit = false;
-        for (let dy = -tolerance; dy <= tolerance; dy += 4) {
-          for (let dx = -tolerance; dx <= tolerance; dx += 4) {
-            if (dx * dx + dy * dy <= tolerance * tolerance) {
+    for (let i = 0; i < points.length; i += step) {
+      const pt = points[i];
+      sampledCount++;
+      const px = Math.round(pt.x);
+      const py = Math.round(pt.y);
+
+      let hit = false;
+      // 1) 16px 반경 내 획 픽셀 적중 검사
+      for (let dy = -tolerance; dy <= tolerance; dy += 2) {
+        for (let dx = -tolerance; dx <= tolerance; dx += 2) {
+          if (dx * dx + dy * dy <= tolerance * tolerance) {
+            const nx = px + dx;
+            const ny = py + dy;
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+              if (data[(ny * width + nx) * 4 + 3] > 40) {
+                hit = true;
+                break;
+              }
+            }
+          }
+        }
+        if (hit) break;
+      }
+
+      if (hit) {
+        hitCount++;
+      } else {
+        // 2) 획에서 완전히 벗어난 점(24px 이상 이탈)인지 검사
+        let nearHit = false;
+        for (let dy = -outerTol; dy <= outerTol; dy += 3) {
+          for (let dx = -outerTol; dx <= outerTol; dx += 3) {
+            if (dx * dx + dy * dy <= outerTol * outerTol) {
               const nx = px + dx;
               const ny = py + dy;
               if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                 if (data[(ny * width + nx) * 4 + 3] > 40) {
-                  hit = true;
+                  nearHit = true;
                   break;
                 }
               }
             }
           }
-          if (hit) break;
+          if (nearHit) break;
         }
-        if (hit) hitCount++;
+        if (!nearHit) {
+          farOutCount++;
+        }
       }
+    }
 
-      const hitRate = sampledCount > 0 ? hitCount / sampledCount : 0;
-      // 글자 획 위의 적중률이 55% 미만이면 유효한 획으로 인정하지 않음
-      if (hitRate < 0.55) {
-        showAccuracyFeedback('가이드 글자 위를 따라 그려보세요 ✍️');
-        return;
-      }
+    const hitRate = sampledCount > 0 ? hitCount / sampledCount : 0;
+    const farOutRate = sampledCount > 0 ? farOutCount / sampledCount : 0;
+    const minHitRequired = Math.min(3, sampledCount);
+
+    // 정밀 판정 기준 (False Positive 원천 차단):
+    // 1) 획의 60% 이상이 가이드 글자(16px 반경) 위에 있어야 함
+    // 2) 최소 N개(기본 3개)의 샘플 포인트가 글자 획 위에 적중해야 함 (허공 선 차단)
+    // 3) 글자 획에서 완전히 빗나간 외곽 점이 15%를 초과하면 무조건 탈락 (엉뚱한 선 및 삐져나간 선 원천 차단)
+    const isValidStroke = hitRate >= 0.60 && hitCount >= minHitRequired && farOutRate <= 0.15;
+
+    if (!isValidStroke) {
+      showAccuracyFeedback('가이드 글자 위를 따라 그려보세요 ✍️');
+      redrawCompletedStrokes();
+      return;
     }
 
     // 정확하게 그린 획인 경우 피드백 클리어 및 획수 1 증가
     setAccuracyFeedback(null);
+    completedStrokesRef.current.push([...points]);
     const nextStrokes = drawnStrokes + 1;
     setDrawnStrokes(nextStrokes);
+    redrawCompletedStrokes();
 
     if (nextStrokes >= selectedChar.strokeCount && !isCharCompleted) {
       setIsCharCompleted(true);
@@ -1443,16 +1552,35 @@ export default function HiraganaStudio({
                   </div>
 
                   <div className="flex items-center flex-wrap gap-1.5 text-xs">
-                    {steps.map((step, idx) => (
-                      <React.Fragment key={idx}>
-                        <span className="inline-flex items-center px-2.5 py-1 bg-white rounded-xl border border-[#EDE8E1] font-bold text-[#4A5568] shadow-2xs whitespace-nowrap text-[11px]">
-                          {step}
-                        </span>
-                        {idx < steps.length - 1 && (
-                          <span className="text-[#CBD5E0] text-[10px] font-black shrink-0">➔</span>
-                        )}
-                      </React.Fragment>
-                    ))}
+                    {steps.map((step, idx) => {
+                      const isStepDone = idx < drawnStrokes;
+                      const isStepCurrent = idx === drawnStrokes && !isCharCompleted;
+                      return (
+                        <React.Fragment key={idx}>
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all shadow-2xs whitespace-nowrap border ${
+                              isStepDone
+                                ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#F4DDD4]'
+                                : isStepCurrent
+                                ? 'bg-white text-[#E07A5F] border-[#E07A5F] ring-2 ring-[#E07A5F]/20'
+                                : 'bg-white text-[#A0AEC0] border-[#EDE8E1]'
+                            }`}
+                          >
+                            {isStepDone && <span className="text-[10px]">✓</span>}
+                            <span>{step}</span>
+                          </span>
+                          {idx < steps.length - 1 && (
+                            <span
+                              className={`text-[10px] font-black shrink-0 transition-colors ${
+                                isStepDone ? 'text-[#E07A5F]' : 'text-[#CBD5E0]'
+                              }`}
+                            >
+                              ➔
+                            </span>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
                   </div>
                 </div>
               );
