@@ -49,6 +49,27 @@ function deriveBreakdownFromVocab(
   }));
 }
 
+/**
+ * 한자/로마자 혼입을 방지하고 유효한 한글 독음을 보장하는 헬퍼
+ */
+function resolveHangulPronounce(
+  explicitPronounce?: string,
+  japaneseFallback: string = '',
+  customReading?: string
+): string {
+  // 1. explicitPronounce가 있고, 한자가 없으며, 영문/로마자가 아닌 경우 유효한 한글 발음으로 채택
+  if (
+    explicitPronounce &&
+    !/[\u4E00-\u9FAF\u3005]/.test(explicitPronounce) &&
+    !/^[a-zA-Z\s.,!?'-]+$/.test(explicitPronounce.trim())
+  ) {
+    return explicitPronounce;
+  }
+
+  // 2. 누락되었거나 한자/로마자가 포함된 경우 getPronunciation을 통해 안전하게 변환
+  return getPronunciation(japaneseFallback || explicitPronounce || '', customReading);
+}
+
 function renderRuby(
   text: string,
   playId?: string,
@@ -255,7 +276,11 @@ export default function DailyLessonCard({
             japanese: lesson.keyExpression.japanese,
             korean: lesson.keyExpression.korean,
             speaker: '핵심 표현',
-            pronunciation: lesson.pronunciationKorean,
+            pronunciation: resolveHangulPronounce(
+              lesson.pronunciationKorean,
+              lesson.keyExpression.japanese,
+              lesson.keyExpression.reading
+            ),
             breakdown:
               lesson.keyExpression.breakdown ||
               deriveBreakdownFromVocab(lesson.keyExpression.japanese, lesson.vocabulary),
@@ -678,7 +703,11 @@ export default function DailyLessonCard({
                       : 'text-xs text-[#E07A5F] bg-[#FAF0E6] px-2 py-0.5 border-[#F4DDD4]'
                   }`}
                 >
-                  [{lesson.pronunciationKorean || getPronunciation(lesson.keyExpression.japanese, lesson.keyExpression.reading)}]
+                  [{resolveHangulPronounce(
+                    lesson.pronunciationKorean,
+                    lesson.keyExpression.japanese,
+                    lesson.keyExpression.reading
+                  )}]
                 </span>
               </div>
             )}
@@ -743,7 +772,7 @@ export default function DailyLessonCard({
                         japanese: line.japanese,
                         korean: line.korean,
                         speaker: line.speaker,
-                        pronunciation: line.pronunciation,
+                        pronunciation: resolveHangulPronounce(line.pronunciation, line.japanese),
                         breakdown:
                           line.breakdown ||
                           deriveBreakdownFromVocab(line.japanese, lesson.vocabulary),
@@ -757,7 +786,7 @@ export default function DailyLessonCard({
                           japanese: line.japanese,
                           korean: line.korean,
                           speaker: line.speaker,
-                          pronunciation: line.pronunciation,
+                          pronunciation: resolveHangulPronounce(line.pronunciation, line.japanese),
                           breakdown:
                             line.breakdown ||
                             deriveBreakdownFromVocab(line.japanese, lesson.vocabulary),
@@ -775,7 +804,7 @@ export default function DailyLessonCard({
                     </p>
                     {showPronounce && (
                       <p className="text-[11px] font-semibold text-[#E07A5F] leading-normal">
-                         [{line.pronunciation || getPronunciation(line.japanese)}]
+                         [{resolveHangulPronounce(line.pronunciation, line.japanese)}]
                       </p>
                     )}
                     <p className="text-[11px] text-gray-500 leading-normal">

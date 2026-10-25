@@ -128,6 +128,30 @@ const KANJI_READING_DICT: Record<string, string> = {
   'ご利用ですか': 'ごりようですか',
   'ご利用': 'ごりよう',
   '利用': 'りよう',
+
+  // 직장 / 비즈니스 / 협업 관련 (긴 구문 우선)
+  'お疲れ様でした': 'おつかれさまでした',
+  'お疲れ様です': 'おつかれさまです',
+  'お疲れ様': 'おつかれさま',
+  '疲れ様': 'つかれさま',
+  '田中さん': 'たなかさん',
+  '田中': 'たなか',
+  'ワイヤーフレーム': 'ワイヤーフレーム',
+  'こちらの画面': 'こちらの がめん',
+  '画面': 'がめん',
+  '仕様について': 'しょうに ついて',
+  '仕様': 'しよう',
+  '確認させて': 'かくにんさせて',
+  '確認したい': 'かくにんしたい',
+  '開発者': 'かいはつしゃ',
+  '企画者': 'きかくしゃ',
+  '開発': 'かいはつ',
+  '企画': 'きかく',
+  '質問': 'しつもん',
+  'ストーリーボード': 'ストーリーボード',
+  '少し': 'すこし',
+  '件で': 'けんで',
+  '件': 'けん',
   '使えますか': 'つかえますか',
   '使えます': 'つかえます',
   'お席': 'おせき',
@@ -252,7 +276,20 @@ const KANJI_READING_DICT: Record<string, string> = {
   '手': 'て',
   '紙': 'かみ',
   '切': 'き',
-  '符': 'っぷ'
+  '符': 'っぷ',
+  '疲': 'つか',
+  '様': 'さま',
+  '少': 'すこ',
+  '確': 'かく',
+  '認': 'にん',
+  '画': 'が',
+  '面': 'めん',
+  '仕': 'し',
+  '田': 'た',
+  '中': 'なか',
+  '開': 'かい',
+  '発': 'はつ',
+  '企': 'き'
 };
 
 /**
@@ -447,13 +484,18 @@ export function kanjiToKana(japaneseText: string): string {
  * 한자가 포함된 일본어 텍스트 또는 후리가나를 한글 독음으로 변환
  */
 export function getPronunciation(japaneseText: string, customReading?: string): string {
-  // 1. customReading이 있고 한자가 전혀 없는 순수 가나라면 곧바로 변환
-  if (customReading && !/[\u4E00-\u9FAF\u3005]/.test(customReading)) {
+  // 1. customReading이 로마자(영문)인지 검사 (AI가 reading에 로마자를 잘못 넣은 경우 방지)
+  const isRomaji = customReading && /^[a-zA-Z\s.,!?'-]+$/.test(customReading.trim());
+  const hasKana = customReading && /[\u3040-\u309F\u30A0-\u30FF]/.test(customReading);
+  const hasKanjiInReading = customReading && /[\u4E00-\u9FAF\u3005]/.test(customReading);
+
+  // customReading이 유효한 가나(히라가나/가타카나)이고 한자 및 로마자가 없다면 곧바로 한글 변환
+  if (customReading && hasKana && !hasKanjiInReading && !isRomaji) {
     return kanaToHangul(customReading);
   }
 
-  // 2. customReading에 한자가 섞여 있거나 없는 경우 치환 대상 결정
-  const rawText = customReading || japaneseText;
+  // 2. customReading이 로마자이거나 한자가 섞여 있는 경우 치환 대상 결정
+  const rawText = (!isRomaji && customReading) ? customReading : japaneseText;
   if (!rawText) return '';
 
   // 3. 사전 기반 한자 치환 (긴 단어 우선)
