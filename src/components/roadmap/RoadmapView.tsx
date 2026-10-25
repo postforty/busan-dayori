@@ -89,17 +89,6 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
     syncSavedState();
   };
 
-  // 3. 관리자 공식 DB 발행 성공 시 상태 갱신
-  const handlePublishSuccess = (publishedLesson: DailyLesson) => {
-    setCurrentAiLesson(publishedLesson);
-    try {
-      localStorage.setItem('latest_ai_lesson', JSON.stringify(publishedLesson));
-    } catch {
-      // 무시
-    }
-    syncSavedState();
-  };
-
   return (
     <div className="px-4 pt-3 pb-24 space-y-4 max-w-xl mx-auto">
       {/* 1. 상단 웰컴 AI 챌린지 카드 (홈 화면 시그니처 웜톤 스타일) */}
@@ -145,7 +134,6 @@ export default function RoadmapView({ initialDbLessons = [] }: RoadmapViewProps)
             lesson={currentAiLesson}
             isAiGenerated={true}
             hideAiBadge={true}
-            onPublish={handlePublishSuccess}
           />
         ) : (
           <div className="p-8 text-center bg-white rounded-3xl border border-[#EDE8E1] space-y-2.5">

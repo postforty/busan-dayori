@@ -220,123 +220,151 @@ export default function SentenceTutorDrawer({
     ]);
   };
 
+  // 바텀 시트 열림 시 ESC 닫기 및 바디 스크롤 락
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [onClose]);
+
   return (
-    <div className="mt-2.5 rounded-2xl bg-gradient-to-b from-[#FFFDF9] to-[#FFF6F1] border border-[#FCE4D8] overflow-hidden shadow-xs transition-all">
-      {/* 헤더 바 */}
-      <div className="px-3.5 py-2.5 bg-gradient-to-r from-[#FAF0E6] to-[#FFF6F1] border-b border-[#FCE4D8] flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-6 h-6 rounded-full bg-[#E07A5F] text-white flex items-center justify-center shrink-0 shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-black text-[#2D3748]">다요리 센세 1:1 과외</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#E07A5F]/10 text-[#E07A5F] font-bold border border-[#E07A5F]/20">
-                {sentence.speaker}
-              </span>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
+      {/* 딤 배경 클릭 시 닫기 */}
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
+
+      {/* 바텀 시트 컨테이너 */}
+      <div className="relative z-10 w-full max-w-lg bg-white rounded-t-3xl shadow-2xl border-t border-[#FCE4D8] flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300 overflow-hidden">
+        {/* 상단 드래그 핸들 */}
+        <div className="pt-2.5 pb-1 flex justify-center bg-gradient-to-r from-[#FAF0E6] to-[#FFF6F1]">
+          <div className="w-10 h-1 bg-gray-300/80 rounded-full" />
+        </div>
+
+        {/* 헤더 바 */}
+        <div className="px-4 py-2.5 bg-gradient-to-r from-[#FAF0E6] to-[#FFF6F1] border-b border-[#FCE4D8] flex items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-full bg-[#E07A5F] text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-sm font-black text-[#2D3748]">다요리 센세 1:1 과외</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#E07A5F]/10 text-[#E07A5F] font-bold border border-[#E07A5F]/20">
+                  {sentence.speaker}
+                </span>
+              </div>
             </div>
           </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="p-1.5 rounded-lg text-gray-400 hover:text-[#E07A5F] hover:bg-white/80 transition-colors cursor-pointer"
+              title="대화 초기화"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-colors cursor-pointer"
+              title="과외 창 닫기"
+            >
+              <X className="w-4.5 h-4.5" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="p-1 rounded-lg text-gray-400 hover:text-[#E07A5F] hover:bg-white/80 transition-colors"
-            title="대화 초기화"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-colors"
-            title="과외 창 닫기"
-          >
-            <X className="w-4 h-4" />
-          </button>
+        {/* 추천 질문 빠른 칩 (Quick Prompt Chips) */}
+        <div className="px-3.5 pt-2.5 pb-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-[#FAF9F7]/70 border-b border-[#F4DDD4]/50 shrink-0">
+          <div className="flex items-center gap-1 text-[10px] font-bold text-[#E07A5F] shrink-0 mr-0.5">
+            <MessageCircleQuestion className="w-3.5 h-3.5" />
+            <span>추천:</span>
+          </div>
+          {QUICK_PROMPTS.map((prompt, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSendMessage(prompt)}
+              disabled={isLoading}
+              className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white text-[#718096] hover:text-[#E07A5F] hover:border-[#E07A5F] border border-[#F4DDD4] transition-all active:scale-95 disabled:opacity-50 shadow-2xs whitespace-nowrap cursor-pointer"
+            >
+              {prompt}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* 추천 질문 빠른 칩 (Quick Prompt Chips) */}
-      <div className="px-3 pt-2.5 pb-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1 text-[10px] font-bold text-[#E07A5F] shrink-0 mr-0.5">
-          <MessageCircleQuestion className="w-3 h-3" />
-          <span>추천:</span>
-        </div>
-        {QUICK_PROMPTS.map((prompt, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => handleSendMessage(prompt)}
-            disabled={isLoading}
-            className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white text-[#718096] hover:text-[#E07A5F] hover:border-[#E07A5F] border border-[#F4DDD4] transition-all active:scale-95 disabled:opacity-50 shadow-2xs whitespace-nowrap"
-          >
-            {prompt}
-          </button>
-        ))}
-      </div>
-
-      {/* 대화 메시지 영역 */}
-      <div ref={chatContainerRef} className="p-3.5 max-h-64 overflow-y-auto space-y-2.5 text-xs">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex items-start gap-2 ${
-              msg.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
-          >
-            {msg.role === 'assistant' && (
-              <div className="w-5 h-5 rounded-full bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center shrink-0 mt-0.5 text-[10px]">
-                🌸
-              </div>
-            )}
+        {/* 대화 메시지 영역 (스크롤) */}
+        <div ref={chatContainerRef} className="p-4 flex-1 overflow-y-auto space-y-3 text-xs bg-[#FAF9F7]/30">
+          {messages.map((msg) => (
             <div
-              className={`rounded-2xl px-3 py-2 max-w-[88%] min-w-0 leading-relaxed whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] text-xs shadow-2xs ${
-                msg.role === 'user'
-                  ? 'bg-[#E07A5F] text-white rounded-tr-xs font-medium'
-                  : 'bg-white text-[#2D3748] border border-[#EDE8E1] rounded-tl-xs'
+              key={msg.id}
+              className={`flex items-start gap-2 ${
+                msg.role === 'user' ? 'justify-end' : 'justify-start'
               }`}
             >
-              {renderFormattedMessage(msg.content, msg.role)}
+              {msg.role === 'assistant' && (
+                <div className="w-6 h-6 rounded-full bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center shrink-0 mt-0.5 text-xs shadow-2xs">
+                  🌸
+                </div>
+              )}
+              <div
+                className={`rounded-2xl px-3.5 py-2.5 max-w-[85%] min-w-0 leading-relaxed whitespace-pre-wrap break-words break-all [overflow-wrap:anywhere] text-xs shadow-2xs ${
+                  msg.role === 'user'
+                    ? 'bg-[#E07A5F] text-white rounded-tr-xs font-medium'
+                    : 'bg-white text-[#2D3748] border border-[#EDE8E1] rounded-tl-xs'
+                }`}
+              >
+                {renderFormattedMessage(msg.content, msg.role)}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {isLoading && (
-          <div className="flex items-start gap-2">
-            <div className="w-5 h-5 rounded-full bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center shrink-0 mt-0.5 text-[10px]">
-              🌸
+          {isLoading && (
+            <div className="flex items-start gap-2">
+              <div className="w-6 h-6 rounded-full bg-[#FAF0E6] border border-[#F4DDD4] flex items-center justify-center shrink-0 mt-0.5 text-xs shadow-2xs">
+                🌸
+              </div>
+              <div className="bg-white rounded-2xl rounded-tl-xs px-3.5 py-2.5 border border-[#EDE8E1] shadow-2xs flex items-center gap-2 text-xs text-[#718096]">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E07A5F]" />
+                <span>다요리 센세가 친절한 설명을 적는 중이에요...</span>
+              </div>
             </div>
-            <div className="bg-white rounded-2xl rounded-tl-xs px-3.5 py-2.5 border border-[#EDE8E1] shadow-2xs flex items-center gap-2 text-xs text-[#718096]">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#E07A5F]" />
-              <span>다요리 센세가 친절한 설명을 적는 중이에요...</span>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* 하단 입력 폼 */}
-      <div className="p-2.5 bg-white border-t border-[#FCE4D8] flex items-center gap-1.5">
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="선생님께 궁금한 점을 질문해보세요... (예: 왜 이 조사를 쓰나요?)"
-          disabled={isLoading}
-          className="flex-1 bg-[#FAF9F7] border border-[#EDE8E1] focus:border-[#E07A5F] focus:bg-white rounded-xl px-3 py-2 text-xs text-[#2D3748] placeholder:text-gray-400 outline-none transition-all"
-        />
-        <button
-          type="button"
-          onClick={() => handleSendMessage(inputValue)}
-          disabled={isLoading || !inputValue.trim()}
-          className="p-2 rounded-xl bg-[#E07A5F] text-white hover:bg-[#C45B40] transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs active:scale-95 shrink-0"
-          title="질문 전송"
-        >
-          <Send className="w-3.5 h-3.5" />
-        </button>
+        {/* 하단 입력 폼 */}
+        <div className="p-3 bg-white border-t border-[#FCE4D8] flex items-center gap-2 shrink-0">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="선생님께 궁금한 점을 질문해보세요... (예: 왜 이 조사를 쓰나요?)"
+            disabled={isLoading}
+            className="flex-1 bg-[#FAF9F7] border border-[#EDE8E1] focus:border-[#E07A5F] focus:bg-white rounded-xl px-3.5 py-2.5 text-xs text-[#2D3748] placeholder:text-gray-400 outline-none transition-all"
+          />
+          <button
+            type="button"
+            onClick={() => handleSendMessage(inputValue)}
+            disabled={isLoading || !inputValue.trim()}
+            className="p-2.5 rounded-xl bg-[#E07A5F] text-white hover:bg-[#C45B40] transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs active:scale-95 shrink-0 cursor-pointer"
+            title="질문 전송"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
