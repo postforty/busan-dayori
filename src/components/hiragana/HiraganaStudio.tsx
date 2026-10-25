@@ -35,6 +35,7 @@ import {
   Eye,
   EyeOff,
   Flame,
+  ChevronLeft,
   ChevronRight,
   Lightbulb,
   Type,
@@ -42,6 +43,7 @@ import {
   ArrowLeftRight,
   Flower2
 } from 'lucide-react';
+import { useHorizontalScroll } from '@/hooks/useHorizontalScroll';
 
 import HiraganaFlashcards from './HiraganaFlashcards';
 import MiniWordFlashcards from './MiniWordFlashcards';
@@ -243,7 +245,15 @@ export default function HiraganaStudio({
 
   // --- Step 2: 인터랙티브 캔버스 쓰기 상태 ---
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const charListScrollRef = useRef<HTMLDivElement | null>(null);
+  const {
+    scrollRef: charListScrollRef,
+    canScrollLeft,
+    canScrollRight,
+    handleMouseDown: handleCharListMouseDown,
+    handleClickCapture: handleCharListClickCapture,
+    scrollPrev: handleScrollPrevChars,
+    scrollNext: handleScrollNextChars
+  } = useHorizontalScroll<HTMLDivElement>();
   const [isDrawing, setIsDrawing] = useState(false);
   const penColor = '#E07A5F'; // 기본 코랄 색상
   const strokeWidth = 10; // 기본 '보통' 두께
@@ -1157,48 +1167,80 @@ export default function HiraganaStudio({
               </span>
             </div>
 
-            {/* 빠른 글자 선택 칩 */}
-            <div
-              ref={charListScrollRef}
-              className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth"
-            >
-              {currentChars.map((c) => {
-                const isSelected = selectedChar.char === c.char;
-                const isDone = completedChars.includes(c.char);
-                return (
-                  <button
-                    key={c.char}
-                    type="button"
-                    data-active={isSelected}
-                    onClick={() => setSelectedChar(c)}
-                    className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${isSelected
-                      ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
-                      : isDone
-                        ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
-                        : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
-                      } ${fontStyle === 'serif'
-                        ? 'font-jp-mincho'
-                        : 'font-jp-gothic'
-                      }`}
-                    style={{
-                      fontFamily:
-                        fontStyle === 'serif'
-                          ? "'Noto Serif JP', 'Yu Mincho', serif"
-                          : "'Klee One', 'Noto Sans JP', sans-serif"
-                    }}
-                  >
-                    {c.char}
-                    {isDone && (
-                      <span
-                        className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
-                          }`}
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            {/* 빠른 글자 선택 칩 (PC 마우스 드래그 / 휠 / 좌우 버튼 지원) */}
+            <div className="relative flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleScrollPrevChars}
+                disabled={!canScrollLeft}
+                aria-label="이전 글자 보기"
+                className={`hidden sm:flex w-8 h-9 rounded-xl border items-center justify-center transition-all shrink-0 select-none ${
+                  canScrollLeft
+                    ? 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] hover:text-[#E07A5F] border-[#EDE8E1] cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
+                    : 'opacity-25 text-stone-300 border-stone-100 cursor-not-allowed'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div
+                ref={charListScrollRef}
+                onMouseDown={handleCharListMouseDown}
+                onClickCapture={handleCharListClickCapture}
+                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth flex-1 cursor-grab active:cursor-grabbing select-none"
+              >
+                {currentChars.map((c) => {
+                  const isSelected = selectedChar.char === c.char;
+                  const isDone = completedChars.includes(c.char);
+                  return (
+                    <button
+                      key={c.char}
+                      type="button"
+                      data-active={isSelected}
+                      onClick={() => setSelectedChar(c)}
+                      className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${isSelected
+                        ? 'bg-[#E07A5F] text-white shadow-2xs scale-105'
+                        : isDone
+                          ? 'bg-amber-50 text-[#8D5B4C] border border-amber-300'
+                          : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                        } ${fontStyle === 'serif'
+                          ? 'font-jp-mincho'
+                          : 'font-jp-gothic'
+                        }`}
+                      style={{
+                        fontFamily:
+                          fontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif"
+                      }}
+                    >
+                      {c.char}
+                      {isDone && (
+                        <span
+                          className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
+                            }`}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleScrollNextChars}
+                disabled={!canScrollRight}
+                aria-label="다음 글자 보기"
+                className={`hidden sm:flex w-8 h-9 rounded-xl border items-center justify-center transition-all shrink-0 select-none ${
+                  canScrollRight
+                    ? 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] hover:text-[#E07A5F] border-[#EDE8E1] cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
+                    : 'opacity-25 text-stone-300 border-stone-100 cursor-not-allowed'
+                }`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
             {/* 캔버스 영역 */}

@@ -18,6 +18,7 @@ import {
   CheckCircle,
   XCircle,
   HelpCircle,
+  ChevronLeft,
   ChevronRight,
   Flame,
   ArrowRight,
@@ -32,6 +33,7 @@ import {
   TrainFront,
   ShoppingBag
 } from 'lucide-react';
+import { useHorizontalScroll } from '@/hooks/useHorizontalScroll';
 
 type HangulStep = 'combine' | 'write' | 'quiz';
 
@@ -66,7 +68,15 @@ export default function HangulMasterStudio() {
     writingTargetType === 'consonant' ? writingConsonant : writingVowel;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const charListScrollRef = useRef<HTMLDivElement | null>(null);
+  const {
+    scrollRef: charListScrollRef,
+    canScrollLeft,
+    canScrollRight,
+    handleMouseDown: handleCharListMouseDown,
+    handleClickCapture: handleCharListClickCapture,
+    scrollPrev: handleScrollPrevChars,
+    scrollNext: handleScrollNextChars
+  } = useHorizontalScroll<HTMLDivElement>();
   const [isDrawing, setIsDrawing] = useState(false);
   const penColor = '#E07A5F';
   const strokeWidth = 10;
@@ -705,72 +715,104 @@ export default function HangulMasterStudio() {
               </span>
             </div>
 
-            {/* 빠른 글자 선택 칩 */}
-            <div
-              ref={charListScrollRef}
-              className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-2 px-1 scrollbar-none scroll-smooth"
-            >
-              {writingTargetType === 'consonant'
-                ? HANGUL_CONSONANTS.map((c) => {
-                    const isSelected = writingConsonant.char === c.char;
-                    const isDone = completedChars.includes(c.char);
-                    return (
-                      <button
-                        key={c.char}
-                        type="button"
-                        data-active={isSelected}
-                        onClick={() => setWritingConsonant(c)}
-                        className={`relative w-10 h-10 shrink-0 rounded-xl text-sm font-black transition-all ${
-                          isSelected
-                            ? 'bg-[#E07A5F] text-white shadow-sm scale-105 ring-2 ring-[#E07A5F]/20'
-                            : isDone
-                              ? 'bg-amber-50 text-amber-900 border border-amber-300'
-                              : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
-                        }`}
-                      >
-                        {c.char}
-                        {isDone && (
-                          <span
-                            className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
-                              isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
-                            }`}
-                          >
-                            ✓
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })
-                : HANGUL_VOWELS.map((v) => {
-                    const isSelected = writingVowel.char === v.char;
-                    const isDone = completedChars.includes(v.char);
-                    return (
-                      <button
-                        key={v.char}
-                        type="button"
-                        data-active={isSelected}
-                        onClick={() => setWritingVowel(v)}
-                        className={`relative w-10 h-10 shrink-0 rounded-xl text-sm font-black transition-all ${
-                          isSelected
-                            ? 'bg-[#2D3748] text-white shadow-sm scale-105 ring-2 ring-[#2D3748]/20'
-                            : isDone
-                              ? 'bg-amber-50 text-amber-900 border border-amber-300'
-                              : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
-                        }`}
-                      >
-                        {v.char}
-                        {isDone && (
-                          <span
-                            className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
-                              isSelected ? 'bg-white text-[#2D3748]' : 'bg-amber-500 text-white'
-                            }`}
-                          >
-                            ✓
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+            {/* 빠른 글자 선택 칩 (PC 마우스 드래그 / 휠 / 좌우 버튼 지원) */}
+            <div className="relative flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleScrollPrevChars}
+                disabled={!canScrollLeft}
+                aria-label="이전 글자 보기"
+                className={`hidden sm:flex w-8 h-10 rounded-xl border items-center justify-center transition-all shrink-0 select-none ${
+                  canScrollLeft
+                    ? 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] hover:text-[#E07A5F] border-[#EDE8E1] cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
+                    : 'opacity-25 text-stone-300 border-stone-100 cursor-not-allowed'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div
+                ref={charListScrollRef}
+                onMouseDown={handleCharListMouseDown}
+                onClickCapture={handleCharListClickCapture}
+                className="flex items-center gap-1.5 overflow-x-auto pt-2 pb-2 px-1 scrollbar-none scroll-smooth flex-1 cursor-grab active:cursor-grabbing select-none"
+              >
+                {writingTargetType === 'consonant'
+                  ? HANGUL_CONSONANTS.map((c) => {
+                      const isSelected = writingConsonant.char === c.char;
+                      const isDone = completedChars.includes(c.char);
+                      return (
+                        <button
+                          key={c.char}
+                          type="button"
+                          data-active={isSelected}
+                          onClick={() => setWritingConsonant(c)}
+                          className={`relative w-10 h-10 shrink-0 rounded-xl text-sm font-black transition-all ${
+                            isSelected
+                              ? 'bg-[#E07A5F] text-white shadow-sm scale-105 ring-2 ring-[#E07A5F]/20'
+                              : isDone
+                                ? 'bg-amber-50 text-amber-900 border border-amber-300'
+                                : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                          }`}
+                        >
+                          {c.char}
+                          {isDone && (
+                            <span
+                              className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
+                                isSelected ? 'bg-white text-[#E07A5F]' : 'bg-amber-500 text-white'
+                              }`}
+                            >
+                              ✓
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })
+                  : HANGUL_VOWELS.map((v) => {
+                      const isSelected = writingVowel.char === v.char;
+                      const isDone = completedChars.includes(v.char);
+                      return (
+                        <button
+                          key={v.char}
+                          type="button"
+                          data-active={isSelected}
+                          onClick={() => setWritingVowel(v)}
+                          className={`relative w-10 h-10 shrink-0 rounded-xl text-sm font-black transition-all ${
+                            isSelected
+                              ? 'bg-[#2D3748] text-white shadow-sm scale-105 ring-2 ring-[#2D3748]/20'
+                              : isDone
+                                ? 'bg-amber-50 text-amber-900 border border-amber-300'
+                                : 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] border border-[#EDE8E1]'
+                          }`}
+                        >
+                          {v.char}
+                          {isDone && (
+                            <span
+                              className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
+                                isSelected ? 'bg-white text-[#2D3748]' : 'bg-amber-500 text-white'
+                              }`}
+                            >
+                              ✓
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleScrollNextChars}
+                disabled={!canScrollRight}
+                aria-label="다음 글자 보기"
+                className={`hidden sm:flex w-8 h-10 rounded-xl border items-center justify-center transition-all shrink-0 select-none ${
+                  canScrollRight
+                    ? 'bg-stone-50 hover:bg-[#FAF0E6] text-[#4A5568] hover:text-[#E07A5F] border-[#EDE8E1] cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
+                    : 'opacity-25 text-stone-300 border-stone-100 cursor-not-allowed'
+                }`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
             {/* 손글씨 캔버스 영역 */}

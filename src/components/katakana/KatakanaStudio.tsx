@@ -8,6 +8,7 @@ import {
   RotateCcw,
   PenTool,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   BookOpen,
   ArrowRight,
@@ -19,6 +20,7 @@ import {
   ArrowLeft,
   Pencil
 } from 'lucide-react';
+import { useHorizontalScroll } from '@/hooks/useHorizontalScroll';
 import {
   KATAKANA_GRID,
   KATAKANA_DAKUON_GRID,
@@ -234,7 +236,15 @@ export default function KatakanaStudio({
 
   // --- Step 3: 손글씨 캔버스 쓰기 상태 (히라가나 마스터 동등 엔진) ---
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const charListScrollRef = useRef<HTMLDivElement | null>(null);
+  const {
+    scrollRef: charListScrollRef,
+    canScrollLeft,
+    canScrollRight,
+    handleMouseDown: handleCharListMouseDown,
+    handleClickCapture: handleCharListClickCapture,
+    scrollPrev: handleScrollPrevChars,
+    scrollNext: handleScrollNextChars
+  } = useHorizontalScroll<HTMLDivElement>();
   const [isDrawing, setIsDrawing] = useState(false);
   const penColor = '#3D5A80'; // 가타카나 테마 인디고 블루 색상
   const strokeWidth = 10; // 기본 '보통' 두께
@@ -1190,51 +1200,83 @@ export default function KatakanaStudio({
               </span>
             </div>
 
-            {/* 빠른 글자 선택 칩 */}
-            <div
-              ref={charListScrollRef}
-              className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth"
-            >
-              {currentChars.map((c) => {
-                const isSelected = selectedChar.char === c.char;
-                const isDone = completedChars.includes(c.char);
-                return (
-                  <button
-                    key={c.char}
-                    type="button"
-                    data-active={isSelected}
-                    onClick={() => handleSelectChar(c)}
-                    className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${
-                      isSelected
-                        ? 'bg-[#3D5A80] text-white shadow-2xs scale-105'
-                        : isDone
-                        ? 'bg-[#F0F7FF] text-[#2B3E58] border border-[#C5D9F2]'
-                        : 'bg-stone-50 hover:bg-[#F0F7FF] text-[#4A5568] border border-[#EDE8E1]'
-                    } ${
-                      fontStyle === 'serif'
-                        ? 'font-jp-mincho'
-                        : 'font-jp-gothic'
-                    }`}
-                    style={{
-                      fontFamily:
+            {/* 빠른 글자 선택 칩 (PC 마우스 드래그 / 휠 / 좌우 버튼 지원) */}
+            <div className="relative flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleScrollPrevChars}
+                disabled={!canScrollLeft}
+                aria-label="이전 글자 보기"
+                className={`hidden sm:flex w-8 h-9 rounded-xl border items-center justify-center transition-all shrink-0 select-none ${
+                  canScrollLeft
+                    ? 'bg-stone-50 hover:bg-[#F0F7FF] text-[#4A5568] hover:text-[#3D5A80] border-[#EDE8E1] cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
+                    : 'opacity-25 text-stone-300 border-stone-100 cursor-not-allowed'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div
+                ref={charListScrollRef}
+                onMouseDown={handleCharListMouseDown}
+                onClickCapture={handleCharListClickCapture}
+                className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 scroll-smooth flex-1 cursor-grab active:cursor-grabbing select-none"
+              >
+                {currentChars.map((c) => {
+                  const isSelected = selectedChar.char === c.char;
+                  const isDone = completedChars.includes(c.char);
+                  return (
+                    <button
+                      key={c.char}
+                      type="button"
+                      data-active={isSelected}
+                      onClick={() => handleSelectChar(c)}
+                      className={`relative w-9 h-9 rounded-xl text-sm font-bold shrink-0 transition-all ${
+                        isSelected
+                          ? 'bg-[#3D5A80] text-white shadow-2xs scale-105'
+                          : isDone
+                          ? 'bg-[#F0F7FF] text-[#2B3E58] border border-[#C5D9F2]'
+                          : 'bg-stone-50 hover:bg-[#F0F7FF] text-[#4A5568] border border-[#EDE8E1]'
+                      } ${
                         fontStyle === 'serif'
-                          ? "'Noto Serif JP', 'Yu Mincho', serif"
-                          : "'Klee One', 'Noto Sans JP', sans-serif"
-                    }}
-                  >
-                    {c.char}
-                    {isDone && (
-                      <span
-                        className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
-                          isSelected ? 'bg-white text-[#3D5A80]' : 'bg-[#3D5A80] text-white'
-                        }`}
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+                          ? 'font-jp-mincho'
+                          : 'font-jp-gothic'
+                      }`}
+                      style={{
+                        fontFamily:
+                          fontStyle === 'serif'
+                            ? "'Noto Serif JP', 'Yu Mincho', serif"
+                            : "'Klee One', 'Noto Sans JP', sans-serif"
+                      }}
+                    >
+                      {c.char}
+                      {isDone && (
+                        <span
+                          className={`absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-black shadow-2xs ${
+                            isSelected ? 'bg-white text-[#3D5A80]' : 'bg-[#3D5A80] text-white'
+                          }`}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleScrollNextChars}
+                disabled={!canScrollRight}
+                aria-label="다음 글자 보기"
+                className={`hidden sm:flex w-8 h-9 rounded-xl border items-center justify-center transition-all shrink-0 select-none ${
+                  canScrollRight
+                    ? 'bg-stone-50 hover:bg-[#F0F7FF] text-[#4A5568] hover:text-[#3D5A80] border-[#EDE8E1] cursor-pointer shadow-2xs hover:scale-105 active:scale-95'
+                    : 'opacity-25 text-stone-300 border-stone-100 cursor-not-allowed'
+                }`}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
             {/* 캔버스 영역 */}
