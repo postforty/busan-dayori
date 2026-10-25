@@ -45,15 +45,15 @@ export default function KoreanHubView({
   return (
     <div className="px-4 py-4 space-y-5 max-w-xl mx-auto">
       {/* 최상단 소개 히어로 배너 */}
-      <section className="bg-gradient-to-br from-[#FAF0E6] via-[#FDF8F3] to-[#F4F1EA] rounded-3xl p-5 border border-[#F4DDD4] shadow-2xs relative overflow-hidden">
+      <section className="bg-gradient-to-br from-[#FAF0E6] via-[#FDF8F3] to-[#F4F1EA] rounded-3xl p-4 sm:p-5 border border-[#F4DDD4] shadow-2xs relative overflow-hidden">
         <div className="absolute top-2 right-2 w-24 h-24 bg-[#E07A5F]/10 rounded-full blur-xl pointer-events-none" />
 
-        <h1 className="text-xl font-black text-[#2D3748] tracking-tight mb-2">
+        <h1 className="text-lg sm:text-xl font-black text-[#2D3748] tracking-tight">
           韓国語・ハングル学習ハブ
         </h1>
 
-        <p className="text-xs text-[#718096] leading-relaxed">
-          釜山旅行が何倍も楽しくなる！看板・メニューの読み方から、食堂で画面を見せるだけの指差し会話、現地で耳にする釜山方言までまるごとマスターしましょう。
+        <p className="text-xs text-[#718096] leading-relaxed mt-1">
+          釜山旅行が楽しくなる！看板の読み方、食堂での指差し会話、現地の方言ナビ。
         </p>
       </section>
 

@@ -234,29 +234,31 @@ function VocaContent() {
   return (
     <div className="px-4 pt-4 space-y-5">
       {/* 1. 헤더 인트로 */}
-      <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4]">
-        {mainView === 'words' && filteredWords.length > 0 && (
-          <div className="flex justify-end mb-2">
+      <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-4 sm:p-5 border border-[#F4DDD4]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg font-black text-[#2D3748] tracking-tight">
+              手紙の単語帳 & 学習メモ
+            </h1>
+            <p className="text-xs text-[#718096] leading-relaxed mt-0.5">
+              북마크한 단어와 나만의 보관 레슨을 복습하세요.
+            </p>
+          </div>
+
+          {mainView === 'words' && filteredWords.length > 0 && (
             <button
               onClick={() => {
                 setIsFlashcardMode(!isFlashcardMode);
                 setIsFlipped(false);
                 setFlashcardIndex(0);
               }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#E07A5F] hover:bg-[#D0694E] text-white rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm shrink-0 whitespace-nowrap"
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#E07A5F] hover:bg-[#D0694E] text-white rounded-xl text-xs font-bold transition-all active:scale-95 shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
             >
               <RotateCw className="w-3.5 h-3.5" />
               <span>{isFlashcardMode ? '一覧で見る' : 'カードで復習'}</span>
             </button>
-          </div>
-        )}
-
-        <h1 className="text-lg font-black text-[#2D3748] tracking-tight mb-1.5">
-          手紙の単語帳 & 学習メモ
-        </h1>
-        <p className="text-xs text-[#718096] leading-relaxed">
-          釜山の街を紹介するお便りを書きながら、一生懸命調べたり勉強した単語や表現たちです。
-        </p>
+          )}
+        </div>
       </section>
 
       {/* 2. 상단 2단 세그먼트 메인 탭 */}

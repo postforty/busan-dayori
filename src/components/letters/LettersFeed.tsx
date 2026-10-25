@@ -46,12 +46,12 @@ export default function LettersFeed({ initialLetters }: LettersFeedProps) {
   return (
     <div className="px-4 pt-4 space-y-5">
       {/* 1. 헤더 배너 */}
-      <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-5 border border-[#F4DDD4]">
-        <h1 className="text-lg font-black text-[#2D3748] tracking-tight leading-snug mb-1.5">
+      <section className="bg-gradient-to-br from-[#FAF0E6] to-[#FFF9F2] rounded-3xl p-4 sm:p-5 border border-[#F4DDD4]">
+        <h1 className="text-lg font-black text-[#2D3748] tracking-tight leading-snug">
           釜山ローカル便り
         </h1>
-        <p className="text-xs text-[#718096] leading-relaxed">
-          日本語を勉強中の釜山っ子が直接日本語で綴る、釜山のローカル物語です。美味しいお店や路地裏の日常を紹介しながら、日本の読者さんと仲良くなりたいです！
+        <p className="text-xs text-[#718096] leading-relaxed mt-1">
+          釜山在住の韓国人が直接お届けする、美味しいお店と路地裏の旅の物語。
         </p>
       </section>
 
