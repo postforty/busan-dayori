@@ -172,10 +172,60 @@ export default function DailyLessonCard({
   const [isPlayingAllDialogue, setIsPlayingAllDialogue] = useState(false);
   const dialogueSessionRef = useRef<number>(0);
   const [keyPlaybackSpeed, setKeyPlaybackSpeed] = useState<number>(0.95);
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const speedMenuRef = useRef<HTMLDivElement | null>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressTriggeredRef = useRef(false);
 
-  const handleToggleKeyPlaybackSpeed = () => {
-    setKeyPlaybackSpeed((prev) => (prev === 0.95 ? 0.8 : prev === 0.8 ? 0.65 : 0.95));
+  // 롱프레스 터치/마우스 시작 (450ms 이상 길게 누르면 배속 팝오버 노출)
+  const handlePressStart = () => {
+    isLongPressTriggeredRef.current = false;
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressTriggeredRef.current = true;
+      setShowSpeedMenu(true);
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try {
+          navigator.vibrate(25);
+        } catch {
+          // ignore
+        }
+      }
+    }, 450);
   };
+
+  // 롱프레스 터치/마우스 종료
+  const handlePressEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  // 스피커 클릭 시 일반 재생 (롱프레스 후 손을 뗀 경우 클릭 이벤트 무시)
+  const handleKeySpeakerClick = () => {
+    if (isLongPressTriggeredRef.current) {
+      isLongPressTriggeredRef.current = false;
+      return;
+    }
+    handlePlay(lesson.keyExpression.japanese, 'key', keyPlaybackSpeed);
+  };
+
+  // 속도 팝오버 외부 클릭/터치 시 닫기
+  useEffect(() => {
+    if (!showSpeedMenu) return;
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (speedMenuRef.current && !speedMenuRef.current.contains(e.target as Node)) {
+        setShowSpeedMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [showSpeedMenu]);
 
   const [isTitleExpanded, setIsTitleExpanded] = useState(false);
 
@@ -183,6 +233,11 @@ export default function DailyLessonCard({
   useEffect(() => {
     setIsTitleExpanded(false);
     setActiveTutorSentence(null);
+    setShowSpeedMenu(false);
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
   }, [lesson.id]);
 
   // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부, 발음 모드 로드
@@ -643,34 +698,98 @@ export default function DailyLessonCard({
             <span className="text-[11px] font-bold tracking-wider text-gray-400 uppercase">
               今日のキーフレーズ
             </span>
-            <div className="flex items-center gap-1.5">
-              {/* 단일 배속 순환 토글 칩 (1.0x -> 0.8x -> 0.65x) */}
-              <button
-                type="button"
-                onClick={handleToggleKeyPlaybackSpeed}
-                className="px-2 py-1 rounded-lg border text-[10px] font-bold transition-all bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:scale-95 shadow-2xs cursor-pointer"
-                title="배속 변경 (클릭 시 1.0x → 0.8x → 0.65x 순환)"
-              >
-                <span>{keyPlaybackSpeed === 0.95 ? '1.0x' : `${keyPlaybackSpeed}x`}</span>
-              </button>
+            <div className="relative">
+              {/* 속도 선택 미니 팝오버 (롱프레스 또는 우클릭 시 노출) */}
+              {showSpeedMenu && (
+                <div
+                  ref={speedMenuRef}
+                  className="absolute right-0 bottom-full mb-1.5 z-20 flex items-center gap-1 p-1 bg-white rounded-xl shadow-lg border border-[#EDE8E1] animate-in fade-in zoom-in-95 duration-150 whitespace-nowrap"
+                >
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setKeyPlaybackSpeed(0.95);
+                      setShowSpeedMenu(false);
+                      showGlobalToast('⚡ 1.0x 배속으로 재생합니다');
+                      handlePlay(lesson.keyExpression.japanese, 'key', 0.95);
+                    }}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-colors cursor-pointer ${
+                      keyPlaybackSpeed === 0.95
+                        ? 'bg-[#FAF0E6] text-[#E07A5F] font-black'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    1.0x
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setKeyPlaybackSpeed(0.5);
+                      setShowSpeedMenu(false);
+                      showGlobalToast('🐢 0.5x 배속으로 재생합니다');
+                      handlePlay(lesson.keyExpression.japanese, 'key', 0.5);
+                    }}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-colors cursor-pointer ${
+                      keyPlaybackSpeed === 0.5
+                        ? 'bg-[#FAF0E6] text-[#E07A5F] font-black'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    0.5x
+                  </button>
+                </div>
+              )}
 
-              {/* 핵심 표현 재생 버튼 */}
-              <button
-                type="button"
-                onClick={() => handlePlay(lesson.keyExpression.japanese, 'key', keyPlaybackSpeed)}
-                className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                  playingId === 'key' || loadingId === 'key'
-                    ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                }`}
-                title="핵심 표현 듣기"
-              >
-                {loadingId === 'key' ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-[#E07A5F]" />
-                ) : (
-                  <Volume2 className="w-4 h-4" />
+              {/* 핵심 표현 재생 버튼 (클릭 시 재생, 길게 누르면 배속 팝오버) */}
+              <div className="relative inline-flex items-center">
+                <button
+                  type="button"
+                  onClick={handleKeySpeakerClick}
+                  onMouseDown={handlePressStart}
+                  onMouseUp={handlePressEnd}
+                  onMouseLeave={handlePressEnd}
+                  onTouchStart={handlePressStart}
+                  onTouchEnd={handlePressEnd}
+                  onTouchCancel={handlePressEnd}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    setShowSpeedMenu(true);
+                  }}
+                  className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+                    playingId === 'key' || loadingId === 'key'
+                      ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                      : keyPlaybackSpeed === 0.5
+                      ? 'bg-[#FFF8F3] text-[#E07A5F] border-[#FCE4D8] hover:bg-[#FAF0E6]'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                  }`}
+                  title="핵심 표현 듣기 (길게 누르면 0.5배속 조절)"
+                  aria-label="핵심 표현 듣기 (길게 누르면 0.5배속 조절)"
+                >
+                  {loadingId === 'key' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#E07A5F]" />
+                  ) : (
+                    <Volume2 className="w-4 h-4" />
+                  )}
+                </button>
+
+                {/* 0.5배속 활성화 상태 표시 배지 (클릭 시 1.0x 즉시 복귀) */}
+                {keyPlaybackSpeed === 0.5 && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setKeyPlaybackSpeed(0.95);
+                      showGlobalToast('⚡ 기본 속도(1.0x)로 전환되었습니다');
+                    }}
+                    className="absolute -top-1.5 -right-2 px-1 py-0.2 bg-[#E07A5F] text-white text-[8px] font-bold rounded-full shadow-2xs cursor-pointer hover:bg-[#c96348] transition-colors leading-tight"
+                    title="현재 0.5배속 (클릭 시 1.0x로 복귀)"
+                  >
+                    0.5x
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
           </div>
 
