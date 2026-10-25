@@ -551,8 +551,8 @@ export default function DailyLessonCard({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          {/* 관리자 1-Click DB 공식 발행 버튼 (DESIGN.md 슬레이트 네이비 테마 준수) */}
-          {isAdmin && (
+          {/* 관리자 1-Click DB 공식 발행 버튼: AI 생성 레슨일 때만 관리자에게 노출 */}
+          {isAiGenerated && isAdmin && (
             isPublished ? (
               <span
                 className="px-2 py-1 sm:px-2.5 rounded-xl text-[11px] font-bold bg-[#EBF3FB] text-[#3D5A80] border border-[#C5D9F2] flex items-center gap-1 shrink-0 shadow-2xs"
