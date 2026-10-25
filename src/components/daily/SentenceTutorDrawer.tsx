@@ -230,6 +230,20 @@ export default function SentenceTutorDrawer({
 
   // 바텀시트 닫힘 애니메이션 상태
   const [isClosing, setIsClosing] = useState(false);
+  const [isEntered, setIsEntered] = useState(false);
+
+  // 스와이프 다운(드래그) 상태
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ y: number; time: number } | null>(null);
+
+  // 진입 애니메이션 완료 후 인라인 스타일과 충돌 방지를 위해 클래스 플래그 해제
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsEntered(true);
+    }, 320);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleClose = useCallback(() => {
     if (isClosing) return;
@@ -238,6 +252,73 @@ export default function SentenceTutorDrawer({
       onClose();
     }, 220);
   }, [isClosing, onClose]);
+
+  // 상단 헤더 스와이프 제스처 핸들러
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // 내부 버튼 클릭 시 드래그 동작 방지
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // 무시
+    }
+
+    dragStartRef.current = { y: e.clientY, time: Date.now() };
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartRef.current) return;
+    const deltaY = e.clientY - dragStartRef.current.y;
+    if (deltaY > 0) {
+      setDragY(deltaY);
+    } else {
+      // 위로 당길 때는 미세한 저항감만 제공
+      setDragY(Math.max(-20, deltaY * 0.15));
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartRef.current) return;
+
+    const deltaY = e.clientY - dragStartRef.current.y;
+    const deltaTime = Math.max(1, Date.now() - dragStartRef.current.time);
+    const velocityY = deltaY / deltaTime; // px/ms
+
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
+    }
+
+    dragStartRef.current = null;
+    setIsDragging(false);
+
+    // 80px 이상 아래로 내렸거나, 빠르게 튕겼을 때(속도 0.45px/ms 이상) 시트 닫기
+    if (deltaY > 80 || (deltaY > 30 && velocityY > 0.45)) {
+      handleClose();
+    } else {
+      // 원위치 스냅
+      setDragY(0);
+    }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // 무시
+    }
+    dragStartRef.current = null;
+    setIsDragging(false);
+    setDragY(0);
+  };
 
   // 바텀 시트 열림 시 ESC 닫기 및 바디 스크롤 락
   useEffect(() => {
@@ -261,6 +342,10 @@ export default function SentenceTutorDrawer({
       className={`fixed inset-0 z-50 flex items-end justify-center bg-black/45 backdrop-blur-xs transition-opacity ${
         isClosing ? 'animate-backdrop-out pointer-events-none' : 'animate-backdrop-in'
       }`}
+      style={{
+        opacity: isClosing ? undefined : dragY > 0 ? Math.max(0.15, 1 - dragY / 350) : undefined,
+        transition: isDragging ? 'none' : 'opacity 0.2s ease',
+      }}
     >
       {/* 딤 배경 클릭 시 닫기 */}
       <div className="absolute inset-0" onClick={handleClose} aria-hidden="true" />
@@ -268,52 +353,75 @@ export default function SentenceTutorDrawer({
       {/* 바텀 시트 컨테이너 */}
       <div
         className={`relative z-10 w-full max-w-lg bg-white rounded-t-3xl shadow-2xl border-t border-[#FCE4D8] flex flex-col max-h-[85vh] overflow-hidden ${
-          isClosing ? 'animate-bottom-sheet-out' : 'animate-bottom-sheet-in'
+          !isEntered && !isClosing ? 'animate-bottom-sheet-in' : ''
         }`}
+        style={{
+          transform: isClosing
+            ? 'translateY(100%)'
+            : dragY > 0
+            ? `translateY(${dragY}px)`
+            : undefined,
+          transition: isDragging
+            ? 'none'
+            : 'transform 0.22s cubic-bezier(0.32, 0.72, 0, 1)',
+        }}
       >
-        {/* 상단 드래그 핸들 */}
-        <div className="pt-2.5 pb-1 flex justify-center bg-gradient-to-r from-[#FAF0E6] to-[#FFF6F1]">
-          <div className="w-10 h-1 bg-gray-300/80 rounded-full" />
-        </div>
-
-        {/* 헤더 바 */}
-        <div className="px-4 py-2.5 bg-gradient-to-r from-[#FAF0E6] to-[#FFF6F1] border-b border-[#FCE4D8] flex items-center justify-between gap-2 shrink-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-[#E07A5F] text-white flex items-center justify-center shrink-0 shadow-2xs">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-sm font-black text-[#2D3748]">다요리 센세 1:1 과외</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#E07A5F]/10 text-[#E07A5F] font-bold border border-[#E07A5F]/20">
-                  {sentence.speaker}
-                </span>
-              </div>
-            </div>
+        {/* 상단 드래그 핸들 및 헤더 영역 (터치/마우스 스와이프 인터랙션) */}
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+          className="touch-none select-none cursor-grab active:cursor-grabbing bg-gradient-to-r from-[#FAF0E6] to-[#FFF6F1] shrink-0 border-b border-[#FCE4D8]"
+        >
+          {/* 상단 드래그 핸들 */}
+          <div className="pt-3 pb-1.5 flex justify-center">
+            <div
+              className={`h-1.5 rounded-full transition-all duration-200 ${
+                isDragging ? 'bg-[#E07A5F] w-14 shadow-2xs' : 'bg-gray-300/80 hover:bg-gray-400 w-11'
+              }`}
+            />
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={isResetting}
-              className="group p-1.5 rounded-lg text-gray-400 hover:text-[#E07A5F] hover:bg-white/80 active:scale-95 transition-all cursor-pointer disabled:opacity-60"
-              title="대화 초기화"
-            >
-              <RefreshCw
-                className={`w-4 h-4 transition-transform duration-300 ${
-                  isResetting ? 'animate-spin-once' : 'group-hover:rotate-180'
-                }`}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-colors cursor-pointer"
-              title="과외 창 닫기"
-            >
-              <X className="w-4.5 h-4.5" />
-            </button>
+          {/* 헤더 바 */}
+          <div className="px-4 pb-2.5 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-full bg-[#E07A5F] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-sm font-black text-[#2D3748]">다요리 센세 1:1 과외</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#E07A5F]/10 text-[#E07A5F] font-bold border border-[#E07A5F]/20">
+                    {sentence.speaker}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={isResetting}
+                className="group p-1.5 rounded-lg text-gray-400 hover:text-[#E07A5F] hover:bg-white/80 active:scale-95 transition-all cursor-pointer disabled:opacity-60"
+                title="대화 초기화"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 transition-transform duration-300 ${
+                    isResetting ? 'animate-spin-once' : 'group-hover:rotate-180'
+                  }`}
+                />
+              </button>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white/80 transition-colors cursor-pointer"
+                title="과외 창 닫기"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            </div>
           </div>
         </div>
 
