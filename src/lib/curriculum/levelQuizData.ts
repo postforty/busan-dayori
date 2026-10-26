@@ -1,4 +1,5 @@
 import { LessonLevel, LevelQuizQuestion, LevelTestResult, CurriculumLevel } from '@/types';
+import { getCurriculumLevels } from './curriculumData';
 
 export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
   starter: [
@@ -667,30 +668,42 @@ export function isLevelAllUnitsCompleted(
   level: LessonLevel | CurriculumLevel | string,
   completedLessons?: string[]
 ): boolean {
-  let list = completedLessons;
-  if (!list && typeof window !== 'undefined') {
+  const levelKey = typeof level === 'object' && level !== null ? (level as CurriculumLevel).level : level;
+  if (!levelKey || levelKey === 'ai') return false;
+
+  const allLevels = getCurriculumLevels();
+  const targetLevel = allLevels.find(l => l.level === levelKey);
+  if (!targetLevel || targetLevel.units.length === 0) return false;
+
+  const completedSet = new Set<string>(completedLessons || []);
+
+  if (typeof window !== 'undefined') {
     try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('lesson_completed_')) {
+          if (localStorage.getItem(key) === 'true') {
+            completedSet.add(key.replace('lesson_completed_', ''));
+          }
+        }
+      }
       const raw = localStorage.getItem('busan_completed_lessons');
-      list = raw ? JSON.parse(raw) : [];
+      if (raw) {
+        const legacyList = JSON.parse(raw);
+        if (Array.isArray(legacyList)) {
+          legacyList.forEach((id: string) => completedSet.add(id));
+        }
+      }
     } catch {
-      list = [];
+      // 무시
     }
   }
-  const safeList = list || [];
-  const levelUnitPrefixes: Record<string, string[]> = {
-    starter: ['starter-1', 'starter-2', 'starter-3'],
-    beginner: ['beginner-1', 'beginner-2', 'beginner-3'],
-    intermediate: ['intermediate-1', 'intermediate-2'],
-    advanced: ['advanced-1', 'advanced-2'],
-    ai: []
-  };
 
-  const levelKey = typeof level === 'object' && level !== null ? (level as CurriculumLevel).level : level;
-  const requiredUnits = levelUnitPrefixes[levelKey] || [];
-  if (requiredUnits.length === 0) return false;
-
-  return requiredUnits.every((prefix: string) => 
-    safeList.some(lessonId => lessonId.startsWith(prefix))
+  // targetLevel의 모든 units가 completedSet에 들어있는지 확인
+  return targetLevel.units.every(unit => 
+    completedSet.has(unit.lessonId) ||
+    completedSet.has(unit.id) ||
+    Array.from(completedSet).some(id => id.includes(unit.id) || id.includes(unit.lessonId))
   );
 }
 

@@ -218,7 +218,7 @@ export default function LevelTestModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-[#EDE8E1] overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150"
+        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-[#EDE8E1] overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150 transition-all duration-350 ease-out"
         role="dialog"
         aria-modal="true"
       >
@@ -263,7 +263,7 @@ export default function LevelTestModal({
         )}
 
         {/* 모달 바디: 테스트 진행 중 vs 결과 화면 */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4">
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 transition-all duration-350 ease-out">
           {!isFinished ? (
             currentQuestion ? (
               <div className="space-y-4 animate-in fade-in duration-150">
@@ -365,31 +365,41 @@ export default function LevelTestModal({
                   })}
                 </div>
 
-                {/* 정답 제출 후 해설 및 뉘앙스 팁 */}
-                {isAnswerSubmitted && (
-                  <div className="p-3.5 rounded-2xl bg-[#FFF9F2] border border-[#F4DDD4] space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#E07A5F]">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>
-                        {selectedOptionIndex !== null &&
-                        currentQuestion.options[selectedOptionIndex]?.isCorrect
-                          ? '🎉 정답입니다!'
-                          : '💡 아쉬워요! 핵심 해설'}
-                      </span>
-                    </div>
+                {/* 정답 제출 시 해설 및 뉘앙스 팁 (스르륵 자연스럽게 늘어나는 아코디언 확장 애니메이션) */}
+                <div
+                  className={`grid transition-[grid-template-rows,opacity] duration-350 ease-out ${
+                    isAnswerSubmitted
+                      ? 'grid-rows-[1fr] opacity-100'
+                      : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="pt-2.5">
+                      <div className="p-3.5 rounded-2xl bg-[#FFF9F2] border border-[#F4DDD4] space-y-2 shadow-2xs">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-[#E07A5F]">
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                          <span>
+                            {selectedOptionIndex !== null &&
+                            currentQuestion.options[selectedOptionIndex]?.isCorrect
+                              ? '🎉 정답입니다!'
+                              : '💡 아쉬워요! 핵심 해설'}
+                          </span>
+                        </div>
 
-                    <p className="text-xs text-[#4A5568] leading-relaxed">
-                      {selectedOptionIndex !== null &&
-                        currentQuestion.options[selectedOptionIndex]?.explanation}
-                    </p>
+                        <p className="text-xs text-[#4A5568] leading-relaxed">
+                          {selectedOptionIndex !== null &&
+                            currentQuestion.options[selectedOptionIndex]?.explanation}
+                        </p>
 
-                    {currentQuestion.tip && (
-                      <div className="text-[11px] text-[#718096] pt-1 border-t border-[#F4DDD4]/60">
-                        {currentQuestion.tip}
+                        {currentQuestion.tip && (
+                          <div className="text-[11px] text-[#718096] pt-1 border-t border-[#F4DDD4]/60">
+                            {currentQuestion.tip}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             ) : (
               <div className="p-8 text-center text-xs text-gray-400">

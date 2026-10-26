@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { DailyLesson, VocabItem, SavedWord, WordBreakdown } from '@/types';
+import { DailyLesson, VocabItem, SavedWord, WordBreakdown, CurriculumLevel } from '@/types';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
 import {
@@ -23,9 +23,12 @@ import {
   Play,
   Square
 } from 'lucide-react';
-import { enrichLessonWithCurriculum } from '@/lib/curriculum/curriculumData';
+import { enrichLessonWithCurriculum, findCurriculumUnit } from '@/lib/curriculum/curriculumData';
+import { isLevelAllUnitsCompleted, getLevelTestResult } from '@/lib/curriculum/levelQuizData';
 import SentenceTutorDrawer from './SentenceTutorDrawer';
 import { LessonCompletionStamp } from './LessonCompletionStamp';
+import SecretEnvelopeModal from '@/components/curriculum/SecretEnvelopeModal';
+import LevelTestModal from '@/components/curriculum/LevelTestModal';
 import { showGlobalToast } from '@/utils/toast';
 
 interface DailyLessonCardProps {
@@ -162,6 +165,8 @@ export default function DailyLessonCard({
   const [savedWordIds, setSavedWordIds] = useState<Set<string>>(new Set());
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
   const [showRewardStamp, setShowRewardStamp] = useState(false);
+  const [secretEnvelopeLevel, setSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
+  const [activeTestLevel, setActiveTestLevel] = useState<CurriculumLevel | null>(null);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
   const [showPronounce, setShowPronounce] = useState(true);
   const [activeTutorSentence, setActiveTutorSentence] = useState<{
@@ -566,9 +571,37 @@ export default function DailyLessonCard({
   const handleToggleComplete = () => {
     const nextState = !isLessonCompleted;
     setIsLessonCompleted(nextState);
+
     if (nextState) {
-      setShowRewardStamp(true);
+      // 로컬스토리지에 현재 레슨 완료 즉시 저장
+      try {
+        localStorage.setItem(`lesson_completed_${lesson.id}`, 'true');
+      } catch {}
+
+      // 현재 레슨의 커리큘럼 정보 조회
+      const curriculumInfo = findCurriculumUnit(lesson.id);
+      if (curriculumInfo) {
+        const targetLevel = curriculumInfo.level;
+        const isAllUnitsDone = isLevelAllUnitsCompleted(targetLevel.level, [lesson.id]);
+        const currentResult = getLevelTestResult(targetLevel.level);
+        const hasPassed = currentResult?.isPassed;
+
+        // 레벨의 모든 유닛이 완료되었고, 아직 테스트를 통과하지 않은 경우:
+        // [그림2]의 일반 스탬프 대신 특별 편지 봉투 모달 표시!
+        if (isAllUnitsDone && !hasPassed) {
+          setSecretEnvelopeLevel(targetLevel);
+        } else {
+          setShowRewardStamp(true);
+        }
+      } else {
+        setShowRewardStamp(true);
+      }
+    } else {
+      try {
+        localStorage.removeItem(`lesson_completed_${lesson.id}`);
+      } catch {}
     }
+
     try {
       localStorage.setItem(`lesson_completed_${lesson.id}`, String(nextState));
       // 전역 레슨 완료 상태 변경 알림 이벤트 전파
@@ -1109,6 +1142,32 @@ export default function DailyLessonCard({
         onClose={() => setShowRewardStamp(false)}
         lessonTitle={lesson.themeTitle || lesson.unitTitle}
       />
+
+      {/* 레벨 완주 시 동봉된 비밀 편지 봉투 모달 */}
+      {secretEnvelopeLevel && (
+        <SecretEnvelopeModal
+          isOpen={!!secretEnvelopeLevel}
+          level={secretEnvelopeLevel}
+          onClose={() => setSecretEnvelopeLevel(null)}
+          onOpenTest={() => {
+            const lvl = secretEnvelopeLevel;
+            setSecretEnvelopeLevel(null);
+            setActiveTestLevel(lvl);
+          }}
+        />
+      )}
+
+      {/* 회화 마스터 테스트 모달 */}
+      {activeTestLevel && (
+        <LevelTestModal
+          isOpen={!!activeTestLevel}
+          level={activeTestLevel}
+          onClose={() => setActiveTestLevel(null)}
+          onPassSuccess={() => {
+            window.dispatchEvent(new CustomEvent('busan-lesson-completed-changed'));
+          }}
+        />
+      )}
     </div>
   );
 }

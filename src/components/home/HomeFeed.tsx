@@ -6,6 +6,37 @@ import { useSearchParams } from 'next/navigation';
 import { DailyLesson, CurriculumLevel } from '@/types';
 import DailyLessonCard from '@/components/daily/DailyLessonCard';
 import LevelTestModal from '@/components/curriculum/LevelTestModal';
+import SecretEnvelopeModal from '@/components/curriculum/SecretEnvelopeModal';
+
+/**
+ * 일본 정통 참잘했어요(花丸, Hanamaru) 10엽 꽃잎 외곽선 생성 함수
+ */
+function generateHanamaruPath(cx: number, cy: number, r: number, petals: number, fullness = 1.16): string {
+  const angleStep = (Math.PI * 2) / petals;
+  const chord = 2 * r * Math.sin(angleStep / 2);
+  const arcR = (chord / 2) * fullness;
+  let d = '';
+
+  for (let i = 0; i < petals; i++) {
+    const offset = -Math.PI / 2;
+    const startAngle = offset + i * angleStep;
+    const endAngle = offset + (i + 1) * angleStep;
+
+    const x1 = cx + r * Math.cos(startAngle);
+    const y1 = cy + r * Math.sin(startAngle);
+    const x2 = cx + r * Math.cos(endAngle);
+    const y2 = cy + r * Math.sin(endAngle);
+
+    if (i === 0) {
+      d += `M ${x1.toFixed(2)} ${y1.toFixed(2)} `;
+    }
+    d += `A ${arcR.toFixed(2)} ${arcR.toFixed(2)} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} `;
+  }
+  return d + 'Z';
+}
+
+const HANAMARU_OUTER_PATH = generateHanamaruPath(100, 100, 78, 10, 1.16);
+const HANAMARU_INNER_PATH = generateHanamaruPath(100, 100, 67, 10, 1.16);
 import {
   getLessonByIdFromCurriculum,
   enrichLessonWithCurriculum,
@@ -187,6 +218,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
   // 회화 레벨 테스트 상태 관리 (Lv.0, Lv.1, Lv.2 마스터 테스트)
   // ----------------------------------------------------
   const [activeTestLevel, setActiveTestLevel] = useState<CurriculumLevel | null>(null);
+  const [secretEnvelopeLevel, setSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
   const [levelTestResults, setLevelTestResults] = useState<Record<string, { isPassed: boolean; score: number }>>({});
 
   useEffect(() => {
@@ -518,68 +550,106 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
 
         <DailyLessonCard key={currentLesson.id} lesson={currentLesson} isAiGenerated={isAiGenerated} />
 
-        {/* 💌 모든 유닛 완료 시에만 해금되는 다요리의 비밀 편지 (히든 롤플레잉 퀘스트) */}
-        {isCurrentLevelCompleted && adjacentInfo.current && (
-          <div className="bg-gradient-to-br from-[#FFF9F2] via-[#FAF0E6] to-[#FFF6F1] rounded-3xl p-5 border border-[#F4DDD4] shadow-xs relative overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-2">
-            {/* 우측 상단 옅은 편지 실루엣 장식 */}
-            <div className="absolute -right-3 -top-3 opacity-10 pointer-events-none">
-              <Mail className="w-24 h-24 text-[#E07A5F]" />
-            </div>
-
-            <div className="relative space-y-3">
-              {/* 비밀 편지 헤더 배지 */}
-              <div className="flex items-center gap-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#E07A5F] text-white text-[10px] font-black tracking-tight shadow-2xs">
-                  <Mail className="w-3 h-3 text-white" />
-                  <span>비밀 편지 도착</span>
-                </span>
-                <span className="text-[11px] font-bold text-[#E07A5F]">
-                  {adjacentInfo.current.level.badge} 전 유닛 완주
-                </span>
-              </div>
-
-              {/* 다정한 다이어리 톤앤매너 문구 */}
-              <div className="space-y-1">
-                <h3 className="text-sm sm:text-base font-black text-[#2D3748] tracking-tight">
-                  다요리가 보낸 비밀 도전장 ✉️
-                </h3>
-                <p className="text-xs text-[#718096] leading-relaxed">
-                  {adjacentInfo.current.level.badge}의 모든 이야기를 함께해주셔서 고마워요! 지금까지 나눈 말들로 부산 골목에서 저와 실전 대화를 나눠보지 않을래요?
-                </p>
-              </div>
-
-              {/* 액션 영역 */}
-              <div className="pt-1 flex items-center justify-between gap-3">
-                {levelTestResults[adjacentInfo.current.level.level]?.isPassed ? (
-                  <div className="flex items-center gap-1.5 text-xs font-black text-[#E07A5F]">
-                    <CheckCircle2 className="w-4 h-4 text-[#E07A5F]" />
-                    <span>실전 소통 마스터 완료 ✓</span>
-                  </div>
-                ) : (
-                  <span className="text-[11px] text-[#A0AEC0] font-medium hidden sm:inline">
-                    5문항 실전 롤플레잉 퀘스트
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTestLevel(adjacentInfo.current!.level)}
-                  className="ml-auto px-4 py-2.5 rounded-xl text-xs font-black bg-[#E07A5F] hover:bg-[#C45B40] text-white shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>
-                    {levelTestResults[adjacentInfo.current.level.level]?.isPassed
-                      ? '비밀 편지 다시 읽기'
-                      : '비밀 편지 열어보기'}
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
+        </section>
 
       {/* 회화 레벨 테스트 모달 */}
+            {/* 문제를 아직 풀지 않았을 때 화면 우측 하단에 상시 떠 있는 정통 10엽 하나마루(Hanamaru) 플로팅 버튼 */}
+      {isCurrentLevelCompleted && adjacentInfo.current?.level && !levelTestResults[adjacentInfo.current.level.level]?.isPassed && (
+        <button
+          type="button"
+          onClick={() => setSecretEnvelopeLevel(adjacentInfo.current!.level)}
+          className="fixed bottom-20 right-4 sm:right-6 z-40 group cursor-pointer select-none transition-all duration-300 hover:scale-110 active:scale-95 animate-in fade-in zoom-in-75 duration-300"
+          aria-label="회화 마스터 퀘스트 편지 열기"
+        >
+          <div className="relative w-16 h-16 sm:w-[70px] sm:h-[70px] drop-shadow-[0_8px_20px_rgba(214,40,40,0.45)] -rotate-8 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 group-active:scale-95">
+            <svg
+              className="w-full h-full filter"
+              viewBox="0 0 200 200"
+              aria-hidden="true"
+            >
+              <path
+                d={HANAMARU_OUTER_PATH}
+                fill="#FFF9F7"
+                fillOpacity="0.98"
+              />
+              <path
+                d={HANAMARU_OUTER_PATH}
+                fill="none"
+                stroke="#D62828"
+                strokeWidth="4.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d={HANAMARU_INNER_PATH}
+                fill="none"
+                stroke="#D62828"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeOpacity="0.85"
+              />
+              <text
+                x="100"
+                y="74"
+                textAnchor="middle"
+                fontWeight="900"
+                fontSize="16"
+                fill="#D62828"
+                letterSpacing="2"
+              >
+                たいへん
+              </text>
+              <text
+                x="100"
+                y="108"
+                textAnchor="middle"
+                fontWeight="900"
+                fontSize="20"
+                fill="#D62828"
+                letterSpacing="1.2"
+              >
+                よくできました
+              </text>
+              <path
+                d="M 52 119 L 148 119"
+                stroke="#D62828"
+                strokeWidth="1.2"
+                strokeDasharray="2 2"
+                strokeOpacity="0.65"
+              />
+              <text
+                x="100"
+                y="134"
+                textAnchor="middle"
+                fontWeight="700"
+                fontSize="10"
+                fill="#D62828"
+                letterSpacing="1.5"
+                opacity="0.9"
+              >
+                ★ 釜山だより ★
+              </text>
+            </svg>
+            <div className="absolute -inset-1 rounded-full bg-[#D62828]/15 animate-ping pointer-events-none" />
+          </div>
+        </button>
+      )}
+
+      {/* 레벨 완주 시 동봉된 비밀 편지 봉투 모달 */}
+      {secretEnvelopeLevel && (
+        <SecretEnvelopeModal
+          isOpen={!!secretEnvelopeLevel}
+          level={secretEnvelopeLevel}
+          onClose={() => setSecretEnvelopeLevel(null)}
+          onOpenTest={() => {
+            const lvl = secretEnvelopeLevel;
+            setSecretEnvelopeLevel(null);
+            setActiveTestLevel(lvl);
+          }}
+        />
+      )}
+
       {activeTestLevel && (
         <LevelTestModal
           isOpen={!!activeTestLevel}
