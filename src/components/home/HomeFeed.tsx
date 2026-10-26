@@ -12,11 +12,9 @@ import {
 } from '@/lib/curriculum/curriculumData';
 import {
   BookOpen,
-  GraduationCap,
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Languages,
   Trophy,
   Sparkles,
   Check,
@@ -307,10 +305,10 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
           {/* 문자 학습 CTA (히라가나 & 가타카나) - 둘 다 마스터 완료 시 숨김 */}
           {!isAllKanaMastered && (
             <div className="pt-0.5 animate-in fade-in duration-300">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {/* 히라가나 카드 (Warm Coral 테마) */}
                 <div
-                  className={`flex items-center justify-between p-2.5 rounded-2xl border transition-all ${
+                  className={`flex items-center justify-between p-2 sm:p-2.5 rounded-2xl border transition-all ${
                     kanaStatus.hiragana
                       ? 'bg-[#FFF6F1] border-[#FCE4D8]'
                       : 'bg-white border-[#F4DDD4] hover:border-[#E07A5F] shadow-2xs hover:shadow-xs'
@@ -318,14 +316,14 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
                 >
                   <Link
                     href="/hiragana"
-                    className="flex items-center gap-2 min-w-0 flex-1 py-0.5 group"
+                    className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 py-0.5 group"
                     title="히라가나 마스터 학습하러 가기"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-[#FFF6F1] border border-[#FCE4D8] flex items-center justify-center shrink-0">
-                      <GraduationCap className="w-3.5 h-3.5 text-[#E07A5F]" />
-                    </div>
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-[#FCE4D8] text-[#E07A5F] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                      あ
+                    </span>
                     <span className="text-xs font-black text-[#2D3748] group-hover:text-[#E07A5F] transition-colors truncate">
-                      히라가나 마스터
+                      히라가나
                     </span>
                   </Link>
 
@@ -351,7 +349,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
 
                 {/* 가타카나 카드 (Slate Navy 테마) */}
                 <div
-                  className={`flex items-center justify-between p-2.5 rounded-2xl border transition-all ${
+                  className={`flex items-center justify-between p-2 sm:p-2.5 rounded-2xl border transition-all ${
                     kanaStatus.katakana
                       ? 'bg-[#F0F7FF] border-[#C5D9F2]'
                       : 'bg-white border-[#D0E1F9] hover:border-[#3D5A80] shadow-2xs hover:shadow-xs'
@@ -359,14 +357,14 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
                 >
                   <Link
                     href="/katakana"
-                    className="flex items-center gap-2 min-w-0 flex-1 py-0.5 group"
+                    className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 py-0.5 group"
                     title="가타카나 마스터 학습하러 가기"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-[#F0F7FF] border border-[#C5D9F2] flex items-center justify-center shrink-0">
-                      <Languages className="w-3.5 h-3.5 text-[#3D5A80]" />
-                    </div>
+                    <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-white border border-[#C5D9F2] text-[#3D5A80] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                      ア
+                    </span>
                     <span className="text-xs font-black text-[#2D3748] group-hover:text-[#3D5A80] transition-colors truncate">
-                      가타카나 마스터
+                      가타카나
                     </span>
                   </Link>
 
