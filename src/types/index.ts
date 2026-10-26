@@ -169,4 +169,30 @@ export interface SavedLesson {
   savedAt: string;
 }
 
+export interface LevelQuizOption {
+  text: string;
+  reading?: string;
+  isCorrect: boolean;
+  explanation: string;
+}
+
+export interface LevelQuizQuestion {
+  id: string;
+  scenario: string;
+  situationTag: string;
+  speakerAudioText?: string;
+  speakerAudioLabel?: string;
+  options: LevelQuizOption[];
+  tip?: string;
+  relatedUnitTitle?: string;
+}
+
+export interface LevelTestResult {
+  level: LessonLevel;
+  score: number;
+  total: number;
+  isPassed: boolean;
+  completedAt: string;
+}
+
 

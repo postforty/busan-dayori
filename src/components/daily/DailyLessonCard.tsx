@@ -571,6 +571,12 @@ export default function DailyLessonCard({
     }
     try {
       localStorage.setItem(`lesson_completed_${lesson.id}`, String(nextState));
+      // 전역 레슨 완료 상태 변경 알림 이벤트 전파
+      window.dispatchEvent(
+        new CustomEvent('busan-lesson-completed-changed', {
+          detail: { lessonId: lesson.id, isCompleted: nextState }
+        })
+      );
     } catch {
       // 무시
     }
