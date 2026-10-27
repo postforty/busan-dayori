@@ -252,6 +252,12 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
   // 학습 완료 스탬프 / 비밀 편지 모달이 화면에 표시되는 동안 우측 하단 플로팅 스탬프 숨김
   const [isLessonRewardModalOpen, setIsLessonRewardModalOpen] = useState(false);
 
+  // 현재 레벨 및 테스트 마스터(합격) 여부
+  const currentCurriculumLevel = adjacentInfo.current?.level;
+  const isCurrentLevelPassed = Boolean(
+    currentCurriculumLevel && levelTestResults[currentCurriculumLevel.level]?.isPassed
+  );
+
   useEffect(() => {
     const checkLevelCompletion = () => {
       if (adjacentInfo.current?.level) {
@@ -559,21 +565,29 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
 
         </section>
 
-      {/* 회화 레벨 테스트 모달 */}
-            {/* 문제를 아직 풀지 않았을 때 화면 우측 하단에 상시 떠 있는 정통 10엽 하나마루(Hanamaru) 플로팅 버튼 */}
+      {/* 회화 레벨 테스트 플로팅 버튼 (완주한 레벨에서는 시험 합격 후에도 상시 노출되어 복습 및 재도전 가능) */}
       {isCurrentLevelCompleted &&
         !isLessonRewardModalOpen &&
         !secretEnvelopeLevel &&
         !activeTestLevel &&
-        adjacentInfo.current?.level &&
-        !levelTestResults[adjacentInfo.current.level.level]?.isPassed && (
+        currentCurriculumLevel && (
         <button
           type="button"
-          onClick={() => setSecretEnvelopeLevel(adjacentInfo.current!.level)}
+          onClick={() => setSecretEnvelopeLevel(currentCurriculumLevel)}
           className="fixed bottom-20 right-4 sm:right-6 z-40 group cursor-pointer select-none transition-all duration-300 hover:scale-110 active:scale-95 animate-in fade-in zoom-in-75 duration-300"
-          aria-label="회화 마스터 퀘스트 편지 열기"
+          aria-label={isCurrentLevelPassed ? '회화 마스터 수료증 및 복습 편지 열기' : '회화 마스터 퀘스트 편지 열기'}
+          title={isCurrentLevelPassed ? '마스터 완료! (터치하여 언제든 복습 및 재시험)' : '비밀 편지 열기'}
         >
           <div className="relative w-16 h-16 sm:w-[70px] sm:h-[70px] drop-shadow-[0_8px_20px_rgba(214,40,40,0.45)] -rotate-8 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 group-active:scale-95">
+            {/* 이미 마스터한 레벨인 경우 우상단에 축하 왕관 배지 부착 */}
+            {isCurrentLevelPassed && (
+              <div
+                className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 border-2 border-white shadow-md flex items-center justify-center text-[11px] z-10"
+                title="마스터 완료! (터치하여 복습)"
+              >
+                👑
+              </div>
+            )}
             <svg
               className="w-full h-full filter"
               viewBox="0 0 200 200"
@@ -643,7 +657,11 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
                 ★ 釜山だより ★
               </text>
             </svg>
-            <div className="absolute -inset-1 rounded-full bg-[#D62828]/15 animate-ping pointer-events-none" />
+            <div
+              className={`absolute -inset-1 rounded-full pointer-events-none ${
+                isCurrentLevelPassed ? 'bg-amber-400/20' : 'bg-[#D62828]/15 animate-ping'
+              }`}
+            />
           </div>
         </button>
       )}
