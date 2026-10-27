@@ -121,6 +121,59 @@ function playEnvelopeOpenSound() {
   }
 }
 
+/**
+ * Web Audio API를 사용한 편지 우편함 팝업 효과음 (경쾌한 팝 + 맑은 벨 사운드)
+ */
+function playEnvelopePopSound() {
+  if (!isSoundEnabled()) return;
+  try {
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+
+    const now = ctx.currentTime;
+
+    // 1. 퐁- 하고 솟아오르는 기분 좋은 버블 팝 사운드 (사인파 빠른 피치업)
+    const popOsc = ctx.createOscillator();
+    const popGain = ctx.createGain();
+    popOsc.type = 'sine';
+    popOsc.frequency.setValueAtTime(360, now);
+    popOsc.frequency.exponentialRampToValueAtTime(780, now + 0.1);
+
+    popGain.gain.setValueAtTime(0.001, now);
+    popGain.gain.setValueAtTime(0.28, now + 0.02);
+    popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+    popOsc.connect(popGain);
+    popGain.connect(ctx.destination);
+    popOsc.start(now);
+    popOsc.stop(now + 0.18);
+
+    // 2. 맑은 하모닉 차임 (E6, 1318.5Hz 가벼운 딩-)
+    const bellOsc = ctx.createOscillator();
+    const bellGain = ctx.createGain();
+    bellOsc.type = 'sine';
+    bellOsc.frequency.setValueAtTime(1318.5, now + 0.08);
+
+    bellGain.gain.setValueAtTime(0.001, now);
+    bellGain.gain.setValueAtTime(0.14, now + 0.09);
+    bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+    bellOsc.connect(bellGain);
+    bellGain.connect(ctx.destination);
+    bellOsc.start(now + 0.08);
+    bellOsc.stop(now + 0.6);
+  } catch {
+    // 오디오 에러는 무시
+  }
+}
+
 export default function SecretEnvelopeModal({
   isOpen,
   onClose,
@@ -128,10 +181,34 @@ export default function SecretEnvelopeModal({
   onOpenTest
 }: SecretEnvelopeModalProps) {
   const [isOpening, setIsOpening] = useState(false);
+  const [isPopFinished, setIsPopFinished] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setIsOpening(false);
+      setIsPopFinished(false);
+
+      // 우편함 솟아오름 효과음 및 햅틱 (편지가 서서히 떠오르는 시점 싱크)
+      const soundTimer = setTimeout(() => {
+        playEnvelopePopSound();
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try {
+            navigator.vibrate([18, 25, 20]);
+          } catch {
+            // ignore
+          }
+        }
+      }, 180);
+
+      // 1450ms 부드러운 팝업 완료 후 둥실둥실 플로팅 모드로 전환
+      const floatTimer = setTimeout(() => {
+        setIsPopFinished(true);
+      }, 1450);
+
+      return () => {
+        clearTimeout(soundTimer);
+        clearTimeout(floatTimer);
+      };
     }
   }, [isOpen]);
 
@@ -159,13 +236,17 @@ export default function SecretEnvelopeModal({
   return (
     <div
       onClick={handleDimClick}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-300 cursor-pointer select-none"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-700 cursor-pointer select-none"
     >
       {/* 순수 편지 봉투 인터랙션 컨테이너 */}
       <div
         onClick={handleEnvelopeClick}
-        className={`relative w-[320px] h-[215px] cursor-pointer transition-transform duration-300 drop-shadow-2xl ${
-          isOpening ? 'scale-105' : 'hover:scale-[1.03] active:scale-[0.98]'
+        className={`relative w-[320px] h-[215px] cursor-pointer drop-shadow-2xl transition-transform duration-300 ${
+          isOpening
+            ? 'scale-105'
+            : isPopFinished
+            ? 'animate-envelope-float hover:scale-[1.03] active:scale-[0.98]'
+            : 'animate-envelope-pop'
         }`}
         style={{ perspective: '1100px' }}
       >

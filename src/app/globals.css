@@ -181,4 +181,48 @@ body {
   will-change: transform, opacity;
 }
 
+/* 비밀 편지 봉투: 부드럽고 여유롭게 솟아오르는 감성 팝업 */
+@keyframes envelopePopUp {
+  0% {
+    opacity: 0;
+    transform: translateY(110px) scale(0.88);
+  }
+  40% {
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-5px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 비밀 편지 봉투: 도착 후 둥실둥실 까딱까딱 설레는 플로팅 */
+@keyframes envelopeFloatWiggle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-9px) rotate(1.5deg);
+  }
+}
+
+.animate-envelope-pop {
+  animation: envelopePopUp 1.45s cubic-bezier(0.25, 1, 0.35, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-envelope-float {
+  animation: envelopeFloatWiggle 3.2s ease-in-out infinite;
+  will-change: transform;
+}
+
 

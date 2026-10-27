@@ -249,6 +249,8 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
 
   // 현재 레벨의 모든 유닛 완료 여부 (비밀 편지 해금 조건)
   const [isCurrentLevelCompleted, setIsCurrentLevelCompleted] = useState(false);
+  // 학습 완료 스탬프 / 비밀 편지 모달이 화면에 표시되는 동안 우측 하단 플로팅 스탬프 숨김
+  const [isLessonRewardModalOpen, setIsLessonRewardModalOpen] = useState(false);
 
   useEffect(() => {
     const checkLevelCompletion = () => {
@@ -548,13 +550,23 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
           </button>
         </div>
 
-        <DailyLessonCard key={currentLesson.id} lesson={currentLesson} isAiGenerated={isAiGenerated} />
+        <DailyLessonCard
+          key={currentLesson.id}
+          lesson={currentLesson}
+          isAiGenerated={isAiGenerated}
+          onRewardModalChange={setIsLessonRewardModalOpen}
+        />
 
         </section>
 
       {/* 회화 레벨 테스트 모달 */}
             {/* 문제를 아직 풀지 않았을 때 화면 우측 하단에 상시 떠 있는 정통 10엽 하나마루(Hanamaru) 플로팅 버튼 */}
-      {isCurrentLevelCompleted && adjacentInfo.current?.level && !levelTestResults[adjacentInfo.current.level.level]?.isPassed && (
+      {isCurrentLevelCompleted &&
+        !isLessonRewardModalOpen &&
+        !secretEnvelopeLevel &&
+        !activeTestLevel &&
+        adjacentInfo.current?.level &&
+        !levelTestResults[adjacentInfo.current.level.level]?.isPassed && (
         <button
           type="button"
           onClick={() => setSecretEnvelopeLevel(adjacentInfo.current!.level)}

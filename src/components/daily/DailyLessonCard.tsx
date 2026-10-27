@@ -35,6 +35,7 @@ interface DailyLessonCardProps {
   lesson: DailyLesson;
   isAiGenerated?: boolean;
   hideAiBadge?: boolean;
+  onRewardModalChange?: (isOpen: boolean) => void;
 }
 
 function deriveBreakdownFromVocab(
@@ -157,7 +158,8 @@ function renderRuby(
 export default function DailyLessonCard({
   lesson,
   isAiGenerated,
-  hideAiBadge
+  hideAiBadge,
+  onRewardModalChange
 }: DailyLessonCardProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -165,10 +167,20 @@ export default function DailyLessonCard({
   const [savedWordIds, setSavedWordIds] = useState<Set<string>>(new Set());
   const [isLessonCompleted, setIsLessonCompleted] = useState(false);
   const [showRewardStamp, setShowRewardStamp] = useState(false);
+  const [pendingSecretEnvelopeLevel, setPendingSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
   const [secretEnvelopeLevel, setSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
   const [activeTestLevel, setActiveTestLevel] = useState<CurriculumLevel | null>(null);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
   const [showPronounce, setShowPronounce] = useState(true);
+
+  // 학습 완료 스탬프 / 비밀 편지 / 레벨 테스트 모달 활성화 여부 부모 통지
+  const isAnyRewardModalOpen = Boolean(
+    showRewardStamp || pendingSecretEnvelopeLevel || secretEnvelopeLevel || activeTestLevel
+  );
+
+  useEffect(() => {
+    onRewardModalChange?.(isAnyRewardModalOpen);
+  }, [isAnyRewardModalOpen, onRewardModalChange]);
   const [activeTutorSentence, setActiveTutorSentence] = useState<{
     japanese: string;
     korean: string;
@@ -241,6 +253,7 @@ export default function DailyLessonCard({
     setIsTitleExpanded(false);
     setActiveTutorSentence(null);
     setShowSpeedMenu(false);
+    setPendingSecretEnvelopeLevel(null);
     if (longPressTimerRef.current) {
       clearTimeout(longPressTimerRef.current);
       longPressTimerRef.current = null;
@@ -587,16 +600,20 @@ export default function DailyLessonCard({
         const hasPassed = currentResult?.isPassed;
 
         // 레벨의 모든 유닛이 완료되었고, 아직 테스트를 통과하지 않은 경우:
-        // [그림2]의 일반 스탬프 대신 특별 편지 봉투 모달 표시!
+        // 스탬프 모달을 먼저 표시하고, 사용자가 확인을 누르면 비밀 편지 봉투가 열리도록 예약
         if (isAllUnitsDone && !hasPassed) {
-          setSecretEnvelopeLevel(targetLevel);
+          setPendingSecretEnvelopeLevel(targetLevel);
         } else {
-          setShowRewardStamp(true);
+          setPendingSecretEnvelopeLevel(null);
         }
       } else {
-        setShowRewardStamp(true);
+        setPendingSecretEnvelopeLevel(null);
       }
+
+      // 레벨 완주 여부와 무관하게 항상 스탬프 모달을 먼저 띄워 도장 쾅 성취감 부여
+      setShowRewardStamp(true);
     } else {
+      setPendingSecretEnvelopeLevel(null);
       try {
         localStorage.removeItem(`lesson_completed_${lesson.id}`);
       } catch {}
@@ -1139,7 +1156,17 @@ export default function DailyLessonCard({
       {/* 학습 완료 참 잘했어요 스탬프 보상 모달 */}
       <LessonCompletionStamp
         isOpen={showRewardStamp}
-        onClose={() => setShowRewardStamp(false)}
+        onClose={() => {
+          setShowRewardStamp(false);
+          // 레벨 완주 후 확인을 눌렀을 경우, 여유로운 호흡(650ms)을 두고 비밀 편지 봉투 모달 깜짝 오픈
+          if (pendingSecretEnvelopeLevel) {
+            const nextLevel = pendingSecretEnvelopeLevel;
+            setPendingSecretEnvelopeLevel(null);
+            setTimeout(() => {
+              setSecretEnvelopeLevel(nextLevel);
+            }, 650);
+          }
+        }}
         lessonTitle={lesson.themeTitle || lesson.unitTitle}
       />
 
