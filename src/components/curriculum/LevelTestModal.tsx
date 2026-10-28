@@ -16,6 +16,7 @@ import {
   RotateCcw,
   Check,
   ChevronRight,
+  ChevronLeft,
   HelpCircle,
   Award
 } from 'lucide-react';
@@ -117,33 +118,39 @@ export default function LevelTestModal({
   const totalCount = questions.length;
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
-  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
-  const [score, setScore] = useState(0);
+  // 문항별 사용자 선택 답변 저장 (문항 인덱스 -> 선택한 옵션 인덱스)
+  const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
   const [isFinished, setIsFinished] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  // 스와이프 터치 제스처 추적용 Ref
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
 
   // 모달 오픈 시 상태 초기화
   useEffect(() => {
     if (isOpen) {
       setCurrentIndex(0);
-      setSelectedOptionIndex(null);
-      setIsAnswerSubmitted(false);
-      setScore(0);
+      setUserAnswers({});
       setIsFinished(false);
       stopJapaneseSpeech();
     }
   }, [isOpen, level.level]);
 
-  // 문제 변경 시 상태 리셋
+  // 문제 변경 시 음성 정지
   useEffect(() => {
-    setSelectedOptionIndex(null);
-    setIsAnswerSubmitted(false);
     stopJapaneseSpeech();
     setIsPlayingAudio(false);
   }, [currentIndex]);
 
   const currentQuestion = questions[currentIndex];
+  const selectedOptionIndex = userAnswers[currentIndex] ?? null;
+  const isAnswerSubmitted = selectedOptionIndex !== null;
+
+  // 점수 계산 (사용자가 맞힌 문항 수 합산)
+  const score = Object.entries(userAnswers).filter(
+    ([qIdx, optIdx]) => questions[+qIdx]?.options[optIdx]?.isCorrect
+  ).length;
 
   // 음성 재생
   const handlePlayAudio = useCallback(
@@ -163,15 +170,20 @@ export default function LevelTestModal({
   // 선택지 클릭
   const handleSelectOption = (index: number) => {
     if (isAnswerSubmitted) return;
-    setSelectedOptionIndex(index);
-    setIsAnswerSubmitted(true);
+    setUserAnswers((prev) => ({ ...prev, [currentIndex]: index }));
 
     const isCorrect = currentQuestion.options[index]?.isCorrect;
     if (isCorrect) {
-      setScore((prev) => prev + 1);
       playQuizSound('correct');
     } else {
       playQuizSound('wrong');
+    }
+  };
+
+  // 이전 문제로 이동
+  const handlePrevQuestion = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
     }
   };
 
@@ -181,12 +193,11 @@ export default function LevelTestModal({
       setCurrentIndex((prev) => prev + 1);
     } else {
       // 퀴즈 종료 및 결과 저장
-      const finalScore = score + (currentQuestion?.options[selectedOptionIndex ?? -1]?.isCorrect ? 0 : 0);
-      const isPassed = finalScore >= Math.ceil(totalCount * 0.8);
+      const isPassed = score >= Math.ceil(totalCount * 0.8);
 
       saveLevelTestResult({
         level: level.level,
-        score: finalScore,
+        score,
         total: totalCount,
         isPassed,
         completedAt: new Date().toISOString()
@@ -201,12 +212,39 @@ export default function LevelTestModal({
     }
   };
 
+  // 스와이프 터치 제스처 핸들러
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartYRef.current;
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+
+    // 수평 스와이프 감지 (수직 스크롤과 명확히 구분)
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      if (deltaX < 0) {
+        // 왼쪽으로 스와이프 (다음 문제)
+        if (isAnswerSubmitted) {
+          handleNextQuestion();
+        }
+      } else {
+        // 오른쪽으로 스와이프 (이전 문제)
+        if (currentIndex > 0) {
+          handlePrevQuestion();
+        }
+      }
+    }
+  };
+
   // 다시 풀기
   const handleRetry = () => {
     setCurrentIndex(0);
-    setSelectedOptionIndex(null);
-    setIsAnswerSubmitted(false);
-    setScore(0);
+    setUserAnswers({});
     setIsFinished(false);
   };
 
@@ -218,7 +256,7 @@ export default function LevelTestModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div
-        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-[#EDE8E1] overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150 transition-all duration-350 ease-out"
+        className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-[#EDE8E1] overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150 transition-all duration-350 ease-out"
         role="dialog"
         aria-modal="true"
       >
@@ -262,8 +300,12 @@ export default function LevelTestModal({
           </div>
         )}
 
-        {/* 모달 바디: 테스트 진행 중 vs 결과 화면 */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 transition-all duration-350 ease-out">
+        {/* 모달 바디: 테스트 진행 중 vs 결과 화면 (좌우 터치 스와이프 제스처 지원) */}
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 transition-all duration-350 ease-out select-none"
+        >
           {!isFinished ? (
             currentQuestion ? (
               <div className="space-y-4 animate-in fade-in duration-150">
@@ -297,14 +339,15 @@ export default function LevelTestModal({
                       <button
                         type="button"
                         onClick={() => handlePlayAudio(currentQuestion.speakerAudioText)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+                        className={`p-1.5 rounded-lg border shrink-0 transition-colors cursor-pointer ${
                           isPlayingAudio
-                            ? 'bg-[#E07A5F] text-white'
-                            : 'bg-[#FAF0E6] text-[#E07A5F] hover:bg-[#FCE4D8]'
+                            ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
+                            : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:text-[#E07A5F]'
                         }`}
+                        title="발음 듣기"
+                        aria-label="발음 듣기"
                       >
                         <Volume2 className="w-3.5 h-3.5 shrink-0" />
-                        <span>듣기</span>
                       </button>
                     </div>
                   )}
@@ -320,15 +363,15 @@ export default function LevelTestModal({
 
                     if (isAnswerSubmitted) {
                       if (option.isCorrect) {
-                        // 정답: 브랜드 시그니처 코랄 웜톤 (DESIGN.md Known/외운 글자 규격)
+                        // 정답: 브랜드 시그니처 코랄 (선명한 차콜 텍스트와 웜 틴트 배경)
                         optionStyle =
                           'bg-[#FAF0E6] border-2 border-[#E07A5F] text-[#2D3748] font-black shadow-xs';
                         badgeStyle = 'bg-[#E07A5F] text-white';
                       } else if (isSelected && !option.isCorrect) {
-                        // 오답: 브릭 시에나 웜톤 (DESIGN.md Confused/헷갈린 글자 규격)
+                        // 내가 고른 오답: 정통 스탬프 인주 레드 (#D62828) 톤 적용
                         optionStyle =
-                          'bg-[#F7EBE5] border-2 border-[#C45B40] text-[#C45B40] font-bold';
-                        badgeStyle = 'bg-[#C45B40] text-white';
+                          'bg-[#FFF5F5] border-2 border-[#D62828] text-[#D62828] font-bold shadow-xs';
+                        badgeStyle = 'bg-[#D62828] text-white';
                       } else {
                         // 미선택 기타 보기: 웜 캔버스 슬레이트 페이퍼
                         optionStyle = 'bg-[#FBF9F5] border border-[#EDE8E1] text-[#A0AEC0] opacity-50 font-medium';
@@ -344,21 +387,23 @@ export default function LevelTestModal({
                         onClick={() => handleSelectOption(idx)}
                         className={`w-full p-3 sm:p-3.5 rounded-2xl text-left transition-all duration-150 flex items-center justify-between gap-3 text-xs sm:text-sm active:scale-[0.99] ${optionStyle}`}
                       >
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <span
                             className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 transition-colors ${badgeStyle}`}
                           >
                             {idx + 1}
                           </span>
-                          <span>{option.text}</span>
+                          <span className={isAnswerSubmitted && isSelected && !option.isCorrect ? 'line-through decoration-[#D62828]/60 truncate' : 'truncate'}>
+                            {option.text}
+                          </span>
                         </div>
 
-                        {/* 피드백 아이콘 (DESIGN.md 웜톤 팔레트) */}
+                        {/* 피드백 아이콘 (휴리스틱: 텍스트를 제거하고 아이콘 기호만으로 직관적 전달) */}
                         {isAnswerSubmitted && option.isCorrect && (
                           <CheckCircle2 className="w-4 h-4 text-[#E07A5F] shrink-0" />
                         )}
                         {isAnswerSubmitted && isSelected && !option.isCorrect && (
-                          <XCircle className="w-4 h-4 text-[#C45B40] shrink-0" />
+                          <XCircle className="w-4 h-4 text-[#D62828] shrink-0" />
                         )}
                       </button>
                     );
@@ -381,8 +426,8 @@ export default function LevelTestModal({
                           <span>
                             {selectedOptionIndex !== null &&
                             currentQuestion.options[selectedOptionIndex]?.isCorrect
-                              ? '🎉 정답입니다!'
-                              : '💡 아쉬워요! 핵심 해설'}
+                              ? '정답입니다!'
+                              : '아쉬워요! 핵심 해설'}
                           </span>
                         </div>
 
@@ -394,6 +439,28 @@ export default function LevelTestModal({
                         {currentQuestion.tip && (
                           <div className="text-[11px] text-[#718096] pt-1 border-t border-[#F4DDD4]/60">
                             {currentQuestion.tip}
+                          </div>
+                        )}
+
+                        {/* 옵션 1: 정답 제출 시 해설 하단 인라인 버튼 (다음 문제로 / 결과 확인하기) */}
+                        {isAnswerSubmitted && (
+                          <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                            <button
+                              type="button"
+                              onClick={handleNextQuestion}
+                              className="w-full py-3 rounded-2xl font-bold text-xs sm:text-sm bg-[#E07A5F] hover:bg-[#C45B40] text-white flex items-center justify-center gap-2 shadow-md shadow-[#E07A5F]/20 active:scale-[0.99] transition-all cursor-pointer"
+                            >
+                              <span>
+                                {currentIndex + 1 === totalCount
+                                  ? '테스트 결과 확인하기'
+                                  : '다음 문제로'}
+                              </span>
+                              {currentIndex + 1 === totalCount ? (
+                                <Award className="w-4 h-4" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4" />
+                              )}
+                            </button>
                           </div>
                         )}
                       </div>
@@ -463,75 +530,63 @@ export default function LevelTestModal({
           )}
         </div>
 
-        {/* 모달 푸터 버튼 (DESIGN.md 웜톤 종이 테두리) */}
-        <div className="p-4 bg-[#FBF9F5] border-t border-[#EDE8E1] flex items-center justify-end gap-2 shrink-0">
-          {!isFinished ? (
-            <button
-              type="button"
-              disabled={!isAnswerSubmitted}
-              onClick={handleNextQuestion}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs ${
-                isAnswerSubmitted
-                  ? 'bg-[#2D3748] hover:bg-[#1A202C] text-white active:scale-95 cursor-pointer'
-                  : 'bg-[#EDE8E1] text-[#A0AEC0] cursor-not-allowed'
-              }`}
-            >
-              <span>{currentIndex + 1 === totalCount ? '결과 확인하기' : '다음 문제'}</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          ) : isPassed ? (
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="px-4 py-2.5 rounded-xl border border-[#EDE8E1] text-[#718096] font-bold text-xs hover:bg-[#FAF0E6]/60 transition-all flex items-center gap-1"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>다시 풀기</span>
-              </button>
-
-              {onNavigateToNextLevel ? (
+        {/* 모달 푸터: 퀴즈 진행 중에는 푸터 바를 완전히 제거하여 높이 최적화, 최종 결과 화면에서만 액션 푸터 렌더링 */}
+        {isFinished && (
+          <div className="p-4 bg-[#FBF9F5] border-t border-[#EDE8E1] flex items-center justify-end gap-2 shrink-0">
+            {isPassed ? (
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button
                   type="button"
-                  onClick={() => {
-                    onClose();
-                    onNavigateToNextLevel();
-                  }}
-                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#E07A5F] hover:bg-[#C45B40] text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                  onClick={handleRetry}
+                  className="px-4 py-2.5 rounded-xl border border-[#EDE8E1] text-[#718096] font-bold text-xs hover:bg-[#FAF0E6]/60 transition-all flex items-center gap-1"
                 >
-                  <span>다음 레벨 둘러보기</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>다시 풀기</span>
                 </button>
-              ) : (
+
+                {onNavigateToNextLevel ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onNavigateToNextLevel();
+                    }}
+                    className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#E07A5F] hover:bg-[#C45B40] text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                  >
+                    <span>다음 레벨 둘러보기</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#2D3748] hover:bg-[#1A202C] text-white transition-all shadow-sm active:scale-95"
+                  >
+                    학습 완료
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#2D3748] hover:bg-[#1A202C] text-white transition-all shadow-sm active:scale-95"
+                  className="px-4 py-2.5 rounded-xl border border-[#EDE8E1] text-[#718096] font-bold text-xs hover:bg-[#FAF0E6]/60 transition-all"
                 >
-                  학습 완료
+                  닫기
                 </button>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2.5 rounded-xl border border-[#EDE8E1] text-[#718096] font-bold text-xs hover:bg-[#FAF0E6]/60 transition-all"
-              >
-                닫기
-              </button>
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#E07A5F] hover:bg-[#C45B40] text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>재도전하기</span>
-              </button>
-            </div>
-          )}
-        </div>
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#E07A5F] hover:bg-[#C45B40] text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>다시 도전하기</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
