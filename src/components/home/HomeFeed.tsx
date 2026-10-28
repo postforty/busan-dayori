@@ -579,15 +579,6 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
           title={isCurrentLevelPassed ? '마스터 완료! (터치하여 언제든 복습 및 재시험)' : '비밀 편지 열기'}
         >
           <div className="relative w-16 h-16 sm:w-[70px] sm:h-[70px] drop-shadow-[0_8px_20px_rgba(214,40,40,0.45)] -rotate-8 transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105 group-active:scale-95">
-            {/* 이미 마스터한 레벨인 경우 우상단에 축하 왕관 배지 부착 */}
-            {isCurrentLevelPassed && (
-              <div
-                className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 border-2 border-white shadow-md flex items-center justify-center text-[11px] z-10"
-                title="마스터 완료! (터치하여 복습)"
-              >
-                👑
-              </div>
-            )}
             <svg
               className="w-full h-full filter"
               viewBox="0 0 200 200"
