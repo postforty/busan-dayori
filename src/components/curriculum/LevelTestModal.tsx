@@ -522,25 +522,31 @@ export default function LevelTestModal({
                         type="button"
                         disabled={isAnswerSubmitted}
                         onClick={() => handleSelectOption(idx)}
-                        className={`w-full p-3 sm:p-3.5 rounded-2xl text-left transition-all duration-150 flex items-center justify-between gap-3 text-xs sm:text-sm active:scale-[0.99] ${optionStyle}`}
+                        className={`w-full p-3 sm:p-3.5 rounded-2xl text-left transition-all duration-150 flex items-start justify-between gap-3 text-xs sm:text-sm active:scale-[0.99] ${optionStyle}`}
                       >
-                        <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="flex items-start gap-2.5 min-w-0 flex-1">
                           <span
-                            className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 transition-colors ${badgeStyle}`}
+                            className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 transition-colors mt-0.5 ${badgeStyle}`}
                           >
                             {idx + 1}
                           </span>
-                          <span className={isAnswerSubmitted && isSelected && !option.isCorrect ? 'line-through decoration-[#D62828]/60 truncate' : 'truncate'}>
+                          <span
+                            className={`break-words leading-snug flex-1 ${
+                              isAnswerSubmitted && isSelected && !option.isCorrect
+                                ? 'line-through decoration-[#D62828]/60'
+                                : ''
+                            }`}
+                          >
                             {option.text}
                           </span>
                         </div>
 
                         {/* 피드백 아이콘 (휴리스틱: 텍스트를 제거하고 아이콘 기호만으로 직관적 전달) */}
                         {isAnswerSubmitted && option.isCorrect && (
-                          <CheckCircle2 className="w-4 h-4 text-[#E07A5F] shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-[#E07A5F] shrink-0 mt-0.5" />
                         )}
                         {isAnswerSubmitted && isSelected && !option.isCorrect && (
-                          <XCircle className="w-4 h-4 text-[#D62828] shrink-0" />
+                          <XCircle className="w-4 h-4 text-[#D62828] shrink-0 mt-0.5" />
                         )}
                       </button>
                     );
