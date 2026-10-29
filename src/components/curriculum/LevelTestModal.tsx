@@ -123,9 +123,14 @@ export default function LevelTestModal({
   const [isFinished, setIsFinished] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
-  // 스와이프 터치 제스처 추적용 Ref
+  // 스와이프 인터랙션 및 방향성 슬라이드 전환 상태 (옵션 A)
+  const [dragOffset, setDragOffset] = useState<number>(0);
+  const [slidePhase, setSlidePhase] = useState<'idle' | 'exiting' | 'entering'>('idle');
+  const [slideDir, setSlideDir] = useState<'none' | 'left' | 'right'>('none');
+  const isDraggingRef = useRef<boolean>(false);
   const touchStartXRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
+  const gestureLockRef = useRef<'horizontal' | 'vertical' | null>(null);
 
   // 모달 오픈 시 상태 초기화
   useEffect(() => {
@@ -133,6 +138,9 @@ export default function LevelTestModal({
       setCurrentIndex(0);
       setUserAnswers({});
       setIsFinished(false);
+      setDragOffset(0);
+      setSlidePhase('idle');
+      setSlideDir('none');
       stopJapaneseSpeech();
     }
   }, [isOpen, level.level]);
@@ -152,10 +160,10 @@ export default function LevelTestModal({
     ([qIdx, optIdx]) => questions[+qIdx]?.options[optIdx]?.isCorrect
   ).length;
 
-  // 음성 재생
+  // 음성 재생 (슬라이딩 중에는 오디오 재생 차단)
   const handlePlayAudio = useCallback(
     (text?: string) => {
-      if (!text) return;
+      if (!text || slidePhase !== 'idle') return;
       setIsPlayingAudio(true);
       speakJapanese(
         text,
@@ -164,12 +172,12 @@ export default function LevelTestModal({
         () => setIsPlayingAudio(false)
       );
     },
-    []
+    [slidePhase]
   );
 
-  // 선택지 클릭
+  // 선택지 클릭 (스와이프 드래그 중이거나 슬라이딩 전환 중 터치 오작동 방지)
   const handleSelectOption = (index: number) => {
-    if (isAnswerSubmitted) return;
+    if (isAnswerSubmitted || slidePhase !== 'idle' || Math.abs(dragOffset) > 10) return;
     setUserAnswers((prev) => ({ ...prev, [currentIndex]: index }));
 
     const isCorrect = currentQuestion.options[index]?.isCorrect;
@@ -180,17 +188,40 @@ export default function LevelTestModal({
     }
   };
 
-  // 이전 문제로 이동
-  const handlePrevQuestion = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-    }
-  };
+  // 이전 문제로 이동 (부드러운 오른쪽 슬라이드 아웃 & 인 애니메이션)
+  const handlePrevQuestion = useCallback(() => {
+    if (currentIndex <= 0 || slidePhase !== 'idle') return;
+    setSlideDir('right');
+    setSlidePhase('exiting');
 
-  // 다음 문제로 이동 또는 결과 화면
-  const handleNextQuestion = () => {
+    setTimeout(() => {
+      setCurrentIndex((prev) => prev - 1);
+      setDragOffset(0);
+      setSlidePhase('entering');
+      setTimeout(() => {
+        setSlidePhase('idle');
+        setSlideDir('none');
+      }, 30);
+    }, 180);
+  }, [currentIndex, slidePhase]);
+
+  // 다음 문제로 이동 또는 결과 화면 (부드러운 왼쪽 슬라이드 아웃 & 인 애니메이션)
+  const handleNextQuestion = useCallback(() => {
+    if (slidePhase !== 'idle') return;
+
     if (currentIndex + 1 < totalCount) {
-      setCurrentIndex((prev) => prev + 1);
+      setSlideDir('left');
+      setSlidePhase('exiting');
+
+      setTimeout(() => {
+        setCurrentIndex((prev) => prev + 1);
+        setDragOffset(0);
+        setSlidePhase('entering');
+        setTimeout(() => {
+          setSlidePhase('idle');
+          setSlideDir('none');
+        }, 30);
+      }, 180);
     } else {
       // 퀴즈 종료 및 결과 저장
       const isPassed = score >= Math.ceil(totalCount * 0.8);
@@ -209,36 +240,134 @@ export default function LevelTestModal({
       }
 
       setIsFinished(true);
+      setDragOffset(0);
+      setSlidePhase('idle');
+      setSlideDir('none');
     }
-  };
+  }, [currentIndex, totalCount, score, level.level, onPassSuccess, slidePhase]);
 
-  // 스와이프 터치 제스처 핸들러
+  // 실시간 터치 드래그 & 스와이프 제스처 핸들러 (옵션 A)
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartXRef.current = e.touches[0].clientX;
-    touchStartYRef.current = e.touches[0].clientY;
+    if (slidePhase !== 'idle' || isFinished) return;
+    const touch = e.touches[0];
+    touchStartXRef.current = touch.clientX;
+    touchStartYRef.current = touch.clientY;
+    gestureLockRef.current = null;
+    isDraggingRef.current = true;
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
-    const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
-    const deltaY = e.changedTouches[0].clientY - touchStartYRef.current;
-    touchStartXRef.current = null;
-    touchStartYRef.current = null;
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggingRef.current || touchStartXRef.current === null || touchStartYRef.current === null) return;
+    const touch = e.touches[0];
+    const diffX = touch.clientX - touchStartXRef.current;
+    const diffY = touch.clientY - touchStartYRef.current;
 
-    // 수평 스와이프 감지 (수직 스크롤과 명확히 구분)
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
-      if (deltaX < 0) {
-        // 왼쪽으로 스와이프 (다음 문제)
-        if (isAnswerSubmitted) {
-          handleNextQuestion();
+    // 제스처 방향 감지 (최소 6px 이동 후 수평 스와이프 vs 수직 스크롤 잠금 판정)
+    if (!gestureLockRef.current) {
+      if (Math.abs(diffX) > 6 || Math.abs(diffY) > 6) {
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+          gestureLockRef.current = 'horizontal';
+        } else {
+          gestureLockRef.current = 'vertical';
+          return;
         }
       } else {
-        // 오른쪽으로 스와이프 (이전 문제)
-        if (currentIndex > 0) {
-          handlePrevQuestion();
-        }
+        return;
       }
     }
+
+    if (gestureLockRef.current === 'vertical') {
+      return;
+    }
+
+    // 러버밴딩 탄성 저항 계산
+    let effectiveOffset = diffX;
+
+    if (diffX < 0) {
+      // 왼쪽으로 드래그 (다음 문제)
+      if (!isAnswerSubmitted) {
+        // 아직 답을 제출하지 않았을 때 강한 저항 (최대 -32px)
+        effectiveOffset = -Math.min(32, Math.pow(Math.abs(diffX), 0.62));
+      }
+    } else if (diffX > 0) {
+      // 오른쪽으로 드래그 (이전 문제)
+      if (currentIndex === 0) {
+        // 첫 문제에서는 강한 저항 (최대 32px)
+        effectiveOffset = Math.min(32, Math.pow(diffX, 0.62));
+      }
+    }
+
+    setDragOffset(effectiveOffset);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    const finalDrag = dragOffset;
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+    gestureLockRef.current = null;
+
+    const threshold = 55;
+
+    if (finalDrag < -threshold && isAnswerSubmitted) {
+      // 다음 문제로 슬라이드 전환
+      handleNextQuestion();
+    } else if (finalDrag > threshold && currentIndex > 0) {
+      // 이전 문제로 슬라이드 전환
+      handlePrevQuestion();
+    } else {
+      // 제자리로 부드러운 스냅 복귀
+      setDragOffset(0);
+    }
+  };
+
+  const handleTouchCancel = () => {
+    isDraggingRef.current = false;
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+    gestureLockRef.current = null;
+    setDragOffset(0);
+  };
+
+  // 문제 카드에 적용할 GPU 가속 인라인 스타일 계산
+  const getCardTransformStyle = (): React.CSSProperties => {
+    if (slidePhase === 'exiting') {
+      const exitTranslate = slideDir === 'left' ? '-108%' : '108%';
+      return {
+        transform: `translate3d(${exitTranslate}, 0, 0)`,
+        opacity: 0,
+        transition: 'transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease'
+      };
+    }
+
+    if (slidePhase === 'entering') {
+      const enterTranslate = slideDir === 'left' ? '36px' : '-36px';
+      return {
+        transform: `translate3d(${enterTranslate}, 0, 0)`,
+        opacity: 0,
+        transition: 'none'
+      };
+    }
+
+    // 터치 실시간 드래그 중
+    if (isDraggingRef.current) {
+      return {
+        transform: `translate3d(${dragOffset}px, 0, 0) rotate(${dragOffset * 0.015}deg)`,
+        opacity: 1 - Math.min(Math.abs(dragOffset) / 450, 0.3),
+        transition: 'none'
+      };
+    }
+
+    // 기본 대기 상태 및 스냅백
+    return {
+      transform: 'translate3d(0, 0, 0) rotate(0deg)',
+      opacity: 1,
+      transition:
+        dragOffset !== 0
+          ? 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease'
+          : 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease'
+    };
   };
 
   // 다시 풀기
@@ -246,6 +375,9 @@ export default function LevelTestModal({
     setCurrentIndex(0);
     setUserAnswers({});
     setIsFinished(false);
+    setDragOffset(0);
+    setSlidePhase('idle');
+    setSlideDir('none');
   };
 
   if (!isOpen) return null;
@@ -303,12 +435,17 @@ export default function LevelTestModal({
         {/* 모달 바디: 테스트 진행 중 vs 결과 화면 (좌우 터치 스와이프 제스처 지원) */}
         <div
           onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 transition-all duration-350 ease-out select-none"
+          onTouchCancel={handleTouchCancel}
+          className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 transition-all duration-350 ease-out select-none touch-pan-y relative overflow-x-hidden"
         >
           {!isFinished ? (
             currentQuestion ? (
-              <div className="space-y-4 animate-in fade-in duration-150">
+              <div
+                style={getCardTransformStyle()}
+                className="space-y-4 will-change-transform"
+              >
                 {/* 문항 번호 & 상황 태그 */}
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-[#718096]">

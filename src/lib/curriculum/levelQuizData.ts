@@ -42,8 +42,8 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
       id: 'starter-q2',
       scenario: '남포동 분식집에 들어와 메뉴판의 떡볶이를 손가락으로 가리키며 "저기요, 이거 주세요!"라고 씩씩하고 확실하게 주문하는 표현은?',
       situationTag: '음식 주문',
-      speakerAudioText: 'はい、どうぞ！',
-      speakerAudioLabel: '식당 이모님: はい、どうぞ！ (네, 맛있게 드세요!)',
+      speakerAudioText: 'はい、ご注文は？',
+      speakerAudioLabel: '식당 이모님: はい、ご注文は？ (네, 주문하시겠어요?)',
       options: [
         {
           text: 'すみません、これ ください！',
@@ -70,15 +70,15 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
           explanation: '음식을 먹고 난 뒤 감탄하는 표현이에요. 주문할 때 쓰는 말이 아닙니다.'
         }
       ],
-      tip: '메뉴 이름을 몰라도 당황하지 마세요! 메뉴판이나 진열대를 콕 가리키며 "코레 쿠다사이!"만 외치면 어떤 주문도 바로 해결됩니다.',
+      tip: '이모님이 "주문하시겠어요?(ご注文は？)"라고 물을 때 메뉴판을 콕 가리키며 "코레 쿠다사이!"라고 외치면 바로 주문 완료! 음식이 나올 땐 이모님이 "はい、どうぞ！(여기 있어요!)"라고 하실 거예요.',
       relatedUnitTitle: 'Unit 2: 주문과 맛 표현'
     },
     {
       id: 'starter-q3',
       scenario: '해운대 골목길을 걷다 급하게 화장실을 찾아야 합니다. 지나가는 친절한 행인에게 공손하게 말을 건네며 "저, 실례합니다! 화장실 어디예요?"라고 묻는 가장 적절한 질문은?',
       situationTag: '생존 SOS',
-      speakerAudioText: 'あっちですよ！',
-      speakerAudioLabel: '친절한 행인: あっちですよ！ (저쪽이에요!)',
+      speakerAudioText: 'はい、何でしょうか？',
+      speakerAudioLabel: '친절한 행인: はい、何でしょうか？ (네, 무슨 일이세요?)',
       options: [
         {
           text: 'あの、すみません！ トイレは どこですか？',
@@ -147,8 +147,8 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
       id: 'starter-q5',
       scenario: '국제시장 기념품 가게에서 마음에 쏙 드는 귀여운 자석을 발견했습니다. 점원에게 다가가 "저기요, 이거 얼마예요?"라고 가격을 물어보는 가장 정확한 표현은?',
       situationTag: '쇼핑과 가격',
-      speakerAudioText: 'せんえんです！',
-      speakerAudioLabel: '점원: せんえんです！ (천 엔입니다!)',
+      speakerAudioText: 'いらっしゃいませ！',
+      speakerAudioLabel: '점원: いらっしゃいませ！ (어서오세요!)',
       options: [
         {
           text: 'すみません、これ いくらですか？',
@@ -289,8 +289,8 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
       id: 'beginner-q4',
       scenario: '낯선 거리를 걷다 지하철역을 찾아야 합니다. 지나가는 행인에게 다가가 "실례합니다, 역은 어느 쪽인가요?"라고 공손하게 위치를 물어보는 가장 올바른 표현은?',
       situationTag: '길 찾기',
-      speakerAudioText: 'あちらです。まっすぐ 行ってください。',
-      speakerAudioLabel: '행인: あちらです。まっすぐ 行ってください。 (저쪽입니다. 곧장 가세요.)',
+      speakerAudioText: 'はい、何でしょうか？',
+      speakerAudioLabel: '행인: はい、何でしょうか？ (네, 무슨 일이신가요?)',
       options: [
         {
           text: 'すみません、駅は どちらですか？',
@@ -361,8 +361,8 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
       id: 'intermediate-q1',
       scenario: '부산의 명물 돼지국밥 식당에 방문했습니다. 매운 양념을 잘 못 먹어 "저기요, 돼지국밥 하나, 다대기 빼고 부탁드려도 될까요?"라고 완곡하고 정중하게 요청하는 표현은?',
       situationTag: '주문과 양념 조절',
-      speakerAudioText: 'はい、かしこまりました。タテギは別添えにいたしますね。',
-      speakerAudioLabel: '점원: はい、かしこまりました。タテギは別添えにいたしますね。',
+      speakerAudioText: 'いらっしゃいませ！ご注文をどうぞ。',
+      speakerAudioLabel: '점원: いらっしゃいませ！ ご注文をどうぞ。 (어서오세요! 주문 말씀하세요.)',
       options: [
         {
           text: 'すみません、テジクッパ一つ、タテギ抜きでお願いできますか？',
@@ -431,8 +431,8 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
       id: 'intermediate-q3',
       scenario: '친구와 함께 식사를 기분 좋게 마쳤습니다. 계산대에서 직원에게 "잘 먹었습니다. 계산 각자 따로 부탁드려도 될까요?"라고 정중하게 분할 결제를 문의하는 표현은?',
       situationTag: '분할 결제 문의',
-      speakerAudioText: 'ごちそうさまでした。',
-      speakerAudioLabel: '손님: ごちそうさまでした。 (잘 먹었습니다.)',
+      speakerAudioText: 'ありがとうございました！お会計ですか？',
+      speakerAudioLabel: '점원: ありがとうございました！ お会計ですか？ (감사합니다! 계산이신가요?)',
       options: [
         {
           text: 'ごちそうさまでした。お会計、別々でお願いできますか？',
@@ -602,10 +602,10 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
     },
     {
       id: 'advanced-q3',
-      scenario: '유명 맛집의 요리를 한 입 먹어보고 감탄하며 "소문대로네! 젓가락을 멈출 수가 없어(너무 맛있어서 계속 손이 가네)"라고 자연스럽게 감탄사를 건네는 문장은?',
+      scenario: '유명 맛집에서 함께 식사하던 친구가 "우와, 진짜 맛있다! 어때?"라며 감탄합니다. 이에 맞장구치며 "소문대로네! 젓가락을 멈출 수가 없어(너무 맛있어서 계속 손이 가네)"라고 자연스럽게 감탄사를 건네는 문장은?',
       situationTag: '식사 감탄 표현',
-      speakerAudioText: '評判通りだね。箸が止まらないよ。',
-      speakerAudioLabel: '친구: 評判通りだね。箸が止まらないよ。 (소문대로네. 젓가락을 멈출 수가 없어.)',
+      speakerAudioText: 'うわ、本当においしいね！どう？',
+      speakerAudioLabel: '친구: うわ、本当においしいね！ どう？ (우와, 진짜 맛있다! 어때?)',
       options: [
         {
           text: '評判通りだね。箸が止まらないよ。',
@@ -670,8 +670,8 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
       id: 'advanced-q5',
       scenario: '점원의 일괄 결제 안내를 듣고, 일행을 대표하여 "아, 잘 알겠습니다. 그럼 제가 대표로 결제할게요"라고 품격 있게 화답하는 가장 모범적인 일본어 문장은?',
       situationTag: '가게 에티켓 응대',
-      speakerAudioText: 'ご協力ありがとうございます！',
-      speakerAudioLabel: '점원: ご協力ありがとうございます！ (협조해 주셔서 대단히 감사합니다!)',
+      speakerAudioText: '恐れ入りますが、まとめてのお支払いをお願いできますか？',
+      speakerAudioLabel: '점원: 恐れ入りますが、まとめてのお支払いをお願いできますか？ (송구스럽지만, 일괄 결제를 부탁드려도 될까요?)',
       options: [
         {
           text: 'あ、承知しました。じゃあ私が代表で支払います。',
