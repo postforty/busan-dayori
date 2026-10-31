@@ -21,7 +21,8 @@ import {
   Zap,
   Flame,
   Play,
-  Square
+  Square,
+  Video
 } from 'lucide-react';
 import { enrichLessonWithCurriculum, findCurriculumUnit } from '@/lib/curriculum/curriculumData';
 import { isLevelAllUnitsCompleted, getLevelTestResult } from '@/lib/curriculum/levelQuizData';
@@ -29,6 +30,7 @@ import SentenceTutorDrawer from './SentenceTutorDrawer';
 import { LessonCompletionStamp } from './LessonCompletionStamp';
 import SecretEnvelopeModal from '@/components/curriculum/SecretEnvelopeModal';
 import LevelTestModal from '@/components/curriculum/LevelTestModal';
+import ShortsModal from './ShortsModal';
 import { showGlobalToast } from '@/utils/toast';
 
 interface DailyLessonCardProps {
@@ -189,6 +191,7 @@ export default function DailyLessonCard({
     breakdown?: WordBreakdown[];
   } | null>(null);
   const [isPlayingAllDialogue, setIsPlayingAllDialogue] = useState(false);
+  const [isShortsModalOpen, setIsShortsModalOpen] = useState(false);
   const dialogueSessionRef = useRef<number>(0);
   const [keyPlaybackSpeed, setKeyPlaybackSpeed] = useState<number>(0.95);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
@@ -907,23 +910,35 @@ export default function DailyLessonCard({
             </div>
 
             {lesson.dialogue && lesson.dialogue.length > 0 && (
-              <button
-                type="button"
-                onClick={handleTogglePlayAllDialogue}
-                className={`p-1.5 rounded-lg border transition-all flex items-center justify-center shrink-0 mr-3.5 ${
-                  isPlayingAllDialogue
-                    ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs'
-                    : 'bg-[#FFF6F1] text-[#E07A5F] border-[#FCE4D8] hover:bg-[#FAF0E6] hover:border-[#E07A5F]'
-                }`}
-                title={isPlayingAllDialogue ? '전체 대화 멈추기' : '전체 대화 연속 듣기'}
-                aria-label={isPlayingAllDialogue ? '전체 대화 멈추기' : '전체 대화 연속 듣기'}
-              >
-                {isPlayingAllDialogue ? (
-                  <Square className="w-3.5 h-3.5 fill-current" />
-                ) : (
-                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
-                )}
-              </button>
+              <div className="flex items-center gap-1.5 mr-3.5">
+                <button
+                  type="button"
+                  onClick={() => setIsShortsModalOpen(true)}
+                  className="p-1.5 rounded-lg border border-[#FCE4D8] bg-[#FFF6F1] text-[#E07A5F] hover:bg-[#FAF0E6] hover:border-[#E07A5F] hover:shadow-2xs transition-all flex items-center justify-center shrink-0"
+                  title="대화 숏츠 영상으로 보기"
+                  aria-label="대화 숏츠 영상으로 보기"
+                >
+                  <Video className="w-3.5 h-3.5 text-[#E07A5F]" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleTogglePlayAllDialogue}
+                  className={`p-1.5 rounded-lg border transition-all flex items-center justify-center shrink-0 ${
+                    isPlayingAllDialogue
+                      ? 'bg-[#E07A5F] text-white border-[#E07A5F] shadow-2xs'
+                      : 'bg-[#FFF6F1] text-[#E07A5F] border-[#FCE4D8] hover:bg-[#FAF0E6] hover:border-[#E07A5F]'
+                  }`}
+                  title={isPlayingAllDialogue ? '전체 대화 멈추기' : '전체 대화 연속 듣기'}
+                  aria-label={isPlayingAllDialogue ? '전체 대화 멈추기' : '전체 대화 연속 듣기'}
+                >
+                  {isPlayingAllDialogue ? (
+                    <Square className="w-3.5 h-3.5 fill-current" />
+                  ) : (
+                    <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                  )}
+                </button>
+              </div>
             )}
           </div>
 
@@ -1193,6 +1208,15 @@ export default function DailyLessonCard({
           onPassSuccess={() => {
             window.dispatchEvent(new CustomEvent('busan-lesson-completed-changed'));
           }}
+        />
+      )}
+
+      {/* 상황별 대화 숏츠 모달 */}
+      {isShortsModalOpen && (
+        <ShortsModal
+          isOpen={isShortsModalOpen}
+          onClose={() => setIsShortsModalOpen(false)}
+          lesson={effectiveLesson}
         />
       )}
     </div>
