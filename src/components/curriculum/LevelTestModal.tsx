@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { CurriculumLevel, LevelQuizQuestion } from '@/types';
 import { LEVEL_QUIZ_DATA, saveLevelTestResult } from '@/lib/curriculum/levelQuizData';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
@@ -620,34 +621,49 @@ export default function LevelTestModal({
             /* 결과 화면 */
             <div className="py-4 text-center space-y-5 animate-in zoom-in-95 duration-200">
               {/* 상단 엠블럼 아이콘 */}
-              <div className="relative inline-block mx-auto">
+              <div className="relative inline-flex items-center justify-center mx-auto my-2">
                 {isPassed ? (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FEF3C7] to-[#FDE68A] border-4 border-[#F59E0B] flex items-center justify-center shadow-lg animate-bounce">
-                    <Trophy className="w-10 h-10 text-[#D97706]" />
+                  <div className="relative flex items-center justify-center">
+                    {/* 황금빛 앰비언트 후광 (Ambient Glow) */}
+                    <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-[#F59E0B] via-[#FBBF24] to-[#FDE68A] blur-2xl opacity-45 animate-pulse pointer-events-none" />
+
+                    {/* 3D 골드 트로피 메인 에셋 */}
+                    <div className="relative z-10 transition-transform duration-300 hover:scale-105 active:scale-95 animate-soft-bounce">
+                      <Image
+                        src="/images/trophy-3d.png"
+                        alt="마스터 골드 트로피"
+                        width={112}
+                        height={112}
+                        className="w-28 h-28 object-contain drop-shadow-[0_12px_24px_rgba(217,119,6,0.4)]"
+                        priority
+                      />
+                    </div>
                   </div>
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-gray-100 to-gray-200 border-4 border-gray-300 flex items-center justify-center shadow-md">
-                    <Award className="w-10 h-10 text-gray-500" />
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center border-2 border-gray-200 shadow-inner">
+                      <Image
+                        src="/images/trophy-3d.png"
+                        alt="도전 트로피"
+                        width={96}
+                        height={96}
+                        className="w-20 h-20 object-contain grayscale opacity-35 contrast-75"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* 결과 텍스트 */}
               <div className="space-y-1.5">
-                <span
-                  className="px-2.5 py-0.5 rounded-full text-xs font-black text-white"
-                  style={{ backgroundColor: level.color }}
-                >
-                  {level.badge} 마스터 테스트
-                </span>
-                <h3 className="text-xl font-black text-[#2D3748] pt-1">
+                <h3 className="text-lg sm:text-xl font-black text-[#2D3748] tracking-tight break-keep">
                   {isPassed ? '축하합니다! 완벽히 마스터하셨어요 🎉' : '조금만 더 복습해볼까요? 💪'}
                 </h3>
-                <p className="text-xs text-[#718096] max-w-sm mx-auto leading-relaxed">
-                  {isPassed
-                    ? `부산 여행지에서 일본인 친구나 점원을 만나도 당당하게 소통할 수 있는 실력을 입증하셨습니다!`
-                    : `80점 이상 획득 시 마스터 배지가 수여됩니다. 틀린 표현을 복습하고 언제든 다시 도전하세요!`}
-                </p>
+                {!isPassed && (
+                  <p className="text-xs text-[#718096] max-w-sm mx-auto leading-relaxed">
+                    80점 이상 획득 시 마스터 배지가 수여됩니다. 틀린 표현을 복습하고 언제든 다시 도전하세요!
+                  </p>
+                )}
               </div>
 
               {/* 점수 요약 박스 */}
@@ -681,10 +697,11 @@ export default function LevelTestModal({
                 <button
                   type="button"
                   onClick={handleRetry}
-                  className="px-4 py-2.5 rounded-xl border border-[#EDE8E1] text-[#718096] font-bold text-xs hover:bg-[#FAF0E6]/60 transition-all flex items-center gap-1"
+                  aria-label="다시 풀기"
+                  title="다시 풀기"
+                  className="w-10 h-10 rounded-xl border border-[#EDE8E1] text-[#718096] hover:text-[#2D3748] hover:bg-[#FAF0E6]/60 transition-all flex items-center justify-center shrink-0 active:scale-95"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>다시 풀기</span>
+                  <RotateCcw className="w-4 h-4" />
                 </button>
 
                 {onNavigateToNextLevel ? (
@@ -694,16 +711,16 @@ export default function LevelTestModal({
                       onClose();
                       onNavigateToNextLevel();
                     }}
-                    className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#E07A5F] hover:bg-[#C45B40] text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                    className="flex-1 sm:flex-none h-10 px-5 rounded-xl font-bold text-xs bg-[#E07A5F] hover:bg-[#C45B40] text-white transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
                   >
-                    <span>다음 레벨 둘러보기</span>
+                    <span>다음 레벨</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#2D3748] hover:bg-[#1A202C] text-white transition-all shadow-sm active:scale-95"
+                    className="flex-1 sm:flex-none h-10 px-5 rounded-xl font-bold text-xs bg-[#2D3748] hover:bg-[#1A202C] text-white transition-all flex items-center justify-center shadow-sm active:scale-95"
                   >
                     학습 완료
                   </button>

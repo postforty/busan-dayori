@@ -225,4 +225,17 @@ body {
   will-change: transform;
 }
 
+/* 트로피 / 뱃지용 부드러운 미세 플로팅 애니메이션 (최고점/최저점 걸림 없는 유려한 사인 곡선) */
+@keyframes softBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
 
+.animate-soft-bounce {
+  animation: softBounce 2s ease-in-out infinite;
+  will-change: transform;
+}
