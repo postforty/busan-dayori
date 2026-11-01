@@ -27,6 +27,21 @@ interface ShortsModalProps {
 
 export type SubtitleMode = 'all' | 'meaning' | 'none';
 
+const SHORTS_SUBTITLE_STORAGE_KEY = 'shorts_subtitle_mode';
+
+const getInitialSubtitleMode = (): SubtitleMode => {
+  if (typeof window === 'undefined') return 'none';
+  try {
+    const saved = localStorage.getItem(SHORTS_SUBTITLE_STORAGE_KEY);
+    if (saved === 'all' || saved === 'meaning' || saved === 'none') {
+      return saved as SubtitleMode;
+    }
+  } catch {
+    // 무시
+  }
+  return 'none';
+};
+
 export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProps) {
   const dialogue: DialogueLine[] = useMemo(() => lesson?.dialogue || [], [lesson?.dialogue]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -34,7 +49,7 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeCharIndex, setActiveCharIndex] = useState<number>(-1);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
-  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>('all');
+  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>(() => getInitialSubtitleMode());
   const [isFinished, setIsFinished] = useState<boolean>(false);
   const [isTurnTransitioning, setIsTurnTransitioning] = useState<boolean>(false);
 
@@ -214,9 +229,13 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
   const handleSubtitleModeCycle = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSubtitleMode((prev) => {
-      if (prev === 'all') return 'meaning';
-      if (prev === 'meaning') return 'none';
-      return 'all';
+      const next: SubtitleMode = prev === 'all' ? 'meaning' : prev === 'meaning' ? 'none' : 'all';
+      try {
+        localStorage.setItem(SHORTS_SUBTITLE_STORAGE_KEY, next);
+      } catch {
+        // 무시
+      }
+      return next;
     });
   };
 

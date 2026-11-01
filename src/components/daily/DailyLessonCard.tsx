@@ -50,7 +50,7 @@ const subscribeToStorage = (callback: () => void) => {
 };
 
 const getSubtitleModeSnapshot = (): SubtitleMode => {
-  if (typeof window === 'undefined') return 'all';
+  if (typeof window === 'undefined') return 'none';
   try {
     const savedMode = localStorage.getItem('lesson_subtitle_mode');
     if (savedMode === 'all' || savedMode === 'meaning' || savedMode === 'none') {
@@ -63,10 +63,10 @@ const getSubtitleModeSnapshot = (): SubtitleMode => {
   } catch {
     // 무시
   }
-  return 'all';
+  return 'none';
 };
 
-const getSubtitleModeServerSnapshot = (): SubtitleMode => 'all';
+const getSubtitleModeServerSnapshot = (): SubtitleMode => 'none';
 
 function deriveBreakdownFromVocab(
   japanese: string,

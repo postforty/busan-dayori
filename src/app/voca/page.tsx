@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense, useSyncExternalStore } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SavedWord, DailyLesson, WordBreakdown } from '@/types';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
@@ -19,7 +19,36 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Subtitles,
+  Languages,
+  CaptionsOff,
 } from 'lucide-react';
+
+export type SubtitleMode = 'all' | 'meaning' | 'none';
+
+const subscribeToStorage = (callback: () => void) => {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+};
+
+const getSubtitleModeSnapshot = (): SubtitleMode => {
+  if (typeof window === 'undefined') return 'none';
+  try {
+    const savedMode = localStorage.getItem('lesson_subtitle_mode');
+    if (savedMode === 'all' || savedMode === 'meaning' || savedMode === 'none') {
+      return savedMode as SubtitleMode;
+    }
+    const legacyPronounce = localStorage.getItem('beginner_pronounce_mode');
+    if (legacyPronounce === 'false') {
+      return 'meaning';
+    }
+  } catch {
+    // 무시
+  }
+  return 'none';
+};
+
+const getSubtitleModeServerSnapshot = (): SubtitleMode => 'none';
 
 function deriveBreakdownFromVocab(
   japanese: string,
@@ -51,6 +80,27 @@ function VocaContent() {
       setMainView('lessons');
     }
   }, [tabParam]);
+
+  // 자막 모드 상태 (로컬 스토리지 연동, 기본값 'none')
+  const [customSubtitleMode, setCustomSubtitleMode] = useState<SubtitleMode | null>(null);
+  const storedSubtitleMode = useSyncExternalStore(
+    subscribeToStorage,
+    getSubtitleModeSnapshot,
+    getSubtitleModeServerSnapshot
+  );
+  const subtitleMode = customSubtitleMode ?? storedSubtitleMode;
+
+  const handleToggleSubtitleMode = () => {
+    const nextMode: SubtitleMode =
+      subtitleMode === 'all' ? 'meaning' : subtitleMode === 'meaning' ? 'none' : 'all';
+    setCustomSubtitleMode(nextMode);
+    try {
+      localStorage.setItem('lesson_subtitle_mode', nextMode);
+      localStorage.setItem('beginner_pronounce_mode', String(nextMode === 'all'));
+    } catch {
+      // 무시
+    }
+  };
 
   // 단어 & 표현 상태
   const [words, setWords] = useState<SavedWord[]>([]);
@@ -632,6 +682,48 @@ function VocaContent() {
       {/* 3-B. [보관한 학습 자료 (Saved Lessons)] 뷰 */}
       {mainView === 'lessons' && (
         <div className="space-y-3">
+          {/* 보관 레슨 상단 전역 툴바 (개수 안내 + 전역 자막 모드 토글) */}
+          {savedLessons.length > 0 && (
+            <div className="flex items-center justify-between text-xs px-1">
+              <span className="font-bold text-gray-500">
+                保存したレッスン ({savedLessons.length})
+              </span>
+              <button
+                type="button"
+                onClick={handleToggleSubtitleMode}
+                className={`w-7 h-7 rounded-xl border flex items-center justify-center transition-all active:scale-95 cursor-pointer shrink-0 ${
+                  subtitleMode === 'all'
+                    ? 'bg-[#FFF2EA] text-[#E07A5F] border-[#FCDCCE] shadow-2xs'
+                    : subtitleMode === 'meaning'
+                    ? 'bg-[#F4EFEA] text-[#718096] border-[#E2D8CE] shadow-2xs'
+                    : 'bg-white/60 text-gray-400 border-[#EDE8E1] hover:bg-white hover:text-gray-500'
+                }`}
+                title={
+                  subtitleMode === 'all'
+                    ? '자막: 전체 표시 (발음+뜻) - 클릭 시 뜻만 표시'
+                    : subtitleMode === 'meaning'
+                    ? '자막: 뜻만 표시 - 클릭 시 모두 숨기기'
+                    : '자막: 모두 숨김 - 클릭 시 전체 표시'
+                }
+                aria-label={
+                  subtitleMode === 'all'
+                    ? '자막 전체 표시'
+                    : subtitleMode === 'meaning'
+                    ? '자막 뜻만 표시'
+                    : '자막 모두 숨김'
+                }
+              >
+                {subtitleMode === 'all' ? (
+                  <Subtitles className="w-3.5 h-3.5" />
+                ) : subtitleMode === 'meaning' ? (
+                  <Languages className="w-3.5 h-3.5" />
+                ) : (
+                  <CaptionsOff className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+          )}
+
           {savedLessons.length === 0 ? (
             <div className="bg-white rounded-3xl p-10 text-center border border-[#EDE8E1] space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-[#FAF0E6] flex items-center justify-center mx-auto text-[#E07A5F]">
@@ -667,9 +759,21 @@ function VocaContent() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                        <p className="text-[11px] text-gray-500">
-                          {lesson.keyExpression.japanese} ({lesson.keyExpression.korean})
-                        </p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-[11px] font-semibold text-[#2D3748]">
+                            {lesson.keyExpression.japanese}
+                          </p>
+                          {subtitleMode === 'all' && (
+                            <p className="text-[10px] font-semibold text-[#E07A5F]">
+                              [{getPronunciation(lesson.keyExpression.japanese, lesson.keyExpression.reading)}]
+                            </p>
+                          )}
+                          {subtitleMode !== 'none' && (
+                            <p className="text-[11px] text-gray-500">
+                              ({lesson.keyExpression.korean})
+                            </p>
+                          )}
+                        </div>
                         <button
                           type="button"
                           onClick={(e) => {
@@ -804,42 +908,24 @@ function VocaContent() {
                                 <p className="font-semibold text-gray-800 text-xs leading-relaxed group-hover/line:text-[#E07A5F] transition-colors">
                                   {line.japanese}
                                 </p>
-                                <p className="text-[11px] font-semibold text-[#E07A5F]">
-                                  [{line.pronunciation || getPronunciation(line.japanese)}]
-                                </p>
-                                <p className="text-[11px] text-gray-500">
-                                  {line.korean}
-                                </p>
+                                {subtitleMode === 'all' && (
+                                  <p className="text-[11px] font-semibold text-[#E07A5F]">
+                                    [{line.pronunciation || getPronunciation(line.japanese)}]
+                                  </p>
+                                )}
+                                {subtitleMode !== 'none' && (
+                                  <p className="text-[11px] text-gray-500">
+                                    {line.korean}
+                                  </p>
+                                )}
                               </div>
 
-                              <div className="flex items-center gap-1 shrink-0">
+                              {/* 우측 발음 듣기 버튼 단독 배치 (문장 클릭으로 다요리 센세 1:1 과외가 열리므로 중복 반짝이 버튼 제거) */}
+                              <div className="flex items-center shrink-0 self-center">
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    setActiveTutorSentence({
-                                      japanese: line.japanese,
-                                      korean: line.korean,
-                                      speaker: line.speaker,
-                                      pronunciation: line.pronunciation || getPronunciation(line.japanese),
-                                      breakdown:
-                                        line.breakdown ||
-                                        deriveBreakdownFromVocab(line.japanese, lesson.vocabulary),
-                                    });
-                                    setActiveTutorContext({
-                                      level: lesson.level,
-                                      themeTitle: lesson.themeTitle,
-                                      unitTitle: lesson.unitTitle,
-                                    });
-                                  }}
-                                  className="p-1.5 rounded-lg border border-[#F4DDD4] bg-[#FFF8F3] text-[#E07A5F] hover:bg-[#FAF0E6] hover:border-[#E07A5F] transition-colors cursor-pointer"
-                                  title="다요리 센세 1:1 과외"
-                                >
-                                  <Sparkles className="w-3.5 h-3.5" />
-                                </button>
-
-                                <button
                                   onClick={(e) => handlePlay(e, line.japanese, linePlayId)}
-                                  className={`p-1.5 rounded-lg border shrink-0 transition-colors ${
+                                  className={`p-1.5 rounded-lg border shrink-0 transition-colors cursor-pointer ${
                                     isPlayingLine
                                       ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'
                                       : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
