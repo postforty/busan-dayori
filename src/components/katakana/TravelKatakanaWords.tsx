@@ -47,16 +47,18 @@ export default function TravelKatakanaWords({ fontStyle = 'sans' }: TravelKataka
   const [isFlipped, setIsFlipped] = useState(false);
 
   // 암기 완료 상태 (로컬 스토리지)
-  const [memorizedIds, setMemorizedIds] = useState<Set<string>>(() => {
-    if (typeof window === 'undefined') return new Set();
+  const [memorizedIds, setMemorizedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
     try {
       const saved = localStorage.getItem('katakana_travel_memorized_ids');
-      if (saved) return new Set(JSON.parse(saved));
+      if (saved) {
+        setMemorizedIds(new Set(JSON.parse(saved)));
+      }
     } catch {
       // 무시
     }
-    return new Set();
-  });
+  }, []);
 
   const toggleMemorized = useCallback((id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();

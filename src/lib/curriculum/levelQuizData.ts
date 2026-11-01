@@ -394,16 +394,16 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
     },
     {
       id: 'intermediate-q2',
-      scenario: '다대기를 빼달라고 하자 직원이 메모하며 "はい、かしこまりました。タテギは別添えにいたしますね。(네, 알겠습니다. 다대기는 따로 담아 드릴게요)"라고 친절히 배려해 주었습니다. "감사합니다(덕분에 살았어요)! 고맙습니다!"라고 기분 좋게 화답하는 표현은?',
+      scenario: '다대기를 빼달라고 하자 직원이 메모하며 "はい、かしこまりました。タテギは別添えにいたしますね。(네, 알겠습니다. 다대기는 따로 담아 드릴게요)"라고 친절히 배려해 주었습니다. "아, 감사합니다! 그렇게 부탁드릴게요."라고 기분 좋게 화답하는 표현은?',
       situationTag: '배려에 대한 감사',
       speakerAudioText: 'はい、かしこまりました。タテギは別添えにいたしますね。',
       speakerAudioLabel: '점원: はい、かしこまりました。タテギは別添えにいたしますね。',
       options: [
         {
-          text: '助かります。ありがとうございます！',
-          reading: 'たすかります。ありがとうございます',
+          text: 'あ、ありがとうございます！お願いします。',
+          reading: 'あ、ありがとうございます！おねがいします',
           isCorrect: true,
-          explanation: '정답! 상대방이 나를 위해 편의를 봐주거나 배려해 주었을 때 "助かります(도움이 됩니다/살았습니다)"를 덧붙이면 원어민다운 깊은 감사의 뉘앙스가 전달됩니다.'
+          explanation: '정답! 직원이 따로 담아주겠다고 친절히 제안해 주었을 때, 감사 인사와 함께 "그렇게 부탁드립니다"라고 밝게 화답하는 가장 자연스러운 표현입니다.'
         },
         {
           text: 'かしこまりました！',
@@ -424,7 +424,7 @@ export const LEVEL_QUIZ_DATA: Record<LessonLevel, LevelQuizQuestion[]> = {
           explanation: '음식을 받기도 전에 계산하겠다는 어색한 말입니다.'
         }
       ],
-      tip: '상대방이 배려나 도움을 주었을 때 "타스카리마스(助かります)"를 쓰면 단순한 "아리가토-"보다 훨씬 성숙하고 따뜻한 유대감이 형성됩니다.',
+      tip: '직원이 손님의 편의를 위해 맞춤 제안을 해주었을 때는 가벼운 감탄사 "あ(아)"와 함께 "감사합니다! 부탁드려요(お願いします)"라고 답하면 자연스러운 소통이 됩니다.',
       relatedUnitTitle: 'Unit 1: 식당에서 자연스럽게 주문하기'
     },
     {
@@ -743,7 +743,7 @@ export function isLevelAllUnitsCompleted(
   }
 
   // targetLevel의 모든 units가 completedSet에 들어있는지 확인
-  return targetLevel.units.every(unit => 
+  return targetLevel.units.every(unit =>
     completedSet.has(unit.lessonId) ||
     completedSet.has(unit.id) ||
     Array.from(completedSet).some(id => id.includes(unit.id) || id.includes(unit.lessonId))

@@ -177,22 +177,24 @@ export default function DailyLessonCard({
   const [secretEnvelopeLevel, setSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
   const [activeTestLevel, setActiveTestLevel] = useState<CurriculumLevel | null>(null);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
-  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>(() => {
-    if (typeof window === 'undefined') return 'all';
+  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>('all');
+
+  // 클라이언트 마운트 시 로컬스토리지 자막 설정 복원 (SSR Hydration Mismatch 방지)
+  useEffect(() => {
     try {
       const savedMode = localStorage.getItem('lesson_subtitle_mode');
       if (savedMode === 'all' || savedMode === 'meaning' || savedMode === 'none') {
-        return savedMode as SubtitleMode;
+        setSubtitleMode(savedMode as SubtitleMode);
+        return;
       }
       const legacyPronounce = localStorage.getItem('beginner_pronounce_mode');
       if (legacyPronounce === 'false') {
-        return 'meaning';
+        setSubtitleMode('meaning');
       }
     } catch {
       // 무시
     }
-    return 'all';
-  });
+  }, []);
 
   // 학습 완료 스탬프 / 비밀 편지 / 레벨 테스트 모달 활성화 여부 부모 통지
   const isAnyRewardModalOpen = Boolean(
