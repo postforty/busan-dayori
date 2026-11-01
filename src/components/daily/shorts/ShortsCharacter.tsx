@@ -27,7 +27,7 @@ function resolveAvatarSrc(role: SpeakerRole): string {
 }
 
 export default function ShortsCharacter({ speaker, isActive, isSpeaking }: ShortsCharacterProps) {
-  const { role, emotion, displayName, subNote } = speaker;
+  const { role, displayName, subNote } = speaker;
   const [hasError, setHasError] = useState(false);
 
   // 역할에 따른 지브리 수채화풍 이미지 에셋 매핑
@@ -69,19 +69,6 @@ export default function ShortsCharacter({ speaker, isActive, isSpeaking }: Short
             priority
             onError={() => setHasError(true)}
           />
-
-          {/* 감정/리액션 플로팅 뱃지 */}
-          {isActive && (
-            <div className="absolute top-2 right-2 z-10 bg-white/95 rounded-full px-2 py-0.5 shadow-lg border border-[#F4DDD4] text-xs font-bold animate-bounce select-none">
-              {emotion === 'giving' && '🎁'}
-              {emotion === 'joy' && '✨'}
-              {emotion === 'bowing' && '🙇'}
-              {emotion === 'smile' && '😊'}
-              {emotion === 'panicked' && '💦'}
-              {emotion === 'grateful' && '🙏'}
-              {emotion === 'default' && '💬'}
-            </div>
-          )}
         </div>
       </div>
 
