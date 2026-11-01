@@ -23,7 +23,8 @@ import {
   Loader2,
   X,
   AlertTriangle,
-  Languages,
+  Subtitles,
+  CaptionsOff,
   Volume2
 } from 'lucide-react';
 
@@ -222,15 +223,21 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <span className="text-xs font-bold text-[#2D3748]">お便りの本文</span>
             <button
+              type="button"
               onClick={() => setShowPronounce(!showPronounce)}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all border ${
+              className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all border active:scale-95 shrink-0 cursor-pointer ${
                 showPronounce
-                  ? 'bg-amber-50 text-[#D97706] border-amber-200'
-                  : 'bg-white text-gray-400 border-gray-200 hover:bg-gray-50'
+                  ? 'bg-[#FFF2EA] text-[#E07A5F] border-[#FCDCCE] shadow-2xs'
+                  : 'bg-white/60 text-gray-400 border-[#EDE8E1] hover:bg-white hover:text-gray-500'
               }`}
+              title={showPronounce ? '한국어 발음 숨기기' : '한국어 발음 표시'}
+              aria-label={showPronounce ? '한국어 발음 숨기기' : '한국어 발음 표시'}
             >
-              <Languages className="w-3.5 h-3.5" />
-              <span>{showPronounce ? '読み仮名 ON' : '読み仮名 OFF'}</span>
+              {showPronounce ? (
+                <Subtitles className="w-3.5 h-3.5" />
+              ) : (
+                <CaptionsOff className="w-3.5 h-3.5" />
+              )}
             </button>
           </div>
 
