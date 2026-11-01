@@ -66,25 +66,28 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // 1-2. 스마트 캐시 폴백: 타겟 보이스(Kore/Puck) 캐시가 아직 없더라도, 기존에 고품질로 캐시된 다른 보이스(Charon 등)가 있다면 429 에러 방지를 위해 우선 즉시 반환!
-      const { data: fallbackCached } = await supabase
-        .from('tts_audio_cache')
-        .select('audio_base64')
-        .eq('text', trimmedText)
-        .eq('lang', lang)
-        .limit(1)
-        .maybeSingle();
+      // 1-2. 스마트 캐시 폴백: 남성 보이스(Puck) 요청 시에만 기존 남성 보이스(Charon) 캐시 폴백 허용
+      // (여성 보이스 Kore 요청 시에는 남성 음성이 출력되는 위화감을 원천 차단하기 위해 남성 캐시로 폴백하지 않음)
+      if (targetVoice === 'Puck') {
+        const { data: fallbackCached } = await supabase
+          .from('tts_audio_cache')
+          .select('audio_base64')
+          .eq('text', trimmedText)
+          .eq('lang', lang)
+          .eq('voice', 'Charon')
+          .maybeSingle();
 
-      if (fallbackCached?.audio_base64) {
-        const audioBuffer = Buffer.from(fallbackCached.audio_base64, 'base64');
-        return new Response(audioBuffer, {
-          status: 200,
-          headers: {
-            'Content-Type': 'audio/wav',
-            'X-TTS-Cache': 'FALLBACK_HIT',
-            'Cache-Control': 'public, max-age=31536000, immutable',
-          },
-        });
+        if (fallbackCached?.audio_base64) {
+          const audioBuffer = Buffer.from(fallbackCached.audio_base64, 'base64');
+          return new Response(audioBuffer, {
+            status: 200,
+            headers: {
+              'Content-Type': 'audio/wav',
+              'X-TTS-Cache': 'FALLBACK_HIT',
+              'Cache-Control': 'public, max-age=31536000, immutable',
+            },
+          });
+        }
       }
     } catch (cacheErr) {
       console.warn('[Supabase TTS Cache Read Warning]:', cacheErr);

@@ -92,10 +92,15 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   };
 }
 
+export type TtsVoice = 'Charon' | 'Puck' | 'Kore';
+
 /**
- * 기계음을 피하고 사람에 가까운 고품질 신경망(Natural / Online / Google 등) 음성을 우선적으로 탐색 (Web Speech Fallback용)
+ * 기계음을 피하고 사람에 가까운 고품질 신경망(Natural / Online / Google 등) 음성을 우선적으로 탐색 (성별 지원)
  */
-export function getBestVoice(langPrefix: 'ja' | 'ko'): SpeechSynthesisVoice | null {
+export function getBestVoice(
+  langPrefix: 'ja' | 'ko',
+  gender: 'female' | 'male' = 'female'
+): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
 
   const voices = window.speechSynthesis.getVoices();
@@ -118,9 +123,56 @@ export function getBestVoice(langPrefix: 'ja' | 'ko'): SpeechSynthesisVoice | nu
     if (name.includes('siri') || name.includes('enhanced') || name.includes('premium')) score += 40;
 
     if (langPrefix === 'ja') {
-      if (name.includes('nanami') || name.includes('keita') || name.includes('kyoko') || name.includes('otoya')) score += 20;
+      if (gender === 'female') {
+        // 일본어 여성 보이스 우선 매칭
+        if (
+          name.includes('nanami') ||
+          name.includes('kyoko') ||
+          name.includes('ayumi') ||
+          name.includes('haruka') ||
+          name.includes('sayaka') ||
+          name.includes('misaki') ||
+          name.includes('female')
+        ) {
+          score += 150;
+        }
+        // 남성 보이스 감점
+        if (
+          name.includes('keita') ||
+          name.includes('otoya') ||
+          name.includes('ichiro') ||
+          name.includes('daichi') ||
+          (name.includes('male') && !name.includes('female'))
+        ) {
+          score -= 150;
+        }
+      } else {
+        // 일본어 남성 보이스 우선 매칭
+        if (
+          name.includes('keita') ||
+          name.includes('otoya') ||
+          name.includes('ichiro') ||
+          name.includes('daichi') ||
+          (name.includes('male') && !name.includes('female'))
+        ) {
+          score += 150;
+        }
+        if (
+          name.includes('nanami') ||
+          name.includes('kyoko') ||
+          name.includes('ayumi') ||
+          name.includes('haruka')
+        ) {
+          score -= 150;
+        }
+      }
     } else if (langPrefix === 'ko') {
-      if (name.includes('sunhi') || name.includes('injoon') || name.includes('yuna')) score += 20;
+      if (gender === 'female') {
+        if (name.includes('sunhi') || name.includes('yuna') || name.includes('heami') || name.includes('female')) score += 100;
+        if (name.includes('injoon') || (name.includes('male') && !name.includes('female'))) score -= 100;
+      } else {
+        if (name.includes('injoon') || (name.includes('male') && !name.includes('female'))) score += 100;
+      }
     }
 
     if (name.includes('desktop') || name.includes('sapi')) score -= 30;
@@ -294,7 +346,8 @@ export function speakJapaneseWebSpeech(
   rate: number = 0.9,
   onStart?: () => void,
   onEnd?: () => void,
-  onBoundary?: (charIndex: number, charLength?: number) => void
+  onBoundary?: (charIndex: number, charLength?: number) => void,
+  voice: TtsVoice = 'Kore'
 ) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     alert('이 브라우저는 음성 읽기(TTS) 기능을 지원하지 않습니다.');
@@ -313,10 +366,13 @@ export function speakJapaneseWebSpeech(
   utterance.lang = 'ja-JP';
   utterance.rate = rate;
 
-  const bestVoice = getBestVoice('ja');
+  const isFemale = voice === 'Kore';
+  const bestVoice = getBestVoice('ja', isFemale ? 'female' : 'male');
   if (bestVoice) {
     utterance.voice = bestVoice;
   }
+  // 여성 목소리는 약간 밝고 높은 톤(1.1), 남성 목소리는 기본 톤(0.95)으로 튜닝
+  utterance.pitch = isFemale ? 1.1 : 0.95;
 
   const ranges = computeCharRanges(text);
   const totalWeight = ranges.reduce((acc, r) => acc + r.weight, 0);
@@ -455,8 +511,6 @@ export function speakHiraganaAudio(
   speakJapaneseWebSpeech(text, rate, onStart, onEnd, onBoundary);
 }
 
-export type TtsVoice = 'Charon' | 'Puck' | 'Kore';
-
 /**
  * 일본어 음성 출력 (회화, 데일리 레슨, 로드맵, 편지 등 회화 유닛 전용)
  * 토글 ON 시 Gemini TTS 호출, 쿼터 소진 시 자동으로 토글 OFF 전환 및 Web Speech 폴백
@@ -484,9 +538,9 @@ export function speakJapanese(
   const targetVoice = voice || 'Kore';
   const thisSession = ++currentPlaybackSession;
 
-  // 0. 토글이 OFF('browser')인 경우 즉시 Web Speech 실행
+  // 0. 토글이 OFF('browser')인 경우 즉시 Web Speech 실행 (성별에 맞춘 최적 보이스 전달)
   if (getTtsEngineMode() === 'browser') {
-    speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+    speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary, targetVoice);
     return;
   }
 
@@ -515,7 +569,7 @@ export function speakJapanese(
       if (!res.ok) {
         await handleTtsErrorResponse(res);
         if (thisSession === currentPlaybackSession) {
-          speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+          speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary, targetVoice);
         }
         return;
       }
@@ -531,7 +585,7 @@ export function speakJapanese(
     .catch((err) => {
       console.warn('[Gemini TTS fallback to Web Speech]:', err);
       if (thisSession === currentPlaybackSession) {
-        speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary);
+        speakJapaneseWebSpeech(trimmedText, rate, onStart, onEnd, onBoundary, targetVoice);
       }
     });
 }

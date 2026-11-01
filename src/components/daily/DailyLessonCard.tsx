@@ -177,24 +177,22 @@ export default function DailyLessonCard({
   const [secretEnvelopeLevel, setSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
   const [activeTestLevel, setActiveTestLevel] = useState<CurriculumLevel | null>(null);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
-  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>('all');
-
-  // 클라이언트 마운트 시 로컬스토리지 자막 설정 복원 (SSR Hydration Mismatch 방지)
-  useEffect(() => {
+  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>(() => {
+    if (typeof window === 'undefined') return 'all';
     try {
       const savedMode = localStorage.getItem('lesson_subtitle_mode');
       if (savedMode === 'all' || savedMode === 'meaning' || savedMode === 'none') {
-        setSubtitleMode(savedMode as SubtitleMode);
-        return;
+        return savedMode as SubtitleMode;
       }
       const legacyPronounce = localStorage.getItem('beginner_pronounce_mode');
       if (legacyPronounce === 'false') {
-        setSubtitleMode('meaning');
+        return 'meaning';
       }
     } catch {
       // 무시
     }
-  }, []);
+    return 'all';
+  });
 
   // 학습 완료 스탬프 / 비밀 편지 / 레벨 테스트 모달 활성화 여부 부모 통지
   const isAnyRewardModalOpen = Boolean(
@@ -467,7 +465,7 @@ export default function DailyLessonCard({
   };
 
   // 발음 듣기 (실시간 글자 경계 추적 지원 및 비동기 로딩 딜레이 격리)
-  const handlePlay = (text: string, id: string, rate: number = 0.9) => {
+  const handlePlay = (text: string, id: string, rate: number = 0.9, voice: TtsVoice = 'Kore') => {
     if (isPlayingAllDialogue) {
       dialogueSessionRef.current++;
       setIsPlayingAllDialogue(false);
@@ -498,7 +496,8 @@ export default function DailyLessonCard({
       (charIndex) => {
         setLoadingId(null);
         setActiveBoundary({ id, charIndex, charLength: 1 });
-      }
+      },
+      voice
     );
   };
 
@@ -1048,11 +1047,15 @@ export default function DailyLessonCard({
                     )}
                   </div>
 
-                  {/* 우측 발음 듣기 버튼 단독 배치 (반짝이 AI 버튼 제거됨) */}
+                  {/* 우측 발음 듣기 버튼 단독 배치 (화자 역할에 따른 듀얼 보이스 분기) */}
                   <div className="flex items-center shrink-0 self-center">
                     <button
                       type="button"
-                      onClick={() => handlePlay(line.japanese, `line-${idx}`)}
+                      onClick={() => {
+                        const isLearner = line.speaker.includes('나') || line.speaker.includes('손님');
+                        const voice: TtsVoice = isLearner ? 'Puck' : 'Kore';
+                        handlePlay(line.japanese, `line-${idx}`, 0.9, voice);
+                      }}
                       className={`p-1.5 rounded-lg border shrink-0 transition-colors cursor-pointer ${
                         isPlayingLine || isLoadingLine
                           ? 'bg-[#FAF0E6] text-[#E07A5F] border-[#E07A5F]'

@@ -101,9 +101,13 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
       const currentSession = ++sessionRef.current;
       setIsSpeaking(true);
 
-      // 화자 역할에 따른 듀얼 보이스 지정
+      // 화자 역할에 따른 듀얼 보이스 지정 (상대방 4대 캐릭터는 모두 여성 Kore 보이스 매핑)
       const speakerInfo = parseSpeakerText(line.speaker);
-      const isFemaleSpeaker = speakerInfo.role === 'clerk' || speakerInfo.role === 'auntie';
+      const isFemaleSpeaker =
+        speakerInfo.role === 'clerk' ||
+        speakerInfo.role === 'auntie' ||
+        speakerInfo.role === 'passerby' ||
+        speakerInfo.role === 'friend';
       const voice: TtsVoice = isFemaleSpeaker ? 'Kore' : 'Puck';
 
       speakJapanese(
