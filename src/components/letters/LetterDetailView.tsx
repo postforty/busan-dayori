@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Letter } from '@/types';
@@ -32,6 +32,28 @@ interface LetterDetailViewProps {
   letter: Letter;
 }
 
+const PRONOUNCE_STORAGE_KEY = 'letter_show_pronounce';
+
+const subscribeToStorage = (callback: () => void) => {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+};
+
+const getPronounceSnapshot = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const saved = localStorage.getItem(PRONOUNCE_STORAGE_KEY);
+    if (saved !== null) {
+      return saved === 'true';
+    }
+  } catch {
+    // 무시
+  }
+  return false;
+};
+
+const getPronounceServerSnapshot = (): boolean => false;
+
 function NaverGlyph({ className = 'w-4 h-4' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -62,7 +84,23 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [showPronounce, setShowPronounce] = useState(true);
+  const [customShowPronounce, setCustomShowPronounce] = useState<boolean | null>(null);
+  const storedShowPronounce = useSyncExternalStore(
+    subscribeToStorage,
+    getPronounceSnapshot,
+    getPronounceServerSnapshot
+  );
+  const showPronounce = customShowPronounce ?? storedShowPronounce;
+
+  const handleTogglePronounce = () => {
+    const nextVal = !showPronounce;
+    setCustomShowPronounce(nextVal);
+    try {
+      localStorage.setItem(PRONOUNCE_STORAGE_KEY, String(nextVal));
+    } catch {
+      // 무시
+    }
+  };
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [playingIdx, setPlayingIdx] = useState<number | null>(null);
   const [activeBoundary, setActiveBoundary] = useState<{ idx: number; charIndex: number; charLength: number } | null>(null);
@@ -224,7 +262,7 @@ export default function LetterDetailView({ letter }: LetterDetailViewProps) {
             <span className="text-xs font-bold text-[#2D3748]">お便りの本文</span>
             <button
               type="button"
-              onClick={() => setShowPronounce(!showPronounce)}
+              onClick={handleTogglePronounce}
               className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all border active:scale-95 shrink-0 cursor-pointer ${
                 showPronounce
                   ? 'bg-[#FFF2EA] text-[#E07A5F] border-[#FCDCCE] shadow-2xs'
