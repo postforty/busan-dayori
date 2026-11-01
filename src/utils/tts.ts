@@ -8,10 +8,7 @@
  */
 
 import { isSoundEnabled } from './soundManager';
-import {
-  getTtsEngineMode,
-  handleTtsQuotaExceeded,
-} from './ttsQuota';
+import { getTtsEngineMode } from './ttsQuota';
 
 interface CharRange {
   index: number;
@@ -430,31 +427,17 @@ export function speakKoreanWebSpeech(
 
 
 /**
- * Gemini TTS 에러 응답 분석 및 쿼터/레이트 리밋 초과 시 자동으로 토글 OFF 전환
+ * Gemini TTS 에러 응답 분석 (사용자 전역 스위치 OFF 방지 & 해당 발화만 안전하게 Web Speech 폴백)
  */
 async function handleTtsErrorResponse(res: Response): Promise<void> {
   try {
     const errorData = await res.json().catch(() => null);
-    const code = errorData?.code;
-    const category = errorData?.category;
+    const code = errorData?.code || 'unknown';
+    const message = errorData?.message || '';
 
-    const isQuotaOrRateLimit =
-      res.status === 429 ||
-      res.status === 402 ||
-      res.status === 503 ||
-      category === 'daily_quota' ||
-      category === 'transient' ||
-      code === 'quota_exceeded' ||
-      code === 'rate_limit_exceeded' ||
-      code === 'too_many_requests';
-
-    if (isQuotaOrRateLimit) {
-      handleTtsQuotaExceeded();
-    }
+    console.warn(`[Gemini TTS Quota/Fallback] Status: ${res.status}, Code: ${code}, Message: ${message}`);
   } catch {
-    if (res.status === 429 || res.status === 402 || res.status === 503) {
-      handleTtsQuotaExceeded();
-    }
+    console.warn(`[Gemini TTS Fallback] Status: ${res.status}`);
   }
 }
 

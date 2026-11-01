@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Supabase 영구 오디오 캐시 확인 (누구나 조회 가능, 0ms 즉시 반환 & API 쿼터 절약)
     try {
+      // 1-1. 일치하는 targetVoice 캐시 우선 조회
       const { data: cached } = await supabase
         .from('tts_audio_cache')
         .select('audio_base64')
@@ -60,6 +61,27 @@ export async function POST(req: NextRequest) {
           headers: {
             'Content-Type': 'audio/wav',
             'X-TTS-Cache': 'HIT',
+            'Cache-Control': 'public, max-age=31536000, immutable',
+          },
+        });
+      }
+
+      // 1-2. 스마트 캐시 폴백: 타겟 보이스(Kore/Puck) 캐시가 아직 없더라도, 기존에 고품질로 캐시된 다른 보이스(Charon 등)가 있다면 429 에러 방지를 위해 우선 즉시 반환!
+      const { data: fallbackCached } = await supabase
+        .from('tts_audio_cache')
+        .select('audio_base64')
+        .eq('text', trimmedText)
+        .eq('lang', lang)
+        .limit(1)
+        .maybeSingle();
+
+      if (fallbackCached?.audio_base64) {
+        const audioBuffer = Buffer.from(fallbackCached.audio_base64, 'base64');
+        return new Response(audioBuffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'audio/wav',
+            'X-TTS-Cache': 'FALLBACK_HIT',
             'Cache-Control': 'public, max-age=31536000, immutable',
           },
         });
@@ -166,24 +188,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. 로그인 사용자(관리자 등)인 경우에만 Supabase DB에 영구 캐시 저장
+    // 3. Supabase DB에 영구 캐시 저장 시도 (인증된 관리자 세션일 때 정상 적재)
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { error: upsertErr } = await supabase
+        .from('tts_audio_cache')
+        .upsert(
+          {
+            text: trimmedText,
+            lang,
+            voice: targetVoice,
+            audio_base64: audioBase64,
+          },
+          { onConflict: 'text,lang,voice', ignoreDuplicates: true }
+        );
 
-      if (user) {
-        await supabase
-          .from('tts_audio_cache')
-          .upsert(
-            {
-              text: trimmedText,
-              lang,
-              voice: targetVoice,
-              audio_base64: audioBase64,
-            },
-            { onConflict: 'text,lang,voice' }
-          );
+      if (upsertErr) {
+        console.warn(`[Supabase TTS Cache Save]: ${upsertErr.message} (code: ${upsertErr.code})`);
+      } else {
+        console.log(`[Supabase TTS Cache Saved]: [${lang}/${targetVoice}] "${trimmedText.slice(0, 25)}"`);
       }
     } catch (err: unknown) {
       console.warn('[Supabase TTS Cache Save Warning]:', err);
