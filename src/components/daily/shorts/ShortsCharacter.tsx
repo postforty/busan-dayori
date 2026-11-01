@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { ParsedSpeaker } from './types';
+import { ParsedSpeaker, SpeakerRole } from './types';
 
 interface ShortsCharacterProps {
   speaker: ParsedSpeaker;
@@ -8,21 +8,38 @@ interface ShortsCharacterProps {
   isSpeaking: boolean;
 }
 
+function resolveAvatarSrc(role: SpeakerRole): string {
+  switch (role) {
+    case 'auntie':
+      return '/images/shorts/auntie.jpg';
+    case 'passerby':
+      return '/images/shorts/passerby.jpg';
+    case 'friend':
+      return '/images/shorts/friend.jpg';
+    case 'clerk':
+      return '/images/shorts/clerk.jpg';
+    case 'child':
+    case 'polite_learner':
+    case 'learner':
+    default:
+      return '/images/shorts/learner.jpg';
+  }
+}
+
 export default function ShortsCharacter({ speaker, isActive, isSpeaking }: ShortsCharacterProps) {
   const { role, emotion, displayName, subNote } = speaker;
+  const [hasError, setHasError] = useState(false);
 
   // 역할에 따른 지브리 수채화풍 이미지 에셋 매핑
-  const imageSrc =
-    role === 'clerk'
-      ? '/images/shorts/clerk.jpg'
-      : '/images/shorts/learner.jpg';
+  const imageSrc = resolveAvatarSrc(role);
 
   return (
     <div
-      className={`flex flex-col items-center transition-all duration-500 transform ${isActive
+      className={`flex flex-col items-center transition-all duration-500 transform ${
+        isActive
           ? 'scale-105 opacity-100 z-10'
           : 'scale-90 opacity-40 z-0 grayscale-[35%]'
-        }`}
+      }`}
     >
       {/* 캐릭터 주변 음성 파동(Pulse) 링 (말하고 있을 때만 동작) */}
       <div className="relative flex items-center justify-center">
@@ -35,19 +52,22 @@ export default function ShortsCharacter({ speaker, isActive, isSpeaking }: Short
 
         {/* 캐릭터 메인 원형 일러스트 프레임 */}
         <div
-          className={`relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden bg-slate-900 shadow-2xl border-4 transition-all duration-300 flex items-center justify-center ${isActive
+          className={`relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden bg-slate-900 shadow-2xl border-4 transition-all duration-300 flex items-center justify-center ${
+            isActive
               ? 'border-[#E07A5F] shadow-[#E07A5F]/40 ring-4 ring-[#E07A5F]/30 scale-100'
               : 'border-white/50 shadow-md'
-            }`}
+          }`}
         >
           <Image
-            src={imageSrc}
+            src={hasError ? '/images/shorts/clerk.jpg' : imageSrc}
             alt={displayName}
             fill
             sizes="176px"
-            className={`object-cover object-top transition-transform duration-500 ${isSpeaking ? 'scale-105' : 'scale-100'
-              }`}
+            className={`object-cover object-top transition-transform duration-500 ${
+              isSpeaking ? 'scale-105' : 'scale-100'
+            }`}
             priority
+            onError={() => setHasError(true)}
           />
 
           {/* 감정/리액션 플로팅 뱃지 */}
@@ -68,10 +88,11 @@ export default function ShortsCharacter({ speaker, isActive, isSpeaking }: Short
       {/* 화자 이름 및 지문 태그 */}
       <div className="mt-3 flex flex-col items-center">
         <span
-          className={`px-3 py-1 rounded-full text-xs font-bold transition-all shadow-md ${isActive
+          className={`px-3 py-1 rounded-full text-xs font-bold transition-all shadow-md ${
+            isActive
               ? 'bg-[#E07A5F] text-white shadow-[#E07A5F]/30 scale-105'
               : 'bg-black/50 text-white/80 backdrop-blur-xs'
-            }`}
+          }`}
         >
           {displayName}
         </span>

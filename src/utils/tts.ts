@@ -472,6 +472,8 @@ export function speakHiraganaAudio(
   speakJapaneseWebSpeech(text, rate, onStart, onEnd, onBoundary);
 }
 
+export type TtsVoice = 'Charon' | 'Puck' | 'Kore';
+
 /**
  * 일본어 음성 출력 (회화, 데일리 레슨, 로드맵, 편지 등 회화 유닛 전용)
  * 토글 ON 시 Gemini TTS 호출, 쿼터 소진 시 자동으로 토글 OFF 전환 및 Web Speech 폴백
@@ -481,7 +483,8 @@ export function speakJapanese(
   rate: number = 0.9,
   onStart?: () => void,
   onEnd?: () => void,
-  onBoundary?: (charIndex: number, charLength?: number) => void
+  onBoundary?: (charIndex: number, charLength?: number) => void,
+  voice: TtsVoice = 'Kore'
 ) {
   if (!text || text.trim() === '') {
     if (onEnd) onEnd();
@@ -495,6 +498,7 @@ export function speakJapanese(
   }
 
   const trimmedText = text.trim();
+  const targetVoice = voice || 'Kore';
   const thisSession = ++currentPlaybackSession;
 
   // 0. 토글이 OFF('browser')인 경우 즉시 Web Speech 실행
@@ -503,7 +507,7 @@ export function speakJapanese(
     return;
   }
 
-  const cacheKey = `ja:${trimmedText}`;
+  const cacheKey = `ja:${targetVoice}:${trimmedText}`;
 
   // 1. 이미 인메모리에 캐싱된 고품질 오디오가 있다면 즉시 재생
   if (audioBlobCache.has(cacheKey)) {
@@ -511,14 +515,14 @@ export function speakJapanese(
     return;
   }
 
-  // 2. Gemini TTS 비동기 호출 (개인 일일 카운트 제한 없이 토글 ON이면 바로 호출)
+  // 2. Gemini TTS 비동기 호출 (보이스 지정)
   fetch('/api/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       text: trimmedText,
       lang: 'ja',
-      voice: 'Charon',
+      voice: targetVoice,
     }),
   })
     .then(async (res) => {

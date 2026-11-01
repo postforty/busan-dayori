@@ -2,26 +2,30 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { DailyLesson, DialogueLine } from '@/types';
-import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
+import { speakJapanese, stopJapaneseSpeech, TtsVoice } from '@/utils/tts';
 import { parseRubySegments, getPronunciation } from '@/utils/japanesePronounce';
 import {
   X,
   Play,
   Pause,
-  Eye,
-  EyeOff,
+  Subtitles,
+  Languages,
+  CaptionsOff,
   ChevronRight,
   ChevronLeft
 } from 'lucide-react';
 import ShortsBackground from './shorts/ShortsBackground';
 import ShortsCharacter from './shorts/ShortsCharacter';
 import { parseSpeakerText } from './shorts/speakerParser';
+import { resolveShortsTheme } from './shorts/themeResolver';
 
 interface ShortsModalProps {
   isOpen: boolean;
   onClose: () => void;
   lesson: DailyLesson;
 }
+
+export type SubtitleMode = 'all' | 'meaning' | 'none';
 
 export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProps) {
   const dialogue: DialogueLine[] = useMemo(() => lesson?.dialogue || [], [lesson?.dialogue]);
@@ -30,12 +34,16 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeCharIndex, setActiveCharIndex] = useState<number>(-1);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
-  const [showKoreanSubtitle, setShowKoreanSubtitle] = useState<boolean>(true);
+  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>('all');
   const [isFinished, setIsFinished] = useState<boolean>(false);
+  const [isTurnTransitioning, setIsTurnTransitioning] = useState<boolean>(false);
 
   const sessionRef = useRef<number>(0);
   const playTurnRef = useRef<(index: number) => void>(() => {});
   const currentLine = dialogue[currentIndex];
+
+  // 유닛의 상황에 맞는 4대 배경 테마 도출
+  const shortsTheme = useMemo(() => resolveShortsTheme(lesson), [lesson]);
 
   // 전체 대화에서 상대방 화자와 나(학습자) 화자 결정
   const otherSpeakerRaw = useMemo(
@@ -66,6 +74,7 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
     sessionRef.current++;
     stopJapaneseSpeech();
     setIsSpeaking(false);
+    setIsTurnTransitioning(false);
     setActiveCharIndex(-1);
   }, []);
 
@@ -75,11 +84,13 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
       if (index >= dialogue.length) {
         setIsFinished(true);
         setIsPlaying(false);
+        setIsTurnTransitioning(false);
         stopAll();
         return;
       }
 
       setIsFinished(false);
+      setIsTurnTransitioning(false);
       setCurrentIndex(index);
       setIsPlaying(true);
       stopAll();
@@ -90,22 +101,31 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
       const currentSession = ++sessionRef.current;
       setIsSpeaking(true);
 
+      // 화자 역할에 따른 듀얼 보이스 지정
+      const speakerInfo = parseSpeakerText(line.speaker);
+      const isFemaleSpeaker = speakerInfo.role === 'clerk' || speakerInfo.role === 'auntie';
+      const voice: TtsVoice = isFemaleSpeaker ? 'Kore' : 'Puck';
+
       speakJapanese(
         line.japanese,
         playbackSpeed,
         () => {
           if (sessionRef.current !== currentSession) return;
           setIsSpeaking(true);
+          setIsTurnTransitioning(false);
           setActiveCharIndex(0);
         },
         () => {
           if (sessionRef.current !== currentSession) return;
           setIsSpeaking(false);
+          // 발화 종료 즉시 현재 프로그레스 바를 100%로 고정 (뒤로 후퇴 방지)
+          setIsTurnTransitioning(true);
           setActiveCharIndex(-1);
 
-          // 자연스러운 대화 호흡(500ms 딜레이) 후 다음 대사 자동 이동
+          // 자연스러운 대화 호흡(500ms 딜레이) 동안 100% 상태를 유지한 후 다음 대사 이동
           setTimeout(() => {
             if (sessionRef.current === currentSession) {
+              setIsTurnTransitioning(false);
               playTurnRef.current(index + 1);
             }
           }, 500);
@@ -113,7 +133,8 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
         (charIndex) => {
           if (sessionRef.current !== currentSession) return;
           setActiveCharIndex(charIndex);
-        }
+        },
+        voice
       );
     },
     [dialogue, playbackSpeed, stopAll]
@@ -185,10 +206,29 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
     setPlaybackSpeed(nextSpeed);
   };
 
+  // 자막 모드 3단계 순환 (전체 → 뜻만 → 숨김)
+  const handleSubtitleModeCycle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSubtitleMode((prev) => {
+      if (prev === 'all') return 'meaning';
+      if (prev === 'meaning') return 'none';
+      return 'all';
+    });
+  };
+
   // 한글 독음
   const hangulPronounce = currentLine
     ? currentLine.pronunciation || getPronunciation(currentLine.japanese)
     : '';
+
+  // 일본어 텍스트 길이에 따른 최적 폰트 크기 계산 (긴 문장의 화면 좌우 넘침 방지)
+  const japaneseLength = currentLine?.japanese?.length || 0;
+  const japaneseFontSize =
+    japaneseLength > 22
+      ? 'text-lg md:text-xl'
+      : japaneseLength > 13
+      ? 'text-xl md:text-2xl'
+      : 'text-2xl md:text-3xl';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md transition-opacity">
@@ -198,7 +238,7 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
         className="relative w-full h-full max-w-[420px] max-h-[880px] md:h-[94vh] md:rounded-3xl overflow-hidden shadow-2xl bg-slate-950 flex flex-col justify-between cursor-pointer select-none border border-white/10"
       >
         {/* 상황별 배경 (Ken Burns 효과) */}
-        <ShortsBackground isPlaying={isPlaying} />
+        <ShortsBackground isPlaying={isPlaying} theme={shortsTheme} />
 
         {/* ================= 1. 상단 인디케이터 & 헤더 ================= */}
         <div
@@ -208,25 +248,28 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
           {/* 인스타그램 스토리 형태 진행 바 */}
           <div className="flex items-center gap-1.5 w-full">
             {dialogue.map((line, idx) => {
-              const isCompleted = isFinished || idx < currentIndex;
+              // 1. 전체 완료되었거나, 이미 지난 턴이거나, 현재 턴 발화가 끝나고 다음 턴 대기 중일 때는 항상 100% 유지 (뒤로 후퇴 방지)
+              const isTurnCompleted =
+                isFinished || idx < currentIndex || (idx === currentIndex && isTurnTransitioning);
               const isCurrent = idx === currentIndex;
 
               let widthClass = 'w-0';
               let customStyle: React.CSSProperties | undefined = undefined;
 
-              if (isCompleted) {
+              if (isTurnCompleted) {
                 widthClass = 'w-full';
               } else if (isCurrent) {
                 if (isSpeaking && activeCharIndex >= 0) {
-                  // 글자 음성 싱크에 따른 실시간 진행률
+                  // 글자 음성 싱크에 따른 실시간 단조 증가 진행률
                   const totalChars = Math.max(1, line.japanese.length);
                   const progressPct = Math.min(
                     100,
-                    Math.max(15, Math.round(((activeCharIndex + 1) / totalChars) * 100))
+                    Math.max(10, Math.round(((activeCharIndex + 1) / totalChars) * 100))
                   );
                   customStyle = { width: `${progressPct}%` };
                 } else if (isPlaying) {
-                  widthClass = 'w-1/3';
+                  // 소리 시작 직전 찰나의 로딩 순간에는 5%로 안정 대기 (33%로 튀지 않음)
+                  customStyle = { width: '5%' };
                 } else {
                   widthClass = 'w-0';
                 }
@@ -240,7 +283,7 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
                 >
                   <div
                     style={customStyle}
-                    className={`h-full bg-[#E07A5F] rounded-full transition-all duration-150 ${widthClass}`}
+                    className={`h-full bg-[#E07A5F] rounded-full transition-[width] duration-150 ease-out ${widthClass}`}
                   />
                 </div>
               );
@@ -287,15 +330,6 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
               isSpeaking={isLearnerTurn && isSpeaking}
             />
           </div>
-
-          {/* 일시정지 상태 안내 오버레이 (완료 상태가 아닐 때만 은은하게 노출) */}
-          {!isPlaying && !isFinished && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-              <div className="w-16 h-16 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white backdrop-blur-md shadow-2xl">
-                <Play className="w-8 h-8 fill-current ml-1 text-white" />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ================= 3. 하단 숏츠 대형 자막 및 컨트롤 ================= */}
@@ -305,22 +339,24 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
         >
           {/* 숏츠 대형 자막 (현재 발음 중인 글자 하이라이트) */}
           {currentLine && (
-            <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center text-center w-full px-2">
               {/* 1행: 일본어 원문 (루비 후리가나 및 글자별 싱크 하이라이트) */}
-              <div className="text-2xl md:text-3xl font-black tracking-wide text-white drop-shadow-md">
+              <div
+                className={`${japaneseFontSize} font-black tracking-normal text-white drop-shadow-md leading-relaxed w-full max-w-full break-words`}
+              >
                 {renderShortsRuby(currentLine.japanese, activeCharIndex)}
               </div>
 
-              {/* 2행: 한글 발음 (소리 표기) */}
-              {hangulPronounce && (
-                <div className="mt-1 text-sm md:text-base font-bold text-[#F4A261] tracking-wider drop-shadow-sm">
+              {/* 2행: 한글 발음 (소리 표기 - 'all' 모드에서만 표시) */}
+              {subtitleMode === 'all' && hangulPronounce && (
+                <div className="mt-1 text-xs md:text-sm font-bold text-[#F4A261] tracking-wide drop-shadow-sm transition-opacity duration-150 max-w-full break-keep-all">
                   [{hangulPronounce}]
                 </div>
               )}
 
-              {/* 3행: 한국어 뜻 (토글 가능) */}
-              {showKoreanSubtitle && (
-                <div className="mt-1.5 text-xs md:text-sm font-semibold text-white/90 bg-white/10 backdrop-blur-xs px-3 py-1 rounded-full border border-white/15">
+              {/* 3행: 한국어 뜻 ('all' 또는 'meaning' 모드에서 표시) */}
+              {subtitleMode !== 'none' && (
+                <div className="mt-1.5 text-xs md:text-sm font-semibold text-white/90 bg-white/10 backdrop-blur-xs px-3 py-1 rounded-full border border-white/15 transition-opacity duration-150 max-w-full break-keep-all">
                   &ldquo;{currentLine.korean}&rdquo;
                 </div>
               )}
@@ -368,33 +404,54 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
               )}
             </button>
 
-            {/* 우측: 배속 & 한글 자막 토글 */}
+            {/* 우측: 배속 & 3단계 자막 모드 토글 (높이 h-7로 일치) */}
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={handleSpeedToggle}
-                className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${
+                className={`h-7 px-2 flex items-center justify-center rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   playbackSpeed === 0.5
                     ? 'bg-[#E07A5F]/30 text-[#F4A261] border border-[#E07A5F]/50 shadow-2xs'
-                    : 'bg-white/10 hover:bg-white/20 text-white'
+                    : 'bg-white/10 hover:bg-white/20 text-white border border-transparent'
                 }`}
                 title={playbackSpeed === 1.0 ? '0.5배속(느리게)으로 전환' : '1.0배속(기본)으로 전환'}
               >
                 {playbackSpeed.toFixed(1)}x
               </button>
 
+              {/* 자막 모드 3단계 동적 아이콘 버튼 (배속 버튼과 동일한 h-7 높이 및 rounded-lg 적용) */}
               <button
                 type="button"
-                onClick={() => setShowKoreanSubtitle(!showKoreanSubtitle)}
-                className={`p-2 rounded-full transition-all ${
-                  showKoreanSubtitle
-                    ? 'bg-white/10 text-white hover:bg-white/20'
-                    : 'bg-[#E07A5F]/30 text-[#E07A5F] border border-[#E07A5F]'
+                onClick={handleSubtitleModeCycle}
+                className={`h-7 w-7 flex items-center justify-center rounded-lg transition-all cursor-pointer ${
+                  subtitleMode === 'all'
+                    ? 'bg-[#E07A5F]/30 text-[#F4A261] border border-[#E07A5F]/60 shadow-2xs hover:bg-[#E07A5F]/40'
+                    : subtitleMode === 'meaning'
+                    ? 'bg-white/20 text-white border border-white/30 shadow-2xs hover:bg-white/30'
+                    : 'bg-white/10 text-white/40 hover:bg-white/20 hover:text-white/70 border border-transparent'
                 }`}
-                title={showKoreanSubtitle ? '한글 해석 숨기기' : '한글 해석 보이기'}
-                aria-label={showKoreanSubtitle ? '한글 해석 숨기기' : '한글 해석 보이기'}
+                title={
+                  subtitleMode === 'all'
+                    ? '자막: 전체 표시 (클릭 시 뜻만 표시)'
+                    : subtitleMode === 'meaning'
+                    ? '자막: 뜻만 표시 (클릭 시 모두 숨김)'
+                    : '자막: 모두 숨김 (클릭 시 전체 표시)'
+                }
+                aria-label={
+                  subtitleMode === 'all'
+                    ? '자막 전체 표시'
+                    : subtitleMode === 'meaning'
+                    ? '자막 뜻만 표시'
+                    : '자막 모두 숨김'
+                }
               >
-                {showKoreanSubtitle ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                {subtitleMode === 'all' ? (
+                  <Subtitles className="w-4 h-4" />
+                ) : subtitleMode === 'meaning' ? (
+                  <Languages className="w-4 h-4" />
+                ) : (
+                  <CaptionsOff className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
@@ -404,13 +461,13 @@ export default function ShortsModal({ isOpen, onClose, lesson }: ShortsModalProp
   );
 }
 
-/** 숏츠용 루비(후리가나) 및 실시간 글자 단위 하이라이트 렌더러 */
+/** 숏츠용 루비(후리가나) 및 실시간 글자 단위 하이라이트 렌더러 (자동 줄바꿈 및 화면 넘침 방지) */
 function renderShortsRuby(text: string, activeCharIndex: number) {
   const segments = parseRubySegments(text);
   let currentOffset = 0;
 
   return (
-    <span className="inline-flex items-end flex-wrap justify-center gap-x-1">
+    <span className="inline leading-relaxed break-words [word-break:break-word] text-center">
       {segments.map((seg, i) => {
         const segText = seg.text;
         const segStart = currentOffset;
@@ -418,7 +475,10 @@ function renderShortsRuby(text: string, activeCharIndex: number) {
 
         if (seg.ruby) {
           return (
-            <ruby key={i} className="leading-tight">
+            <ruby
+              key={i}
+              className="[ruby-align:center] [ruby-position:over] transition-colors duration-100"
+            >
               {seg.text.split('').map((ch, chIdx) => {
                 const charGlobalIdx = segStart + chIdx;
                 const isActive = charGlobalIdx === activeCharIndex;
@@ -435,13 +495,17 @@ function renderShortsRuby(text: string, activeCharIndex: number) {
                   </span>
                 );
               })}
-              <rt className="text-[11px] font-normal text-white/70 select-none">{seg.ruby}</rt>
+              <rp>(</rp>
+              <rt className="text-[10px] md:text-[11px] font-normal text-white/80 select-none leading-none text-center">
+                {seg.ruby}
+              </rt>
+              <rp>)</rp>
             </ruby>
           );
         }
 
         return (
-          <span key={i} className="inline-flex">
+          <span key={i} className="inline">
             {seg.text.split('').map((ch, chIdx) => {
               const charGlobalIdx = segStart + chIdx;
               const isActive = charGlobalIdx === activeCharIndex;

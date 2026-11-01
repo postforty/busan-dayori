@@ -1,6 +1,20 @@
-export type SpeakerRole = 'clerk' | 'child' | 'polite_learner' | 'learner' | 'friend' | 'elder' | 'passerby';
+export type SpeakerRole =
+  | 'clerk'
+  | 'auntie'
+  | 'passerby'
+  | 'friend'
+  | 'child'
+  | 'polite_learner'
+  | 'learner';
 
-export type SpeakerEmotion = 'default' | 'smile' | 'giving' | 'bowing' | 'joy' | 'grateful' | 'panicked';
+export type SpeakerEmotion =
+  | 'default'
+  | 'smile'
+  | 'giving'
+  | 'bowing'
+  | 'joy'
+  | 'grateful'
+  | 'panicked';
 
 export interface ParsedSpeaker {
   role: SpeakerRole;
@@ -9,3 +23,4 @@ export interface ParsedSpeaker {
   subNote?: string;
 }
 
+export type ShortsTheme = 'cafe' | 'restaurant' | 'street' | 'shop';

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { DailyLesson, VocabItem, SavedWord, WordBreakdown, CurriculumLevel } from '@/types';
-import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
+import { speakJapanese, stopJapaneseSpeech, TtsVoice } from '@/utils/tts';
 import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
 import {
   Volume2,
@@ -15,7 +15,9 @@ import {
   MessageSquare,
   Info,
   CheckCircle2,
+  Subtitles,
   Languages,
+  CaptionsOff,
   Baby,
   Pencil,
   Zap,
@@ -39,6 +41,8 @@ interface DailyLessonCardProps {
   hideAiBadge?: boolean;
   onRewardModalChange?: (isOpen: boolean) => void;
 }
+
+export type SubtitleMode = 'all' | 'meaning' | 'none';
 
 function deriveBreakdownFromVocab(
   japanese: string,
@@ -173,7 +177,22 @@ export default function DailyLessonCard({
   const [secretEnvelopeLevel, setSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
   const [activeTestLevel, setActiveTestLevel] = useState<CurriculumLevel | null>(null);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
-  const [showPronounce, setShowPronounce] = useState(true);
+  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>(() => {
+    if (typeof window === 'undefined') return 'all';
+    try {
+      const savedMode = localStorage.getItem('lesson_subtitle_mode');
+      if (savedMode === 'all' || savedMode === 'meaning' || savedMode === 'none') {
+        return savedMode as SubtitleMode;
+      }
+      const legacyPronounce = localStorage.getItem('beginner_pronounce_mode');
+      if (legacyPronounce === 'false') {
+        return 'meaning';
+      }
+    } catch {
+      // 무시
+    }
+    return 'all';
+  });
 
   // 학습 완료 스탬프 / 비밀 편지 / 레벨 테스트 모달 활성화 여부 부모 통지
   const isAnyRewardModalOpen = Boolean(
@@ -263,23 +282,14 @@ export default function DailyLessonCard({
     }
   }, [lesson.id]);
 
-  // 로컬 스토리지에서 저장된 단어 및 학습 완료 여부, 레슨 보관 여부, 발음 모드 로드
-  useEffect(() => {
+  // 자막 모드 3단계 순환 토글 (전체 → 뜻만 → 숨김)
+  const handleToggleSubtitleMode = () => {
+    const nextMode: SubtitleMode =
+      subtitleMode === 'all' ? 'meaning' : subtitleMode === 'meaning' ? 'none' : 'all';
+    setSubtitleMode(nextMode);
     try {
-      const savedPronounce = localStorage.getItem('beginner_pronounce_mode');
-      if (savedPronounce !== null) {
-        setShowPronounce(savedPronounce === 'true');
-      }
-    } catch {
-      // 무시
-    }
-  }, []);
-
-  const handleTogglePronounce = () => {
-    const nextState = !showPronounce;
-    setShowPronounce(nextState);
-    try {
-      localStorage.setItem('beginner_pronounce_mode', String(nextState));
+      localStorage.setItem('lesson_subtitle_mode', nextMode);
+      localStorage.setItem('beginner_pronounce_mode', String(nextMode === 'all'));
     } catch {
       // 무시
     }
@@ -404,6 +414,9 @@ export default function DailyLessonCard({
 
         setLoadingId(lineId);
 
+        const isLearner = line.speaker.includes('나') || line.speaker.includes('손님');
+        const voice: TtsVoice = isLearner ? 'Puck' : 'Kore';
+
         speakJapanese(
           line.japanese,
           0.9,
@@ -425,7 +438,8 @@ export default function DailyLessonCard({
             if (dialogueSessionRef.current !== currentSession) return;
             setLoadingId(null);
             setActiveBoundary({ id: lineId, charIndex, charLength: 1 });
-          }
+          },
+          voice
         );
       });
 
@@ -701,19 +715,39 @@ export default function DailyLessonCard({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* 발음 가이드 ON/OFF 토글 버튼 (아이콘 전용) */}
+            {/* 자막 모드 3단계 동적 아이콘 토글 버튼 (전체: Subtitles → 뜻만: Languages → 숨김: CaptionsOff) */}
             <button
               type="button"
-              onClick={handleTogglePronounce}
+              onClick={handleToggleSubtitleMode}
               className={`w-7 h-7 rounded-xl flex items-center justify-center transition-all border active:scale-95 shrink-0 cursor-pointer ${
-                showPronounce
+                subtitleMode === 'all'
                   ? 'bg-[#FFF2EA] text-[#E07A5F] border-[#FCDCCE] shadow-2xs'
+                  : subtitleMode === 'meaning'
+                  ? 'bg-[#F4EFEA] text-[#718096] border-[#E2D8CE] shadow-2xs'
                   : 'bg-white/60 text-gray-400 border-[#EDE8E1] hover:bg-white hover:text-gray-500'
               }`}
-              title={showPronounce ? '발음 가이드 끄기' : '발음 가이드 켜기'}
-              aria-label={showPronounce ? '발음 켜짐' : '발음 꺼짐'}
+              title={
+                subtitleMode === 'all'
+                  ? '자막: 전체 표시 (발음+뜻) - 클릭 시 뜻만 표시'
+                  : subtitleMode === 'meaning'
+                  ? '자막: 뜻만 표시 - 클릭 시 모두 숨기기'
+                  : '자막: 모두 숨김 - 클릭 시 전체 표시'
+              }
+              aria-label={
+                subtitleMode === 'all'
+                  ? '자막 전체 표시'
+                  : subtitleMode === 'meaning'
+                  ? '자막 뜻만 표시'
+                  : '자막 모두 숨김'
+              }
             >
-              <Languages className="w-3.5 h-3.5" />
+              {subtitleMode === 'all' ? (
+                <Subtitles className="w-3.5 h-3.5" />
+              ) : subtitleMode === 'meaning' ? (
+                <Languages className="w-3.5 h-3.5" />
+              ) : (
+                <CaptionsOff className="w-3.5 h-3.5" />
+              )}
             </button>
 
             {/* 레슨 북마크 토글 버튼 (아이콘 전용으로 규격 통일) */}
@@ -876,8 +910,8 @@ export default function DailyLessonCard({
               {renderRuby(lesson.keyExpression.japanese, 'key', activeBoundary)}
             </h2>
 
-            {/* 한글 독음 (왕초보 지원) */}
-            {showPronounce && (
+            {/* 한글 독음 (전체 모드에서만 표시) */}
+            {subtitleMode === 'all' && (
               <div className="mb-2">
                 <span
                   className={`inline-block rounded-md border font-bold ${
@@ -895,9 +929,12 @@ export default function DailyLessonCard({
               </div>
             )}
 
-            <p className="text-sm font-bold text-[#2D3748]">
-              {lesson.keyExpression.korean}
-            </p>
+            {/* 한국어 뜻 (숨김 모드가 아닐 때 표시) */}
+            {subtitleMode !== 'none' && (
+              <p className="text-sm font-bold text-[#2D3748]">
+                {lesson.keyExpression.korean}
+              </p>
+            )}
           </div>
         </section>
 
@@ -997,14 +1034,16 @@ export default function DailyLessonCard({
                     <p className="text-xs font-semibold text-[#2D3748] leading-relaxed group-hover/line:text-[#E07A5F] transition-colors">
                       {renderRuby(line.japanese, `line-${idx}`, activeBoundary)}
                     </p>
-                    {showPronounce && (
+                    {subtitleMode === 'all' && (
                       <p className="text-[11px] font-semibold text-[#E07A5F] leading-normal">
                          [{resolveHangulPronounce(line.pronunciation, line.japanese)}]
                       </p>
                     )}
-                    <p className="text-[11px] text-gray-500 leading-normal">
-                      {line.korean}
-                    </p>
+                    {subtitleMode !== 'none' && (
+                      <p className="text-[11px] text-gray-500 leading-normal">
+                        {line.korean}
+                      </p>
+                    )}
                   </div>
 
                   {/* 우측 발음 듣기 버튼 단독 배치 (반짝이 AI 버튼 제거됨) */}
@@ -1093,7 +1132,7 @@ export default function DailyLessonCard({
                       <div className="flex items-baseline gap-1.5 flex-wrap">
                         <span className="font-bold text-[#2D3748]">{vocab.kanji}</span>
                         <span className="text-[10px] text-gray-400 font-mono">({vocab.reading})</span>
-                        {showPronounce && (
+                        {subtitleMode === 'all' && (
                           <span className="text-[10px] font-semibold text-[#E07A5F]">
                             [{getPronunciation(vocab.kanji, vocab.reading)}]
                           </span>
@@ -1102,7 +1141,9 @@ export default function DailyLessonCard({
                           {vocab.partOfSpeech}
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-600 mt-0.5">{vocab.meaning}</p>
+                      {subtitleMode !== 'none' && (
+                        <p className="text-[11px] text-gray-600 mt-0.5">{vocab.meaning}</p>
+                      )}
                     </div>
                   </div>
 
