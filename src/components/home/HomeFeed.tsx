@@ -496,7 +496,7 @@ function HomeFeedInner({ initialLessons }: HomeFeedProps) {
           <div className="flex items-center gap-1.5 min-w-0">
             <BookOpen className="w-4 h-4 text-[#E07A5F] shrink-0" />
             <h2 className="text-sm font-bold text-[#2D3748] truncate">
-              今日のレッスン (오늘의 레슨)
+              今日のレッスン
             </h2>
           </div>
         </div>
