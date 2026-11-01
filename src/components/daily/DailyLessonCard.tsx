@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { DailyLesson, VocabItem, SavedWord, WordBreakdown, CurriculumLevel } from '@/types';
 import { speakJapanese, stopJapaneseSpeech, TtsVoice } from '@/utils/tts';
 import { getPronunciation, parseRubySegments } from '@/utils/japanesePronounce';
@@ -43,6 +43,30 @@ interface DailyLessonCardProps {
 }
 
 export type SubtitleMode = 'all' | 'meaning' | 'none';
+
+const subscribeToStorage = (callback: () => void) => {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+};
+
+const getSubtitleModeSnapshot = (): SubtitleMode => {
+  if (typeof window === 'undefined') return 'all';
+  try {
+    const savedMode = localStorage.getItem('lesson_subtitle_mode');
+    if (savedMode === 'all' || savedMode === 'meaning' || savedMode === 'none') {
+      return savedMode as SubtitleMode;
+    }
+    const legacyPronounce = localStorage.getItem('beginner_pronounce_mode');
+    if (legacyPronounce === 'false') {
+      return 'meaning';
+    }
+  } catch {
+    // 무시
+  }
+  return 'all';
+};
+
+const getSubtitleModeServerSnapshot = (): SubtitleMode => 'all';
 
 function deriveBreakdownFromVocab(
   japanese: string,
@@ -177,22 +201,13 @@ export default function DailyLessonCard({
   const [secretEnvelopeLevel, setSecretEnvelopeLevel] = useState<CurriculumLevel | null>(null);
   const [activeTestLevel, setActiveTestLevel] = useState<CurriculumLevel | null>(null);
   const [isLessonSaved, setIsLessonSaved] = useState(false);
-  const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>(() => {
-    if (typeof window === 'undefined') return 'all';
-    try {
-      const savedMode = localStorage.getItem('lesson_subtitle_mode');
-      if (savedMode === 'all' || savedMode === 'meaning' || savedMode === 'none') {
-        return savedMode as SubtitleMode;
-      }
-      const legacyPronounce = localStorage.getItem('beginner_pronounce_mode');
-      if (legacyPronounce === 'false') {
-        return 'meaning';
-      }
-    } catch {
-      // 무시
-    }
-    return 'all';
-  });
+  const [customSubtitleMode, setCustomSubtitleMode] = useState<SubtitleMode | null>(null);
+  const storedSubtitleMode = useSyncExternalStore(
+    subscribeToStorage,
+    getSubtitleModeSnapshot,
+    getSubtitleModeServerSnapshot
+  );
+  const subtitleMode = customSubtitleMode ?? storedSubtitleMode;
 
   // 학습 완료 스탬프 / 비밀 편지 / 레벨 테스트 모달 활성화 여부 부모 통지
   const isAnyRewardModalOpen = Boolean(
@@ -286,7 +301,7 @@ export default function DailyLessonCard({
   const handleToggleSubtitleMode = () => {
     const nextMode: SubtitleMode =
       subtitleMode === 'all' ? 'meaning' : subtitleMode === 'meaning' ? 'none' : 'all';
-    setSubtitleMode(nextMode);
+    setCustomSubtitleMode(nextMode);
     try {
       localStorage.setItem('lesson_subtitle_mode', nextMode);
       localStorage.setItem('beginner_pronounce_mode', String(nextMode === 'all'));
