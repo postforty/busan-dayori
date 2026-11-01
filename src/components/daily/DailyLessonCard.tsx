@@ -105,6 +105,48 @@ function resolveHangulPronounce(
   return getPronunciation(japaneseFallback || explicitPronounce || '', customReading);
 }
 
+/**
+ * 대화 화자명 포맷 헬퍼 (기존 'A', 'B' 기호 방어 및 자연스러운 호칭 변환)
+ */
+function formatSpeakerLabel(speaker?: string, fallbackRole?: 'learner' | 'partner'): string {
+  if (!speaker) return fallbackRole === 'partner' ? '상대방' : '나';
+  const trimmed = speaker.trim().replace(/[:：]$/, '');
+  if (trimmed === 'A' || trimmed === 'a') return '나';
+  if (trimmed === 'B' || trimmed === 'b') return '상대방';
+  return trimmed;
+}
+
+/**
+ * 화자별 듀얼 보이스 판별 (학습자: Puck, 상대방: Kore)
+ */
+function isLearnerSpeaker(speaker?: string, lineIndex: number = 0): boolean {
+  if (!speaker) return lineIndex % 2 === 0;
+  const s = speaker.trim();
+  if (
+    s.includes('나') ||
+    s.includes('손님') ||
+    s === 'A' ||
+    s === 'a' ||
+    s.startsWith('A:') ||
+    s.startsWith('A：')
+  ) {
+    return true;
+  }
+  if (
+    s.includes('점원') ||
+    s.includes('상대방') ||
+    s.includes('친구') ||
+    s === 'B' ||
+    s === 'b' ||
+    s.startsWith('B:') ||
+    s.startsWith('B：')
+  ) {
+    return false;
+  }
+  // 그 외 역할명이 있는 경우 첫 번째 턴(짝수 턴)을 발화 시작자(학습자)로 간주
+  return lineIndex % 2 === 0;
+}
+
 function renderRuby(
   text: string,
   playId?: string,
@@ -429,7 +471,7 @@ export default function DailyLessonCard({
 
         setLoadingId(lineId);
 
-        const isLearner = line.speaker.includes('나') || line.speaker.includes('손님');
+        const isLearner = isLearnerSpeaker(line.speaker, idx);
         const voice: TtsVoice = isLearner ? 'Puck' : 'Kore';
 
         speakJapanese(
@@ -964,15 +1006,17 @@ export default function DailyLessonCard({
 
             {lesson.dialogue && lesson.dialogue.length > 0 && (
               <div className="flex items-center gap-1.5 mr-3.5">
-                <button
-                  type="button"
-                  onClick={() => setIsShortsModalOpen(true)}
-                  className="p-1.5 rounded-lg border border-[#FCE4D8] bg-[#FFF6F1] text-[#E07A5F] hover:bg-[#FAF0E6] hover:border-[#E07A5F] hover:shadow-2xs transition-all flex items-center justify-center shrink-0"
-                  title="대화 숏츠 영상으로 보기"
-                  aria-label="대화 숏츠 영상으로 보기"
-                >
-                  <Video className="w-3.5 h-3.5 text-[#E07A5F]" />
-                </button>
+                {!isAiGenerated && (
+                  <button
+                    type="button"
+                    onClick={() => setIsShortsModalOpen(true)}
+                    className="p-1.5 rounded-lg border border-[#FCE4D8] bg-[#FFF6F1] text-[#E07A5F] hover:bg-[#FAF0E6] hover:border-[#E07A5F] hover:shadow-2xs transition-all flex items-center justify-center shrink-0"
+                    title="대화 숏츠 영상으로 보기"
+                    aria-label="대화 숏츠 영상으로 보기"
+                  >
+                    <Video className="w-3.5 h-3.5 text-[#E07A5F]" />
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -1019,7 +1063,7 @@ export default function DailyLessonCard({
                       setActiveTutorSentence({
                         japanese: line.japanese,
                         korean: line.korean,
-                        speaker: line.speaker,
+                        speaker: formatSpeakerLabel(line.speaker, idx % 2 === 0 ? 'learner' : 'partner'),
                         pronunciation: resolveHangulPronounce(line.pronunciation, line.japanese),
                         breakdown:
                           line.breakdown ||
@@ -1033,7 +1077,7 @@ export default function DailyLessonCard({
                         setActiveTutorSentence({
                           japanese: line.japanese,
                           korean: line.korean,
-                          speaker: line.speaker,
+                          speaker: formatSpeakerLabel(line.speaker, idx % 2 === 0 ? 'learner' : 'partner'),
                           pronunciation: resolveHangulPronounce(line.pronunciation, line.japanese),
                           breakdown:
                             line.breakdown ||
@@ -1045,7 +1089,7 @@ export default function DailyLessonCard({
                     title="클릭하여 다요리 센세 1:1 해설 보기"
                   >
                     <span className="text-[10px] font-bold text-gray-400 block">
-                      {line.speaker}
+                      {formatSpeakerLabel(line.speaker, idx % 2 === 0 ? 'learner' : 'partner')}
                     </span>
                     <p className="text-xs font-semibold text-[#2D3748] leading-relaxed group-hover/line:text-[#E07A5F] transition-colors">
                       {renderRuby(line.japanese, `line-${idx}`, activeBoundary)}
@@ -1067,7 +1111,7 @@ export default function DailyLessonCard({
                     <button
                       type="button"
                       onClick={() => {
-                        const isLearner = line.speaker.includes('나') || line.speaker.includes('손님');
+                        const isLearner = isLearnerSpeaker(line.speaker, idx);
                         const voice: TtsVoice = isLearner ? 'Puck' : 'Kore';
                         handlePlay(line.japanese, `line-${idx}`, 0.9, voice);
                       }}
@@ -1272,8 +1316,8 @@ export default function DailyLessonCard({
         />
       )}
 
-      {/* 상황별 대화 숏츠 모달 */}
-      {isShortsModalOpen && (
+      {/* 상황별 대화 숏츠 모달 (정규 커리큘럼에서만 렌더링) */}
+      {!isAiGenerated && isShortsModalOpen && (
         <ShortsModal
           isOpen={isShortsModalOpen}
           onClose={() => setIsShortsModalOpen(false)}

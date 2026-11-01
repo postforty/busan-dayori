@@ -71,8 +71,10 @@ async function generateNode(state: typeof LessonState.State) {
 3. pronunciationKorean: keyExpression 문장의 100% 한글 발음(독음).
    - 절대 한자나 알파벳, 가나를 섞지 말고 순수한 한국어 한글 발음으로만 작성하세요.
    - 예: "こちらの画面の仕様について、少し確認させていただきたいのですが。" -> "코치라노 가멘노 시요-니 츠이테, 스코시 카쿠닌사세테 이타다키타이노 데스가."
-4. dialogue: 2~3턴의 실전 대화문 (A, B의 대화).
-   - speaker: "A" 또는 "B"
+4. dialogue: 2~3턴의 실전 대화문.
+   - speaker: 단순히 'A', 'B' 같은 기호는 절대 금지! 학습자가 상황에 몰입할 수 있도록 구체적인 역할명으로 작성하세요.
+     * 학습자(말하는 주체)는 반드시 "나"를 포함하도록 표기 (예: "나 (개발자)", "나 (손님)", "나 (환자)", "나")
+     * 대화 상대방은 맥락에 맞는 직책이나 역할명으로 표기 (예: "기획자", "점원", "의사", "동료 (다나카)", "친구")
    - japanese: 일본어 대화 문장 (한자/가나 표기)
    - pronunciation: 문장 전체의 "100% 한글 발음(독음)".
      * 매우 중요: 절대로 한자(漢字)나 알파벳, 가나를 그대로 남기거나 섞어 쓰지 마세요! (예: "[田中산, 오疲れ様데스]"와 같이 한자가 섞이면 절대 안 됩니다!)
@@ -100,13 +102,13 @@ async function generateNode(state: typeof LessonState.State) {
   "pronunciationKorean": "코치라노 가멘노 시요-니 츠이테, 스코시 카쿠닌사세테 이타다키타이노 데스가.",
   "dialogue": [
     {
-      "speaker": "A",
+      "speaker": "나 (개발자)",
       "japanese": "田中さん、お疲れ様です。こちらの仕様について確認したいです。",
       "pronunciation": "다나카상, 오츠카레사마데스. 코치라노 시요-니 츠이테 카쿠닌시타이데스.",
       "korean": "다나카 씨, 수고하십니다. 이쪽 사양에 대해 확인하고 싶습니다."
     },
     {
-      "speaker": "B",
+      "speaker": "기획자",
       "japanese": "はい、どの部分でしょうか？",
       "pronunciation": "하이, 도노 부분데쇼-카?",
       "korean": "네, 어느 부분인가요?"
@@ -136,7 +138,8 @@ async function reviewAndRefineNode(state: typeof LessonState.State) {
 2. 한국어 발음(pronunciationKorean 및 dialogue의 각 pronunciation)에 한자(漢字)나 영문 로마자(Romaji)가 섞여 있는지 엄격히 검수하세요.
    - 만약 한자나 알파벳이 섞여 있다면 반드시 100% 완전한 순수 한글 발음으로 변환하여 수정하세요.
    - reading 필드는 반드시 순수 히라가나여야 합니다 (알파벳 로마자 절대 금지).
-3. 이모지는 사용하지 마세요. 오직 순수 JSON 데이터만 반환하세요.
+3. dialogue의 speaker가 단순 'A', 'B' 등의 무미건조한 기호로 되어 있다면, 학습자는 "나 (역할)"(예: "나 (개발자)"), 대화 상대방은 맥락에 맞는 직책이나 역할(예: "기획자", "점원", "동료")로 구체화하세요.
+4. 이모지는 사용하지 마세요. 오직 순수 JSON 데이터만 반환하세요.
 
 [초안]
 ${state.draftJson}`;
