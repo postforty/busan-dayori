@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Mail, BookOpen, Bookmark, Sparkles, Loader2 } from 'lucide-react';
+import { Mail, BookOpen, Bookmark, Sparkles } from 'lucide-react';
 import HangulIcon from '@/components/common/HangulIcon';
 
 export default function BottomNav() {
@@ -108,19 +108,7 @@ export default function BottomNav() {
                   isActive ? 'scale-110 bg-[#FAF0E6]' : ''
                 }`}
               >
-                {isItemPending ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-[#E07A5F]" />
-                ) : (
-                  <Icon className="w-5 h-5" />
-                )}
-
-                {/* 로딩 중 미세 핑 닷 효과 */}
-                {isItemPending && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E07A5F] opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E07A5F]" />
-                  </span>
-                )}
+                <Icon className="w-5 h-5" />
               </div>
               <span className="text-[11px] leading-tight font-medium mt-0.5 tracking-tight whitespace-nowrap">
                 {item.label}
