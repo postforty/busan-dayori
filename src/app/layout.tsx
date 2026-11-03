@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import Header from '@/components/common/Header';
 import BottomNav from '@/components/common/BottomNav';
 import GlobalToast from '@/components/common/GlobalToast';
+import NavigationContentWrapper from '@/components/common/NavigationContentWrapper';
 
 export const metadata: Metadata = {
   title: '釜山だより (Busan Dayori) | 日本語を勉強中の釜山っ子のリアル旅便り',
@@ -60,7 +61,9 @@ export default function RootLayout({
             <GlobalToast />
           </Suspense>
           <Header />
-          <main className="flex-1 pb-24">{children}</main>
+          <main className="flex-1 pb-24">
+            <NavigationContentWrapper>{children}</NavigationContentWrapper>
+          </main>
           <BottomNav />
         </div>
       </body>
