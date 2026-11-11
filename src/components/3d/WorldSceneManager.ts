@@ -1,11 +1,15 @@
 import * as THREE from 'three';
 import { WorldThemeLevel, WorldNpcData } from './types';
 import { WORLD_THEMES, getLevelNpcs } from './worldData';
+import { loadAnimatedCharacter, CharacterRigHandle } from './modelLoader';
 
 export class WorldSceneManager {
   public scene: THREE.Scene;
   public groundPlane: THREE.Mesh;
   public interactableNpcs: { mesh: THREE.Group; data: WorldNpcData }[] = [];
+  public colliders: THREE.Box3[] = [];
+  private npcRigs: CharacterRigHandle[] = [];
+  private loadGeneration = 0;
   private themeGroup: THREE.Group;
   private currentLevel: WorldThemeLevel = 'level1';
   private dirLight: THREE.DirectionalLight;
@@ -81,12 +85,32 @@ export class WorldSceneManager {
   }
 
   private clearThemeGroup() {
+    this.loadGeneration++;
+    this.npcRigs.forEach((rig) => rig.dispose());
+    this.npcRigs = [];
+
     while (this.themeGroup.children.length > 0) {
       const child = this.themeGroup.children[0];
       this.themeGroup.remove(child);
       this.disposeObject(child);
     }
     this.interactableNpcs = [];
+    this.colliders = [];
+  }
+
+  /**
+   * 3D 오브젝트의 바운딩 박스를 계산하여 이동 충돌 영역(AABB)으로 등록
+   */
+  private registerCollider(obj: THREE.Object3D, padding = 0.45) {
+    obj.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(obj);
+    box.min.x -= padding;
+    box.max.x += padding;
+    box.min.z -= padding;
+    box.max.z += padding;
+    box.min.y = -1;
+    box.max.y = 5;
+    this.colliders.push(box);
   }
 
   /**
@@ -95,7 +119,7 @@ export class WorldSceneManager {
   private buildLevel1Town() {
     // 도로 아스팔트 & 횡단보도
     const road = new THREE.Mesh(
-      new THREE.PlaneGeometry(8, 30),
+      new THREE.PlaneGeometry(7, 30),
       new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.9 })
     );
     road.rotation.x = -Math.PI / 2;
@@ -106,7 +130,7 @@ export class WorldSceneManager {
     // 횡단보도 줄무늬
     for (let i = -10; i <= 10; i += 3) {
       const stripe = new THREE.Mesh(
-        new THREE.PlaneGeometry(6, 1),
+        new THREE.PlaneGeometry(5.5, 1),
         new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 })
       );
       stripe.rotation.x = -Math.PI / 2;
@@ -114,31 +138,35 @@ export class WorldSceneManager {
       this.themeGroup.add(stripe);
     }
 
-    // 편의점 건물 (좌측)
-    const konbini = this.createBuilding(10, 5, 8, 0xffffff, 0x3182ce, '🏪 LAWSON / 7-ELEVEN');
-    konbini.position.set(-9, 2.5, -6);
+    // 편의점 건물 (좌측 인도 안쪽, 내벽 x = -7)
+    const konbini = this.createBuilding(8, 5, 8, 0xffffff, 0x3182ce, '🏪 LAWSON / 7-ELEVEN');
+    konbini.position.set(-11, 2.5, -6);
     this.themeGroup.add(konbini);
+    this.registerCollider(konbini);
 
-    // 전철역 입구 건물 (우측)
-    const station = this.createBuilding(10, 6, 8, 0xedf2f7, 0x38a169, '🚉 駅 STATION');
-    station.position.set(9, 3, -6);
+    // 전철역 입구 건물 (우측 인도 안쪽, 내벽 x = +7)
+    const station = this.createBuilding(8, 6, 8, 0xedf2f7, 0x38a169, '🚉 駅 STATION');
+    station.position.set(11, 3, -6);
     this.themeGroup.add(station);
+    this.registerCollider(station);
 
-    // 빨간 자판기 (우측 인도)
+    // 빨간 자판기 (우측 건물 앞 인도)
     const vendingMachine = this.createVendingMachine(0xe53e3e);
-    vendingMachine.position.set(4.5, 0, -2);
+    vendingMachine.position.set(6.2, 0, -2.2);
     this.themeGroup.add(vendingMachine);
+    this.registerCollider(vendingMachine);
 
-    // 파란 자판기 (좌측 인도)
+    // 파란 자판기 (좌측 건물 앞 인도)
     const vendingMachine2 = this.createVendingMachine(0x3182ce);
-    vendingMachine2.position.set(-4.5, 0, -2);
+    vendingMachine2.position.set(-6.2, 0, -2.2);
     this.themeGroup.add(vendingMachine2);
+    this.registerCollider(vendingMachine2);
 
     // 가로등 배치
-    this.createStreetLamp(-4.5, 1);
-    this.createStreetLamp(4.5, 1);
-    this.createStreetLamp(-4.5, -10);
-    this.createStreetLamp(4.5, -10);
+    this.createStreetLamp(-4.8, 1);
+    this.createStreetLamp(4.8, 1);
+    this.createStreetLamp(-4.8, -10);
+    this.createStreetLamp(4.8, -10);
   }
 
   /**
@@ -147,7 +175,7 @@ export class WorldSceneManager {
   private buildLevel2Cafe() {
     // 벽돌길 보도블록
     const brickRoad = new THREE.Mesh(
-      new THREE.PlaneGeometry(10, 30),
+      new THREE.PlaneGeometry(8, 30),
       new THREE.MeshStandardMaterial({ color: 0x8c786a, roughness: 0.9 })
     );
     brickRoad.rotation.x = -Math.PI / 2;
@@ -155,23 +183,25 @@ export class WorldSceneManager {
     brickRoad.receiveShadow = true;
     this.themeGroup.add(brickRoad);
 
-    // 카페 건물 (목조 느낌)
-    const cafe = this.createBuilding(9, 5, 8, 0xebd7c1, 0x7b341e, '☕ CAFE KYOTO');
-    cafe.position.set(-8.5, 2.5, -5.5);
+    // 카페 건물 (목조 느낌, 내벽 x = -7)
+    const cafe = this.createBuilding(8, 5, 8, 0xebd7c1, 0x7b341e, '☕ CAFE KYOTO');
+    cafe.position.set(-11, 2.5, -5.5);
     this.themeGroup.add(cafe);
+    this.registerCollider(cafe);
 
-    // 라멘집 건물
-    const ramenShop = this.createBuilding(9, 5, 8, 0xedd5b3, 0xc53030, '🍜 ラーメン 一福');
-    ramenShop.position.set(8.5, 2.5, -5.5);
+    // 라멘집 건물 (내벽 x = +7)
+    const ramenShop = this.createBuilding(8, 5, 8, 0xedd5b3, 0xc53030, '🍜 ラーメン 一福');
+    ramenShop.position.set(11, 2.5, -5.5);
     this.themeGroup.add(ramenShop);
+    this.registerCollider(ramenShop);
 
     // 야외 카페 테이블 & 의자
-    this.createCafeTable(-3.5, -1);
-    this.createCafeTable(-3.5, 3);
+    this.createCafeTable(-5.2, 0);
+    this.createCafeTable(-5.2, 4);
 
     // 벚꽃 나무 (작은 데코)
-    this.createSakuraTree(5.5, 0);
-    this.createSakuraTree(-5.5, 6);
+    this.createSakuraTree(6.2, 0.5);
+    this.createSakuraTree(-6.2, 7.5);
   }
 
   /**
@@ -180,21 +210,23 @@ export class WorldSceneManager {
   private buildLevel3Izakaya() {
     // 짙은 돌길
     const stonePath = new THREE.Mesh(
-      new THREE.PlaneGeometry(8, 30),
+      new THREE.PlaneGeometry(7, 30),
       new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.8 })
     );
     stonePath.rotation.x = -Math.PI / 2;
     stonePath.position.set(0, 0.01, 0);
     this.themeGroup.add(stonePath);
 
-    // 이자카야 건물 (어두운 목조)
-    const izakaya = this.createBuilding(9, 5, 8, 0x3d312a, 0xdd6b20, '🏮 居酒屋 錦');
-    izakaya.position.set(-8.5, 2.5, -6);
+    // 이자카야 건물 (어두운 목조, 내벽 x = -7)
+    const izakaya = this.createBuilding(8, 5, 8, 0x3d312a, 0xdd6b20, '🏮 居酒屋 錦');
+    izakaya.position.set(-11, 2.5, -6);
     this.themeGroup.add(izakaya);
+    this.registerCollider(izakaya);
 
     // 포장마차 (야타이)
-    const yatai = this.createYatai(3, -5);
+    const yatai = this.createYatai(6.2, -5);
     this.themeGroup.add(yatai);
+    this.registerCollider(yatai);
 
     // 붉은 초롱(등불) 열
     for (let z = -12; z <= 12; z += 4) {
@@ -285,6 +317,7 @@ export class WorldSceneManager {
     pole.position.set(x, 1.9, z);
     pole.castShadow = true;
     this.themeGroup.add(pole);
+    this.registerCollider(pole, 0.35);
 
     const lightHead = new THREE.Mesh(
       new THREE.SphereGeometry(0.25, 12, 12),
@@ -309,6 +342,7 @@ export class WorldSceneManager {
     tableTop.position.set(x, 0.8, z);
     tableTop.castShadow = true;
     this.themeGroup.add(tableTop);
+    this.registerCollider(tableTop, 0.45);
 
     const leg = new THREE.Mesh(
       new THREE.CylinderGeometry(0.06, 0.06, 0.8, 8),
@@ -344,6 +378,7 @@ export class WorldSceneManager {
     trunk.position.set(x, 1, z);
     trunk.castShadow = true;
     this.themeGroup.add(trunk);
+    this.registerCollider(trunk, 0.45);
 
     const leaves = new THREE.Mesh(
       new THREE.SphereGeometry(1.4, 12, 12),
@@ -417,55 +452,58 @@ export class WorldSceneManager {
   }
 
   /**
-   * NPC 아바타 생성 및 배치
+   * NPC 아바타 생성 및 배치 (CC0 KayKit 3D 모델 + 애니메이션)
    */
   private spawnNpcs(level: WorldThemeLevel) {
     const npcs = getLevelNpcs(level);
+    const generation = this.loadGeneration;
 
     npcs.forEach((npcData) => {
       const npcGroup = new THREE.Group();
       npcGroup.position.set(...npcData.position);
       npcGroup.name = npcData.id;
 
-      // 1. 몸체 (둥근 캡슐 / 실린더)
-      const body = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.35, 0.45, 0.9, 16),
-        new THREE.MeshStandardMaterial({ color: npcData.color, roughness: 0.5 })
-      );
-      body.position.y = 0.75;
-      body.castShadow = true;
-      npcGroup.add(body);
+      // 플레이어 시작 방향(남쪽 중앙)을 자연스럽게 바라보도록 회전
+      npcGroup.lookAt(0, 0, 4);
 
-      // 2. 머리
-      const head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.38, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xffe2c4, roughness: 0.6 })
-      );
-      head.position.y = 1.4;
-      head.castShadow = true;
-      npcGroup.add(head);
+      // 1. 발밑 원형 그림자
+      const shadowGeo = new THREE.CircleGeometry(0.55, 24);
+      const shadowMat = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.22
+      });
+      const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+      shadow.rotation.x = -Math.PI / 2;
+      shadow.position.y = 0.015;
+      npcGroup.add(shadow);
 
-      // 3. 눈 (2개)
-      const eyeGeo = new THREE.SphereGeometry(0.04, 8, 8);
-      const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-      const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-      leftEye.position.set(-0.12, 1.42, 0.35);
-      const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-      rightEye.position.set(0.12, 1.42, 0.35);
-      npcGroup.add(leftEye, rightEye);
-
-      // 4. 머리 위 통통 튀는 말풍선 인터랙션 인디케이터 (보석/풍선)
+      // 2. 머리 위 통통 튀는 말풍선 인터랙션 인디케이터 (보석/풍선)
       const bubble = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.22, 0),
+        new THREE.OctahedronGeometry(0.2, 0),
         new THREE.MeshStandardMaterial({
           color: 0xffb703,
           emissive: 0xffb703,
           emissiveIntensity: 0.6
         })
       );
-      bubble.position.y = 2.15;
+      bubble.position.y = 2.35;
       bubble.name = 'indicator';
       npcGroup.add(bubble);
+
+      // 3. 실제 3D 카툰 캐릭터 GLB 모델 비동기 로드 및 장착
+      loadAnimatedCharacter(npcData.modelUrl, 1.85)
+        .then((handle) => {
+          if (this.loadGeneration !== generation) {
+            handle.dispose();
+            return;
+          }
+          npcGroup.add(handle.model);
+          this.npcRigs.push(handle);
+        })
+        .catch((err) => {
+          console.error(`NPC 3D 모델 로드 실패 (${npcData.name}):`, err);
+        });
 
       // 씬에 추가 및 레이캐스팅 대상에 등록
       this.themeGroup.add(npcGroup);
@@ -474,14 +512,18 @@ export class WorldSceneManager {
   }
 
   /**
-   * 프레임 애니메이션 (말풍선 회전/바운스)
+   * 프레임 애니메이션 (NPC Idle 애니메이션 + 말풍선 회전/바운스)
    */
   public update(delta: number, elapsedTime: number) {
+    // 1. 모든 NPC의 스켈레탈 애니메이션 믹서 갱신
+    this.npcRigs.forEach((rig) => rig.update(delta));
+
+    // 2. NPC 머리 위 보석 인디케이터 애니메이션
     this.interactableNpcs.forEach(({ mesh }) => {
       const indicator = mesh.getObjectByName('indicator');
       if (indicator) {
         indicator.rotation.y += delta * 2;
-        indicator.position.y = 2.15 + Math.sin(elapsedTime * 4) * 0.08;
+        indicator.position.y = 2.35 + Math.sin(elapsedTime * 4) * 0.08;
       }
     });
   }

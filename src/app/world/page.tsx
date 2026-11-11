@@ -32,7 +32,7 @@ const World3DViewer = dynamic(
 
 export default function WorldPage() {
   return (
-    <div className="fixed inset-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] max-w-xl mx-auto z-30 overflow-hidden bg-slate-900">
+    <div className="fixed inset-x-0 top-[57px] bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] max-w-xl mx-auto z-30 overflow-hidden bg-slate-900">
       <World3DViewer />
     </div>
   );

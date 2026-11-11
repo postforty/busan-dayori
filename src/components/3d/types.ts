@@ -23,6 +23,8 @@ export interface WorldNpcData {
   color: number;
   accentColor: number;
   greetingText: string;
+  avatarImage: string;
+  modelUrl: string;
   lessonData: DailyLesson;
 }
 

@@ -47,10 +47,12 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         role: '편의점 스태프',
         level: 'level1',
         unitId: 'lesson-beginner-1',
-        position: [-4, 0, -5],
+        position: [-5.2, 0, -5.5],
         color: 0x4299e1,
         accentColor: 0x3182ce,
         greetingText: 'いらっしゃいませ！(어서오세요!)',
+        avatarImage: '/images/shorts/clerk.jpg',
+        modelUrl: '/models/npc-clerk.glb',
         lessonData: l1!
       },
       {
@@ -59,10 +61,12 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         role: '전철역 안내원',
         level: 'level1',
         unitId: 'lesson-beginner-2',
-        position: [4, 0, -4],
+        position: [5.2, 0, -5.5],
         color: 0x48bb78,
         accentColor: 0x38a169,
         greetingText: 'どちらへ行かれますか？(어디로 가시나요?)',
+        avatarImage: '/images/shorts/passerby.jpg',
+        modelUrl: '/models/npc-driver.glb',
         lessonData: l2!
       },
       {
@@ -71,10 +75,12 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         role: '동네 길 안내',
         level: 'level1',
         unitId: 'lesson-beginner-3',
-        position: [0, 0, -8],
+        position: [0, 0, -8.5],
         color: 0xed8936,
         accentColor: 0xdd6b20,
         greetingText: 'こんにちは！いい天気ですね。(안녕하세요!)',
+        avatarImage: '/images/shorts/friend.jpg',
+        modelUrl: '/models/npc-girl.glb',
         lessonData: l3!
       }
     ];
@@ -92,22 +98,26 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         role: '골목 카페 점장',
         level: 'level2',
         unitId: 'lesson-day-1',
-        position: [-3.5, 0, -4.5],
+        position: [-5.2, 0, -4.5],
         color: 0xb7791f,
         accentColor: 0x975a16,
         greetingText: 'ご注文をお伺いいたします。(주문 도와드릴게요.)',
+        avatarImage: '/images/shorts/clerk.jpg',
+        modelUrl: '/models/npc-girl.glb',
         lessonData: l1!
       },
       {
         id: 'npc-ramen',
-        name: '켄타 마스터',
-        role: '라멘 가게 주방장',
+        name: '정숙 이모님',
+        role: '골목 식당 주인',
         level: 'level2',
         unitId: 'lesson-day-3',
-        position: [3.5, 0, -4.5],
+        position: [5.2, 0, -4.5],
         color: 0xe53e3e,
         accentColor: 0xc53030,
         greetingText: 'へい、らっしゃい！(어서오세요!)',
+        avatarImage: '/images/shorts/auntie.jpg',
+        modelUrl: '/models/npc-clerk.glb',
         lessonData: l2!
       }
     ];
@@ -125,10 +135,12 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
       role: '이자카야 점주',
       level: 'level3',
       unitId: 'lesson-day-2',
-      position: [-3, 0, -5],
+      position: [-5.2, 0, -5],
       color: 0x805ad5,
       accentColor: 0x6b46c1,
       greetingText: '今日のおすすめはいかが？(오늘 추천 메뉴 어때요?)',
+      avatarImage: '/images/shorts/passerby.jpg',
+      modelUrl: '/models/npc-driver.glb',
       lessonData: l1!
     },
     {
@@ -137,10 +149,12 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
       role: '포장마차 달인',
       level: 'level3',
       unitId: 'lesson-advanced-2',
-      position: [3, 0, -5],
+      position: [3.3, 0, -5],
       color: 0xd53f8c,
       accentColor: 0xb83280,
       greetingText: 'お祭り楽しんでいってね！(축제 재미있게 즐겨요!)',
+      avatarImage: '/images/shorts/friend.jpg',
+      modelUrl: '/models/npc-girl.glb',
       lessonData: l2!
     }
   ];

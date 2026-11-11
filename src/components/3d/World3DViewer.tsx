@@ -122,7 +122,7 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
 
       // 업데이트
       sceneManager.update(delta, elapsedTime);
-      controller.update(delta, elapsedTime);
+      controller.update(delta, elapsedTime, sceneManager.colliders, sceneManager.interactableNpcs);
 
       // 근접 NPC 체크
       const closeNpc = controller.checkNearbyNpc(sceneManager.interactableNpcs);
@@ -300,7 +300,7 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
   const totalNpcs = getLevelNpcs(currentLevel);
 
   return (
-    <div className="relative w-full h-[100dvh] bg-slate-900 overflow-hidden touch-none select-none">
+    <div className="relative w-full h-full bg-slate-900 overflow-hidden touch-none select-none">
       {/* 3D WebGL 캔버스 컨테이너 */}
       <div
         ref={containerRef}

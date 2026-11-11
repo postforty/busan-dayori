@@ -1,17 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { WorldNpcData } from './types';
 import { speakJapanese, stopJapaneseSpeech } from '@/utils/tts';
 import {
   Volume2,
   X,
-  CheckCircle2,
   Mic,
   Sparkles,
   ChevronRight,
-  ChevronLeft,
-  RotateCcw
+  ChevronLeft
 } from 'lucide-react';
 import { showGlobalToast } from '@/utils/toast';
 
@@ -139,20 +138,32 @@ export default function NpcDialogueModal({
       <div className="pointer-events-auto bg-white/95 backdrop-blur-md rounded-3xl border border-[#EDE8E1] shadow-2xl p-4 sm:p-5 space-y-3.5 animate-in slide-in-from-bottom-4 duration-250">
         {/* 상단 화자 및 상태 헤더 */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
-                isUserTurn
-                  ? 'bg-[#E07A5F] text-white'
-                  : 'bg-[#FFF6F1] text-[#E07A5F] border border-[#FCE4D8]'
-              }`}
-            >
-              {isUserTurn ? '👤 나 (여행자)' : `💬 ${npc.name} (${npc.role})`}
-            </span>
+          <div className="flex items-center gap-2.5">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-[#E07A5F] shadow-xs shrink-0">
+              <Image
+                src={isUserTurn ? '/images/shorts/learner.jpg' : npc.avatarImage}
+                alt={isUserTurn ? '나' : npc.name}
+                fill
+                sizes="40px"
+                className="object-cover object-top"
+              />
+            </div>
 
-            <span className="text-[11px] font-bold text-[#718096]">
-              {activeLineIndex + 1} / {dialogue.length}
-            </span>
+            <div className="flex items-center gap-2">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-black shadow-2xs ${
+                  isUserTurn
+                    ? 'bg-[#E07A5F] text-white'
+                    : 'bg-[#FFF6F1] text-[#E07A5F] border border-[#FCE4D8]'
+                }`}
+              >
+                {isUserTurn ? '나 (여행자)' : `${npc.name} (${npc.role})`}
+              </span>
+
+              <span className="text-[11px] font-bold text-[#718096]">
+                {activeLineIndex + 1} / {dialogue.length}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-1.5">

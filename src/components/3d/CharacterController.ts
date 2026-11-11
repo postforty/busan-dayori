@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { WorldNpcData } from './types';
+import { loadAnimatedCharacter, CharacterRigHandle } from './modelLoader';
 
 export class CharacterController {
   public playerGroup: THREE.Group;
@@ -7,8 +8,9 @@ export class CharacterController {
   private targetPosition: THREE.Vector3 | null = null;
   private moveSpeed = 4.5;
   private targetRing: THREE.Mesh;
-  private isBowing = false;
-  private bowTimer = 0;
+  private rigHandle: CharacterRigHandle | null = null;
+  private isInteracting = false;
+  private interactTimer = 0;
 
   // 3인칭 카메라 궤도 제어 변수
   public cameraDistance = 7;
@@ -35,10 +37,29 @@ export class CharacterController {
     this.playerGroup = new THREE.Group();
     this.playerGroup.position.set(0, 0, 4);
 
-    // 1. 아바타 3D 모델 생성 (따뜻한 노란 가사/배낭을 맨 귀여운 여행자/동자승 스타일)
-    this.buildAvatar();
+    // 1. 발밑 원형 그림자 먼저 생성
+    const shadowGeo = new THREE.CircleGeometry(0.55, 24);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      transparent: true,
+      opacity: 0.22
+    });
+    const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.015;
+    this.playerGroup.add(shadow);
 
-    // 2. 바닥 클릭 타겟 링 (클릭한 지점에 퍼지는 링)
+    // 2. 귀여운 3D 카툰 캐릭터 모델 비동기 로드 (Protagonist_A.glb)
+    loadAnimatedCharacter('/models/player.glb', 1.85)
+      .then((handle) => {
+        this.rigHandle = handle;
+        this.playerGroup.add(handle.model);
+      })
+      .catch((err) => {
+        console.error('플레이어 3D 모델 로드 실패:', err);
+      });
+
+    // 3. 바닥 클릭 타겟 링 (클릭한 지점에 퍼지는 링)
     const ringGeo = new THREE.RingGeometry(0.2, 0.35, 32);
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xe07a5f,
@@ -49,61 +70,6 @@ export class CharacterController {
     this.targetRing = new THREE.Mesh(ringGeo, ringMat);
     this.targetRing.rotation.x = -Math.PI / 2;
     this.targetRing.position.y = 0.03;
-  }
-
-  private buildAvatar() {
-    // 몸체 (하늘색/회색 승복/여행자 옷)
-    const body = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.3, 0.4, 0.85, 16),
-      new THREE.MeshStandardMaterial({ color: 0x81e6d9, roughness: 0.6 })
-    );
-    body.position.y = 0.7;
-    body.castShadow = true;
-    body.name = 'body';
-    this.playerGroup.add(body);
-
-    // 노란 배낭/가사 (산사 동자승 오마주)
-    const backpack = new THREE.Mesh(
-      new THREE.BoxGeometry(0.35, 0.45, 0.2),
-      new THREE.MeshStandardMaterial({ color: 0xf6ad55, roughness: 0.5 })
-    );
-    backpack.position.set(0, 0.75, -0.32);
-    backpack.castShadow = true;
-    this.playerGroup.add(backpack);
-
-    // 머리
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.35, 16, 16),
-      new THREE.MeshStandardMaterial({ color: 0xffe2c4, roughness: 0.5 })
-    );
-    head.position.y = 1.35;
-    head.castShadow = true;
-    head.name = 'head';
-    this.playerGroup.add(head);
-
-    // 눈 2개
-    const eyeGeo = new THREE.SphereGeometry(0.04, 8, 8);
-    const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-    const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-    leftEye.position.set(-0.11, 1.38, 0.32);
-    const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-    rightEye.position.set(0.11, 1.38, 0.32);
-    this.playerGroup.add(leftEye, rightEye);
-
-    // 발 (좌/우)
-    const footGeo = new THREE.SphereGeometry(0.12, 8, 8);
-    const footMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const leftFoot = new THREE.Mesh(footGeo, footMat);
-    leftFoot.position.set(-0.18, 0.12, 0);
-    leftFoot.scale.set(1, 0.6, 1.5);
-    leftFoot.name = 'leftFoot';
-
-    const rightFoot = new THREE.Mesh(footGeo, footMat);
-    rightFoot.position.set(0.18, 0.12, 0);
-    rightFoot.scale.set(1, 0.6, 1.5);
-    rightFoot.name = 'rightFoot';
-
-    this.playerGroup.add(leftFoot, rightFoot);
   }
 
   public getTargetRing(): THREE.Mesh {
@@ -123,11 +89,14 @@ export class CharacterController {
   }
 
   /**
-   * '인사하기 (お辞儀)' 모션 트리거
+   * '인사하기 (お辞儀)' 애니메이션 트리거
    */
   public triggerBow() {
-    this.isBowing = true;
-    this.bowTimer = 0;
+    this.isInteracting = true;
+    this.interactTimer = 0;
+    if (this.rigHandle) {
+      this.rigHandle.playAction('interact', 0.15);
+    }
   }
 
   /**
@@ -144,6 +113,9 @@ export class CharacterController {
     if (dir.lengthSq() > 0.01) {
       this.playerGroup.rotation.y = Math.atan2(dir.x, dir.z);
     }
+
+    // 대화 시작 시 인사 모션
+    this.triggerBow();
   }
 
   /**
@@ -205,28 +177,76 @@ export class CharacterController {
   /**
    * 매 프레임 업데이트
    */
-  public update(delta: number, elapsedTime: number) {
-    // 1. 인사 모션 처리
-    if (this.isBowing) {
-      this.bowTimer += delta;
-      const progress = Math.min(1, this.bowTimer / 1.2);
-      const angle = Math.sin(progress * Math.PI) * 0.45; // 약 25도 고개 숙임
-      this.playerGroup.rotation.x = angle;
-      if (progress >= 1) {
-        this.isBowing = false;
-        this.playerGroup.rotation.x = 0;
+  private isColliding(
+    pos: THREE.Vector3,
+    colliders: THREE.Box3[],
+    npcs: { mesh: THREE.Group }[]
+  ): boolean {
+    const testPoint = new THREE.Vector3(pos.x, 0.5, pos.z);
+    for (const box of colliders) {
+      if (box.containsPoint(testPoint)) return true;
+    }
+    for (const npc of npcs) {
+      const dx = pos.x - npc.mesh.position.x;
+      const dz = pos.z - npc.mesh.position.z;
+      if (dx * dx + dz * dz < 0.85 * 0.85) return true;
+    }
+    return false;
+  }
+
+  private tryMoveWithSlide(
+    dx: number,
+    dz: number,
+    colliders: THREE.Box3[],
+    npcs: { mesh: THREE.Group }[]
+  ): boolean {
+    const startX = this.playerGroup.position.x;
+    const startZ = this.playerGroup.position.z;
+
+    const nextX = Math.max(-25, Math.min(25, startX + dx));
+    if (!this.isColliding(new THREE.Vector3(nextX, 0, startZ), colliders, npcs)) {
+      this.playerGroup.position.x = nextX;
+    }
+
+    const nextZ = Math.max(-25, Math.min(25, startZ + dz));
+    if (!this.isColliding(new THREE.Vector3(this.playerGroup.position.x, 0, nextZ), colliders, npcs)) {
+      this.playerGroup.position.z = nextZ;
+    }
+
+    return (
+      Math.abs(this.playerGroup.position.x - startX) > 1e-4 ||
+      Math.abs(this.playerGroup.position.z - startZ) > 1e-4
+    );
+  }
+
+  public update(
+    delta: number,
+    _elapsedTime: number,
+    colliders: THREE.Box3[] = [],
+    npcs: { mesh: THREE.Group }[] = []
+  ) {
+    // 1. 스켈레탈 애니메이션 믹서 업데이트
+    if (this.rigHandle) {
+      this.rigHandle.update(delta);
+    }
+
+    if (this.isInteracting) {
+      this.interactTimer += delta;
+      if (this.interactTimer > 1.2) {
+        this.isInteracting = false;
       }
     }
+
+    const stepDistance = this.moveSpeed * Math.min(delta, 0.1);
 
     // 2. 이동 및 회전 처리 (키보드 WASD/방향키 또는 마우스 클릭)
     let isMoving = false;
     const hasKeyInput = this.keys.forward || this.keys.backward || this.keys.left || this.keys.right;
 
     if (hasKeyInput) {
-      // 키보드 조작 시 기존 마우스 클릭 타겟 해제
       this.targetPosition = null;
+      this.isInteracting = false;
 
-      // 카메라 수평 각도(Azimuth) 기준 전방/우측 벡터 산출
       const forwardDir = new THREE.Vector3(-Math.sin(this.cameraAzimuth), 0, -Math.cos(this.cameraAzimuth));
       const rightDir = new THREE.Vector3(Math.cos(this.cameraAzimuth), 0, -Math.sin(this.cameraAzimuth));
       const moveDir = new THREE.Vector3(0, 0, 0);
@@ -237,41 +257,51 @@ export class CharacterController {
       if (this.keys.left) moveDir.sub(rightDir);
 
       if (moveDir.lengthSq() > 0) {
-        isMoving = true;
         moveDir.normalize();
-        this.playerGroup.position.addScaledVector(moveDir, this.moveSpeed * delta);
+        isMoving = this.tryMoveWithSlide(
+          moveDir.x * stepDistance,
+          moveDir.z * stepDistance,
+          colliders,
+          npcs
+        );
 
-        // 맵 이탈 방지 경계 클램핑 (-25 ~ 25)
-        this.playerGroup.position.x = Math.max(-25, Math.min(25, this.playerGroup.position.x));
-        this.playerGroup.position.z = Math.max(-25, Math.min(25, this.playerGroup.position.z));
-
-        // 이동 방향으로 부드럽게 회전
+        // 이동 방향으로 부드럽게 몸체 회전
         const targetAngle = Math.atan2(moveDir.x, moveDir.z);
-        this.playerGroup.rotation.y = THREE.MathUtils.lerp(this.playerGroup.rotation.y, targetAngle, 0.2);
-
-        // 통통 튀는 걸음걸이 바운스
-        this.playerGroup.position.y = Math.abs(Math.sin(elapsedTime * 12)) * 0.1;
+        this.playerGroup.rotation.y = this.lerpAngle(this.playerGroup.rotation.y, targetAngle, 0.2);
       }
     } else if (this.targetPosition) {
-      // 마우스/터치 클릭 지점 이동 처리
       const distance = this.playerGroup.position.distanceTo(this.targetPosition);
 
       if (distance > 0.15) {
-        isMoving = true;
+        this.isInteracting = false;
         const dir = this.targetPosition.clone().sub(this.playerGroup.position).normalize();
-        this.playerGroup.position.addScaledVector(dir, this.moveSpeed * delta);
+        const moveStep = Math.min(stepDistance, distance);
+        const moved = this.tryMoveWithSlide(
+          dir.x * moveStep,
+          dir.z * moveStep,
+          colliders,
+          npcs
+        );
 
-        const targetAngle = Math.atan2(dir.x, dir.z);
-        this.playerGroup.rotation.y = THREE.MathUtils.lerp(this.playerGroup.rotation.y, targetAngle, 0.15);
-        this.playerGroup.position.y = Math.abs(Math.sin(elapsedTime * 12)) * 0.1;
+        if (moved) {
+          isMoving = true;
+          const targetAngle = Math.atan2(dir.x, dir.z);
+          this.playerGroup.rotation.y = this.lerpAngle(this.playerGroup.rotation.y, targetAngle, 0.15);
+        } else {
+          this.targetPosition = null;
+        }
       } else {
         this.targetPosition = null;
-        this.playerGroup.position.y = 0;
       }
     }
 
-    if (!isMoving) {
-      this.playerGroup.position.y = 0;
+    // 이동 / 대기 애니메이션 전환
+    if (this.rigHandle) {
+      if (isMoving) {
+        this.rigHandle.playAction('walk', 0.15);
+      } else if (!this.isInteracting) {
+        this.rigHandle.playAction('idle', 0.25);
+      }
     }
 
     // 타겟 링 서서히 페이드아웃
@@ -282,20 +312,18 @@ export class CharacterController {
 
     // 3. 카메라 업데이트 (시네마틱 대화 줌인 vs 일반 3인칭 추적)
     if (this.isDialogueMode && this.dialogueTargetPos) {
-      // 대화 중: 플레이어와 NPC가 한 화면에 예쁘게 담기는 시네마틱 측면 미디엄 샷
       const mid = this.playerGroup.position.clone().add(this.dialogueTargetPos).multiplyScalar(0.5);
       const pToN = this.dialogueTargetPos.clone().sub(this.playerGroup.position).normalize();
       const side = new THREE.Vector3(-pToN.z, 0, pToN.x).normalize();
 
       const camTargetPos = mid.clone()
         .addScaledVector(side, 2.5)
-        .add(new THREE.Vector3(0, 1.35, 0))
+        .add(new THREE.Vector3(0, 1.45, 0))
         .addScaledVector(pToN, -0.8);
 
       this.camera.position.lerp(camTargetPos, 0.08);
       this.camera.lookAt(mid.clone().add(new THREE.Vector3(0, 1.05, 0)));
     } else {
-      // 일반 탐색 중: 3인칭 궤도 추적
       const targetLookAt = this.playerGroup.position.clone().add(new THREE.Vector3(0, 1.2, 0));
       const camX = this.playerGroup.position.x + this.cameraDistance * Math.sin(this.cameraPolar) * Math.sin(this.cameraAzimuth);
       const camY = this.playerGroup.position.y + this.cameraDistance * Math.cos(this.cameraPolar);
@@ -307,7 +335,17 @@ export class CharacterController {
   }
 
   /**
-   * 근접한 NPC 감지 (거리 2.5m 이내)
+   * 360도 각도 보간 헬퍼 (최단 회전 방향 보장)
+   */
+  private lerpAngle(a: number, b: number, t: number): number {
+    let diff = (b - a) % (Math.PI * 2);
+    if (diff > Math.PI) diff -= Math.PI * 2;
+    if (diff < -Math.PI) diff += Math.PI * 2;
+    return a + diff * t;
+  }
+
+  /**
+   * 근접한 NPC 감지 (거리 2.6m 이내)
    */
   public checkNearbyNpc(npcs: { mesh: THREE.Group; data: WorldNpcData }[]): WorldNpcData | null {
     const playerPos = this.playerGroup.position;
@@ -321,6 +359,9 @@ export class CharacterController {
   }
 
   public dispose() {
+    if (this.rigHandle) {
+      this.rigHandle.dispose();
+    }
     this.playerGroup.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
@@ -336,4 +377,3 @@ export class CharacterController {
     });
   }
 }
-
