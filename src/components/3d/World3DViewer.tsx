@@ -33,6 +33,11 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
 
   useEffect(() => {
     activeDialogueRef.current = activeDialogueNpc;
+    if (activeDialogueNpc && controllerRef.current) {
+      controllerRef.current.startDialogue(activeDialogueNpc.position);
+    } else if (!activeDialogueNpc && controllerRef.current) {
+      controllerRef.current.endDialogue();
+    }
   }, [activeDialogueNpc]);
 
   useEffect(() => {

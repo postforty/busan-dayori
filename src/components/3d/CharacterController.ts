@@ -18,6 +18,10 @@ export class CharacterController {
   private lastMouseX = 0;
   private lastMouseY = 0;
 
+  // 시네마틱 대화 모드 변수
+  public isDialogueMode = false;
+  private dialogueTargetPos: THREE.Vector3 | null = null;
+
   // 키보드 입력 상태 (WASD 및 화살표 방향키)
   public keys = {
     forward: false,
@@ -124,6 +128,30 @@ export class CharacterController {
   public triggerBow() {
     this.isBowing = true;
     this.bowTimer = 0;
+  }
+
+  /**
+   * 시네마틱 대화 모드 시작 (NPC 바라보기 및 카메라 클로즈업)
+   */
+  public startDialogue(npcPos: [number, number, number]) {
+    this.isDialogueMode = true;
+    this.dialogueTargetPos = new THREE.Vector3(...npcPos);
+    this.targetPosition = null;
+
+    // 플레이어가 NPC를 바라보도록 회전
+    const dir = this.dialogueTargetPos.clone().sub(this.playerGroup.position);
+    dir.y = 0;
+    if (dir.lengthSq() > 0.01) {
+      this.playerGroup.rotation.y = Math.atan2(dir.x, dir.z);
+    }
+  }
+
+  /**
+   * 대화 모드 종료 (원래 3인칭 시점으로 복귀)
+   */
+  public endDialogue() {
+    this.isDialogueMode = false;
+    this.dialogueTargetPos = null;
   }
 
   /**
@@ -252,14 +280,30 @@ export class CharacterController {
       ringMat.opacity = Math.max(0, ringMat.opacity - delta * 2.5);
     }
 
-    // 3. 3인칭 카메라 업데이트 (스무스 추적)
-    const targetLookAt = this.playerGroup.position.clone().add(new THREE.Vector3(0, 1.2, 0));
-    const camX = this.playerGroup.position.x + this.cameraDistance * Math.sin(this.cameraPolar) * Math.sin(this.cameraAzimuth);
-    const camY = this.playerGroup.position.y + this.cameraDistance * Math.cos(this.cameraPolar);
-    const camZ = this.playerGroup.position.z + this.cameraDistance * Math.sin(this.cameraPolar) * Math.cos(this.cameraAzimuth);
+    // 3. 카메라 업데이트 (시네마틱 대화 줌인 vs 일반 3인칭 추적)
+    if (this.isDialogueMode && this.dialogueTargetPos) {
+      // 대화 중: 플레이어와 NPC가 한 화면에 예쁘게 담기는 시네마틱 측면 미디엄 샷
+      const mid = this.playerGroup.position.clone().add(this.dialogueTargetPos).multiplyScalar(0.5);
+      const pToN = this.dialogueTargetPos.clone().sub(this.playerGroup.position).normalize();
+      const side = new THREE.Vector3(-pToN.z, 0, pToN.x).normalize();
 
-    this.camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.12);
-    this.camera.lookAt(targetLookAt);
+      const camTargetPos = mid.clone()
+        .addScaledVector(side, 2.5)
+        .add(new THREE.Vector3(0, 1.35, 0))
+        .addScaledVector(pToN, -0.8);
+
+      this.camera.position.lerp(camTargetPos, 0.08);
+      this.camera.lookAt(mid.clone().add(new THREE.Vector3(0, 1.05, 0)));
+    } else {
+      // 일반 탐색 중: 3인칭 궤도 추적
+      const targetLookAt = this.playerGroup.position.clone().add(new THREE.Vector3(0, 1.2, 0));
+      const camX = this.playerGroup.position.x + this.cameraDistance * Math.sin(this.cameraPolar) * Math.sin(this.cameraAzimuth);
+      const camY = this.playerGroup.position.y + this.cameraDistance * Math.cos(this.cameraPolar);
+      const camZ = this.playerGroup.position.z + this.cameraDistance * Math.sin(this.cameraPolar) * Math.cos(this.cameraAzimuth);
+
+      this.camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.12);
+      this.camera.lookAt(targetLookAt);
+    }
   }
 
   /**
