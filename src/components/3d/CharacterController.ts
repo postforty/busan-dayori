@@ -12,10 +12,14 @@ export class CharacterController {
   private isInteracting = false;
   private interactTimer = 0;
 
+  private static readonly DEFAULT_CAMERA_DISTANCE = 5.6;
+  private static readonly DEFAULT_CAMERA_AZIMUTH = 0;
+  private static readonly DEFAULT_CAMERA_POLAR = 1.07;
+
   // 3인칭 카메라 궤도 제어 변수
-  public cameraDistance = 7;
-  public cameraAzimuth = 0; // 수평 각도
-  public cameraPolar = 0.5; // 수직 각도 (라디안)
+  public cameraDistance = CharacterController.DEFAULT_CAMERA_DISTANCE;
+  public cameraAzimuth = CharacterController.DEFAULT_CAMERA_AZIMUTH; // 수평 각도
+  public cameraPolar = CharacterController.DEFAULT_CAMERA_POLAR; // 수직 각도 (라디안)
   private isDragging = false;
   private lastMouseX = 0;
   private lastMouseY = 0;
@@ -70,6 +74,34 @@ export class CharacterController {
     this.targetRing = new THREE.Mesh(ringGeo, ringMat);
     this.targetRing.rotation.x = -Math.PI / 2;
     this.targetRing.position.y = 0.03;
+
+    // 4. 초기 시점을 정면 3인칭 구도로 즉시 설정
+    const initialCam = this.getThirdPersonCameraTarget();
+    this.camera.position.copy(initialCam.position);
+    this.camera.lookAt(initialCam.lookAt);
+  }
+
+  /**
+   * 3인칭 카메라 목표 위치 및 주시점 계산
+   */
+  private getThirdPersonCameraTarget(): { position: THREE.Vector3; lookAt: THREE.Vector3 } {
+    const lookAt = this.playerGroup.position.clone().add(new THREE.Vector3(0, 1.2, 0));
+    const camX = this.playerGroup.position.x + this.cameraDistance * Math.sin(this.cameraPolar) * Math.sin(this.cameraAzimuth);
+    const camY = this.playerGroup.position.y + this.cameraDistance * Math.cos(this.cameraPolar);
+    const camZ = this.playerGroup.position.z + this.cameraDistance * Math.sin(this.cameraPolar) * Math.cos(this.cameraAzimuth);
+    return {
+      position: new THREE.Vector3(camX, camY, camZ),
+      lookAt
+    };
+  }
+
+  /**
+   * 카메라를 기본 시작 시점(정면 구도)으로 초기화
+   */
+  public resetCamera() {
+    this.cameraAzimuth = CharacterController.DEFAULT_CAMERA_AZIMUTH;
+    this.cameraPolar = CharacterController.DEFAULT_CAMERA_POLAR;
+    this.cameraDistance = CharacterController.DEFAULT_CAMERA_DISTANCE;
   }
 
   public getTargetRing(): THREE.Mesh {
@@ -324,13 +356,9 @@ export class CharacterController {
       this.camera.position.lerp(camTargetPos, 0.08);
       this.camera.lookAt(mid.clone().add(new THREE.Vector3(0, 1.05, 0)));
     } else {
-      const targetLookAt = this.playerGroup.position.clone().add(new THREE.Vector3(0, 1.2, 0));
-      const camX = this.playerGroup.position.x + this.cameraDistance * Math.sin(this.cameraPolar) * Math.sin(this.cameraAzimuth);
-      const camY = this.playerGroup.position.y + this.cameraDistance * Math.cos(this.cameraPolar);
-      const camZ = this.playerGroup.position.z + this.cameraDistance * Math.sin(this.cameraPolar) * Math.cos(this.cameraAzimuth);
-
-      this.camera.position.lerp(new THREE.Vector3(camX, camY, camZ), 0.12);
-      this.camera.lookAt(targetLookAt);
+      const { position, lookAt } = this.getThirdPersonCameraTarget();
+      this.camera.position.lerp(position, 0.12);
+      this.camera.lookAt(lookAt);
     }
   }
 

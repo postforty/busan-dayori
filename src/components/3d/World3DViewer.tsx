@@ -216,11 +216,7 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
 
   // 카메라 리셋
   const handleResetCamera = useCallback(() => {
-    if (controllerRef.current) {
-      controllerRef.current.cameraAzimuth = 0;
-      controllerRef.current.cameraPolar = 0.5;
-      controllerRef.current.cameraDistance = 7;
-    }
+    controllerRef.current?.resetCamera();
   }, []);
 
   // ----------------------------------------------------
