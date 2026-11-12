@@ -34,7 +34,11 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
   useEffect(() => {
     activeDialogueRef.current = activeDialogueNpc;
     if (activeDialogueNpc && controllerRef.current) {
-      controllerRef.current.startDialogue(activeDialogueNpc.position);
+      const camFocusPos = controllerRef.current.startDialogue(
+        activeDialogueNpc.position,
+        sceneManagerRef.current?.colliders || []
+      );
+      sceneManagerRef.current?.focusNpcForDialogue(activeDialogueNpc.id, camFocusPos);
     } else if (!activeDialogueNpc && controllerRef.current) {
       controllerRef.current.endDialogue();
     }
@@ -317,6 +321,7 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
         onResetCamera={handleResetCamera}
         completedMissions={completedMissions}
         totalNpcsCount={totalNpcs.length}
+        isDialogueActive={Boolean(activeDialogueNpc)}
       />
 
       {/* NPC 대화 상호작용 모달 */}

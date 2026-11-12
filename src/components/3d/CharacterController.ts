@@ -15,6 +15,9 @@ export class CharacterController {
   private static readonly DEFAULT_CAMERA_DISTANCE = 5.6;
   private static readonly DEFAULT_CAMERA_AZIMUTH = 0;
   private static readonly DEFAULT_CAMERA_POLAR = 1.07;
+  private static readonly DIALOGUE_CAM_DISTANCE = 2.95;
+  private static readonly DIALOGUE_CAM_HEIGHT = 1.45;
+  private static readonly DIALOGUE_LOOKAT_HEIGHT = 1.05;
 
   // 3인칭 카메라 궤도 제어 변수
   public cameraDistance = CharacterController.DEFAULT_CAMERA_DISTANCE;
@@ -27,6 +30,7 @@ export class CharacterController {
   // 시네마틱 대화 모드 변수
   public isDialogueMode = false;
   private dialogueTargetPos: THREE.Vector3 | null = null;
+  private dialogueCamDir: THREE.Vector3 | null = null;
 
   // 키보드 입력 상태 (WASD 및 화살표 방향키)
   public keys = {
@@ -132,22 +136,40 @@ export class CharacterController {
   }
 
   /**
-   * 시네마틱 대화 모드 시작 (NPC 바라보기 및 카메라 클로즈업)
+   * 시네마틱 대화 모드 시작 (상대 NPC 정면 얼굴 클로즈업)
    */
-  public startDialogue(npcPos: [number, number, number]) {
+  public startDialogue(npcPos: [number, number, number], colliders: THREE.Box3[] = []): THREE.Vector3 {
     this.isDialogueMode = true;
     this.dialogueTargetPos = new THREE.Vector3(...npcPos);
     this.targetPosition = null;
 
     // 플레이어가 NPC를 바라보도록 회전
-    const dir = this.dialogueTargetPos.clone().sub(this.playerGroup.position);
-    dir.y = 0;
-    if (dir.lengthSq() > 0.01) {
-      this.playerGroup.rotation.y = Math.atan2(dir.x, dir.z);
+    const playerToNpc = this.dialogueTargetPos.clone().sub(this.playerGroup.position);
+    playerToNpc.y = 0;
+    if (playerToNpc.lengthSq() > 0.01) {
+      this.playerGroup.rotation.y = Math.atan2(playerToNpc.x, playerToNpc.z);
     }
 
-    // 대화 시작 시 인사 모션
-    this.triggerBow();
+    // NPC → 플레이어 방향을 기본 카메라 정면 방향으로 잡고, 건물 충돌 시 개방 방향(남쪽)으로 폴백
+    const npcToPlayer = this.playerGroup.position.clone().sub(this.dialogueTargetPos);
+    npcToPlayer.y = 0;
+    const candidateDir =
+      npcToPlayer.lengthSq() > 0.01 ? npcToPlayer.normalize() : new THREE.Vector3(0, 0, 1);
+
+    const candidateCamPos = this.dialogueTargetPos
+      .clone()
+      .addScaledVector(candidateDir, CharacterController.DIALOGUE_CAM_DISTANCE);
+    candidateCamPos.y = CharacterController.DIALOGUE_CAM_HEIGHT;
+
+    const hitsCollider = colliders.some((box) => box.containsPoint(candidateCamPos));
+    this.dialogueCamDir = hitsCollider ? new THREE.Vector3(0, 0, 1) : candidateDir;
+
+    // 클로즈업 시야를 가리지 않도록 대화 중에는 플레이어 캐릭터를 숨김
+    this.playerGroup.visible = false;
+
+    return this.dialogueTargetPos
+      .clone()
+      .addScaledVector(this.dialogueCamDir, CharacterController.DIALOGUE_CAM_DISTANCE);
   }
 
   /**
@@ -156,6 +178,8 @@ export class CharacterController {
   public endDialogue() {
     this.isDialogueMode = false;
     this.dialogueTargetPos = null;
+    this.dialogueCamDir = null;
+    this.playerGroup.visible = true;
   }
 
   /**
@@ -342,19 +366,18 @@ export class CharacterController {
       ringMat.opacity = Math.max(0, ringMat.opacity - delta * 2.5);
     }
 
-    // 3. 카메라 업데이트 (시네마틱 대화 줌인 vs 일반 3인칭 추적)
-    if (this.isDialogueMode && this.dialogueTargetPos) {
-      const mid = this.playerGroup.position.clone().add(this.dialogueTargetPos).multiplyScalar(0.5);
-      const pToN = this.dialogueTargetPos.clone().sub(this.playerGroup.position).normalize();
-      const side = new THREE.Vector3(-pToN.z, 0, pToN.x).normalize();
+    // 3. 카메라 업데이트 (상대 NPC 정면 클로즈업 vs 일반 3인칭 추적)
+    if (this.isDialogueMode && this.dialogueTargetPos && this.dialogueCamDir) {
+      const camTargetPos = this.dialogueTargetPos.clone()
+        .addScaledVector(this.dialogueCamDir, CharacterController.DIALOGUE_CAM_DISTANCE)
+        .add(new THREE.Vector3(0, CharacterController.DIALOGUE_CAM_HEIGHT, 0));
 
-      const camTargetPos = mid.clone()
-        .addScaledVector(side, 2.5)
-        .add(new THREE.Vector3(0, 1.45, 0))
-        .addScaledVector(pToN, -0.8);
-
-      this.camera.position.lerp(camTargetPos, 0.08);
-      this.camera.lookAt(mid.clone().add(new THREE.Vector3(0, 1.05, 0)));
+      this.camera.position.lerp(camTargetPos, 0.1);
+      this.camera.lookAt(
+        this.dialogueTargetPos.x,
+        this.dialogueTargetPos.y + CharacterController.DIALOGUE_LOOKAT_HEIGHT,
+        this.dialogueTargetPos.z
+      );
     } else {
       const { position, lookAt } = this.getThirdPersonCameraTarget();
       this.camera.position.lerp(position, 0.12);

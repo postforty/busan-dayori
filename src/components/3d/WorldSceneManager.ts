@@ -9,6 +9,7 @@ export class WorldSceneManager {
   public interactableNpcs: { mesh: THREE.Group; data: WorldNpcData }[] = [];
   public colliders: THREE.Box3[] = [];
   private npcRigs: CharacterRigHandle[] = [];
+  private npcRigMap = new Map<string, CharacterRigHandle>();
   private loadGeneration = 0;
   private themeGroup: THREE.Group;
   private currentLevel: WorldThemeLevel = 'level1';
@@ -88,6 +89,7 @@ export class WorldSceneManager {
     this.loadGeneration++;
     this.npcRigs.forEach((rig) => rig.dispose());
     this.npcRigs = [];
+    this.npcRigMap.clear();
 
     while (this.themeGroup.children.length > 0) {
       const child = this.themeGroup.children[0];
@@ -500,6 +502,7 @@ export class WorldSceneManager {
           }
           npcGroup.add(handle.model);
           this.npcRigs.push(handle);
+          this.npcRigMap.set(npcData.id, handle);
         })
         .catch((err) => {
           console.error(`NPC 3D 모델 로드 실패 (${npcData.name}):`, err);
@@ -509,6 +512,18 @@ export class WorldSceneManager {
       this.themeGroup.add(npcGroup);
       this.interactableNpcs.push({ mesh: npcGroup, data: npcData });
     });
+  }
+
+  /**
+   * 대화 시작 시 해당 NPC가 카메라(플레이어) 정면을 바라보고 인사 모션을 취하도록 설정
+   */
+  public focusNpcForDialogue(npcId: string, lookTarget: THREE.Vector3) {
+    const matched = this.interactableNpcs.find((n) => n.data.id === npcId);
+    if (matched) {
+      matched.mesh.lookAt(lookTarget.x, matched.mesh.position.y, lookTarget.z);
+    }
+    const rig = this.npcRigMap.get(npcId);
+    rig?.playAction('interact', 0.15);
   }
 
   /**
