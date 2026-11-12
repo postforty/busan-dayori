@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { WorldNpcData } from './types';
-import { loadAnimatedCharacter, CharacterRigHandle } from './modelLoader';
+import type { CharacterRigHandle } from './modelLoader';
+import { createProceduralLearner } from './proceduralPlayer';
 
 export class CharacterController {
   public playerGroup: THREE.Group;
@@ -57,15 +58,10 @@ export class CharacterController {
     shadow.position.y = 0.015;
     this.playerGroup.add(shadow);
 
-    // 2. 귀여운 3D 카툰 캐릭터 모델 비동기 로드 (Protagonist_B - 남성 학습자)
-    loadAnimatedCharacter('/models/player.glb', 1.85)
-      .then((handle) => {
-        this.rigHandle = handle;
-        this.playerGroup.add(handle.model);
-      })
-      .catch((err) => {
-        console.error('플레이어 3D 모델 로드 실패:', err);
-      });
+    // 2. 일러스트(learner.jpg) 감성을 반영한 3D 주인공 캐릭터 생성
+    const handle = createProceduralLearner(1.85);
+    this.rigHandle = handle;
+    this.playerGroup.add(handle.model);
 
     // 3. 바닥 클릭 타겟 링 (클릭한 지점에 퍼지는 링)
     const ringGeo = new THREE.RingGeometry(0.2, 0.35, 32);

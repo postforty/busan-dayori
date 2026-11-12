@@ -133,18 +133,50 @@ function buildCustomizedTexture(
   return texture;
 }
 
+export interface LoadCharacterOptions {
+  toonShading?: boolean;
+}
+
+let sharedToonGradient: THREE.DataTexture | null = null;
+
+function getToonGradientMap(): THREE.DataTexture {
+  if (!sharedToonGradient) {
+    // 3단계 셀 셰이딩 톤 램프 (애니메이션/일러스트 느낌)
+    const colors = new Uint8Array([145, 215, 255]);
+    const tex = new THREE.DataTexture(colors, colors.length, 1, THREE.RedFormat);
+    tex.minFilter = THREE.NearestFilter;
+    tex.magFilter = THREE.NearestFilter;
+    tex.generateMipmaps = false;
+    tex.colorSpace = THREE.NoColorSpace;
+    tex.needsUpdate = true;
+    sharedToonGradient = tex;
+  }
+  return sharedToonGradient;
+}
+
+function resolveEmbeddedAnimations(animations: THREE.AnimationClip[]): SharedClips {
+  const findClip = (pattern: RegExp) => animations.find((clip) => pattern.test(clip.name));
+  return {
+    idle: findClip(/idle|stand|breath/i) || animations[0],
+    walk: findClip(/walk|run|move/i),
+    interact: findClip(/interact|bow|greet|wave|hello|pickup/i)
+  };
+}
+
 /**
  * GLB 3D 카툰 캐릭터 모델 + 스켈레탈 애니메이션 로드
  */
 export async function loadAnimatedCharacter(
   url: string,
   targetHeight = 1.85,
-  appearance?: WorldNpcAppearance
+  appearance?: WorldNpcAppearance,
+  options?: LoadCharacterOptions
 ): Promise<CharacterRigHandle> {
-  const [gltf, clips] = await Promise.all([
-    loadGLTF(url),
-    loadSharedAnimations()
-  ]);
+  const gltf = await loadGLTF(url);
+  const clips =
+    gltf.animations.length > 0
+      ? resolveEmbeddedAnimations(gltf.animations)
+      : await loadSharedAnimations();
 
   // SkinnedMesh 복제 (스켈레톤 바인딩 유지)
   const clonedScene = SkeletonUtils.clone(gltf.scene);
@@ -171,27 +203,49 @@ export async function loadAnimatedCharacter(
       mesh.castShadow = true;
       mesh.receiveShadow = true;
 
-      if (hasColorCustomization && appearance && mesh.material) {
-        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-        const clonedMaterials = materials.map((mat) => {
-          const cloned = mat.clone() as THREE.MeshStandardMaterial;
-          if (cloned.map && cloned.name !== 'glass') {
-            let customTex = customTextureCache.get(cloned.map);
-            if (!customTex) {
-              const built = buildCustomizedTexture(cloned.map, appearance);
-              if (built) {
-                customTextureCache.set(cloned.map, built);
-                customTex = built;
+      if ((hasColorCustomization && appearance) || options?.toonShading) {
+        if (mesh.material) {
+          const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          const clonedMaterials = materials.map((mat) => {
+            const stdMat = mat as THREE.MeshStandardMaterial;
+            let customMap = stdMat.map;
+
+            if (hasColorCustomization && appearance && stdMat.map && stdMat.name !== 'glass') {
+              let customTex = customTextureCache.get(stdMat.map);
+              if (!customTex) {
+                const built = buildCustomizedTexture(stdMat.map, appearance);
+                if (built) {
+                  customTextureCache.set(stdMat.map, built);
+                  customTex = built;
+                }
+              }
+              if (customTex) {
+                customMap = customTex;
               }
             }
-            if (customTex) {
-              cloned.map = customTex;
+
+            if (options?.toonShading) {
+              const toonMat = new THREE.MeshToonMaterial({
+                color: stdMat.color ? stdMat.color.clone() : new THREE.Color(0xffffff),
+                map: customMap || null,
+                gradientMap: getToonGradientMap(),
+                transparent: stdMat.transparent,
+                opacity: stdMat.opacity,
+                alphaTest: stdMat.alphaTest,
+                side: stdMat.side
+              });
+              return toonMat;
+            }
+
+            const cloned = stdMat.clone();
+            if (customMap && customMap !== stdMat.map) {
+              cloned.map = customMap;
               cloned.needsUpdate = true;
             }
-          }
-          return cloned;
-        });
-        mesh.material = Array.isArray(mesh.material) ? clonedMaterials : clonedMaterials[0];
+            return cloned;
+          });
+          mesh.material = Array.isArray(mesh.material) ? clonedMaterials : clonedMaterials[0];
+        }
       }
     }
   });
