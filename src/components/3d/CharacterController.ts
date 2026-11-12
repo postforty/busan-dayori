@@ -53,7 +53,7 @@ export class CharacterController {
     shadow.position.y = 0.015;
     this.playerGroup.add(shadow);
 
-    // 2. 귀여운 3D 카툰 캐릭터 모델 비동기 로드 (Protagonist_A.glb)
+    // 2. 귀여운 3D 카툰 캐릭터 모델 비동기 로드 (Protagonist_B - 남성 학습자)
     loadAnimatedCharacter('/models/player.glb', 1.85)
       .then((handle) => {
         this.rigHandle = handle;

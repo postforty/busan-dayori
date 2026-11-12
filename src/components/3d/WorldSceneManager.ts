@@ -492,7 +492,7 @@ export class WorldSceneManager {
       npcGroup.add(bubble);
 
       // 3. 실제 3D 카툰 캐릭터 GLB 모델 비동기 로드 및 장착
-      loadAnimatedCharacter(npcData.modelUrl, 1.85)
+      loadAnimatedCharacter(npcData.modelUrl, 1.85, npcData.appearance)
         .then((handle) => {
           if (this.loadGeneration !== generation) {
             handle.dispose();

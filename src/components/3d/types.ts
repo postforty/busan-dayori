@@ -13,6 +13,15 @@ export interface WorldThemeConfig {
   fogColor: number;
 }
 
+export interface WorldNpcAppearance {
+  hideGlasses?: boolean;
+  hideBackpack?: boolean;
+  hairColor?: string;
+  outfitColor?: string;
+  capColor?: string;
+  pantsColor?: string;
+}
+
 export interface WorldNpcData {
   id: string;
   name: string;
@@ -25,6 +34,7 @@ export interface WorldNpcData {
   greetingText: string;
   avatarImage: string;
   modelUrl: string;
+  appearance?: WorldNpcAppearance;
   lessonData: DailyLesson;
 }
 

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { WorldNpcAppearance } from './types';
 
 export type AnimationName = 'idle' | 'walk' | 'interact';
 
@@ -64,12 +65,81 @@ function loadSharedAnimations(): Promise<SharedClips> {
   return sharedClipsPromise;
 }
 
+function darkenHex(hex: string, factor = 0.72): string {
+  const clean = hex.replace('#', '');
+  const num = parseInt(clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean, 16);
+  const r = Math.max(0, Math.min(255, Math.round(((num >> 16) & 255) * factor)));
+  const g = Math.max(0, Math.min(255, Math.round(((num >> 8) & 255) * factor)));
+  const b = Math.max(0, Math.min(255, Math.round((num & 255) * factor)));
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function paintPaletteCell(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  uStart: number,
+  uEnd: number,
+  vStart: number,
+  vEnd: number,
+  hexColor: string
+) {
+  const x = uStart * width;
+  const y = vStart * height;
+  const w = (uEnd - uStart) * width;
+  const h = (vEnd - vStart) * height;
+  const grad = ctx.createLinearGradient(x, y, x, y + h);
+  grad.addColorStop(0, hexColor);
+  grad.addColorStop(1, darkenHex(hexColor));
+  ctx.fillStyle = grad;
+  ctx.fillRect(x, y, w, h);
+}
+
+function buildCustomizedTexture(
+  baseTexture: THREE.Texture,
+  appearance: WorldNpcAppearance
+): THREE.CanvasTexture | null {
+  if (typeof document === 'undefined' || !baseTexture.image) return null;
+  const image = baseTexture.image as HTMLImageElement | HTMLCanvasElement | ImageBitmap;
+  const width = image.width || 512;
+  const height = image.height || 512;
+  if (width === 0 || height === 0) return null;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.drawImage(image as CanvasImageSource, 0, 0, width, height);
+
+  if (appearance.hairColor) {
+    paintPaletteCell(ctx, width, height, 0.125, 0.1875, 0, 0.25, appearance.hairColor);
+  }
+  if (appearance.capColor) {
+    paintPaletteCell(ctx, width, height, 0.1875, 0.25, 0, 0.25, appearance.capColor);
+  }
+  if (appearance.outfitColor) {
+    paintPaletteCell(ctx, width, height, 0.125, 0.25, 0.25, 0.5, appearance.outfitColor);
+  }
+  if (appearance.pantsColor) {
+    paintPaletteCell(ctx, width, height, 0, 0.125, 0.25, 0.5, appearance.pantsColor);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.flipY = baseTexture.flipY;
+  texture.colorSpace = baseTexture.colorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 /**
  * GLB 3D 카툰 캐릭터 모델 + 스켈레탈 애니메이션 로드
  */
 export async function loadAnimatedCharacter(
   url: string,
-  targetHeight = 1.85
+  targetHeight = 1.85,
+  appearance?: WorldNpcAppearance
 ): Promise<CharacterRigHandle> {
   const [gltf, clips] = await Promise.all([
     loadGLTF(url),
@@ -79,12 +149,50 @@ export async function loadAnimatedCharacter(
   // SkinnedMesh 복제 (스켈레톤 바인딩 유지)
   const clonedScene = SkeletonUtils.clone(gltf.scene);
 
-  // 모든 메쉬 그림자 및 재질 최적화
+  const hasColorCustomization = Boolean(
+    appearance?.hairColor ||
+    appearance?.outfitColor ||
+    appearance?.capColor ||
+    appearance?.pantsColor
+  );
+  const customTextureCache = new Map<THREE.Texture, THREE.CanvasTexture>();
+
+  // 모든 메쉬 그림자, 액세서리 가시성 및 재질 최적화
   clonedScene.traverse((child) => {
+    if (appearance?.hideGlasses && child.name.includes('Glasses')) {
+      child.visible = false;
+    }
+    if (appearance?.hideBackpack && child.name.includes('Backpack')) {
+      child.visible = false;
+    }
+
     if ((child as THREE.Mesh).isMesh) {
       const mesh = child as THREE.Mesh;
       mesh.castShadow = true;
       mesh.receiveShadow = true;
+
+      if (hasColorCustomization && appearance && mesh.material) {
+        const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        const clonedMaterials = materials.map((mat) => {
+          const cloned = mat.clone() as THREE.MeshStandardMaterial;
+          if (cloned.map && cloned.name !== 'glass') {
+            let customTex = customTextureCache.get(cloned.map);
+            if (!customTex) {
+              const built = buildCustomizedTexture(cloned.map, appearance);
+              if (built) {
+                customTextureCache.set(cloned.map, built);
+                customTex = built;
+              }
+            }
+            if (customTex) {
+              cloned.map = customTex;
+              cloned.needsUpdate = true;
+            }
+          }
+          return cloned;
+        });
+        mesh.material = Array.isArray(mesh.material) ? clonedMaterials : clonedMaterials[0];
+      }
     }
   });
 
@@ -160,6 +268,8 @@ export async function loadAnimatedCharacter(
     dispose: () => {
       mixer.removeEventListener('finished', onFinished);
       mixer.stopAllAction();
+      customTextureCache.forEach((tex) => tex.dispose());
+      customTextureCache.clear();
       clonedScene.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;

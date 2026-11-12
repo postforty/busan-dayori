@@ -93,7 +93,7 @@ export default function NpcDialogueModal({
       undefined,
       () => setIsPlayingAudio(false),
       undefined,
-      isUserTurn ? 'Kore' : 'Puck'
+      isUserTurn ? 'Puck' : 'Kore'
     );
   };
 

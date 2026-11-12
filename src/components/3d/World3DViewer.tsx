@@ -164,7 +164,7 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
 
       if (e.code === 'Space') {
         controller.triggerBow();
-        speakJapanese('こんにちは！', 1.0);
+        speakJapanese('こんにちは！', 1.0, undefined, undefined, undefined, 'Puck');
         return;
       }
 
@@ -210,7 +210,7 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
   const handleTriggerBow = useCallback(() => {
     if (controllerRef.current) {
       controllerRef.current.triggerBow();
-      speakJapanese('こんにちは！', 1.0);
+      speakJapanese('こんにちは！', 1.0, undefined, undefined, undefined, 'Puck');
     }
   }, []);
 

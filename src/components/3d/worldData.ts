@@ -52,12 +52,20 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         accentColor: 0x3182ce,
         greetingText: 'いらっしゃいませ！(어서오세요!)',
         avatarImage: '/images/shorts/clerk.jpg',
-        modelUrl: '/models/npc-clerk.glb',
+        modelUrl: '/models/npc-girl.glb',
+        appearance: {
+          hideGlasses: true,
+          hideBackpack: true,
+          hairColor: '#3b2f2f',
+          capColor: '#2b6cb0',
+          outfitColor: '#38a169',
+          pantsColor: '#2d3748'
+        },
         lessonData: l1!
       },
       {
         id: 'npc-station',
-        name: '사토 역무원',
+        name: '사토 안내원',
         role: '전철역 안내원',
         level: 'level1',
         unitId: 'lesson-beginner-2',
@@ -66,12 +74,19 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         accentColor: 0x38a169,
         greetingText: 'どちらへ行かれますか？(어디로 가시나요?)',
         avatarImage: '/images/shorts/passerby.jpg',
-        modelUrl: '/models/npc-driver.glb',
+        modelUrl: '/models/npc-girl.glb',
+        appearance: {
+          hideBackpack: true,
+          hairColor: '#4a3525',
+          capColor: '#2c5282',
+          outfitColor: '#4299e1',
+          pantsColor: '#2a4365'
+        },
         lessonData: l2!
       },
       {
         id: 'npc-vending',
-        name: '마을 친구 렌',
+        name: '마을 친구 미유',
         role: '동네 길 안내',
         level: 'level1',
         unitId: 'lesson-beginner-3',
@@ -81,6 +96,13 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         greetingText: 'こんにちは！いい天気ですね。(안녕하세요!)',
         avatarImage: '/images/shorts/friend.jpg',
         modelUrl: '/models/npc-girl.glb',
+        appearance: {
+          hideGlasses: true,
+          hairColor: '#7b553a',
+          capColor: '#688558',
+          outfitColor: '#819765',
+          pantsColor: '#4a5568'
+        },
         lessonData: l3!
       }
     ];
@@ -104,6 +126,14 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         greetingText: 'ご注文をお伺いいたします。(주문 도와드릴게요.)',
         avatarImage: '/images/shorts/clerk.jpg',
         modelUrl: '/models/npc-girl.glb',
+        appearance: {
+          hideGlasses: true,
+          hideBackpack: true,
+          hairColor: '#2d2424',
+          capColor: '#d6c3a5',
+          outfitColor: '#6b4c3b',
+          pantsColor: '#3e2723'
+        },
         lessonData: l1!
       },
       {
@@ -117,7 +147,14 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         accentColor: 0xc53030,
         greetingText: 'へい、らっしゃい！(어서오세요!)',
         avatarImage: '/images/shorts/auntie.jpg',
-        modelUrl: '/models/npc-clerk.glb',
+        modelUrl: '/models/npc-girl.glb',
+        appearance: {
+          hideBackpack: true,
+          hairColor: '#9aa0a6',
+          capColor: '#2b4c7e',
+          outfitColor: '#d9a773',
+          pantsColor: '#3b4a6b'
+        },
         lessonData: l2!
       }
     ];
@@ -131,8 +168,8 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
   const npcs: WorldNpcData[] = [
     {
       id: 'npc-izakaya',
-      name: '마스터 신',
-      role: '이자카야 점주',
+      name: '맛집 친구 미호',
+      role: '동네 미식가 친구',
       level: 'level3',
       unitId: 'lesson-day-2',
       position: [-5.2, 0, -5],
@@ -140,7 +177,15 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
       accentColor: 0x6b46c1,
       greetingText: '今日のおすすめはいかが？(오늘 추천 메뉴 어때요?)',
       avatarImage: '/images/shorts/passerby.jpg',
-      modelUrl: '/models/npc-driver.glb',
+      modelUrl: '/models/npc-girl.glb',
+      appearance: {
+        hideGlasses: true,
+        hideBackpack: true,
+        hairColor: '#3a2a22',
+        capColor: '#e9d8a6',
+        outfitColor: '#805ad5',
+        pantsColor: '#2d3748'
+      },
       lessonData: l1!
     },
     {
@@ -155,6 +200,13 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
       greetingText: 'お祭り楽しんでいってね！(축제 재미있게 즐겨요!)',
       avatarImage: '/images/shorts/friend.jpg',
       modelUrl: '/models/npc-girl.glb',
+      appearance: {
+        hideGlasses: true,
+        hairColor: '#5c3c28',
+        capColor: '#f6ad55',
+        outfitColor: '#ed64a6',
+        pantsColor: '#4a5568'
+      },
       lessonData: l2!
     }
   ];
