@@ -12,7 +12,8 @@ import {
   Sparkles,
   MessageCircle,
   ArrowLeft,
-  Smile
+  Smile,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -39,6 +40,7 @@ export default function WorldHudOverlay({
 }: WorldHudOverlayProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [showControlsHint, setShowControlsHint] = useState(true);
 
   const currentTheme = WORLD_THEMES[currentLevel];
 
@@ -46,8 +48,9 @@ export default function WorldHudOverlay({
 
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-3 sm:p-4 select-none z-30">
-      {/* 1. 상단 바 (산사 스타일 채널/룸 셀렉터) */}
-      <div className="flex items-center justify-between w-full pointer-events-auto">
+      <div className="flex flex-col gap-2.5 w-full">
+        {/* 1. 상단 바 (산사 스타일 채널/룸 셀렉터) */}
+        <div className="flex items-center justify-between w-full pointer-events-auto">
         {/* 좌측: 뒤로가기 & 룸 드롭다운 */}
         <div className="relative flex items-center gap-1.5">
           <Link
@@ -135,13 +138,23 @@ export default function WorldHudOverlay({
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
-      </div>
-
-      {/* 2. 중앙 상단 조작 안내 문구 */}
-      <div className="w-full flex justify-center">
-        <div className="px-3.5 py-1 rounded-full bg-black/40 backdrop-blur-xs text-[11px] text-white/95 font-medium tracking-tight shadow-xs">
-          키보드 WASD / 방향키 · 바닥 클릭으로 이동 · 마우스 드래그로 회전
         </div>
+
+        {/* 2. 상단 조작 안내 문구 (브라우저 화면에서만 표시, 클릭 시 숨김) */}
+        {showControlsHint && (
+          <div className="hidden sm:flex w-full justify-center">
+            <button
+              type="button"
+              onClick={() => setShowControlsHint(false)}
+              className="pointer-events-auto inline-flex items-center gap-1.5 min-h-6 px-3.5 py-1 rounded-full bg-black/45 hover:bg-black/60 backdrop-blur-xs text-[11px] text-white/95 font-medium tracking-tight shadow-xs cursor-pointer active:scale-95 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E07A5F]"
+              title="클릭하여 안내 닫기"
+            >
+              <span>키보드 WASD / 방향키 · 바닥 클릭으로 이동 · 마우스 드래그로 회전</span>
+              <X className="w-3 h-3 text-white/80 shrink-0" aria-hidden="true" />
+              <span className="sr-only">안내 닫기</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 3. 하단 인터랙션 영역 */}
