@@ -17,7 +17,6 @@ interface World3DViewerProps {
 export default function World3DViewer({ initialLevel = 'level1' }: World3DViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentLevel, setCurrentLevel] = useState<WorldThemeLevel>(initialLevel);
-  const [nearbyNpc, setNearbyNpc] = useState<WorldNpcData | null>(null);
   const [activeDialogueNpc, setActiveDialogueNpc] = useState<WorldNpcData | null>(null);
   const [completedMissions, setCompletedMissions] = useState<string[]>([]);
 
@@ -43,10 +42,6 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
       controllerRef.current.endDialogue();
     }
   }, [activeDialogueNpc]);
-
-  useEffect(() => {
-    nearbyNpcRef.current = nearbyNpc;
-  }, [nearbyNpc]);
 
   // 로컬 스토리지에서 완료된 미션 로드
   useEffect(() => {
@@ -128,9 +123,8 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
       sceneManager.update(delta, elapsedTime);
       controller.update(delta, elapsedTime, sceneManager.colliders, sceneManager.interactableNpcs);
 
-      // 근접 NPC 체크
-      const closeNpc = controller.checkNearbyNpc(sceneManager.interactableNpcs);
-      setNearbyNpc((prev) => (prev?.id === closeNpc?.id ? prev : closeNpc));
+      // 근접 NPC 체크 (E 키 단축키용)
+      nearbyNpcRef.current = controller.checkNearbyNpc(sceneManager.interactableNpcs);
 
       renderer.render(sceneManager.scene, camera);
     };
@@ -207,14 +201,6 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
     setCurrentLevel(level);
     if (sceneManagerRef.current) {
       sceneManagerRef.current.loadTheme(level);
-    }
-  }, []);
-
-  // '인사 (お辞儀)' 실행
-  const handleTriggerBow = useCallback(() => {
-    if (controllerRef.current) {
-      controllerRef.current.triggerBow();
-      speakJapanese('こんにちは！', 1.0, undefined, undefined, undefined, 'Puck');
     }
   }, []);
 
@@ -315,9 +301,6 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
       <WorldHudOverlay
         currentLevel={currentLevel}
         onSelectLevel={handleSelectLevel}
-        nearbyNpc={nearbyNpc}
-        onOpenDialogue={(npc) => setActiveDialogueNpc(npc)}
-        onTriggerBow={handleTriggerBow}
         onResetCamera={handleResetCamera}
         completedMissions={completedMissions}
         totalNpcsCount={totalNpcs.length}

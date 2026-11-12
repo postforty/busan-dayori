@@ -135,7 +135,7 @@ export default function NpcDialogueModal({
   const isLastTurn = activeLineIndex === dialogue.length - 1;
 
   return (
-    <div className="fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] max-w-xl mx-auto px-3 z-40 pointer-events-none">
+    <div className="absolute inset-x-0 bottom-4 px-3 sm:px-4 z-40 pointer-events-none">
       <div className="pointer-events-auto bg-white/85 backdrop-blur-md rounded-2xl border border-[#EDE8E1]/90 shadow-xl px-3.5 py-2.5 space-y-2 animate-in slide-in-from-bottom-4 duration-250">
         {/* 상단 화자 및 상태 헤더 (1줄 컴팩트) */}
         <div className="flex items-center justify-between gap-2">

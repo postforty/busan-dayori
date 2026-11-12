@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { WorldThemeLevel, WorldNpcData } from './types';
+import { WorldThemeLevel } from './types';
 import { WORLD_THEMES } from './worldData';
 import {
   Compass,
@@ -10,9 +10,7 @@ import {
   VolumeX,
   RotateCcw,
   Sparkles,
-  MessageCircle,
   ArrowLeft,
-  Smile,
   X
 } from 'lucide-react';
 import Link from 'next/link';
@@ -20,9 +18,6 @@ import Link from 'next/link';
 interface WorldHudOverlayProps {
   currentLevel: WorldThemeLevel;
   onSelectLevel: (level: WorldThemeLevel) => void;
-  nearbyNpc: WorldNpcData | null;
-  onOpenDialogue: (npc: WorldNpcData) => void;
-  onTriggerBow: () => void;
   onResetCamera: () => void;
   completedMissions: string[];
   totalNpcsCount: number;
@@ -32,9 +27,6 @@ interface WorldHudOverlayProps {
 export default function WorldHudOverlay({
   currentLevel,
   onSelectLevel,
-  nearbyNpc,
-  onOpenDialogue,
-  onTriggerBow,
   onResetCamera,
   completedMissions,
   totalNpcsCount,
@@ -51,7 +43,7 @@ export default function WorldHudOverlay({
   const levels: WorldThemeLevel[] = ['level1', 'level2', 'level3'];
 
   return (
-    <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-2.5 sm:p-3.5 select-none z-30">
+    <div className="absolute inset-0 pointer-events-none flex flex-col p-2.5 sm:p-3.5 select-none z-30">
       {/* 드롭다운 외부 클릭 시 자동 닫힘 */}
       {isMenuOpen && (
         <div
@@ -170,55 +162,6 @@ export default function WorldHudOverlay({
             </button>
           </div>
         )}
-      </div>
-
-      {/* 3. 하단 인터랙션 영역 */}
-      <div className="w-full flex flex-col items-center gap-2.5 pb-2">
-        {/* NPC 근접 시 상호작용 알림 버튼 */}
-        {nearbyNpc && (
-          <div className="pointer-events-auto animate-in slide-in-from-bottom-2 duration-200">
-            <button
-              type="button"
-              onClick={() => onOpenDialogue(nearbyNpc)}
-              className="px-5 py-3 rounded-2xl bg-[#E07A5F] text-white text-sm font-black shadow-lg hover:bg-[#D46B50] active:scale-95 transition-all flex items-center gap-2 ring-4 ring-[#E07A5F]/20"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>
-                <kbd className="hidden sm:inline-block px-1.5 py-0.5 mr-1.5 bg-black/20 rounded-md text-[10px] font-mono">
-                  E
-                </kbd>
-                {nearbyNpc.name}와 일본어 대화하기
-              </span>
-            </button>
-          </div>
-        )}
-
-        {/* 하단 미니 액션 바 */}
-        <div className="pointer-events-auto flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-[#EDE8E1] shadow-md">
-          <button
-            type="button"
-            onClick={onTriggerBow}
-            className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#2D3748] hover:bg-black/5 active:scale-95 transition-all flex items-center gap-1.5"
-            title="인사하기 (Space)"
-          >
-            <Smile className="w-3.5 h-3.5 text-[#E07A5F]" />
-            <span>인사 (お辞儀)</span>
-            <kbd className="hidden sm:inline-block text-[10px] text-[#A0AEC0] font-mono ml-0.5">
-              Space
-            </kbd>
-          </button>
-
-          <div className="w-[1px] h-3 bg-[#EDE8E1]" />
-
-          <button
-            type="button"
-            onClick={onResetCamera}
-            className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#718096] hover:bg-black/5 active:scale-95 transition-all flex items-center gap-1.5"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>정면 보기</span>
-          </button>
-        </div>
       </div>
     </div>
   );
