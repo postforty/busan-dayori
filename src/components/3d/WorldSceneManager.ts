@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { WorldThemeLevel, WorldNpcData } from './types';
 import { WORLD_THEMES, getLevelNpcs } from './worldData';
 import { loadAnimatedCharacter, CharacterRigHandle } from './modelLoader';
+import { createProceduralNpc } from './proceduralNpcs';
 
 export class WorldSceneManager {
   public scene: THREE.Scene;
@@ -493,20 +494,27 @@ export class WorldSceneManager {
       bubble.name = 'indicator';
       npcGroup.add(bubble);
 
-      // 3. 실제 3D 카툰 캐릭터 GLB 모델 비동기 로드 및 장착
-      loadAnimatedCharacter(npcData.modelUrl, 1.85, npcData.appearance)
-        .then((handle) => {
-          if (this.loadGeneration !== generation) {
-            handle.dispose();
-            return;
-          }
-          npcGroup.add(handle.model);
-          this.npcRigs.push(handle);
-          this.npcRigMap.set(npcData.id, handle);
-        })
-        .catch((err) => {
-          console.error(`NPC 3D 모델 로드 실패 (${npcData.name}):`, err);
-        });
+      // 3. 3D 캐릭터 생성 (절차적 SD 캐릭터 우선, 미지정 시 GLB 폴백)
+      if (npcData.characterRole) {
+        const handle = createProceduralNpc(npcData.characterRole, 1.85);
+        npcGroup.add(handle.model);
+        this.npcRigs.push(handle);
+        this.npcRigMap.set(npcData.id, handle);
+      } else {
+        loadAnimatedCharacter(npcData.modelUrl, 1.85, npcData.appearance)
+          .then((handle) => {
+            if (this.loadGeneration !== generation) {
+              handle.dispose();
+              return;
+            }
+            npcGroup.add(handle.model);
+            this.npcRigs.push(handle);
+            this.npcRigMap.set(npcData.id, handle);
+          })
+          .catch((err) => {
+            console.error(`NPC 3D 모델 로드 실패 (${npcData.name}):`, err);
+          });
+      }
 
       // 씬에 추가 및 레이캐스팅 대상에 등록
       this.themeGroup.add(npcGroup);

@@ -2,6 +2,8 @@ import { DailyLesson } from '@/types';
 
 export type WorldThemeLevel = 'level1' | 'level2' | 'level3';
 
+export type WorldNpcRole = 'clerk' | 'auntie' | 'friend' | 'passerby';
+
 export interface WorldThemeConfig {
   id: WorldThemeLevel;
   name: string;
@@ -34,6 +36,7 @@ export interface WorldNpcData {
   greetingText: string;
   avatarImage: string;
   modelUrl: string;
+  characterRole?: WorldNpcRole;
   appearance?: WorldNpcAppearance;
   lessonData: DailyLesson;
 }

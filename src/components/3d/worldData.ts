@@ -53,6 +53,7 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         greetingText: 'いらっしゃいませ！(어서오세요!)',
         avatarImage: '/images/shorts/clerk.jpg',
         modelUrl: '/models/npc-girl.glb',
+        characterRole: 'clerk',
         appearance: {
           hideGlasses: true,
           hideBackpack: true,
@@ -75,6 +76,7 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         greetingText: 'どちらへ行かれますか？(어디로 가시나요?)',
         avatarImage: '/images/shorts/passerby.jpg',
         modelUrl: '/models/npc-girl.glb',
+        characterRole: 'passerby',
         appearance: {
           hideBackpack: true,
           hairColor: '#4a3525',
@@ -96,6 +98,7 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         greetingText: 'こんにちは！いい天気ですね。(안녕하세요!)',
         avatarImage: '/images/shorts/friend.jpg',
         modelUrl: '/models/npc-girl.glb',
+        characterRole: 'friend',
         appearance: {
           hideGlasses: true,
           hairColor: '#7b553a',
@@ -126,6 +129,7 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         greetingText: 'ご注文をお伺いいたします。(주문 도와드릴게요.)',
         avatarImage: '/images/shorts/clerk.jpg',
         modelUrl: '/models/npc-girl.glb',
+        characterRole: 'clerk',
         appearance: {
           hideGlasses: true,
           hideBackpack: true,
@@ -148,6 +152,7 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         greetingText: 'へい、らっしゃい！(어서오세요!)',
         avatarImage: '/images/shorts/auntie.jpg',
         modelUrl: '/models/npc-girl.glb',
+        characterRole: 'auntie',
         appearance: {
           hideBackpack: true,
           hairColor: '#9aa0a6',
@@ -178,6 +183,7 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
       greetingText: '今日のおすすめはいかが？(오늘 추천 메뉴 어때요?)',
       avatarImage: '/images/shorts/passerby.jpg',
       modelUrl: '/models/npc-girl.glb',
+      characterRole: 'passerby',
       appearance: {
         hideGlasses: true,
         hideBackpack: true,
@@ -200,6 +206,7 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
       greetingText: 'お祭り楽しんでいってね！(축제 재미있게 즐겨요!)',
       avatarImage: '/images/shorts/friend.jpg',
       modelUrl: '/models/npc-girl.glb',
+      characterRole: 'friend',
       appearance: {
         hideGlasses: true,
         hairColor: '#5c3c28',
