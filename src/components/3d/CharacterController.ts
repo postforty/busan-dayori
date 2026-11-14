@@ -47,17 +47,20 @@ export class CharacterController {
     this.playerGroup = new THREE.Group();
     this.playerGroup.position.set(0, 0, 4);
 
-    // 1. 발밑 원형 그림자 먼저 생성
+    // 1. 발밑 원형 그림자 먼저 생성 (도로·바닥·횡단보도(0.01~0.02)보다 위 계층에 배치해 Z-fighting 방지)
     const shadowGeo = new THREE.CircleGeometry(0.55, 24);
     const shadowMat = new THREE.MeshBasicMaterial({
       color: 0x000000,
       transparent: true,
       opacity: 0.22,
-      depthWrite: false
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1
     });
     const shadow = new THREE.Mesh(shadowGeo, shadowMat);
     shadow.rotation.x = -Math.PI / 2;
-    shadow.position.y = 0.025;
+    shadow.position.y = 0.035;
     this.playerGroup.add(shadow);
 
     // 2. 일러스트(learner.jpg) 감성을 반영한 3D 주인공 캐릭터 생성
@@ -75,7 +78,7 @@ export class CharacterController {
     });
     this.targetRing = new THREE.Mesh(ringGeo, ringMat);
     this.targetRing.rotation.x = -Math.PI / 2;
-    this.targetRing.position.y = 0.03;
+    this.targetRing.position.y = 0.042;
 
     // 4. 초기 시점을 정면 3인칭 구도로 즉시 설정
     const initialCam = this.getThirdPersonCameraTarget();
@@ -140,7 +143,7 @@ export class CharacterController {
     this.npcDetour = null;
 
     // 타겟 링 표시
-    this.targetRing.position.set(point.x, 0.03, point.z);
+    this.targetRing.position.set(point.x, 0.042, point.z);
     (this.targetRing.material as THREE.MeshBasicMaterial).opacity = 0.8;
   }
 

@@ -2,20 +2,20 @@ import { WorldThemeConfig, WorldThemeLevel, WorldInteriorId, WorldNpcData } from
 import { getLessonByIdFromCurriculum } from '@/lib/curriculum/curriculumData';
 
 export const WORLD_INTERIOR_LABELS: Record<WorldInteriorId, string> = {
-  'starter-cafe': '☕ 카페',
-  'starter-restaurant': '🍜 식당',
-  'starter-konbini': '🏪 편의점',
-  'starter-souvenir': '🎁 기념품 상점'
+  'starter-cafe': '☕ 카페 코모레비',
+  'starter-restaurant': '🍜 아사히 식당',
+  'starter-konbini': '🏪 코모레비 상점',
+  'starter-souvenir': '🎁 미도상점'
 };
 
 export const WORLD_THEMES: Record<WorldThemeLevel, WorldThemeConfig> = {
   level0: {
     id: 'level0',
     badge: 'Lv.0 입문',
-    ambientColor: 0xfff7ed,
-    skyColor: 0xe6f4fe,
-    groundColor: 0xe2ddd5,
-    fogColor: 0xe6f4fe
+    ambientColor: 0xffe6cc,
+    skyColor: 0xfbe2c8,
+    groundColor: 0xd9cbb8,
+    fogColor: 0xf7dec5
   },
   level1: {
     id: 'level1',

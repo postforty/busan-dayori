@@ -410,9 +410,9 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
         }
       }
 
-      // 3. 바닥 클릭 이동
+      // 3. 바닥 클릭 이동 (바다나 건물·경계 밖 클릭은 무시)
       const intersects = raycasterRef.current.intersectObject(sceneManagerRef.current.groundPlane);
-      if (intersects.length > 0) {
+      if (intersects.length > 0 && sceneManagerRef.current.isWalkableGroundPoint(intersects[0].point)) {
         pendingDialogueNpcRef.current = null;
         controllerRef.current.moveTo(intersects[0].point);
       }
