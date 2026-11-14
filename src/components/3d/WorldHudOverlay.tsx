@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { WorldThemeLevel } from './types';
-import { WORLD_THEMES } from './worldData';
+import { WorldThemeLevel, WorldInteriorId } from './types';
+import { WORLD_THEMES, WORLD_INTERIOR_LABELS } from './worldData';
 import {
   Compass,
   ChevronDown,
@@ -11,13 +11,16 @@ import {
   RotateCcw,
   Sparkles,
   ArrowLeft,
+  DoorOpen,
   X
 } from 'lucide-react';
 import Link from 'next/link';
 
 interface WorldHudOverlayProps {
   currentLevel: WorldThemeLevel;
+  activeInterior?: WorldInteriorId | null;
   onSelectLevel: (level: WorldThemeLevel) => void;
+  onExitInterior?: () => void;
   onResetCamera: () => void;
   completedMissions: string[];
   totalNpcsCount: number;
@@ -26,7 +29,9 @@ interface WorldHudOverlayProps {
 
 export default function WorldHudOverlay({
   currentLevel,
+  activeInterior = null,
   onSelectLevel,
+  onExitInterior,
   onResetCamera,
   completedMissions,
   totalNpcsCount,
@@ -67,21 +72,38 @@ export default function WorldHudOverlay({
               <ArrowLeft className="w-4 h-4" />
             </Link>
 
-            <button
-              type="button"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="px-3 py-1.5 min-h-8 rounded-full bg-white/85 backdrop-blur-md border border-[#EDE8E1] text-[#2D3748] hover:bg-white active:scale-95 transition-all shadow-xs flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E07A5F]"
-              aria-expanded={isMenuOpen}
-            >
-              <Compass className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
-              <span className="text-xs font-bold text-[#2D3748] whitespace-nowrap">
-                {currentTheme.badge}
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 text-[#718096] transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
+            {activeInterior ? (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={onExitInterior}
+                  className="px-3 py-1.5 min-h-8 rounded-full bg-[#E07A5F] text-white hover:bg-[#D46B50] active:scale-95 transition-all shadow-xs flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2D3748]"
+                  title="야외 거리로 나가기"
+                >
+                  <DoorOpen className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-xs font-bold whitespace-nowrap">밖으로</span>
+                </button>
+                <span className="px-3 py-1.5 min-h-8 rounded-full bg-white/85 backdrop-blur-md border border-[#EDE8E1] text-xs font-bold text-[#2D3748] shadow-xs flex items-center whitespace-nowrap">
+                  {WORLD_INTERIOR_LABELS[activeInterior]}
+                </span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="px-3 py-1.5 min-h-8 rounded-full bg-white/85 backdrop-blur-md border border-[#EDE8E1] text-[#2D3748] hover:bg-white active:scale-95 transition-all shadow-xs flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E07A5F]"
+                aria-expanded={isMenuOpen}
+              >
+                <Compass className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
+                <span className="text-xs font-bold text-[#2D3748] whitespace-nowrap">
+                  {currentTheme.badge}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-[#718096] transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+            )}
 
             {/* 룸 전환 드롭다운 메뉴 */}
-            {isMenuOpen && (
+            {!activeInterior && isMenuOpen && (
               <div className="absolute top-full left-9 mt-1.5 w-40 bg-white/95 backdrop-blur-md rounded-2xl border border-[#EDE8E1] shadow-xl p-1.5 space-y-1 z-40 animate-in fade-in zoom-in-95 duration-150">
                 {levels.map((lvl) => {
                   const theme = WORLD_THEMES[lvl];

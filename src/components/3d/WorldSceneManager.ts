@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { WorldThemeLevel, WorldNpcData } from './types';
+import { WorldThemeLevel, WorldInteriorId, WorldNpcData, WorldPortal } from './types';
 import { WORLD_THEMES, getLevelNpcs } from './worldData';
 import { loadAnimatedCharacter, CharacterRigHandle } from './modelLoader';
 import { createProceduralNpc } from './proceduralNpcs';
@@ -9,6 +9,9 @@ export class WorldSceneManager {
   public groundPlane: THREE.Mesh;
   public interactableNpcs: { mesh: THREE.Group; data: WorldNpcData }[] = [];
   public colliders: THREE.Box3[] = [];
+  public portals: WorldPortal[] = [];
+  public portalClickTargets: THREE.Object3D[] = [];
+  private portalGlowMeshes: THREE.Mesh[] = [];
   private npcRigs: CharacterRigHandle[] = [];
   private npcRigMap = new Map<string, CharacterRigHandle>();
   private loadGeneration = 0;
@@ -59,19 +62,36 @@ export class WorldSceneManager {
     this.loadTheme('level0');
   }
 
-  public loadTheme(level: WorldThemeLevel) {
+  public loadTheme(level: WorldThemeLevel, interiorId: WorldInteriorId | null = null) {
     this.currentLevel = level;
     const config = WORLD_THEMES[level];
 
-    // 배경색 및 안개(Fog) 업데이트
-    this.scene.background = new THREE.Color(config.skyColor);
-    this.scene.fog = new THREE.Fog(config.fogColor, 15, 45);
-
-    // 바닥 색상 업데이트
-    (this.groundPlane.material as THREE.MeshStandardMaterial).color.setHex(config.groundColor);
-
     // 기존 테마 오브젝트 정리
     this.clearThemeGroup();
+
+    if (interiorId) {
+      // 전용 실내 씬: 주변 배경을 어둡게 분리하고 실내 전용 조명을 강조
+      this.scene.background = new THREE.Color(0x18181b);
+      this.scene.fog = new THREE.Fog(0x18181b, 18, 45);
+      (this.groundPlane.material as THREE.MeshStandardMaterial).color.setHex(0x18181b);
+      this.groundPlane.receiveShadow = false;
+      this.dirLight.intensity = 0.4;
+      this.dirLight.castShadow = false;
+      this.hemiLight.intensity = 0.95;
+
+      this.buildInteriorScene(interiorId);
+      this.spawnNpcs(level, interiorId);
+      return;
+    }
+
+    // 야외 씬 기본 조명 & 배경 복구
+    this.scene.background = new THREE.Color(config.skyColor);
+    this.scene.fog = new THREE.Fog(config.fogColor, 15, 45);
+    (this.groundPlane.material as THREE.MeshStandardMaterial).color.setHex(config.groundColor);
+    this.groundPlane.receiveShadow = true;
+    this.dirLight.intensity = 1.5;
+    this.dirLight.castShadow = true;
+    this.hemiLight.intensity = 1.2;
 
     // 테마별 공간 오브젝트 빌드
     if (level === 'level0') {
@@ -84,8 +104,8 @@ export class WorldSceneManager {
       this.buildLevel3Izakaya();
     }
 
-    // NPC 배치
-    this.spawnNpcs(level);
+    // 야외 NPC 배치
+    this.spawnNpcs(level, null);
   }
 
   private clearThemeGroup() {
@@ -101,13 +121,31 @@ export class WorldSceneManager {
     }
     this.interactableNpcs = [];
     this.colliders = [];
+    this.portals = [];
+    this.portalClickTargets = [];
+    this.portalGlowMeshes = [];
+  }
+
+  /**
+   * 플레이어 위치가 포탈(출입구/나가기) 반경 이내인지 검사
+   */
+  public checkPortalTrigger(playerPos: THREE.Vector3): WorldPortal | null {
+    for (const portal of this.portals) {
+      const dx = playerPos.x - portal.position[0];
+      const dz = playerPos.z - portal.position[2];
+      if (dx * dx + dz * dz <= portal.radius * portal.radius) {
+        return portal;
+      }
+    }
+    return null;
   }
 
   /**
    * 3D 오브젝트의 바운딩 박스를 계산하여 이동 충돌 영역(AABB)으로 등록
    */
   private registerCollider(obj: THREE.Object3D, padding = 0.45) {
-    obj.updateMatrixWorld(true);
+    // 부모 그룹의 position/rotation까지 반영된 월드 좌표 기준 AABB를 계산
+    obj.updateWorldMatrix(true, true);
     const box = new THREE.Box3().setFromObject(obj);
     box.min.x -= padding;
     box.max.x += padding;
@@ -119,7 +157,7 @@ export class WorldSceneManager {
   }
 
   /**
-   * Lv.0 입문: 진입 가능한 카페·식당·편의점·기념품 가게 & 거리 씬
+   * Lv.0 입문: 거리 NPC 및 포탈 입구가 있는 4개 상점 외관 씬
    */
   private buildLevel0Starter() {
     // 1. 중앙 거리 & 횡단보도
@@ -161,76 +199,75 @@ export class WorldSceneManager {
       this.themeGroup.add(restroomSign);
     }
 
-    // 3. 카페 건물 (좌측 앞 — 카페 친구 하루)
-    this.createWalkInBuilding({
+    // 3. 진입 가능한 4개 건물 외관 + 출입구 포탈 매트
+    this.createExteriorShopBuilding({
+      portalId: 'portal-cafe',
+      interiorId: 'starter-cafe',
+      portalLabel: '☕ 카페 들어가기',
       x: -9.0,
       z: -2.0,
-      width: 7.5,
-      height: 3.4,
-      depth: 6.5,
+      returnZ: 3.6,
       wallColor: 0xf6ead9,
       roofColor: 0x9c523b,
-      floorColor: 0xc99e74,
+      accentColor: 0xe07a5f,
       signText: '☕ CAFE (카페)',
       signBg: '#7b341e'
     });
-    this.createInteriorCounter(-9.0, -4.1, 4.2, 0x6b3e26, 0xeadbc8);
-    this.createInteriorTable(-11.3, -1.6, 0x8b5a2b);
 
-    // 4. 식당 건물 (우측 앞 — 식당 이모님 미카)
-    this.createWalkInBuilding({
+    this.createExteriorShopBuilding({
+      portalId: 'portal-restaurant',
+      interiorId: 'starter-restaurant',
+      portalLabel: '🍜 식당 들어가기',
       x: 9.0,
       z: -2.0,
-      width: 7.5,
-      height: 3.4,
-      depth: 6.5,
+      returnZ: 3.6,
       wallColor: 0xf7e7ce,
       roofColor: 0xc53030,
-      floorColor: 0xd8be98,
+      accentColor: 0xe53e3e,
       signText: '🍜 食堂 (식당)',
       signBg: '#c53030',
       norenColor: 0x2b4c7e
     });
-    this.createInteriorCounter(9.0, -4.1, 4.2, 0x7c4a2d, 0xf3e5ab);
-    this.createInteriorTable(11.3, -1.6, 0x9c6644);
 
-    // 5. 편의점 건물 (좌측 뒤 — 편의점 점원 리나)
-    this.createWalkInBuilding({
+    this.createExteriorShopBuilding({
+      portalId: 'portal-konbini',
+      interiorId: 'starter-konbini',
+      portalLabel: '🏪 편의점 들어가기',
       x: -9.0,
       z: -12.0,
-      width: 7.5,
-      height: 3.4,
-      depth: 6.5,
+      returnZ: -6.4,
       wallColor: 0xffffff,
       roofColor: 0x3182ce,
-      floorColor: 0xe2e8f0,
+      accentColor: 0x4299e1,
       signText: '🏪 コンビニ (편의점)',
       signBg: '#2b6cb0'
     });
-    this.createInteriorCounter(-9.0, -14.1, 4.0, 0x2b6cb0, 0xf8fafc);
-    this.createInteriorShelf(-11.6, -11.8, 0x4299e1);
 
-    // 6. 기념품·잡화 상점 (우측 뒤 — 기념품 점원 켄지)
-    this.createWalkInBuilding({
+    this.createExteriorShopBuilding({
+      portalId: 'portal-souvenir',
+      interiorId: 'starter-souvenir',
+      portalLabel: '🎁 상점 들어가기',
       x: 9.0,
       z: -12.0,
-      width: 7.5,
-      height: 3.4,
-      depth: 6.5,
+      returnZ: -6.4,
       wallColor: 0xfff5eb,
       roofColor: 0xdd6b20,
-      floorColor: 0xe8d5b7,
+      accentColor: 0xed8936,
       signText: '🎁 おみやげ (상점)',
       signBg: '#c05621'
     });
-    this.createInteriorCounter(9.0, -14.1, 4.0, 0xc05621, 0xfef3c7);
-    this.createInteriorShelf(11.6, -11.8, 0xed8936);
   }
 
   /**
-   * 캔버스 기반 간판 텍스처 메쉬 생성
+   * 캔버스 기반 표지판/간판 텍스처 메쉬 생성
    */
-  private createSignBoard(text: string, bgHex: string, textColor = '#ffffff'): THREE.Mesh | null {
+  private createSignBoard(
+    text: string,
+    bgHex: string,
+    textColor = '#ffffff',
+    width = 3.4,
+    height = 0.75
+  ): THREE.Mesh | null {
     if (typeof document === 'undefined') return null;
     const canvas = document.createElement('canvas');
     canvas.width = 512;
@@ -245,7 +282,7 @@ export class WorldSceneManager {
     ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
 
     ctx.fillStyle = textColor;
-    ctx.font = 'bold 42px sans-serif';
+    ctx.font = 'bold 40px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 2);
@@ -255,118 +292,475 @@ export class WorldSceneManager {
     texture.needsUpdate = true;
 
     return new THREE.Mesh(
-      new THREE.PlaneGeometry(3.4, 0.75),
+      new THREE.PlaneGeometry(width, height),
       new THREE.MeshBasicMaterial({ map: texture })
     );
   }
 
   /**
-   * 출입구(+Z 남향)가 열려 있어 플레이어가 직접 걸어 들어갈 수 있는 건물 생성
+   * 출입구 포탈 매트(입장/나가기 공통) 생성
    */
-  private createWalkInBuilding(opts: {
+  private createPortalMat(opts: {
+    portal: WorldPortal;
+    color: number;
+    labelText: string;
+    labelBg: string;
+  }) {
+    const { portal, color, labelText, labelBg } = opts;
+    const [px, , pz] = portal.position;
+
+    const group = new THREE.Group();
+    group.position.set(px, 0, pz);
+    group.userData.portalId = portal.id;
+
+    // 발판 매트
+    const matBase = new THREE.Mesh(
+      new THREE.BoxGeometry(2.4, 0.04, 1.3),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.5 })
+    );
+    matBase.position.y = 0.02;
+    matBase.receiveShadow = true;
+    group.add(matBase);
+
+    // 발광 테두리 링 (맥동 애니메이션)
+    const glowRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.95, 1.15, 28),
+      new THREE.MeshBasicMaterial({
+        color,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.75,
+        depthWrite: false
+      })
+    );
+    glowRing.rotation.x = -Math.PI / 2;
+    glowRing.position.y = 0.028;
+    group.add(glowRing);
+    this.portalGlowMeshes.push(glowRing);
+
+    // 매트 위 안내 라벨 (ENTER / EXIT)
+    const labelMesh = this.createSignBoard(labelText, labelBg, '#ffffff', 1.9, 0.44);
+    if (labelMesh) {
+      labelMesh.rotation.x = -Math.PI / 2;
+      labelMesh.position.y = 0.045;
+      group.add(labelMesh);
+    }
+
+    this.themeGroup.add(group);
+    this.portals.push(portal);
+    this.portalClickTargets.push(group);
+  }
+
+  /**
+   * 야외 상점 건물 외관 + 출입구 포탈 생성
+   */
+  private createExteriorShopBuilding(opts: {
+    portalId: string;
+    interiorId: WorldInteriorId;
+    portalLabel: string;
     x: number;
     z: number;
-    width: number;
-    height: number;
-    depth: number;
+    returnZ: number;
     wallColor: number;
     roofColor: number;
-    floorColor: number;
+    accentColor: number;
     signText: string;
     signBg: string;
     norenColor?: number;
   }) {
-    const { x, z, width, height, depth, wallColor, roofColor, floorColor, signText, signBg, norenColor } = opts;
-    const t = 0.25;
-    const doorW = 3.2;
-    const sideFrontW = (width - doorW) / 2;
+    const {
+      portalId,
+      interiorId,
+      portalLabel,
+      x,
+      z,
+      returnZ,
+      wallColor,
+      roofColor,
+      accentColor,
+      signText,
+      signBg,
+      norenColor
+    } = opts;
+    const w = 7.2;
+    const h = 3.8;
+    const d = 6.0;
 
-    const wallMat = new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.75 });
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+    group.userData.portalId = portalId;
+
+    // 건물 본체
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.7 })
+    );
+    body.position.y = h / 2;
+    body.castShadow = true;
+    body.receiveShadow = true;
+    group.add(body);
+
+    // 지붕
+    const roof = new THREE.Mesh(
+      new THREE.BoxGeometry(w + 0.6, 0.55, d + 0.6),
+      new THREE.MeshStandardMaterial({ color: roofColor, roughness: 0.55 })
+    );
+    roof.position.y = h + 0.275;
+    roof.castShadow = true;
+    group.add(roof);
+
+    // 전면 출입문 & 좌우 따뜻한 쇼윈도
+    const frontZ = d / 2 + 0.02;
+    const door = new THREE.Mesh(
+      new THREE.BoxGeometry(1.9, 2.35, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0x3b2f2f, roughness: 0.5 })
+    );
+    door.position.set(0, 1.175, frontZ);
+    group.add(door);
+
+    const doorGlass = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.45, 1.7),
+      new THREE.MeshStandardMaterial({
+        color: 0xffedd5,
+        emissive: 0xfbd38d,
+        emissiveIntensity: 0.35
+      })
+    );
+    doorGlass.position.set(0, 1.3, frontZ + 0.05);
+    group.add(doorGlass);
+
+    for (const sx of [-2.3, 2.3] as const) {
+      const win = new THREE.Mesh(
+        new THREE.PlaneGeometry(1.6, 1.45),
+        new THREE.MeshStandardMaterial({
+          color: 0xbee3f8,
+          emissive: 0xfefcbf,
+          emissiveIntensity: 0.28,
+          roughness: 0.2
+        })
+      );
+      win.position.set(sx, 1.55, frontZ);
+      group.add(win);
+    }
+
+    // 차양 / 노렌 장식
+    const awning = new THREE.Mesh(
+      new THREE.BoxGeometry(w * 0.88, 0.22, 0.9),
+      new THREE.MeshStandardMaterial({
+        color: norenColor ?? roofColor,
+        roughness: 0.6
+      })
+    );
+    awning.position.set(0, 2.65, d / 2 + 0.42);
+    awning.rotation.x = 0.22;
+    group.add(awning);
+
+    // 간판
+    const signBoard = this.createSignBoard(signText, signBg);
+    if (signBoard) {
+      signBoard.position.set(0, 3.35, frontZ + 0.04);
+      group.add(signBoard);
+    }
+
+    this.themeGroup.add(group);
+    this.registerCollider(body, 0.25);
+    this.portalClickTargets.push(group);
+
+    // 건물 앞 포탈 매트
+    const doorMatZ = z + d / 2 + 0.85;
+    this.createPortalMat({
+      portal: {
+        id: portalId,
+        kind: 'enter',
+        label: portalLabel,
+        interiorId,
+        position: [x, 0, doorMatZ],
+        radius: 1.1,
+        returnPosition: [x, 0, returnZ]
+      },
+      color: accentColor,
+      labelText: 'ENTER · 입장',
+      labelBg: signBg
+    });
+  }
+
+  /**
+   * 전용 실내 씬 빌드 (방식 A: 독립 디오라마 공간)
+   */
+  private buildInteriorScene(interiorId: WorldInteriorId) {
+    if (interiorId === 'starter-cafe') {
+      this.buildInteriorRoomShell({
+        floorColor: 0xc99e74,
+        wallColor: 0xf7efe2,
+        trimColor: 0x6b3e26,
+        lightColor: 0xffe4b5,
+        lightIntensity: 1.35,
+        bannerText: '☕ CAFE (카페)',
+        bannerBg: '#7b341e',
+        exitColor: 0xe07a5f
+      });
+      this.createInteriorCounter(0, -3.4, 5.6, 0x6b3e26, 0xeadbc8);
+      this.createCafeProps();
+      this.createInteriorTable(-3.6, -0.4, 0x8b5a2b);
+      this.createInteriorTable(3.6, -0.4, 0x8b5a2b);
+      this.createInteriorTable(-3.6, 2.2, 0x8b5a2b);
+      this.createPottedPlant(-5.1, -4.1);
+      this.createPottedPlant(5.1, -4.1);
+      return;
+    }
+
+    if (interiorId === 'starter-restaurant') {
+      this.buildInteriorRoomShell({
+        floorColor: 0xd6bc94,
+        wallColor: 0xfbf2e3,
+        trimColor: 0x8b261d,
+        lightColor: 0xffd89b,
+        lightIntensity: 1.35,
+        bannerText: '🍜 食堂 (식당)',
+        bannerBg: '#c53030',
+        exitColor: 0xe53e3e
+      });
+      this.createInteriorCounter(0, -3.4, 6.2, 0x7c4a2d, 0xf3e5ab);
+      // 식당 카운터 위 노렌(포렴)
+      const noren = new THREE.Mesh(
+        new THREE.BoxGeometry(5.6, 0.55, 0.08),
+        new THREE.MeshStandardMaterial({ color: 0x2b4c7e, roughness: 0.85 })
+      );
+      noren.position.set(0, 2.55, -3.0);
+      this.themeGroup.add(noren);
+
+      this.createInteriorTable(-3.5, -0.3, 0x9c6644);
+      this.createInteriorTable(3.5, -0.3, 0x9c6644);
+      this.createInteriorTable(-3.5, 2.2, 0x9c6644);
+      this.createInteriorTable(3.5, 2.2, 0x9c6644);
+      this.createLantern(-4.8, 2.8, -4.3);
+      this.createLantern(4.8, 2.8, -4.3);
+      return;
+    }
+
+    if (interiorId === 'starter-konbini') {
+      this.buildInteriorRoomShell({
+        floorColor: 0xe2e8f0,
+        wallColor: 0xf8fafc,
+        trimColor: 0x2b6cb0,
+        lightColor: 0xffffff,
+        lightIntensity: 1.5,
+        bannerText: '🏪 コンビニ (편의점)',
+        bannerBg: '#2b6cb0',
+        exitColor: 0x4299e1
+      });
+      // 편의점 포인트 스트라이프 띠
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(11.9, 0.22, 0.06),
+        new THREE.MeshStandardMaterial({ color: 0x38a169, roughness: 0.5 })
+      );
+      stripe.position.set(0, 2.5, -4.85);
+      this.themeGroup.add(stripe);
+
+      this.createInteriorCounter(-1.6, -3.2, 4.4, 0x2b6cb0, 0xf8fafc);
+      this.createBeverageCooler(3.3, -4.3);
+      this.createInteriorShelf(3.2, -0.5, 0x3182ce);
+      this.createInteriorShelf(3.2, 2.2, 0x38a169);
+      this.createInteriorShelf(-4.8, 0.6, 0xed8936);
+      return;
+    }
+
+    // starter-souvenir
+    this.buildInteriorRoomShell({
+      floorColor: 0xe6d3b3,
+      wallColor: 0xfff7ed,
+      trimColor: 0xc05621,
+      lightColor: 0xffedd5,
+      lightIntensity: 1.4,
+      bannerText: '🎁 おみやげ (기념품 상점)',
+      bannerBg: '#c05621',
+      exitColor: 0xed8936
+    });
+    this.createInteriorCounter(0, -3.3, 4.8, 0xc05621, 0xfef3c7);
+    this.createGiftDisplayTable(-3.6, -0.6);
+    this.createGiftDisplayTable(3.6, -0.6);
+    this.createGiftDisplayTable(-3.6, 2.1);
+    this.createGiftDisplayTable(3.6, 2.1);
+    this.createPottedPlant(-5.1, -4.1);
+    this.createPottedPlant(5.1, -4.1);
+  }
+
+  /**
+   * 전용 실내 씬 공통 방 구조 (12m × 10m 디오라마 + 나가기 포탈)
+   */
+  private buildInteriorRoomShell(opts: {
+    floorColor: number;
+    wallColor: number;
+    trimColor: number;
+    lightColor: number;
+    lightIntensity: number;
+    bannerText: string;
+    bannerBg: string;
+    exitColor: number;
+  }) {
+    const { floorColor, wallColor, trimColor, lightColor, lightIntensity, bannerText, bannerBg, exitColor } = opts;
+    const roomW = 12;
+    const roomD = 10;
+    const wallH = 3.8;
+    const t = 0.25;
 
     // 실내 바닥
     const floor = new THREE.Mesh(
-      new THREE.PlaneGeometry(width - t, depth - t),
+      new THREE.PlaneGeometry(roomW, roomD),
       new THREE.MeshStandardMaterial({ color: floorColor, roughness: 0.85 })
     );
     floor.rotation.x = -Math.PI / 2;
-    floor.position.set(x, 0.01, z);
+    floor.position.set(0, 0.01, 0);
     floor.receiveShadow = true;
     this.themeGroup.add(floor);
 
-    const addWall = (w: number, h: number, d: number, px: number, py: number, pz: number, register = true) => {
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
-      mesh.position.set(px, py, pz);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      this.themeGroup.add(mesh);
-      if (register) {
-        this.registerCollider(mesh, 0.22);
-      }
+    const wallMat = new THREE.MeshStandardMaterial({ color: wallColor, roughness: 0.75 });
+    const trimMat = new THREE.MeshStandardMaterial({ color: trimColor, roughness: 0.6 });
+
+    const addWall = (w: number, h: number, d: number, px: number, py: number, pz: number) => {
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+      wall.position.set(px, py, pz);
+      wall.receiveShadow = true;
+      this.themeGroup.add(wall);
+      this.registerCollider(wall, 0.2);
     };
 
     // 뒷벽, 좌측벽, 우측벽
-    addWall(width, height, t, x, height / 2, z - depth / 2 + t / 2);
-    addWall(t, height, depth, x - width / 2 + t / 2, height / 2, z);
-    addWall(t, height, depth, x + width / 2 - t / 2, height / 2, z);
+    addWall(roomW, wallH, t, 0, wallH / 2, -roomD / 2);
+    addWall(t, wallH, roomD, -roomW / 2, wallH / 2, 0);
+    addWall(t, wallH, roomD, roomW / 2, wallH / 2, 0);
 
-    // 전면 좌/우 벽체 (출입구 양옆) + 상단 인방
-    const frontZ = z + depth / 2 - t / 2;
-    addWall(sideFrontW, height, t, x - doorW / 2 - sideFrontW / 2, height / 2, frontZ);
-    addWall(sideFrontW, height, t, x + doorW / 2 + sideFrontW / 2, height / 2, frontZ);
-    addWall(doorW, 0.85, t, x, height - 0.425, frontZ, false);
+    // 걸레받이 트림
+    const backTrim = new THREE.Mesh(new THREE.BoxGeometry(roomW, 0.24, 0.3), trimMat);
+    backTrim.position.set(0, 0.12, -roomD / 2 + 0.04);
+    this.themeGroup.add(backTrim);
 
-    // 전면 통유리 창 (좌/우 벽체 외측)
-    const glassMat = new THREE.MeshStandardMaterial({
-      color: 0xa5d8ff,
-      roughness: 0.2,
-      metalness: 0.2,
-      transparent: true,
-      opacity: 0.55
+    // 남쪽 카메라 시야를 가리지 않는 낮은 경계턱 (방 밖 이탈 방지)
+    const southCurb = new THREE.Mesh(new THREE.BoxGeometry(roomW, 0.16, 0.2), trimMat);
+    southCurb.position.set(0, 0.08, roomD / 2 + 0.1);
+    this.themeGroup.add(southCurb);
+    this.registerCollider(southCurb, 0.2);
+
+    // 뒷벽 상단 장소 배너
+    const banner = this.createSignBoard(bannerText, bannerBg, '#ffffff', 4.4, 0.9);
+    if (banner) {
+      banner.position.set(0, 3.05, -roomD / 2 + 0.16);
+      this.themeGroup.add(banner);
+    }
+
+    // 실내 전용 포인트 조명 (중앙 + 안쪽)
+    const centerLight = new THREE.PointLight(lightColor, lightIntensity, 22);
+    centerLight.position.set(0, 3.5, 0.5);
+    this.themeGroup.add(centerLight);
+
+    const backLight = new THREE.PointLight(lightColor, lightIntensity * 0.75, 18);
+    backLight.position.set(0, 3.2, -3.2);
+    this.themeGroup.add(backLight);
+
+    // 남쪽 출구(EXIT) 포탈 매트
+    this.createPortalMat({
+      portal: {
+        id: 'portal-exit',
+        kind: 'exit',
+        label: '🚪 밖으로 나가기',
+        position: [0, 0, 4.15],
+        radius: 1.05
+      },
+      color: exitColor,
+      labelText: 'EXIT · 나가기',
+      labelBg: '#2d3748'
     });
-    for (const side of [-1, 1] as const) {
-      const windowPane = new THREE.Mesh(new THREE.PlaneGeometry(sideFrontW * 0.72, height * 0.55), glassMat);
-      windowPane.position.set(x + side * (doorW / 2 + sideFrontW / 2), height * 0.48, frontZ + t / 2 + 0.02);
-      this.themeGroup.add(windowPane);
-    }
+  }
 
-    // 식당 등 입구 노렌(포렴) 장식
-    if (norenColor !== undefined) {
-      const noren = new THREE.Mesh(
-        new THREE.BoxGeometry(doorW * 0.9, 0.55, 0.06),
-        new THREE.MeshStandardMaterial({ color: norenColor, roughness: 0.85 })
-      );
-      noren.position.set(x, height - 1.1, frontZ + 0.05);
-      this.themeGroup.add(noren);
-    }
+  /**
+   * 카페 카운터 위 커피머신·디저트 쇼케이스 소품
+   */
+  private createCafeProps() {
+    const machine = new THREE.Mesh(
+      new THREE.BoxGeometry(0.9, 0.65, 0.55),
+      new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.4, metalness: 0.3 })
+    );
+    machine.position.set(-1.5, 1.35, -3.4);
+    this.themeGroup.add(machine);
 
-    // 3인칭 시야 확보용 반투명 스카이라이트 지붕 + 외곽 처마
-    const roofRim = new THREE.Mesh(
-      new THREE.BoxGeometry(width + 0.5, 0.28, depth + 0.5),
+    const showcase = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 0.55, 0.65),
       new THREE.MeshStandardMaterial({
-        color: roofColor,
-        roughness: 0.55,
+        color: 0xbae6fd,
         transparent: true,
-        opacity: 0.22,
-        depthWrite: false
+        opacity: 0.65,
+        roughness: 0.2
       })
     );
-    roofRim.position.set(x, height + 0.14, z);
-    this.themeGroup.add(roofRim);
+    showcase.position.set(1.5, 1.3, -3.4);
+    this.themeGroup.add(showcase);
+  }
 
-    const frontBeam = new THREE.Mesh(
-      new THREE.BoxGeometry(width + 0.5, 0.3, 0.45),
-      new THREE.MeshStandardMaterial({ color: roofColor, roughness: 0.5 })
+  /**
+   * 편의점 음료 냉장고
+   */
+  private createBeverageCooler(x: number, z: number) {
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(3.8, 2.2, 0.8),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 })
     );
-    frontBeam.position.set(x, height + 0.15, z + depth / 2 + 0.1);
-    frontBeam.castShadow = true;
-    this.themeGroup.add(frontBeam);
+    body.position.set(x, 1.1, z);
+    this.themeGroup.add(body);
+    this.registerCollider(body, 0.15);
 
-    // 전면 간판
-    const signBoard = this.createSignBoard(signText, signBg);
-    if (signBoard) {
-      signBoard.position.set(x, height - 0.35, frontZ + t / 2 + 0.06);
-      this.themeGroup.add(signBoard);
-    }
+    const glass = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.4, 1.7),
+      new THREE.MeshStandardMaterial({
+        color: 0xe0f2fe,
+        emissive: 0xbae6fd,
+        emissiveIntensity: 0.45
+      })
+    );
+    glass.position.set(x, 1.18, z + 0.41);
+    this.themeGroup.add(glass);
+  }
+
+  /**
+   * 기념품 가게 진열 테이블 & 선물 상자
+   */
+  private createGiftDisplayTable(x: number, z: number) {
+    const table = new THREE.Mesh(
+      new THREE.BoxGeometry(1.7, 0.8, 1.2),
+      new THREE.MeshStandardMaterial({ color: 0xd9a773, roughness: 0.65 })
+    );
+    table.position.set(x, 0.4, z);
+    this.themeGroup.add(table);
+    this.registerCollider(table, 0.15);
+
+    const colors = [0xe07a5f, 0x4299e1, 0xf6ad55];
+    colors.forEach((c, idx) => {
+      const box = new THREE.Mesh(
+        new THREE.BoxGeometry(0.36, 0.3, 0.36),
+        new THREE.MeshStandardMaterial({ color: c, roughness: 0.5 })
+      );
+      box.position.set(x - 0.45 + idx * 0.45, 0.95, z);
+      this.themeGroup.add(box);
+    });
+  }
+
+  /**
+   * 실내 화분 데코
+   */
+  private createPottedPlant(x: number, z: number) {
+    const pot = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32, 0.24, 0.45, 12),
+      new THREE.MeshStandardMaterial({ color: 0xc05621, roughness: 0.7 })
+    );
+    pot.position.set(x, 0.225, z);
+    this.themeGroup.add(pot);
+    this.registerCollider(pot, 0.15);
+
+    const bush = new THREE.Mesh(
+      new THREE.SphereGeometry(0.45, 10, 10),
+      new THREE.MeshStandardMaterial({ color: 0x38a169, roughness: 0.8 })
+    );
+    bush.position.set(x, 0.72, z);
+    this.themeGroup.add(bush);
   }
 
   /**
@@ -778,10 +1172,12 @@ export class WorldSceneManager {
   }
 
   /**
-   * NPC 아바타 생성 및 배치 (CC0 KayKit 3D 모델 + 애니메이션)
+   * NPC 아바타 생성 및 배치 (야외 / 전용 실내 필터링)
    */
-  private spawnNpcs(level: WorldThemeLevel) {
-    const npcs = getLevelNpcs(level);
+  private spawnNpcs(level: WorldThemeLevel, interiorId: WorldInteriorId | null) {
+    const npcs = getLevelNpcs(level).filter((npc) =>
+      interiorId ? npc.interiorId === interiorId : !npc.interiorId
+    );
     const generation = this.loadGeneration;
 
     npcs.forEach((npcData) => {
@@ -872,6 +1268,13 @@ export class WorldSceneManager {
         indicator.rotation.y += delta * 2;
         indicator.position.y = 2.35 + Math.sin(elapsedTime * 4) * 0.08;
       }
+    });
+
+    // 3. 출입구/나가기 포탈 글로우 맥동 애니메이션
+    const pulse = 0.55 + Math.sin(elapsedTime * 3.5) * 0.25;
+    this.portalGlowMeshes.forEach((mesh) => {
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      mat.opacity = pulse;
     });
   }
 

@@ -12,6 +12,7 @@ export class CharacterController {
   private rigHandle: CharacterRigHandle | null = null;
   private isInteracting = false;
   private interactTimer = 0;
+  private npcDetour: { npc: THREE.Object3D; sign: 1 | -1 } | null = null;
 
   private static readonly DEFAULT_CAMERA_DISTANCE = 5.6;
   private static readonly DEFAULT_CAMERA_AZIMUTH = 0;
@@ -106,16 +107,24 @@ export class CharacterController {
   }
 
   /**
-   * 룸 전환 시 플레이어 위치·상태 및 카메라를 기본 스폰 지점으로 초기화
+   * 룸 또는 실내/외 전환 시 플레이어 위치·상태 및 카메라를 지정 지점으로 즉시 초기화
    */
-  public resetToSpawn() {
-    this.playerGroup.position.set(0, 0, 4);
-    this.playerGroup.rotation.y = 0;
+  public resetToSpawn(
+    position: [number, number, number] = [0, 0, 4],
+    rotationY = 0
+  ) {
+    this.playerGroup.position.set(...position);
+    this.playerGroup.rotation.y = rotationY;
     this.targetPosition = null;
+    this.npcDetour = null;
     this.isInteracting = false;
     this.keys = { forward: false, backward: false, left: false, right: false };
     (this.targetRing.material as THREE.MeshBasicMaterial).opacity = 0;
     this.resetCamera();
+
+    const camTarget = this.getThirdPersonCameraTarget();
+    this.camera.position.copy(camTarget.position);
+    this.camera.lookAt(camTarget.lookAt);
   }
 
   public getTargetRing(): THREE.Mesh {
@@ -128,10 +137,18 @@ export class CharacterController {
   public moveTo(point: THREE.Vector3) {
     this.targetPosition = point.clone();
     this.targetPosition.y = 0;
+    this.npcDetour = null;
 
     // 타겟 링 표시
     this.targetRing.position.set(point.x, 0.03, point.z);
     (this.targetRing.material as THREE.MeshBasicMaterial).opacity = 0.8;
+  }
+
+  /**
+   * 현재 자동 이동 타겟이 남아있는지 확인
+   */
+  public hasMoveTarget(): boolean {
+    return this.targetPosition !== null;
   }
 
   /**
@@ -260,6 +277,49 @@ export class CharacterController {
     return false;
   }
 
+  /**
+   * NPC 중심에서 플레이어 방향의 접선(좌/우)으로 한 스텝 우회 이동을 시도
+   */
+  private tryNpcTangentStep(
+    npc: THREE.Object3D,
+    preferredSign: 1 | -1,
+    stepLen: number,
+    colliders: THREE.Box3[],
+    npcs: { mesh: THREE.Group }[],
+    allowFallbackSign: boolean
+  ): boolean {
+    const startX = this.playerGroup.position.x;
+    const startZ = this.playerGroup.position.z;
+    let rx = startX - npc.position.x;
+    let rz = startZ - npc.position.z;
+    const rLen = Math.hypot(rx, rz);
+    if (rLen <= 1e-4) {
+      rx = 0;
+      rz = 1;
+    } else {
+      rx /= rLen;
+      rz /= rLen;
+    }
+
+    const signs: (1 | -1)[] = allowFallbackSign
+      ? [preferredSign, preferredSign === 1 ? -1 : 1]
+      : [preferredSign];
+
+    for (const sign of signs) {
+      const tx = sign === 1 ? -rz : rz;
+      const tz = sign === 1 ? rx : -rx;
+      const candX = Math.max(-25, Math.min(25, startX + tx * stepLen));
+      const candZ = Math.max(-25, Math.min(25, startZ + tz * stepLen));
+      if (!this.isColliding(new THREE.Vector3(candX, 0, candZ), colliders, npcs)) {
+        this.npcDetour = { npc, sign };
+        this.playerGroup.position.x = candX;
+        this.playerGroup.position.z = candZ;
+        return true;
+      }
+    }
+    return false;
+  }
+
   private tryMoveWithSlide(
     dx: number,
     dz: number,
@@ -268,6 +328,23 @@ export class CharacterController {
   ): boolean {
     const startX = this.playerGroup.position.x;
     const startZ = this.playerGroup.position.z;
+    const intendedX = Math.max(-25, Math.min(25, startX + dx));
+    const intendedZ = Math.max(-25, Math.min(25, startZ + dz));
+    const stepLen = Math.hypot(dx, dz);
+
+    // 기존 NPC 우회가 진행 중이고 직진 목표점이 여전히 해당 NPC 원형 범위 안이면 접선 우회를 이어감
+    if (this.npcDetour && stepLen > 1e-5) {
+      const npcPos = this.npcDetour.npc.position;
+      const indX = intendedX - npcPos.x;
+      const indZ = intendedZ - npcPos.z;
+      if (indX * indX + indZ * indZ < 0.88 * 0.88) {
+        if (this.tryNpcTangentStep(this.npcDetour.npc, this.npcDetour.sign, stepLen, colliders, npcs, false)) {
+          return true;
+        }
+      } else {
+        this.npcDetour = null;
+      }
+    }
 
     const nextX = Math.max(-25, Math.min(25, startX + dx));
     if (!this.isColliding(new THREE.Vector3(nextX, 0, startZ), colliders, npcs)) {
@@ -279,10 +356,33 @@ export class CharacterController {
       this.playerGroup.position.z = nextZ;
     }
 
-    return (
+    if (
       Math.abs(this.playerGroup.position.x - startX) > 1e-4 ||
       Math.abs(this.playerGroup.position.z - startZ) > 1e-4
-    );
+    ) {
+      return true;
+    }
+
+    // 축 분리 이동이 막혔을 때 NPC 원형 콜라이더에 정면 충돌한 경우 접선 방향으로 우회
+    if (stepLen <= 1e-5) return false;
+
+    const blockingNpc = npcs.find((npc) => {
+      const ndx = intendedX - npc.mesh.position.x;
+      const ndz = intendedZ - npc.mesh.position.z;
+      return ndx * ndx + ndz * ndz < 0.85 * 0.85;
+    });
+    if (!blockingNpc) {
+      this.npcDetour = null;
+      return false;
+    }
+
+    const rx = startX - blockingNpc.mesh.position.x;
+    const rz = startZ - blockingNpc.mesh.position.z;
+    const dotLeft = (-rz) * dx + rx * dz;
+    const dotRight = rz * dx + (-rx) * dz;
+    const preferredSign: 1 | -1 = dotLeft >= dotRight ? 1 : -1;
+
+    return this.tryNpcTangentStep(blockingNpc.mesh, preferredSign, stepLen, colliders, npcs, true);
   }
 
   public update(

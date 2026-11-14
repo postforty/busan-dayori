@@ -1,5 +1,12 @@
-import { WorldThemeConfig, WorldThemeLevel, WorldNpcData } from './types';
+import { WorldThemeConfig, WorldThemeLevel, WorldInteriorId, WorldNpcData } from './types';
 import { getLessonByIdFromCurriculum } from '@/lib/curriculum/curriculumData';
+
+export const WORLD_INTERIOR_LABELS: Record<WorldInteriorId, string> = {
+  'starter-cafe': '☕ 카페',
+  'starter-restaurant': '🍜 식당',
+  'starter-konbini': '🏪 편의점',
+  'starter-souvenir': '🎁 기념품 상점'
+};
 
 export const WORLD_THEMES: Record<WorldThemeLevel, WorldThemeConfig> = {
   level0: {
@@ -50,8 +57,9 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         name: '카페 친구 하루',
         role: '카페 친구',
         level: 'level0',
+        interiorId: 'starter-cafe',
         unitId: 'lesson-starter-1',
-        position: [-8.6, 0, -2.0],
+        position: [0, 0, -1.6],
         color: 0xe07a5f,
         accentColor: 0xd46b50,
         greetingText: 'どうぞ！(여기 있어요!)',
@@ -65,8 +73,9 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         name: '식당 이모님 미카',
         role: '식당 주인',
         level: 'level0',
+        interiorId: 'starter-restaurant',
         unitId: 'lesson-starter-2',
-        position: [8.6, 0, -2.0],
+        position: [0, 0, -1.8],
         color: 0xe53e3e,
         accentColor: 0xc53030,
         greetingText: 'いらっしゃいませ！(어서 오세요!)',
@@ -95,8 +104,9 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         name: '편의점 점원 리나',
         role: '편의점 스태프',
         level: 'level0',
+        interiorId: 'starter-konbini',
         unitId: 'lesson-starter-4',
-        position: [-8.6, 0, -12.0],
+        position: [-1.4, 0, -1.8],
         color: 0x4299e1,
         accentColor: 0x3182ce,
         greetingText: 'ふくろ、いりますか？(봉투 필요하세요?)',
@@ -110,8 +120,9 @@ export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
         name: '기념품 점원 켄지',
         role: '기념품 가게 점원',
         level: 'level0',
+        interiorId: 'starter-souvenir',
         unitId: 'lesson-starter-5',
-        position: [8.6, 0, -12.0],
+        position: [0, 0, -1.8],
         color: 0xed8936,
         accentColor: 0xdd6b20,
         greetingText: 'いらっしゃいませ！(어서 오세요!)',

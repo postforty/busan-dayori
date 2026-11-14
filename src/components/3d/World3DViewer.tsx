@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { WorldThemeLevel, WorldNpcData } from './types';
+import { WorldThemeLevel, WorldInteriorId, WorldNpcData } from './types';
 import { WorldSceneManager } from './WorldSceneManager';
 import { CharacterController } from './CharacterController';
 import WorldHudOverlay from './WorldHudOverlay';
@@ -17,6 +17,8 @@ interface World3DViewerProps {
 export default function World3DViewer({ initialLevel = 'level0' }: World3DViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentLevel, setCurrentLevel] = useState<WorldThemeLevel>(initialLevel);
+  const [activeInterior, setActiveInterior] = useState<WorldInteriorId | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeDialogueNpc, setActiveDialogueNpc] = useState<WorldNpcData | null>(null);
   const [completedMissions, setCompletedMissions] = useState<string[]>([]);
 
@@ -28,7 +30,13 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
   const mousePosRef = useRef<THREE.Vector2>(new THREE.Vector2());
   const pointerStartRef = useRef<{ x: number; y: number; time: number }>({ x: 0, y: 0, time: 0 });
   const activeDialogueRef = useRef<WorldNpcData | null>(null);
+  const pendingDialogueNpcRef = useRef<WorldNpcData | null>(null);
   const nearbyNpcRef = useRef<WorldNpcData | null>(null);
+  const currentLevelRef = useRef<WorldThemeLevel>(initialLevel);
+  const returnPosRef = useRef<[number, number, number]>([0, 0, 4]);
+  const isTransitioningRef = useRef(false);
+  const portalCooldownRef = useRef(0);
+  const transitionTimersRef = useRef<number[]>([]);
 
   useEffect(() => {
     activeDialogueRef.current = activeDialogueNpc;
@@ -68,6 +76,46 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
     });
   };
 
+  const runSceneTransition = useCallback((onSwapScene: () => void) => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+    setIsTransitioning(true);
+    pendingDialogueNpcRef.current = null;
+    setActiveDialogueNpc(null);
+
+    const swapTimer = window.setTimeout(() => {
+      onSwapScene();
+      portalCooldownRef.current = performance.now() + 900;
+
+      const fadeInTimer = window.setTimeout(() => {
+        isTransitioningRef.current = false;
+        setIsTransitioning(false);
+      }, 90);
+      transitionTimersRef.current.push(fadeInTimer);
+    }, 180);
+    transitionTimersRef.current.push(swapTimer);
+  }, []);
+
+  const enterInterior = useCallback(
+    (interiorId: WorldInteriorId, returnPos: [number, number, number]) => {
+      returnPosRef.current = returnPos;
+      runSceneTransition(() => {
+        setActiveInterior(interiorId);
+        sceneManagerRef.current?.loadTheme(currentLevelRef.current, interiorId);
+        controllerRef.current?.resetToSpawn([0, 0, 2.4], Math.PI);
+      });
+    },
+    [runSceneTransition]
+  );
+
+  const exitToOutdoor = useCallback(() => {
+    runSceneTransition(() => {
+      setActiveInterior(null);
+      sceneManagerRef.current?.loadTheme(currentLevelRef.current, null);
+      controllerRef.current?.resetToSpawn(returnPosRef.current, 0);
+    });
+  }, [runSceneTransition]);
+
   // 1. Three.js 초기화 및 라이프사이클 관리
   useEffect(() => {
     const container = containerRef.current;
@@ -100,7 +148,7 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
 
@@ -111,13 +159,15 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
     sceneManager.loadTheme(currentLevel);
 
     // 1-4. 렌더 루프
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
+    timer.connect(document);
     let animationFrameId: number;
 
-    const animate = () => {
+    const animate = (timestamp?: number) => {
       animationFrameId = requestAnimationFrame(animate);
-      const delta = Math.min(clock.getDelta(), 0.1);
-      const elapsedTime = clock.getElapsedTime();
+      timer.update(timestamp);
+      const delta = Math.min(timer.getDelta(), 0.1);
+      const elapsedTime = timer.getElapsed();
 
       // 업데이트
       sceneManager.update(delta, elapsedTime);
@@ -125,6 +175,43 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
 
       // 근접 NPC 체크 (E 키 단축키용)
       nearbyNpcRef.current = controller.checkNearbyNpc(sceneManager.interactableNpcs);
+
+      // 클릭한 NPC 근처에 도착하면 대화 모달 자동 오픈
+      const pendingNpc = pendingDialogueNpcRef.current;
+      if (pendingNpc && !activeDialogueRef.current) {
+        const dx = controller.playerGroup.position.x - pendingNpc.position[0];
+        const dz = controller.playerGroup.position.z - pendingNpc.position[2];
+        const xzDist = Math.hypot(dx, dz);
+
+        if (xzDist <= 1.65) {
+          pendingDialogueNpcRef.current = null;
+          setActiveDialogueNpc(pendingNpc);
+        } else if (!controller.hasMoveTarget()) {
+          pendingDialogueNpcRef.current = null;
+          if (xzDist <= 2.6) {
+            setActiveDialogueNpc(pendingNpc);
+          }
+        }
+      }
+
+      // 건물 출입구 / 나가기 포탈 트리거 체크
+      if (
+        !isTransitioningRef.current &&
+        !activeDialogueRef.current &&
+        performance.now() > portalCooldownRef.current
+      ) {
+        const triggeredPortal = sceneManager.checkPortalTrigger(controller.playerGroup.position);
+        if (triggeredPortal) {
+          if (triggeredPortal.kind === 'enter' && triggeredPortal.interiorId) {
+            enterInterior(
+              triggeredPortal.interiorId,
+              triggeredPortal.returnPosition || [0, 0, 4]
+            );
+          } else if (triggeredPortal.kind === 'exit') {
+            exitToOutdoor();
+          }
+        }
+      }
 
       renderer.render(sceneManager.scene, camera);
     };
@@ -155,6 +242,7 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
 
       if (e.code === 'KeyE') {
         if (nearbyNpcRef.current) {
+          pendingDialogueNpcRef.current = null;
           setActiveDialogueNpc(nearbyNpcRef.current);
         }
         return;
@@ -164,6 +252,10 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
         controller.triggerBow();
         speakJapanese('こんにちは！', 1.0, undefined, undefined, undefined, 'Puck');
         return;
+      }
+
+      if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+        pendingDialogueNpcRef.current = null;
       }
 
       controller.onKeyDown(e.code);
@@ -181,11 +273,14 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
 
     // 정리(cleanup)
     return () => {
+      transitionTimersRef.current.forEach((id) => window.clearTimeout(id));
+      transitionTimersRef.current = [];
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       cancelAnimationFrame(animationFrameId);
 
+      timer.dispose();
       sceneManager.dispose();
       controller.dispose();
       renderer.dispose();
@@ -194,14 +289,18 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [enterInterior, exitToOutdoor]);
 
   // 테마 레벨 전환
   const handleSelectLevel = useCallback((level: WorldThemeLevel) => {
+    currentLevelRef.current = level;
+    returnPosRef.current = [0, 0, 4];
+    pendingDialogueNpcRef.current = null;
     setActiveDialogueNpc(null);
+    setActiveInterior(null);
     setCurrentLevel(level);
-    sceneManagerRef.current?.loadTheme(level);
-    controllerRef.current?.resetToSpawn();
+    sceneManagerRef.current?.loadTheme(level, null);
+    controllerRef.current?.resetToSpawn([0, 0, 4], 0);
   }, []);
 
   // 카메라 리셋
@@ -262,16 +361,59 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
             (n) => n.mesh.name === parentGroup!.name
           );
           if (matchedNpc) {
-            controllerRef.current.moveTo(matchedNpc.mesh.position);
-            setActiveDialogueNpc(matchedNpc.data);
+            const playerPos = controllerRef.current.playerGroup.position;
+            const npcPos = matchedNpc.mesh.position;
+            const toPlayerX = playerPos.x - npcPos.x;
+            const toPlayerZ = playerPos.z - npcPos.z;
+            const currentDist = Math.hypot(toPlayerX, toPlayerZ);
+
+            if (currentDist <= 1.65) {
+              pendingDialogueNpcRef.current = null;
+              setActiveDialogueNpc(matchedNpc.data);
+              return;
+            }
+
+            const dirX = toPlayerX / currentDist;
+            const dirZ = toPlayerZ / currentDist;
+            const approachPoint = new THREE.Vector3(
+              npcPos.x + dirX * 1.4,
+              0,
+              npcPos.z + dirZ * 1.4
+            );
+
+            pendingDialogueNpcRef.current = matchedNpc.data;
+            controllerRef.current.moveTo(approachPoint);
             return;
           }
         }
       }
 
-      // 2. 바닥 클릭 이동
+      // 2. 건물 외관 또는 출입구/나가기 포탈 매트 클릭 시 해당 입구로 이동
+      const portalHits = raycasterRef.current.intersectObjects(
+        sceneManagerRef.current.portalClickTargets,
+        true
+      );
+      if (portalHits.length > 0) {
+        let obj: THREE.Object3D | null = portalHits[0].object;
+        while (obj && !obj.userData?.portalId) {
+          obj = obj.parent;
+        }
+        if (obj?.userData?.portalId) {
+          const matchedPortal = sceneManagerRef.current.portals.find(
+            (p) => p.id === obj!.userData.portalId
+          );
+          if (matchedPortal) {
+            pendingDialogueNpcRef.current = null;
+            controllerRef.current.moveTo(new THREE.Vector3(...matchedPortal.position));
+            return;
+          }
+        }
+      }
+
+      // 3. 바닥 클릭 이동
       const intersects = raycasterRef.current.intersectObject(sceneManagerRef.current.groundPlane);
       if (intersects.length > 0) {
+        pendingDialogueNpcRef.current = null;
         controllerRef.current.moveTo(intersects[0].point);
       }
     }
@@ -303,7 +445,9 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
       {/* 미니멀 HUD 오버레이 */}
       <WorldHudOverlay
         currentLevel={currentLevel}
+        activeInterior={activeInterior}
         onSelectLevel={handleSelectLevel}
+        onExitInterior={exitToOutdoor}
         onResetCamera={handleResetCamera}
         completedMissions={currentLevelCompleted}
         totalNpcsCount={totalNpcs.length}
@@ -316,6 +460,14 @@ export default function World3DViewer({ initialLevel = 'level0' }: World3DViewer
         onClose={() => setActiveDialogueNpc(null)}
         onCompleteMission={handleCompleteMission}
         isCompleted={activeDialogueNpc ? completedMissions.includes(activeDialogueNpc.id) : false}
+      />
+
+      {/* 야외 ↔ 실내 씬 전환 페이드 오버레이 */}
+      <div
+        className={`absolute inset-0 bg-neutral-950 transition-opacity duration-200 z-50 ${
+          isTransitioning ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        aria-hidden="true"
       />
     </div>
   );
