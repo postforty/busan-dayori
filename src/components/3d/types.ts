@@ -1,13 +1,11 @@
 import { DailyLesson } from '@/types';
 
-export type WorldThemeLevel = 'level1' | 'level2' | 'level3';
+export type WorldThemeLevel = 'level0' | 'level1' | 'level2' | 'level3';
 
 export type WorldNpcRole = 'clerk' | 'auntie' | 'friend' | 'passerby';
 
 export interface WorldThemeConfig {
   id: WorldThemeLevel;
-  name: string;
-  subTitle: string;
   badge: string;
   ambientColor: number;
   skyColor: number;

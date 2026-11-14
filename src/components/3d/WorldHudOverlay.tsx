@@ -40,7 +40,7 @@ export default function WorldHudOverlay({
 
   const currentTheme = WORLD_THEMES[currentLevel];
 
-  const levels: WorldThemeLevel[] = ['level1', 'level2', 'level3'];
+  const levels: WorldThemeLevel[] = ['level0', 'level1', 'level2', 'level3'];
 
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col p-2.5 sm:p-3.5 select-none z-30">
@@ -75,14 +75,14 @@ export default function WorldHudOverlay({
             >
               <Compass className="w-3.5 h-3.5 text-[#E07A5F] shrink-0" />
               <span className="text-xs font-bold text-[#2D3748] whitespace-nowrap">
-                {currentTheme.name}
+                {currentTheme.badge}
               </span>
               <ChevronDown className={`w-3.5 h-3.5 text-[#718096] transition-transform ${isMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* 룸 전환 드롭다운 메뉴 */}
             {isMenuOpen && (
-              <div className="absolute top-full left-9 mt-1.5 w-52 bg-white/95 backdrop-blur-md rounded-2xl border border-[#EDE8E1] shadow-xl p-1.5 space-y-1 z-40 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute top-full left-9 mt-1.5 w-40 bg-white/95 backdrop-blur-md rounded-2xl border border-[#EDE8E1] shadow-xl p-1.5 space-y-1 z-40 animate-in fade-in zoom-in-95 duration-150">
                 {levels.map((lvl) => {
                   const theme = WORLD_THEMES[lvl];
                   const isSelected = lvl === currentLevel;
@@ -100,10 +100,7 @@ export default function WorldHudOverlay({
                           : 'text-[#4A5568] hover:bg-black/5 font-medium'
                       }`}
                     >
-                      <div>
-                        <span className="block font-bold">{theme.name}</span>
-                        <span className="text-[10px] opacity-75">{theme.badge}</span>
-                      </div>
+                      <span className="font-bold">{theme.badge}</span>
                       {isSelected && <Sparkles className="w-3.5 h-3.5 text-[#E07A5F]" />}
                     </button>
                   );

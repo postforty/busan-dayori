@@ -104,6 +104,19 @@ export class CharacterController {
     this.cameraDistance = CharacterController.DEFAULT_CAMERA_DISTANCE;
   }
 
+  /**
+   * 룸 전환 시 플레이어 위치·상태 및 카메라를 기본 스폰 지점으로 초기화
+   */
+  public resetToSpawn() {
+    this.playerGroup.position.set(0, 0, 4);
+    this.playerGroup.rotation.y = 0;
+    this.targetPosition = null;
+    this.isInteracting = false;
+    this.keys = { forward: false, backward: false, left: false, right: false };
+    (this.targetRing.material as THREE.MeshBasicMaterial).opacity = 0;
+    this.resetCamera();
+  }
+
   public getTargetRing(): THREE.Mesh {
     return this.targetRing;
   }

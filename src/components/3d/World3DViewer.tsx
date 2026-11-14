@@ -14,7 +14,7 @@ interface World3DViewerProps {
   initialLevel?: WorldThemeLevel;
 }
 
-export default function World3DViewer({ initialLevel = 'level1' }: World3DViewerProps) {
+export default function World3DViewer({ initialLevel = 'level0' }: World3DViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentLevel, setCurrentLevel] = useState<WorldThemeLevel>(initialLevel);
   const [activeDialogueNpc, setActiveDialogueNpc] = useState<WorldNpcData | null>(null);
@@ -198,10 +198,10 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
 
   // 테마 레벨 전환
   const handleSelectLevel = useCallback((level: WorldThemeLevel) => {
+    setActiveDialogueNpc(null);
     setCurrentLevel(level);
-    if (sceneManagerRef.current) {
-      sceneManagerRef.current.loadTheme(level);
-    }
+    sceneManagerRef.current?.loadTheme(level);
+    controllerRef.current?.resetToSpawn();
   }, []);
 
   // 카메라 리셋
@@ -284,6 +284,9 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
   };
 
   const totalNpcs = getLevelNpcs(currentLevel);
+  const currentLevelCompleted = completedMissions.filter((id) =>
+    totalNpcs.some((npc) => npc.id === id)
+  );
 
   return (
     <div className="relative w-full h-full bg-slate-900 overflow-hidden touch-none select-none">
@@ -302,7 +305,7 @@ export default function World3DViewer({ initialLevel = 'level1' }: World3DViewer
         currentLevel={currentLevel}
         onSelectLevel={handleSelectLevel}
         onResetCamera={handleResetCamera}
-        completedMissions={completedMissions}
+        completedMissions={currentLevelCompleted}
         totalNpcsCount={totalNpcs.length}
         isDialogueActive={Boolean(activeDialogueNpc)}
       />

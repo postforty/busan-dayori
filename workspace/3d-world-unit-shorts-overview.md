@@ -11,8 +11,8 @@
 ## 요약
 
 - 커리큘럼 고정 Unit은 총 **12개**(`Lv.0` 5개, `Lv.1` 3개, `Lv.2` 2개, `Lv.3` 2개)입니다.
-- `Lv.1`~`Lv.3`의 **7개 Unit은 모두 3D 월드 NPC와 1:1 매핑**되어 있습니다.
-- **`Lv.0 입문`의 5개 Unit(`starter-1`~`starter-5`)은 쇼츠 구성과 캐릭터 이미지 매핑은 모두 존재하지만, 현재 3D 월드(`WorldThemeLevel`, `WORLD_THEMES`, `WorldSceneManager`, `WorldHudOverlay`)에는 누락**되어 있습니다.
+- **`Lv.0`~`Lv.3`의 12개 Unit 전체가 3D 월드 NPC와 1:1 매핑**되어 있습니다(`WorldThemeLevel`: `'level0' | 'level1' | 'level2' | 'level3'`, 기본 진입 `level0`).
+- 3D 월드 HUD 드롭다운 표기는 커리큘럼과 동일하게 레벨 제목 없이 `Lv.0 입문`, `Lv.1 초급`, `Lv.2 중급`, `Lv.3 실전`으로 통일되어 있습니다.
 
 ### 쇼츠 화자 Role → 캐릭터 이미지 매핑 규칙 (`ShortsCharacter.tsx`)
 - `learner` / `child` / `polite_learner` → `learner.jpg` (나 / 학습자)
@@ -23,18 +23,18 @@
 
 ---
 
-## 1. `Lv.0 입문` (`level: 'starter'`) — 3D 월드 미적용 (5개 Unit)
+## 1. `Lv.0 입문` (`level: 'starter'`) — 3D 월드 `level0` 적용 (5개 Unit 전체)
 
 - **커리큘럼 제목:** 히라가나 & 첫걸음 입문
 - **대상:** 일본어를 처음 시작하는 입문자 (글자와 소리부터 제대로 배우고 싶은 학습자)
 
-| Unit | Unit ID (Lesson ID) | 제목 / 핵심 표현 | 쇼츠 배경 | 쇼츠 화자 구성 (3턴) | 쇼츠 등장 캐릭터 이미지 (`public/images/shorts/`) | 3D 월드 매핑 |
+| Unit | Unit ID (Lesson ID) | 제목 / 핵심 표현 | 쇼츠 배경 | 쇼츠 화자 구성 (3턴) | 쇼츠 등장 캐릭터 이미지 (`public/images/shorts/`) | 3D 월드 NPC 매핑 (`avatarImage` · 장소) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Unit 1 | `starter-1` (`lesson-starter-1`) | 안녕! 고마워! (인사와 부름)<br>`ありがとう！` | `cafe`<br>(`bg-cafe.jpg`) | `점원/친구` → `나 (아이)` → `나 (어른에게 정중히)` | `friend.jpg` (점원/친구)<br>`learner.jpg` (나 - 아이/정중히) | ❌ 미적용 |
-| Unit 2 | `starter-2` (`lesson-starter-2`) | 맘마 냠냠! (이거 주세요 & 맛있어!)<br>`これ ください！` | `restaurant`<br>(`bg-restaurant.jpg`) | `나 (아이)` → `식당 이모님` → `나 (먹고 나서)` | `learner.jpg` (나 - 아이/먹고 나서)<br>`auntie.jpg` (식당 이모님) | ❌ 미적용 |
-| Unit 3 | `starter-3` (`lesson-starter-3`) | 화장실이 어디예요? (생존 SOS)<br>`トイレは どこですか？` | `street`<br>(`bg-street.jpg`) | `나 (급한 표정)` → `친절한 행인` → `나 (안도하며)` | `learner.jpg` (나 - 급한 표정/안도)<br>`passerby.jpg` (친절한 행인) | ❌ 미적용 |
-| Unit 4 | `starter-4` (`lesson-starter-4`) | 응! 좋아! 괜찮아! (의사표현)<br>`だいじょうぶです！` | `shop`<br>(`bg-shop.jpg`) | `점원 (물건을 담으며)` → `나 (손을 살짝 저으며)` → `점원 (공손히)` | `clerk.jpg` (점원)<br>`learner.jpg` (나) | ❌ 미적용 |
-| Unit 5 | `starter-5` (`lesson-starter-5`) | 이게 뭐야? 얼마예요? (쇼핑과 호기심)<br>`これ、いくらですか？` | `shop`<br>(`bg-shop.jpg`) | `나` → `점원` → `나` | `learner.jpg` (나)<br>`clerk.jpg` (점원) | ❌ 미적용 |
+| Unit 1 | `starter-1` (`lesson-starter-1`) | 안녕! 고마워! (인사와 부름)<br>`ありがとう！` | `cafe`<br>(`bg-cafe.jpg`) | `점원/친구` → `나 (아이)` → `나 (어른에게 정중히)` | `friend.jpg` (점원/친구)<br>`learner.jpg` (나 - 아이/정중히) | `카페 친구 하루` (`npc-starter-1` / `friend.jpg` · 카페 내부) |
+| Unit 2 | `starter-2` (`lesson-starter-2`) | 맘마 냠냠! (이거 주세요 & 맛있어!)<br>`これ ください！` | `restaurant`<br>(`bg-restaurant.jpg`) | `나 (아이)` → `식당 이모님` → `나 (먹고 나서)` | `learner.jpg` (나 - 아이/먹고 나서)<br>`auntie.jpg` (식당 이모님) | `식당 이모님 미카` (`npc-starter-2` / `auntie.jpg` · 식당 내부) |
+| Unit 3 | `starter-3` (`lesson-starter-3`) | 화장실이 어디예요? (생존 SOS)<br>`トイレは どこですか？` | `street`<br>(`bg-street.jpg`) | `나 (급한 표정)` → `친절한 행인` → `나 (안도하며)` | `learner.jpg` (나 - 급한 표정/안도)<br>`passerby.jpg` (친절한 행인) | `친절한 행인 유타` (`npc-starter-3` / `passerby.jpg` · 중앙 거리) |
+| Unit 4 | `starter-4` (`lesson-starter-4`) | 응! 좋아! 괜찮아! (의사표현)<br>`だいじょうぶです！` | `shop`<br>(`bg-shop.jpg`) | `점원 (물건을 담으며)` → `나 (손을 살짝 저으며)` → `점원 (공손히)` | `clerk.jpg` (점원)<br>`learner.jpg` (나) | `편의점 점원 리나` (`npc-starter-4` / `clerk.jpg` · 편의점 내부) |
+| Unit 5 | `starter-5` (`lesson-starter-5`) | 이게 뭐야? 얼마예요? (쇼핑과 호기심)<br>`これ、いくらですか？` | `shop`<br>(`bg-shop.jpg`) | `나` → `점원` → `나` | `learner.jpg` (나)<br>`clerk.jpg` (점원) | `기념품 점원 켄지` (`npc-starter-5` / `clerk.jpg` · 기념품 상점 내부) |
 
 ---
 

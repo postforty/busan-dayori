@@ -2,10 +2,16 @@ import { WorldThemeConfig, WorldThemeLevel, WorldNpcData } from './types';
 import { getLessonByIdFromCurriculum } from '@/lib/curriculum/curriculumData';
 
 export const WORLD_THEMES: Record<WorldThemeLevel, WorldThemeConfig> = {
+  level0: {
+    id: 'level0',
+    badge: 'Lv.0 입문',
+    ambientColor: 0xfff7ed,
+    skyColor: 0xe6f4fe,
+    groundColor: 0xe2ddd5,
+    fogColor: 0xe6f4fe
+  },
   level1: {
     id: 'level1',
-    name: '도쿄 골목길 & 편의점',
-    subTitle: 'Lv.1 초급 마치나카 (街中)',
     badge: 'Lv.1 초급',
     ambientColor: 0xfff3e0,
     skyColor: 0xdff0fc,
@@ -14,8 +20,6 @@ export const WORLD_THEMES: Record<WorldThemeLevel, WorldThemeConfig> = {
   },
   level2: {
     id: 'level2',
-    name: '교토 카페 & 골목길',
-    subTitle: 'Lv.2 중급 카페 & 라멘집',
     badge: 'Lv.2 중급',
     ambientColor: 0xffedd5,
     skyColor: 0xfceee6,
@@ -24,8 +28,6 @@ export const WORLD_THEMES: Record<WorldThemeLevel, WorldThemeConfig> = {
   },
   level3: {
     id: 'level3',
-    name: '이자카야 & 축제 거리',
-    subTitle: 'Lv.3 실전 마츠리 & 밤거리',
     badge: 'Lv.3 실전',
     ambientColor: 0xffe4b5,
     skyColor: 0x1a233a,
@@ -35,6 +37,93 @@ export const WORLD_THEMES: Record<WorldThemeLevel, WorldThemeConfig> = {
 };
 
 export function getLevelNpcs(level: WorldThemeLevel): WorldNpcData[] {
+  if (level === 'level0') {
+    const s1 = getLessonByIdFromCurriculum('lesson-starter-1');
+    const s2 = getLessonByIdFromCurriculum('lesson-starter-2');
+    const s3 = getLessonByIdFromCurriculum('lesson-starter-3');
+    const s4 = getLessonByIdFromCurriculum('lesson-starter-4');
+    const s5 = getLessonByIdFromCurriculum('lesson-starter-5');
+
+    const npcs: WorldNpcData[] = [
+      {
+        id: 'npc-starter-1',
+        name: '카페 친구 하루',
+        role: '카페 친구',
+        level: 'level0',
+        unitId: 'lesson-starter-1',
+        position: [-8.6, 0, -2.0],
+        color: 0xe07a5f,
+        accentColor: 0xd46b50,
+        greetingText: 'どうぞ！(여기 있어요!)',
+        avatarImage: '/images/shorts/friend.jpg',
+        modelUrl: '/models/npc-girl.glb',
+        characterRole: 'friend',
+        lessonData: s1!
+      },
+      {
+        id: 'npc-starter-2',
+        name: '식당 이모님 미카',
+        role: '식당 주인',
+        level: 'level0',
+        unitId: 'lesson-starter-2',
+        position: [8.6, 0, -2.0],
+        color: 0xe53e3e,
+        accentColor: 0xc53030,
+        greetingText: 'いらっしゃいませ！(어서 오세요!)',
+        avatarImage: '/images/shorts/auntie.jpg',
+        modelUrl: '/models/npc-girl.glb',
+        characterRole: 'auntie',
+        lessonData: s2!
+      },
+      {
+        id: 'npc-starter-3',
+        name: '친절한 행인 유타',
+        role: '길거리 행인',
+        level: 'level0',
+        unitId: 'lesson-starter-3',
+        position: [0, 0, -3.5],
+        color: 0x48bb78,
+        accentColor: 0x38a169,
+        greetingText: 'あっちですよ！(저쪽이에요!)',
+        avatarImage: '/images/shorts/passerby.jpg',
+        modelUrl: '/models/npc-girl.glb',
+        characterRole: 'passerby',
+        lessonData: s3!
+      },
+      {
+        id: 'npc-starter-4',
+        name: '편의점 점원 리나',
+        role: '편의점 스태프',
+        level: 'level0',
+        unitId: 'lesson-starter-4',
+        position: [-8.6, 0, -12.0],
+        color: 0x4299e1,
+        accentColor: 0x3182ce,
+        greetingText: 'ふくろ、いりますか？(봉투 필요하세요?)',
+        avatarImage: '/images/shorts/clerk.jpg',
+        modelUrl: '/models/npc-girl.glb',
+        characterRole: 'clerk',
+        lessonData: s4!
+      },
+      {
+        id: 'npc-starter-5',
+        name: '기념품 점원 켄지',
+        role: '기념품 가게 점원',
+        level: 'level0',
+        unitId: 'lesson-starter-5',
+        position: [8.6, 0, -12.0],
+        color: 0xed8936,
+        accentColor: 0xdd6b20,
+        greetingText: 'いらっしゃいませ！(어서 오세요!)',
+        avatarImage: '/images/shorts/clerk.jpg',
+        modelUrl: '/models/npc-girl.glb',
+        characterRole: 'clerk',
+        lessonData: s5!
+      }
+    ];
+    return npcs.filter((npc) => Boolean(npc.lessonData));
+  }
+
   if (level === 'level1') {
     const l1 = getLessonByIdFromCurriculum('lesson-beginner-1');
     const l2 = getLessonByIdFromCurriculum('lesson-beginner-2');
