@@ -51,11 +51,12 @@ export class CharacterController {
     const shadowMat = new THREE.MeshBasicMaterial({
       color: 0x000000,
       transparent: true,
-      opacity: 0.22
+      opacity: 0.22,
+      depthWrite: false
     });
     const shadow = new THREE.Mesh(shadowGeo, shadowMat);
     shadow.rotation.x = -Math.PI / 2;
-    shadow.position.y = 0.015;
+    shadow.position.y = 0.025;
     this.playerGroup.add(shadow);
 
     // 2. 일러스트(learner.jpg) 감성을 반영한 3D 주인공 캐릭터 생성

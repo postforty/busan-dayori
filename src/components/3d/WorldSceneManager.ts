@@ -289,7 +289,7 @@ export class WorldSceneManager {
       new THREE.MeshStandardMaterial({ color: floorColor, roughness: 0.85 })
     );
     floor.rotation.x = -Math.PI / 2;
-    floor.position.set(x, 0.015, z);
+    floor.position.set(x, 0.01, z);
     floor.receiveShadow = true;
     this.themeGroup.add(floor);
 
@@ -797,11 +797,12 @@ export class WorldSceneManager {
       const shadowMat = new THREE.MeshBasicMaterial({
         color: 0x000000,
         transparent: true,
-        opacity: 0.22
+        opacity: 0.22,
+        depthWrite: false
       });
       const shadow = new THREE.Mesh(shadowGeo, shadowMat);
       shadow.rotation.x = -Math.PI / 2;
-      shadow.position.y = 0.015;
+      shadow.position.y = 0.025;
       npcGroup.add(shadow);
 
       // 2. 머리 위 통통 튀는 말풍선 인터랙션 인디케이터 (보석/풍선)
